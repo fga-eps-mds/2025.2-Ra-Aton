@@ -1,0 +1,5 @@
+node_modules/
+.turbo/
+.expo/
+expo-env.d.ts
+.env
