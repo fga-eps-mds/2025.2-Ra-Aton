@@ -1,9 +1,11 @@
 {
-  "name": "2025.2-Ra-Aton",
+  "name": "Aton",
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --parallel",
+    "dev:api": "pnpm --filter api dev:ready",
+    "dev:mobile": "pnpm --filter mobile dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
