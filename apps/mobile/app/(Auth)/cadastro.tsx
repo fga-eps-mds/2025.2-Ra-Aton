@@ -9,6 +9,7 @@ import { useRouter } from "expo-router";
 import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
+import InputComp from "@/components/InputComp";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
@@ -33,15 +34,29 @@ const CadastroInner: React.FC = () => {
         <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
           *
         </Text>
-        </Button1Comp>
+      </Button1Comp>
       {/* */}
 
       <Image source={NamedLogo} style={styles.img} />
+      <Text style={styles.txt}>Cadastro</Text>
 
+      <Spacer height={80}></Spacer>
+      <InputComp> UserName </InputComp>
+      <Spacer height={20}/>
+      <InputComp> E-mail </InputComp>
+      <Spacer height={20}/>
+      <InputComp> Senha </InputComp>
+      <Spacer height={20}/>
+      <InputComp> Confirme sua senha </InputComp>
+      <Spacer height={40}/>
 
-
-
-      <Text style={styles.img}>Cadastro</Text>
+      <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar Conta</Button1Comp>
+      <Spacer height={100}/>
+      
+      <Text style={styles.txt}> Já tem uma conta? </Text>
+      <Spacer height={20}/>
+      
+      <Button2Comp onPress={() => router.push('/')}>Login</Button2Comp>
 
     </ThemedView>
   );
@@ -55,6 +70,7 @@ const makeStyles = (theme: any) =>
       flex: 1,
       alignItems: "center",
       padding: 16,
+      // backgroundColor: 'red',
     },
     img: {
       marginVertical: 90,
@@ -63,26 +79,7 @@ const makeStyles = (theme: any) =>
     txt: {
       color: theme.text,
       fontWeight: "500",
+      fontSize: 20,
     },
-    inputDiv: {
-      width: "85%",
-      justifyContent: "flex-start",
-      alignItems: "center",
-      padding: 0,
-    },
-    inputLabel: {
-      width: "100%",
-      marginLeft: 34,
-    },
-    inputBox: {
-      width: "100%",
-      height: 40,
-      borderRadius: 34,
-      backgroundColor: theme.input,
-      borderWidth: 1,
-      borderColor: theme.orange,
-      alignItems: "flex-start",
-      justifyContent: "center",
-      paddingHorizontal: 34,
-    },
+    
   });
