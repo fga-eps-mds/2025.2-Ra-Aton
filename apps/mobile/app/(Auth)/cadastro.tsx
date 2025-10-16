@@ -1,5 +1,5 @@
 /* cadastro page */
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import React from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
 import ThemedView from "../../components/ThemedView";
@@ -27,38 +27,40 @@ const CadastroInner: React.FC = () => {
   const router = useRouter();
 
   return (
-    <ThemedView style={styles.container}>
-      
-      {/* Dark/Light mode (PlaceHolder)*/}
-      <Button1Comp onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
-        <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
-          *
-        </Text>
-      </Button1Comp>
-      {/* */}
+    <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 80, backgroundColor: theme.background }}>
+      <ThemedView style={styles.container}>
+        
+        {/* Dark/Light mode (PlaceHolder)*/}
+        <Button1Comp onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
+          <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
+            *
+          </Text>
+        </Button1Comp>
+        {/* */}
 
-      <Image source={NamedLogo} style={styles.img} />
-      <Text style={styles.txt}>Cadastro</Text>
+        <Image source={NamedLogo} style={styles.img} />
+        <Text style={styles.txt}>Cadastro</Text>
 
-      <Spacer height={80}></Spacer>
-      <InputComp> UserName </InputComp>
-      <Spacer height={20}/>
-      <InputComp> E-mail </InputComp>
-      <Spacer height={20}/>
-      <InputComp> Senha </InputComp>
-      <Spacer height={20}/>
-      <InputComp> Confirme sua senha </InputComp>
-      <Spacer height={40}/>
+        <Spacer height={80}></Spacer>
+        <InputComp> UserName </InputComp>
+        <Spacer height={20}/>
+        <InputComp> E-mail </InputComp>
+        <Spacer height={20}/>
+        <InputComp> Senha </InputComp>
+        <Spacer height={20}/>
+        <InputComp> Confirme sua senha </InputComp>
+        <Spacer height={40}/>
 
-      <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar Conta</Button1Comp>
-      <Spacer height={100}/>
-      
-      <Text style={styles.txt}> Já tem uma conta? </Text>
-      <Spacer height={20}/>
-      
-      <Button2Comp onPress={() => router.push('/')}>Login</Button2Comp>
+        <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar Conta</Button1Comp>
+        <Spacer height={100}/>
+        
+        <Text style={styles.txt}> Já tem uma conta? </Text>
+        <Spacer height={20}/>
+        
+        <Button2Comp onPress={() => router.push('/(Auth)/login')}>Login</Button2Comp>
 
-    </ThemedView>
+      </ThemedView>
+    </ScrollView>
   );
 };
 

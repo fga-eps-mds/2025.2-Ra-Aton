@@ -56,7 +56,7 @@ const InputComp = ({
 const makeStyles = (theme: any) =>
     StyleSheet.create({
         inputBox: {
-            width: "65%",
+            width: "85%",
             height: 40,
             borderRadius: 34,
             backgroundColor: theme.input,
@@ -66,7 +66,7 @@ const makeStyles = (theme: any) =>
             color: theme.text,
         },
         inpuxLabel: {
-            width: "65%",
+            width: "85%",
             marginLeft: 34,
         },
         txt: { color: theme.text, fontWeight: "500", fontSize: 20 },
