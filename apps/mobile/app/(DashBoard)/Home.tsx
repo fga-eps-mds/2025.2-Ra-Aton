@@ -25,7 +25,6 @@ const Home = () => {
       </Button1Comp>
 
       <Text style={[styles.txt, { textAlign: 'center'}]}>Home</Text>
-
       
     </ThemedView>
   )
