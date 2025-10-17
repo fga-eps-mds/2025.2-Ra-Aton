@@ -81,14 +81,15 @@
             inputIcon:{
                 position: 'absolute', 
                 left: 15,            
-                zIndex: 1
+                zIndex: 1,
+                color:Colors.text.iconColors
 
             },
             inpuxLabel: {
                 width: "85%",
                 marginLeft: 34,
             },
-            txt: { color: theme.text, fontWeight: "500", fontSize: 20 },
+            txt: { color: theme.text, fontWeight: "500", fontSize: 15 },
         });
 
     export default InputComp;
