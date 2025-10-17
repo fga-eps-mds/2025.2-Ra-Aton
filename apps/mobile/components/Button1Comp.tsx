@@ -9,12 +9,15 @@ import {
 } from "react-native";
 import { useTheme } from "../constants/Theme";
 import { Colors } from "../constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
+
 
 type Button1CompProps = {
   style?: StyleProp<ViewStyle>;
+  iconName?: keyof typeof Ionicons.glyphMap
 } & TouchableOpacityProps;
 
-const Button1Comp: React.FC<Button1CompProps> = ({ style, children, ...props }) => {
+const Button1Comp: React.FC<Button1CompProps> = ({ style, children, iconName, ...props }) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
   return (
@@ -28,7 +31,10 @@ const Button1Comp: React.FC<Button1CompProps> = ({ style, children, ...props }) 
             justifyContent: 'center' }, style]}
         {...props}
     >
-      <Text style={{ color: themeColors.text, textAlign: "center", fontWeight: 500, fontSize: 16 }}>{children}</Text>
+      {iconName ? ( <Ionicons name={iconName} size={24} color={themeColors.text} /> )
+            :
+            <Text style={{ color: themeColors.text, textAlign: "center", fontWeight: 500, fontSize: 16 }}>{children}</Text>}
+    
     </TouchableOpacity>
   );
 };
