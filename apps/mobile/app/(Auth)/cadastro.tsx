@@ -27,7 +27,7 @@ const CadastroInner: React.FC = () => {
   const router = useRouter();
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 80, backgroundColor: theme.background }}>
+    <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 80, backgroundColor: theme.background}}>
       <ThemedView style={styles.container}>
         
         {/* Dark/Light mode (PlaceHolder)*/}
@@ -37,27 +37,18 @@ const CadastroInner: React.FC = () => {
           </Text>
         </Button1Comp>
         {/* */}
-
-        <Image source={NamedLogo} style={styles.img} />
-        <Text style={styles.txt}>Cadastro</Text>
-
-        <Spacer height={80}></Spacer>
-        <InputComp> UserName </InputComp>
-        <Spacer height={20}/>
-        <InputComp> E-mail </InputComp>
-        <Spacer height={20}/>
-        <InputComp> Senha </InputComp>
-        <Spacer height={20}/>
-        <InputComp> Confirme sua senha </InputComp>
-        <Spacer height={40}/>
-
-        <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar Conta</Button1Comp>
-        <Spacer height={100}/>
+      
+        <Image source={NamedLogo} style={styles.img}/>
         
-        <Text style={styles.txt}> Já tem uma conta? </Text>
-        <Spacer height={20}/>
-        
-        <Button2Comp onPress={() => router.push('/(Auth)/login')}>Login</Button2Comp>
+        <View style={styles.containerInfos}>
+          <View style={styles.inputContainer}>
+            <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
+            <InputComp label="E-mail" iconName="at"></InputComp>
+            <InputComp label="Senha" iconName="key"></InputComp>
+            <InputComp label="Confirme sua senha" iconName="key"></InputComp>
+          </View>
+        </View>
+    
 
       </ThemedView>
     </ScrollView>
@@ -74,14 +65,32 @@ const makeStyles = (theme: any) =>
       padding: 16,
       // backgroundColor: 'red',
     },
+    containerInfos:{
+      marginTop:-45,  
+      height:490,
+      width:'100%',
+      backgroundColor:'red'
+    },
+
     img: {
       marginVertical: 90,
-      marginTop: "10%",
+      marginTop: -10,
     },
     txt: {
       color: theme.text,
       fontWeight: "500",
       fontSize: 20,
     },
+
+    inputContainer:{
+      flexDirection:'column',
+      alignItems:'center',
+
+      height:'70%',
+      width:'100%',
+      backgroundColor:'green'
+      
+    }
     
+
   });
