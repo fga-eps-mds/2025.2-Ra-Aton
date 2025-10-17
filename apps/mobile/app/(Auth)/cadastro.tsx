@@ -37,7 +37,7 @@ const CadastroInner: React.FC = () => {
           </Text>
         </Button1Comp>
         {/* */}
-      
+
         <Image source={NamedLogo} style={styles.img}/>
         
         <View style={styles.containerInfos}>
@@ -47,6 +47,15 @@ const CadastroInner: React.FC = () => {
             <InputComp label="Senha" iconName="key"></InputComp>
             <InputComp label="Confirme sua senha" iconName="key"></InputComp>
           </View>
+
+          <View style={styles.redirectInfos}>
+            <Button1Comp>Criar conta</Button1Comp>
+            <Spacer height={45  }/>
+            <Text style={styles.txt}>Ja possui uma conta?</Text>
+            <Spacer height={8}/>
+            <Button2Comp>Login</Button2Comp>
+          </View>
+
         </View>
     
 
@@ -66,20 +75,17 @@ const makeStyles = (theme: any) =>
       // backgroundColor: 'red',
     },
     containerInfos:{
-      marginTop:-45,  
       height:490,
       width:'100%',
-      backgroundColor:'red'
     },
 
     img: {
-      marginVertical: 90,
-      marginTop: -10,
+      marginBottom:15
     },
     txt: {
       color: theme.text,
       fontWeight: "500",
-      fontSize: 20,
+      fontSize: 15,
     },
 
     inputContainer:{
@@ -88,8 +94,16 @@ const makeStyles = (theme: any) =>
 
       height:'70%',
       width:'100%',
-      backgroundColor:'green'
       
+    },
+    redirectInfos:{
+      flexDirection:'column',
+      justifyContent:'flex-start',
+      alignItems:'center',
+
+      height:'30%',
+      width:'100%',
+
     }
     
 
