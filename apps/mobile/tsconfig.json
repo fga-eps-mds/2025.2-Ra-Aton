@@ -1,7 +1,10 @@
 {
   "extends": "../../packages/typescript-config/react-native.json",
   "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "ignoreDeprecations": "6.0",
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
       "@/*": ["*"]
@@ -11,6 +14,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "types/**/*.d.ts"
   ]
 }
