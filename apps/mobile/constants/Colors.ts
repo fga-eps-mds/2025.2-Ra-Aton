@@ -17,4 +17,7 @@ export const Colors = {
         gray: '#A2A2A2',
 
     },
+    text:{
+        iconColors:'#F84B07'
+    }
 }
