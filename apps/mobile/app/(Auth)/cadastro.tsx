@@ -25,15 +25,18 @@ const CadastroInner: React.FC = () => {
 
 //  Para usar o Link no Botao
   const router = useRouter();
+  const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline"; //? Bora usar isso para ficar trocando o icone do darkMode e vice-versa
+                                                                          //? Mas tem a opção de criar um componente só para o botão de darkmode
+                                                                              //? Seria menos exaustivo, mas voce que escolhe qual é a boa
 
   return (
     <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 80, backgroundColor: theme.background}}>
       <ThemedView style={styles.container}>
         
         {/* Dark/Light mode (PlaceHolder)*/}
-        <Button1Comp onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
+        <Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
           <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
-            *
+
           </Text>
         </Button1Comp>
         {/* */}
@@ -49,11 +52,11 @@ const CadastroInner: React.FC = () => {
           </View>
 
           <View style={styles.redirectInfos}>
-            <Button1Comp>Criar conta</Button1Comp>
+            <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar conta</Button1Comp>
             <Spacer height={45  }/>
             <Text style={styles.txt}>Ja possui uma conta?</Text>
             <Spacer height={8}/>
-            <Button2Comp>Login</Button2Comp>
+            <Button2Comp onPress={()=> router.push('/(Auth)/login')}>Login</Button2Comp>
           </View>
 
         </View>
@@ -65,7 +68,6 @@ const CadastroInner: React.FC = () => {
 };
 
 export default Cadastro;  
-
 const makeStyles = (theme: any) =>
   StyleSheet.create({
     container: {
