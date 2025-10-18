@@ -31,6 +31,7 @@ const CadastroInner: React.FC = () => {
                                                                               //? Seria menos exaustivo, mas voce que escolhe qual é a boa
 
   return (
+      <ThemedView style={styles.bg}>
     <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 80, backgroundColor: theme.background}}>
       <ThemedView style={styles.container}>
         
@@ -47,11 +48,14 @@ const CadastroInner: React.FC = () => {
         <View style={styles.containerInfos}>
           <View style={styles.inputContainer}>
             <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
+            <Spacer height={40}/>
             <InputComp label="E-mail" iconName="at"></InputComp>
+            <Spacer height={40}/>
             <InputComp label="Senha" iconName="key"></InputComp>
+            <Spacer height={40}/>
             <InputComp label="Confirme sua senha" iconName="key"></InputComp>
           </View>
-
+          
           <View style={styles.redirectInfos}>
             <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar conta</Button1Comp>
             <Spacer height={45  }/>
@@ -65,12 +69,17 @@ const CadastroInner: React.FC = () => {
 
       </ThemedView>
     </ScrollView>
+    </ThemedView>
   );
 };
 
 export default Cadastro;  
 const makeStyles = (theme: any) =>
   StyleSheet.create({
+    bg: {
+      flex:1,
+      backgroundColor: theme.background,
+    },
     container: {
       flex: 1,
       alignItems: "center",
@@ -78,18 +87,21 @@ const makeStyles = (theme: any) =>
       // backgroundColor: 'red',
     },
     containerInfos:{
-      height:490,
+      height:'100%',
       width:'100%',
+      // backgroundColor: 'blue',
     },
 
     img: {
-      marginBottom:15
+      marginVertical: 60,
+      marginTop: 0,
+      height:'20%',
     },
     txt: {
       color: theme.text,
       fontFamily: Fonts.primaryFont.dongleLight,
       fontWeight: "500",
-      fontSize: 15,
+      fontSize: 18,
     },
 
     inputContainer:{

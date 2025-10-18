@@ -23,7 +23,7 @@
 
     const InputComp = ({
         width = "100%",
-        height = 80,
+        height = 67,
         bgColor,
         label,
         children,
@@ -38,6 +38,9 @@
         const styles = makeStyles(themeColors);
 
         const backgroundColor = bgColor || themeColors.input;
+
+        const inputPaddingLeft = iconName ? 40 : 20;
+
 
         return (
             <View
@@ -55,7 +58,7 @@
                 </View>
                 <View style={styles.inputCompContainer}>
                     {iconName && (<Ionicons name={iconName} size={20} color='orange' style={styles.inputIcon}/>)}
-                    <TextInput style={styles.inputBox} {...rest} />
+                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft }]} {...rest} />
                 </View>
             </View>
         );
@@ -64,18 +67,23 @@
     const makeStyles = (theme: any) =>
         StyleSheet.create({
             inputBox: {
-                width: "100%",
-                height: 40,
-                borderRadius: 34,
-                backgroundColor: theme.input,
-                borderWidth: 1,
-                borderColor: theme.orange,
-                paddingHorizontal: 20,
-                paddingLeft:45,
-                color: theme.text,
+            width: "100%",
+            height: 45,
+            borderRadius: 34,
+            backgroundColor: theme.input,
+            borderWidth: 1,
+            borderColor: theme.orange,
+            paddingHorizontal: 20,
+            color: theme.text,
+            fontSize: 20,
             },
+            inpuxLabel: {
+            width: "100%",
+            marginLeft: 17,
+            },
+            txt: { color: theme.text, fontWeight: "500", fontSize: 18 },
             inputCompContainer:{
-                width: "85%",
+                width: "100%",
                 justifyContent: 'center',
             },  
             inputIcon:{
@@ -85,11 +93,6 @@
                 color:Colors.text.iconColors
 
             },
-            inpuxLabel: {
-                width: "85%",
-                marginLeft: 34,
-            },
-            txt: { color: theme.text, fontWeight: "500", fontSize: 15 },
         });
 
     export default InputComp;
