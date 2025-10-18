@@ -10,6 +10,7 @@ import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import InputComp from "@/components/InputComp";
+import { Fonts } from "@/constants/Fonts";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
@@ -86,6 +87,7 @@ const makeStyles = (theme: any) =>
     },
     txt: {
       color: theme.text,
+      fontFamily: Fonts.primaryFont.dongleLight,
       fontWeight: "500",
       fontSize: 15,
     },
