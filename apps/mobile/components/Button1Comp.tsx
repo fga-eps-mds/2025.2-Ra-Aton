@@ -33,7 +33,7 @@ const Button1Comp: React.FC<Button1CompProps> = ({ style, children, iconName, ..
     >
       {iconName ? ( <Ionicons name={iconName} size={24} color={themeColors.text} /> )
             :
-            <Text style={{ color: themeColors.text, textAlign: "center", fontWeight: 500, fontSize: 16 }}>{children}</Text>}
+            <Text style={{ color: themeColors.text, textAlign: "center", fontWeight: '700', fontSize: 18 }}>{children}</Text>}
     
     </TouchableOpacity>
   );

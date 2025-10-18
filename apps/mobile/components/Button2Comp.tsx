@@ -29,7 +29,7 @@ const Button2Comp: React.FC<Button2CompProps> = ({ style, children, ...props }) 
         }, style]}
         {...props}
     >
-      <Text style={{ color: theme.text, textAlign: "center" }}>{children}</Text>
+      <Text style={{ color: theme.text, textAlign: "center", fontSize: 16, fontWeight: '500'}}>{children}</Text>
     </TouchableOpacity>
   );
 };
