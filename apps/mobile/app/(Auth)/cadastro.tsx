@@ -1,33 +1,71 @@
   /* cadastro page */
+  import React, { useState } from "react";
   import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
-  import React from "react";
-  import NamedLogo from "../../assets/img/Logo_1_Atom.png";
   import ThemedView from "../../components/ThemedView";
+  import Spacer from "../../components/SpacerComp";
   import Button1Comp from "../../components/Button1Comp";
   import Button2Comp from "../../components/Button2Comp";
-  import { useRouter } from "expo-router";
-  import Spacer from "../../components/SpacerComp";
-  import { useTheme } from "../../constants/Theme";
-  import { Colors } from "../../constants/Colors";
   import InputComp from "@/components/InputComp";
+  import NamedLogo from "../../assets/img/Logo_1_Atom.png";
+  import { Colors } from "../../constants/Colors";
+  import { useTheme } from "../../constants/Theme";
+  import { useRouter } from "expo-router";
 
   const Cadastro: React.FC = () => {
     return <CadastroInner />;
   };
 
+//! Consts especificas dos inputs - Validação
+ 
+
   const CadastroInner: React.FC = () => {
   //  Para usar o DarkMode
     const { isDarkMode, toggleDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;
-    
-  //  Para usar DarkMode nos styles  w
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    const [errorEmail, setErrorEmail] = useState('');
+    const [errorPassword, setErrorPassword] = useState('');
+    const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
+
+
+// (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto... 
+    const verifyAccount = () => {
+      let status = true;
+     
+
+      const verifyPassword = () => {
+        const validPassword = (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/); // (rodrigo) - regex que verifica : numero e letra
+        if(validPassword.test(password) == false){
+          status = false;
+          setErrorPassword("Sua senha deve conter letras e números.");
+        }
+        else if(password.length < 8){
+            status  = false;
+            setErrorPassword("Sua senha deve possuir no mínimo 8 caracteres.");
+        }
+        else if(validPassword.test(password) == false && password.length < 8){
+            status = false;
+            setErrorPassword("Sua senha deve conter no mínimo 8 caracteres com letras e números.");
+        }
+      }
+
+
+
+      // router.push('/(Auth)/login')      }
+
+    }
+
+
+  //  Para usar DarkMode nos styles  
     const styles = makeStyles(theme);
 
   //  Para usar o Link no Botao
     const router = useRouter();
-    const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline"; //? Bora usar isso para ficar trocando o icone do darkMode e vice-versa
-                                                                            //? Mas tem a opção de criar um componente só para o botão de darkmode
-                                                                                //? Seria menos exaustivo, mas voce que escolhe qual é a boa
+    const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
+
 
     return (
         <ThemedView style={styles.bg}>
@@ -47,24 +85,31 @@
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
               <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
-              <Spacer height={40}/>
-              <InputComp label="E-mail" iconName="at"></InputComp>
-              <Spacer height={40}/>
-              <InputComp label="Senha" iconName="key"></InputComp>
-              <Spacer height={40}/>
-              <InputComp label="Confirme sua senha" iconName="key"></InputComp>
+              <Spacer height={20}/>
+
+              <InputComp label="E-mail" iconName="at"                               // ! email
+              keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail}></InputComp>
+              
+              <Spacer height={20}/>
+              
+              <InputComp label="Senha" iconName="key"                               // ! senha
+              secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword}></InputComp>
+              
+              <Spacer height={20}/>                  
+           
+              <InputComp label="Confirme sua senha" iconName="key"                  //! Confrima senha
+              secureTextEntry={true} textContentType="password"  value={confirmPassword} onChangeText={setConfirmPassword}></InputComp>
+           
             </View>
-            
             <View style={styles.redirectInfos}>
               <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar conta</Button1Comp>
-              <Spacer height={45  }/>
+              <Spacer height={15}/>
               <Text style={styles.txt}>Ja possui uma conta?</Text>
-              <Spacer height={8}/>
+              <Spacer height={9}/>
               <Button2Comp onPress={()=> router.push('/(Auth)/login')}>Login</Button2Comp>
             </View>
 
           </View>
-      
 
         </ThemedView>
       </ScrollView>
@@ -88,7 +133,6 @@
       containerInfos:{
         height:'100%',
         width:'100%',
-        // backgroundColor: 'blue',
       },
 
       img: {
@@ -105,7 +149,7 @@
       inputContainer:{
         flexDirection:'column',
         alignItems:'center',
-
+        marginTop:-20,
         height:'70%',
         width:'100%',
         
@@ -114,11 +158,7 @@
         flexDirection:'column',
         justifyContent:'flex-start',
         alignItems:'center',
-
         height:'30%',
         width:'100%',
       }
-
-
-      
     });
