@@ -12,6 +12,7 @@
     import { Colors } from "../constants/Colors";
     import { Fonts } from "@/constants/Fonts";
 
+    
 
     type InputCompProps = TextInputProps & {
         width?: DimensionValue;
@@ -40,9 +41,6 @@
         const backgroundColor = bgColor || themeColors.input;
 
         const styles = makeStyles(themeColors, inputPaddingVertical);
-
-
-
         return (
             <View
                 style={{
