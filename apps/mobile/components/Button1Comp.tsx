@@ -11,7 +11,6 @@ import { useTheme } from "../constants/Theme";
 import { Colors } from "../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 
-
 type Button1CompProps = {
   style?: StyleProp<ViewStyle>;
   iconName?: keyof typeof Ionicons.glyphMap

@@ -11,16 +11,9 @@ const DashboardLayout = () => {
   
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-
-    const [fontsLoaded, fontsError] = useFonts({
-      [Fonts.primaryFont.dongleLight]: require('../../assets/fonts/Dongle-Light.ttf'),
-      [Fonts.primaryFont.dongleBold]: require('../../assets/fonts/Dongle-Bold.ttf'),
-      [Fonts.primaryFont.dongleRegular]: require('../../assets/fonts/Dongle-Regular.ttf')
-    })
-    if(!fontsLoaded && !fontsError){
-      return null;
-    }
-
+                                                                  //! Esse layout não renderiza as coisas do app
+                                                                    //! Se for colocar algo que deve aparecer em todas as páginas
+                                                                      //! Usa o layout que está fora da pasta
   return (
     <Tabs
       screenOptions={{

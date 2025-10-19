@@ -13,6 +13,7 @@ type Button2CompProps = {
   style?: StyleProp<ViewStyle>;
 } & TouchableOpacityProps;
 
+
 const Button2Comp: React.FC<Button2CompProps> = ({ style, children, ...props }) => {
   const { isDarkMode } = useTheme();
   const backgroundColor = isDarkMode ? Colors.dark.gray : Colors.light.gray;

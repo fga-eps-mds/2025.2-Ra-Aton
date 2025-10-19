@@ -10,6 +10,7 @@
     import { Ionicons } from "@expo/vector-icons";
     import { useTheme } from "../constants/Theme";
     import { Colors } from "../constants/Colors";
+    import { Fonts } from "@/constants/Fonts";
 
 
     type InputCompProps = TextInputProps & {
@@ -34,12 +35,12 @@
     }: InputCompProps) => {
         const { isDarkMode, toggleDarkMode  } = useTheme();
         const themeColors = isDarkMode ? Colors.dark : Colors.light;
-
-        const styles = makeStyles(themeColors);
-
+        const inputPaddingVertical = (45 - 20) / 2
+        const inputPaddingLeft = iconName ? 40 : 20;
         const backgroundColor = bgColor || themeColors.input;
 
-        const inputPaddingLeft = iconName ? 40 : 20;
+        const styles = makeStyles(themeColors, inputPaddingVertical);
+
 
 
         return (
@@ -58,30 +59,36 @@
                 </View>
                 <View style={styles.inputCompContainer}>
                     {iconName && (<Ionicons name={iconName} size={20} color='orange' style={styles.inputIcon}/>)}
-                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft }]} {...rest} />
+                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft }]}  {...rest} />
                 </View>
             </View>
         );
     };
 
-    const makeStyles = (theme: any) =>
+    const makeStyles = (theme: any, paddingVertical: number) =>
         StyleSheet.create({
-            inputBox: {
-            width: "100%",
-            height: 45,
-            borderRadius: 34,
-            backgroundColor: theme.input,
-            borderWidth: 1,
-            borderColor: theme.orange,
-            paddingHorizontal: 20,
+            
+                inputBox: {
+                width: "100%",
+                height: 45,
+                borderRadius: 34,
+                backgroundColor: theme.input,
+                borderWidth: 1,
+                borderColor: theme.orange,
+      
+            paddingHorizontal:20,
+            paddingVertical,
+            textAlignVertical:'center',
+            fontFamily:Fonts.primaryFont.dongleRegular,
             color: theme.text,
-            fontSize: 20,
-            },
+            fontSize: 20    ,
+            
+        },
             inpuxLabel: {
             width: "100%",
             marginLeft: 17,
             },
-            txt: { color: theme.text, fontWeight: "500", fontSize: 18 },
+            txt: { color: theme.text, fontWeight: "300", fontSize: 25,fontFamily: Fonts.primaryFont.dongleRegular },
             inputCompContainer:{
                 width: "100%",
                 justifyContent: 'center',
