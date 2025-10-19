@@ -18,6 +18,7 @@ export const Colors = {
 
     },
     text:{
-        iconColors:'#F84B07'
+        iconColors:'#F84B07',
+        inputErr:'#FF2C2C'
     }
 }

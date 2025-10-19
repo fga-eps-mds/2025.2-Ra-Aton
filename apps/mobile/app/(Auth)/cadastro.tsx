@@ -32,6 +32,13 @@
     const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
 
 
+
+
+
+
+
+
+
 // (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto... 
     const verifyAccount = () => {
       setErrorEmail('');
@@ -43,43 +50,37 @@
       const verifyEmail = (email:string) => {
         setErrorEmail('');
         const validEmail = (/^[^\s@]+@[^\s@]+\.[\s@]{2,}$/); // (rodrigo) - regex que verifica : formato de email
+        
         if(validEmail.test(email) == false){
-          status = false;
           return "insira um email válido"; // Fazer uma estilização no input
-        }else{
-          status = true;
+        }
+        else{
           return '';
         }
       }
-
-          // ! Verificando a SENHA
+      
+      // ! Verificando a SENHA
       const verifyPassword = (password:string) => {
         setErrorPassword('');
         setErrorConfirmPassword('');
         const validPassword = (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/); // (rodrigo) - regex que verifica : numero e letra
         if(password.length < 8){
-            status  = false;
             return "Sua senha deve possuir no mínimo 8 caracteres."; // Fazer uma estilização no input
-                                                                         // * Talvez um check
+                                                                // * Talvez um check
         }
         if(validPassword.test(password) == false){
-          status = false;
           return "Sua senha deve conter letras e números."; // Fazer uma estilização no input
         }
-
         else{
-          status = true;
           return '';
         }
       }
 
       const verifyConfirmPassword = (password:string, confirmPassword:string) => {
         if(password != confirmPassword){
-          status = false
           return "As senhas não coincidem";
         }
         else{ 
-          status = true;
           return '';
         }
       }
@@ -88,6 +89,18 @@
       verifyConfirmPassword(password,confirmPassword);
       // router.push('/(Auth)/login')      
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   //  Para usar DarkMode nos styles  

@@ -19,6 +19,8 @@
         label?: string;
         bgColor?: ColorValue;
         children?: React.ReactNode;
+        status?: boolean;
+        statusText?: string;
         iconName?: keyof typeof Ionicons.glyphMap;
     };
 
@@ -29,6 +31,8 @@
         label,
         children,
         iconName,
+        status,
+        statusText,
         placeholder,
         secureTextEntry,    
         ...rest
@@ -38,6 +42,7 @@
         const inputPaddingVertical = (45 - 20) / 2
         const inputPaddingLeft = iconName ? 40 : 20;
         const backgroundColor = bgColor || themeColors.input;
+        const statusBorderColor = status ? Colors.warning : themeColors.orange
 
         const styles = makeStyles(themeColors, inputPaddingVertical);
         return (
@@ -56,8 +61,9 @@
                 </View>
                 <View style={styles.inputCompContainer}>
                     {iconName && (<Ionicons name={iconName} size={20} color='orange' style={styles.inputIcon}/>)}
-                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft }]}  {...rest} />
+                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor}]} {...rest} />
                 </View>
+                    <Text style={styles.textStatusMessage}>{statusText}</Text>
             </View>
         );
     };
@@ -97,6 +103,10 @@
                 color:Colors.text.iconColors
 
             },
+            textStatusMessage:{
+
+            }
+
         });
 
     export default InputComp;
