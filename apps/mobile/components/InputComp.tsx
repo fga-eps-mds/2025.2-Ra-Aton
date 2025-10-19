@@ -13,7 +13,6 @@
     import { Fonts } from "@/constants/Fonts";
 
     
-
     type InputCompProps = TextInputProps & {
         width?: DimensionValue;
         height?: DimensionValue;
