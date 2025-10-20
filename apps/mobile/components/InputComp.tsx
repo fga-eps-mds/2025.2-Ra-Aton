@@ -71,7 +71,7 @@
     const makeStyles = (theme: any, paddingVertical: number) =>
         StyleSheet.create({
             
-                inputBox: {
+            inputBox: {
                 width: "100%",
                 height: 45,
                 borderRadius: 34,
@@ -79,19 +79,20 @@
                 borderWidth: 1,
                 borderColor: theme.orange,
       
-            paddingHorizontal:20,
-            paddingVertical,
-            textAlignVertical:'center',
-            fontFamily:Fonts.primaryFont.dongleRegular,
-            color: theme.text,
-            fontSize: 20    ,
-            
+                paddingHorizontal:20,
+                // paddingVertical,
+                textAlignVertical:'center',
+                fontFamily:Fonts.primaryFont.dongleRegular,
+                color: theme.text,
+                fontSize: 20,
         },
             inpuxLabel: {
             width: "100%",
             marginLeft: 17,
             },
+
             txt: { color: theme.text, fontWeight: "300", fontSize: 25,fontFamily: Fonts.primaryFont.dongleRegular },
+
             inputCompContainer:{
                 width: "100%",
                 justifyContent: 'center',
@@ -104,7 +105,10 @@
 
             },
             textStatusMessage:{
-
+                marginLeft: 17,
+                alignSelf: 'flex-start',
+                fontSize:14,
+                color: Colors.warning,                
             }
 
         });
