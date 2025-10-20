@@ -1,3 +1,4 @@
+    //? Faz todas as importações necessáriasa
     import {
         View,
         DimensionValue,
@@ -8,13 +9,14 @@
         StyleSheet,
     } from "react-native";
     import { Ionicons } from "@expo/vector-icons";
-    import { useTheme } from "../constants/Theme";
-    import { Colors } from "../constants/Colors";
+    import { useTheme } from "../constants/Theme";  
+    import { Colors } from "../constants/Colors"; 
     import { Fonts } from "@/constants/Fonts";
-
+    //? --------------------------------------------------
     
+    // * AQUI É PASSADO TODAS AS PROPRIEDADES QUE NOSSO INPUT (DEVE OU PODE TER) TER. OU SEJA TODAS AS COISAS QUE NÓS SEREMOS CAPAZ DE USAR DENTRO DO INPUT*\
     type InputCompProps = TextInputProps & {
-        width?: DimensionValue;
+        width?: DimensionValue; //*  QUANDO NÓS USAMOS O OPERADO ( ? ) TORNAMOS A PROPRIEDADE OPCIONAL
         height?: DimensionValue;
         label?: string;
         bgColor?: ColorValue;
@@ -23,12 +25,12 @@
         statusText?: string;
         iconName?: keyof typeof Ionicons.glyphMap;
     };
-
-    const InputComp = ({
-        width = "100%",
-        height = 67,
-        bgColor,
-        label,
+    
+    const InputComp = ({ //* ALI EM CIMA NÓS DEFINIMOS AS COISAS QUE NÓS TEMOS NO INPUT
+        width = "100%",         //* AGORA NÓS TEMOS QUE PASSAR PARA NOSSA FUNÇÃO, TUDO QUE QUEREMOS USAR
+        height = 67,                    //! GERALMENTE É SO REPETIR TUDO QUE FOI ESCRITO ACIMA, MAS COM SEUS VALORES DEFINIDOS
+        bgColor,                                    
+        label,          
         children,
         iconName,
         status,
@@ -37,37 +39,40 @@
         secureTextEntry,    
         ...rest
     }: InputCompProps) => {
+        // * VARIAVEIS QUE NÓS USAMOS PARA MANIPULAR DIFEFRENTES PARTES DO INPUT OU DA ESTRUTURA;
+            //* ISSO NÃO É ALGO OBRIGATÓRIO, NÓS USAMOS APENAS PARA FAZER ALGUMAS OPERAÇÕES;
         const { isDarkMode, toggleDarkMode  } = useTheme();
         const themeColors = isDarkMode ? Colors.dark : Colors.light;
-        const inputPaddingVertical = (45 - 20) / 2
+        const inputPaddingVertical = (45 - 20)   
         const inputPaddingLeft = iconName ? 40 : 20;
-        const backgroundColor = bgColor || themeColors.input;
-        const statusBorderColor = status ? Colors.warning : themeColors.orange
-
+        const backgroundColor = bgColor || themeColors.input; // ! NÃO ESTÁ SENDO UTILIZADA
+        const statusBorderColor = status ? Colors.warning : themeColors.orange //? IF ELSE PARA DEFINIR A COR DA BORDA
         const styles = makeStyles(themeColors, inputPaddingVertical);
         return (
-            <View
-                style={{
-                    width,
+            <View //! AQUI SE INICIA A ESTRUTURA DO NOSSO INPUT,
+                style={{ //*ESTILIZAÇÃO DO LUGAR ONDE GUARDAMOS NOSSO INPUT; TIPO A CAIXA ONDE ELE ESTÁ INSERIDO
+                    width, 
                     height,
                     backgroundColor: bgColor,
                     justifyContent: "flex-start",
                     alignItems: "center",
                     padding: 0,
                 }}
-            >
-                <View style={styles.inpuxLabel}>
+            > 
+              <View style={styles.inpuxLabel}>  
                     <Text style={styles.txt}>{label}</Text>
                 </View>
                 <View style={styles.inputCompContainer}>
                     {iconName && (<Ionicons name={iconName} size={20} color='orange' style={styles.inputIcon}/>)}
-                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor}]} {...rest} />
+                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor}]} {...rest} /> 
                 </View>
                     <Text style={styles.textStatusMessage}>{statusText}</Text>
-            </View>
+            </View> //! AQUI NÓS APENAS COLOCAMOS TODAS AS PROPRIEDADES QUE QUEREMOS USAR DENTRO DO INPU
+            //         ! TAMBÉM PASSAMOS A ESTILIZAÇÃO DO NOSSO INPUT, POR MEIO DE NOMES ESPECIFICOS COMO:
+                     //? (styles.inputContainer) isso nada mais é do que o nome da estilização  que cobre o nosso input
         );
     };
-
+//* TODA A ESTILIZAÇÃO:
     const makeStyles = (theme: any, paddingVertical: number) =>
         StyleSheet.create({
             
