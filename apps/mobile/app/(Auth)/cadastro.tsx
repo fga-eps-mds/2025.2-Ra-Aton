@@ -1,5 +1,5 @@
   /* cadastro page */
-  import React, { useState } from "react";
+  import React, { useState, useEffect } from "react";
   import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
   import ThemedView from "../../components/ThemedView";
   import Spacer from "../../components/SpacerComp";
@@ -31,36 +31,20 @@
     const [errorPassword, setErrorPassword] = useState('');
     const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
 
-
-
-
-
-
-
-
-
-// (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto... 
-    const verifyAccount = () => {
-      setErrorEmail('');
-      setErrorPassword('');
-      setErrorConfirmPassword('');
-      let status = true;
-     
-      //! Verificando o EMAIL
-      const verifyEmail = (email:string) => {
+  //? --- FUNÇÕES QUE VOU DEIXAR SOLTAS
+    const verifyEmail = (email:string) => {
         setErrorEmail('');
-        const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); // (rodrigo) - regex que verifica : formato de email
+        const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
         
         if(validEmail.test(email) == false){
-          return "insira um email válido"; // Fazer uma estilização no input
+          return "insira um email válido"; 
         }
         else{
           return '';
         }
       }
-      
-      // ! Verificando a SENHA
-      const verifyPassword = (password:string) => {
+
+    const verifyPassword = (password:string) => {
         setErrorPassword('');
         setErrorConfirmPassword('');
         const validPassword = (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/); // (rodrigo) - regex que verifica : numero e letra
@@ -76,6 +60,7 @@
         }
       }
 
+
       const verifyConfirmPassword = (password:string, confirmPassword:string) => {
         if(password != confirmPassword){
           return "As senhas não coincidem";
@@ -84,6 +69,55 @@
           return '';
         }
       }
+// ? --- FIM DAS FUNÇÕES SOLTAR
+
+
+// (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto... 
+    const verifyAccount = () => {
+      setErrorEmail('');
+      setErrorPassword('');
+      setErrorConfirmPassword('');
+      let status = true;
+     
+
+      //! Verificando o EMAIL
+      // const verifyEmail = (email:string) => {
+      //   setErrorEmail('');
+      //   const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
+        
+      //   if(validEmail.test(email) == false){
+      //     return "insira um email válido"; 
+      //   }
+      //   else{
+      //     return '';
+      //   }
+      // }
+      
+      // ! Verificando a SENHA
+      // const verifyPassword = (password:string) => {
+      //   setErrorPassword('');
+      //   setErrorConfirmPassword('');
+      //   const validPassword = (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/); // (rodrigo) - regex que verifica : numero e letra
+      //   if(password.length < 8){
+      //       return "Sua senha deve possuir no mínimo 8 caracteres."; // Fazer uma estilização no input
+      //                                                           // * Talvez um check
+      //   }
+      //   if(validPassword.test(password) == false){
+      //     return "Sua senha deve conter letras e números."; // Fazer uma estilização no input
+      //   }
+      //   else{
+      //     return '';
+      //   }
+      // }
+
+      // const verifyConfirmPassword = (password:string, confirmPassword:string) => {
+      //   if(password != confirmPassword){
+      //     return "As senhas não coincidem";
+      //   }
+      //   else{ 
+      //     return '';
+      //   }
+      // }
       const emailError = verifyEmail(email);
       const passwordError = verifyPassword(password);
       const confirmError = verifyConfirmPassword(password, confirmPassword);
@@ -95,20 +129,17 @@
       // console.log(emailError, passwordError, confirmError);
         if (!emailError && !passwordError && !confirmError) {
           router.push('/(DashBoard)/Home');
-        }
+        } 
       // router.push('/(Auth)/login')      
+      
+     React.useEffect(() => {
+      if(email) setErrorEmail(verifyEmail(email));
+      if(password) setErrorPassword(verifyPassword(password));
+      if(confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password,confirmPassword));
+
+
+    }),[email,password,confirmPassword];
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
