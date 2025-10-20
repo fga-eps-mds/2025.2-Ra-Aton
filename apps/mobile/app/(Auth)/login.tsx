@@ -1,5 +1,12 @@
 /* home page */
-import { StyleSheet, Text, View, Image, TextInput } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TextInput,
+  ScrollView,
+} from "react-native";
 import React from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
 import ThemedView from "../../components/ThemedView";
@@ -25,66 +32,78 @@ const HomeInner: React.FC = () => {
 
   //  Para usar o Link no Botao
   const router = useRouter();
+  const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
 
   return (
-    <ThemedView style={styles.container}>
-      {/* Dark/Light mode */}
-      <Button1Comp
-        onPress={toggleDarkMode}
-        style={{
-          width: 40,
-          height: 40,
-          padding: 0,
-          margin: 0,
-          alignSelf: "flex-end",
-          alignContent: "center",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
-        <Text
-          style={[
-            {
-              fontWeight: "700",
-              fontSize: 30,
-              alignContent: "center",
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
+    <ScrollView
+      contentContainerStyle={{
+        padding: 20,
+        paddingBottom: 80,
+        backgroundColor: theme.background,
+      }}
+    >
+      <ThemedView style={styles.container}>
+        {/* Dark/Light mode (PlaceHolder)*/}
+        <Button1Comp
+          iconName={iconTheme}
+          onPress={toggleDarkMode}
+          style={{
+            width: 40,
+            height: 40,
+            padding: 0,
+            margin: 0,
+            alignSelf: "flex-end",
+            alignContent: "center",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 20,
+          }}
         >
-          *
-        </Text>
-      </Button1Comp>
+          <Text
+            style={[
+              {
+                fontWeight: "700",
+                fontSize: 30,
+                alignContent: "center",
+                justifyContent: "center",
+                alignItems: "center",
+              },
+            ]}
+          ></Text>
+        </Button1Comp>
+        {/* Dark/Light mode */}
+        <Image source={NamedLogo} style={styles.img} />
 
-      <Image source={NamedLogo} style={styles.img} />
+        <View style={styles.container_input}>
+          <InputComp label="Nome de usuario" iconName="person"></InputComp>
+          <Spacer height={45} />
+          <InputComp
+            label="Senha"
+            iconName="key"
+            secureTextEntry={true}
+          ></InputComp>
+        </View>
 
-      <View style={styles.container_input}>
-        <InputComp label="Nome de usuario" iconName="person"></InputComp>
+        <Button1Comp onPress={() => router.push("/Home")} style={{ top: 60 }}>
+          <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
+            Login
+          </Text>
+        </Button1Comp>
+
+        <Spacer height={80} />
+
+        <Text style={styles.txt}>ou</Text>
+
         <Spacer height={20} />
-        <InputComp label="Senha" iconName="key" secureTextEntry={true}></InputComp>
-      </View>
 
-      <Button1Comp onPress={() => router.push("/Home")} style={{ top: 60 }}>
-        <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
-          Login
-        </Text>
-      </Button1Comp>
-
-      <Spacer height={80} />
-
-      <Text style={styles.txt}>ou</Text>
-
-      <Spacer height={20} />
-
-      <Button2Comp onPress={() => router.push("/cadastro")}>
-        <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
-          Cadastre-se
-        </Text>
-      </Button2Comp>
-      {/* <TextInput style={{backgroundColor: 'red'}}></TextInput> */}
-    </ThemedView>
+        <Button2Comp onPress={() => router.push("/cadastro")}>
+          <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
+            Cadastre-se
+          </Text>
+        </Button2Comp>
+        {/* <TextInput style={{backgroundColor: 'red'}}></TextInput> */}
+      </ThemedView>
+    </ScrollView>
   );
 };
 
@@ -96,7 +115,7 @@ const makeStyles = (theme: any) =>
       flexDirection: "column",
       alignItems: "center",
       marginTop: -20,
-      height: "70%",
+      height: "auto",
       width: "100%",
     },
     container: {
