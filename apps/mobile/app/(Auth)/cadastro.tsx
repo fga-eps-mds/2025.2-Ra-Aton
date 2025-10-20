@@ -10,6 +10,7 @@
   import { Colors } from "../../constants/Colors";
   import { useTheme } from "../../constants/Theme";
   import { useRouter } from "expo-router";
+import { Fonts } from "@/constants/Fonts";
 
   const Cadastro: React.FC = () => {
     return <CadastroInner />;
@@ -20,12 +21,23 @@
   //  Para usar o DarkMode
     const { isDarkMode, toggleDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;
+    const [name, setName] = useState(''); 
     const [email, setEmail] = useState('');
+    const [nickname, setNickname] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [errorName, setErrorName] = useState('');
     const [errorEmail, setErrorEmail] = useState('');
+    const [errorNickname, setErrorNickname] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
     const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
+//--------------------------------------------------------------------------- separando...
+    const verifyName = (name:string) =>{
+      setErrorName('');
+      const verifyName = name.trim().split(" ").length >= 2; // vericação se o usuário preencher pelo menos nome e sobrenome
+      if(!verifyName) return "Preencha nome e sobrenome";
+      else return '';
+    }
 
 
     const verifyEmail = (email:string) => {
@@ -33,12 +45,19 @@
         const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
         
         if(validEmail.test(email) == false){
-          return "insira um email válido"; 
+          return "Insira um email válido"; 
         }
         else{
           return '';
         }
       }
+
+    const verifyNickname = (nickname:string) => {
+      setErrorNickname('');
+      if(nickname.length < 3) return "Digite um apelido válido"
+      else return '';
+
+    } 
 
     const verifyPassword = (password:string) => {
         setErrorPassword('');
@@ -56,7 +75,6 @@
         }
       }
 
-
       const verifyConfirmPassword = (password:string, confirmPassword:string) => {
         if(password != confirmPassword){
           return "As senhas não coincidem";
@@ -65,40 +83,44 @@
           return '';
         }
       }
-
    
     React.useEffect(() => {
+      if(name) setErrorName(verifyName(name));
       if(email) setErrorEmail(verifyEmail(email));
       if(password) setErrorPassword(verifyPassword(password));
       if(confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password,confirmPassword));
-    }),[email,password,confirmPassword];
+      if(nickname) setErrorNickname(verifyNickname(nickname));
+    },[name,email,password,confirmPassword,nickname]);
 
     const statusBtnCadastro = () => {
+      const errName = verifyName(name);
       const errEmail = verifyEmail(email);
       const errPassword = verifyPassword(password);
       const errConfirmrPassword = verifyConfirmPassword(password,confirmPassword);
-
+      const errNickname = verifyNickname(nickname);
+      setErrorName(errName);
       setErrorEmail(errEmail);
       setErrorPassword(errPassword);
       setErrorConfirmPassword(errConfirmrPassword);
+      setErrorNickname(errNickname);
 
-      if(!errEmail && !errPassword && !errConfirmrPassword){
+      if(!errName && !errNickname && !errEmail && !errPassword && !errConfirmrPassword){
         setTimeout(() => {
           
           router.push("/(DashBoard)/Home")
         }, 2000);
-      }else{
-
+      }
+      else{
       }
     }
 
+  
   //  Para usar DarkMode nos styles  
     const styles = makeStyles(theme);
 
-  //  Para usar o Link no Botao
+    //  Para usar o Link no Botao
     const router = useRouter();
-    const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
-
+    const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline"; 
 
     return (
         <ThemedView style={styles.bg}>
@@ -115,10 +137,10 @@
           
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
-              <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
+              <InputComp label="Nome de Usuário" iconName="person-sharp" value={name} onChangeText={setName} status={!!errorName} statusText={errorName}></InputComp>
               <Spacer height={40}/>
               
-              <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
+              <InputComp label="Apelido" iconName="pricetag-outline" value={nickname} onChangeText={setNickname} status={!!errorNickname} statusText={errorNickname}></InputComp>
               
               <Spacer height={40}/>
 
@@ -137,6 +159,7 @@
               <Spacer height={50}/>
             </View>
             <View style={styles.redirectInfos}>
+              {/* <Spacer height={20}/>  */}
               <Button1Comp onPress={statusBtnCadastro}>Criar conta</Button1Comp>
               <Spacer height={30}/>
               <Text style={styles.txt}>Ja possui uma conta?</Text>
@@ -178,6 +201,7 @@
         height:150,
       },
       txt: {
+        fontFamily:Fonts.primaryFont.dongleBold,
         color: theme.text,
         fontWeight: "500",
         fontSize: 18,
