@@ -36,15 +36,16 @@ const FormsCadastroInner : React.FC = () => {
                 </View>
                 <View style={styles.containerInfos}>
                     <View style={styles.txtDiv}>
-                        <View style={{height:200, width:300, alignItems:'center',justifyContent:'flex-start', backgroundColor:'green'}}>
+                        <View style={{height:200, width:300, alignItems:'center',justifyContent:'flex-start', }}>
                          <Text style={styles.txt}>Para finalizar o seu cadastro,  responda este formulário e participe ativamente da sua comunidade!</Text>
                         </View>
                         </View>
                         <View> 
-                           <Text style={{width:'100%',alignItems:'center',fontSize:30, fontFamily:Fonts.primaryFont.dongleRegular}}>Selecione seu perfil:</Text>
+                           <Text style={{width:'100%',textAlign:'center',fontSize:30, fontFamily:Fonts.primaryFont.dongleRegular}}>Selecione seu perfil:</Text>
                         </View>
                         <View style={styles.btnDiv}>
-                            <Button1Comp style={styles.btnRegister}>CAtlética</Button1Comp>
+                            <Spacer height={2}/>
+                            <Button1Comp style={styles.btnRegister}>Atlética</Button1Comp>
                             <Button1Comp style={styles.btnRegister}>Jogador</Button1Comp>
                             <Button1Comp style={styles.btnRegister}>Torcedor</Button1Comp>
                     </View>
@@ -81,7 +82,6 @@ const styles = StyleSheet.create({
         width:'100%',
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor:'red'
     },
     containerInfos:{
         height:573,
@@ -93,7 +93,6 @@ const styles = StyleSheet.create({
         marginTop:20,
         alignItems:'center',
         justifyContent:'flex-start',
-        backgroundColor:'purple'
     },
     txt:{
         fontSize:35,
@@ -102,7 +101,6 @@ const styles = StyleSheet.create({
         lineHeight:40
     },
     btnDiv:{
-        backgroundColor:'gray',
         justifyContent:'flex-start',
         alignItems:'center',
         height:300,
