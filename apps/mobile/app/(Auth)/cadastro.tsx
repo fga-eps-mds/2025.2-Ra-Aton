@@ -1,6 +1,6 @@
     /* cadastro page */
     import React, { useState, useEffect } from "react";
-    import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
+    import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity} from "react-native";
     import ThemedView from "../../components/ThemedView";
     import Spacer from "../../components/SpacerComp";
     import Button1Comp from "../../components/Button1Comp";
@@ -11,6 +11,7 @@
     import { useTheme } from "../../constants/Theme";
     import { useRouter } from "expo-router";
     import { Fonts } from "@/constants/Fonts";
+import { Ionicons } from "@expo/vector-icons";
     
     const Cadastro: React.FC = () => {
       return <CadastroInner />;
@@ -34,6 +35,7 @@
       const [errorNickname, setErrorNickname] = useState('');
       const [errorPassword, setErrorPassword] = useState('');
       const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
+      const [hidePassword,setHidePassword] = useState(true);
   //--------------------------------------------------------------------------- separando...
       const verifyName = (name:string) =>{
         setErrorName('');
@@ -139,17 +141,19 @@
                 
                 <Spacer height={40}/>
 
-                <InputComp label="E-mail" iconName="at"                               // ! email
+                <InputComp label="E-mail" iconName="at"                               // ? email
                 keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
                 
                 <Spacer height={50}/>
                 
-                <InputComp label="Senha" iconName="key"                               // ! senha
-                secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
+                <InputComp label="Senha" iconName="key"                               // ? senha
+                secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}>
+                  <TouchableOpacity> <Ionicons name="eye" color={'black'} size={20}/> </TouchableOpacity>
+                </InputComp>
                 
                 <Spacer height={60}/>                  
             
-                <InputComp label="Confirme sua senha" iconName="key"   //! Confrima senha
+                <InputComp label="Confirme sua senha" iconName="key"   //? Confrima senha
                 secureTextEntry={true} textContentType="password" value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
                 <Spacer height={50}/>
               </View>
