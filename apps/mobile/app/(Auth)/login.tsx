@@ -7,7 +7,7 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
 import ThemedView from "../../components/ThemedView";
 import Button1Comp from "../../components/Button1Comp";
@@ -78,6 +78,7 @@ const HomeInner: React.FC = () => {
           <InputComp label="Nome de usuario" iconName="person"></InputComp>
           <Spacer height={45} />
           <InputComp
+            placeholder="Digite a senha"
             label="Senha"
             iconName="key"
             secureTextEntry={true}
