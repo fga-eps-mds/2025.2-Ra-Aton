@@ -107,7 +107,7 @@ import { Fonts } from "@/constants/Fonts";
       if(!errName && !errNickname && !errEmail && !errPassword && !errConfirmrPassword){
         setTimeout(() => {
           
-          router.push("/(DashBoard)/Home")
+          router.push("/(Auth)/formsCadastro")
         }, 2000);
       }
       else{
