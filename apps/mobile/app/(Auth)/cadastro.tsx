@@ -49,7 +49,7 @@
       //! Verificando o EMAIL
       const verifyEmail = (email:string) => {
         setErrorEmail('');
-        const validEmail = (/^[^\s@]+@[^\s@]+\.[\s@]{2,}$/); // (rodrigo) - regex que verifica : formato de email
+        const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); // (rodrigo) - regex que verifica : formato de email
         
         if(validEmail.test(email) == false){
           return "insira um email válido"; // Fazer uma estilização no input
@@ -84,9 +84,18 @@
           return '';
         }
       }
-      verifyEmail(email);
-      verifyPassword(password);
-      verifyConfirmPassword(password,confirmPassword);
+      const emailError = verifyEmail(email);
+      const passwordError = verifyPassword(password);
+      const confirmError = verifyConfirmPassword(password, confirmPassword);
+
+      setErrorEmail(emailError);
+      setErrorPassword(passwordError);
+      setErrorConfirmPassword(confirmError);
+
+      // console.log(emailError, passwordError, confirmError);
+        if (!emailError && !passwordError && !confirmError) {
+          router.push('/(DashBoard)/Home');
+        }
       // router.push('/(Auth)/login')      
     }
 
@@ -129,24 +138,24 @@
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
               <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
-              <Spacer height={20}/>
+              <Spacer height={45}/>
 
               <InputComp label="E-mail" iconName="at"                               // ! email
-              keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail}></InputComp>
+              keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
               
-              <Spacer height={20}/>
+              <Spacer height={45}/>
               
               <InputComp label="Senha" iconName="key"                               // ! senha
-              secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword}></InputComp>
+              secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
               
-              <Spacer height={20}/>                  
+              <Spacer height={45}/>                  
            
               <InputComp label="Confirme sua senha" iconName="key"                  //! Confrima senha
-              secureTextEntry={true} textContentType="password"  value={confirmPassword} onChangeText={setConfirmPassword}></InputComp>
+              secureTextEntry={true} textContentType="password"  value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
            
             </View>
             <View style={styles.redirectInfos}>
-              <Button1Comp onPress={() => router.push('/(DashBoard)/Home')}>Criar conta</Button1Comp>
+              <Button1Comp onPress={verifyAccount}>Criar conta</Button1Comp>
               <Spacer height={15}/>
               <Text style={styles.txt}>Ja possui uma conta?</Text>
               <Spacer height={9}/>
