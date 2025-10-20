@@ -71,76 +71,34 @@
       }
 // ? --- FIM DAS FUNÇÕES SOLTAR
 
-
-// (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto... 
-    const verifyAccount = () => {
-      setErrorEmail('');
-      setErrorPassword('');
-      setErrorConfirmPassword('');
-      let status = true;
-     
-
-      //! Verificando o EMAIL
-      // const verifyEmail = (email:string) => {
-      //   setErrorEmail('');
-      //   const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
-        
-      //   if(validEmail.test(email) == false){
-      //     return "insira um email válido"; 
-      //   }
-      //   else{
-      //     return '';
-      //   }
-      // }
-      
-      // ! Verificando a SENHA
-      // const verifyPassword = (password:string) => {
-      //   setErrorPassword('');
-      //   setErrorConfirmPassword('');
-      //   const validPassword = (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/); // (rodrigo) - regex que verifica : numero e letra
-      //   if(password.length < 8){
-      //       return "Sua senha deve possuir no mínimo 8 caracteres."; // Fazer uma estilização no input
-      //                                                           // * Talvez um check
-      //   }
-      //   if(validPassword.test(password) == false){
-      //     return "Sua senha deve conter letras e números."; // Fazer uma estilização no input
-      //   }
-      //   else{
-      //     return '';
-      //   }
-      // }
-
-      // const verifyConfirmPassword = (password:string, confirmPassword:string) => {
-      //   if(password != confirmPassword){
-      //     return "As senhas não coincidem";
-      //   }
-      //   else{ 
-      //     return '';
-      //   }
-      // }
-      const emailError = verifyEmail(email);
-      const passwordError = verifyPassword(password);
-      const confirmError = verifyConfirmPassword(password, confirmPassword);
-
-      setErrorEmail(emailError);
-      setErrorPassword(passwordError);
-      setErrorConfirmPassword(confirmError);
-
-      // console.log(emailError, passwordError, confirmError);
-        if (!emailError && !passwordError && !confirmError) {
-          router.push('/(DashBoard)/Home');
-        } 
-      // router.push('/(Auth)/login')      
-      
-     React.useEffect(() => {
+   
+    React.useEffect(() => {
       if(email) setErrorEmail(verifyEmail(email));
       if(password) setErrorPassword(verifyPassword(password));
       if(confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password,confirmPassword));
-
-
     }),[email,password,confirmPassword];
+
+
+    const statusBtnCadastro = () => {
+      const errEmail = verifyEmail(email);
+      const errPassword = verifyPassword(password);
+      const errConfirmrPassword = verifyConfirmPassword(password,confirmPassword);
+
+      setErrorEmail(errEmail);
+      setErrorPassword(errPassword);
+      setErrorConfirmPassword(errConfirmrPassword);
+      
+      if(!errEmail && !errPassword && !errConfirmrPassword){
+        setTimeout(() => {
+          router.push("/(DashBoard)/Home")
+        }, 2000);
+      }else{
+
+      }
     }
 
+// (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto... 
+   
 
 
   //  Para usar DarkMode nos styles  
@@ -169,7 +127,7 @@
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
               <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
-              <Spacer height={45}/>
+              <Spacer height={30}/>
 
               <InputComp label="E-mail" iconName="at"                               // ! email
               keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
@@ -186,7 +144,7 @@
            
             </View>
             <View style={styles.redirectInfos}>
-              <Button1Comp onPress={verifyAccount}>Criar conta</Button1Comp>
+              <Button1Comp onPress={statusBtnCadastro} >Criar conta</Button1Comp>
               <Spacer height={15}/>
               <Text style={styles.txt}>Ja possui uma conta?</Text>
               <Spacer height={9}/>
@@ -234,7 +192,7 @@
         flexDirection:'column',
         alignItems:'center',
         marginTop:-20,
-        height:'70%',
+        height:'71%',
         width:'100%',
         
       },
