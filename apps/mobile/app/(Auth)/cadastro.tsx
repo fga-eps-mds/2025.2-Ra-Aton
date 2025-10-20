@@ -15,23 +15,19 @@
     return <CadastroInner />;
   };
 
-//! Consts especificas dos inputs - Validação
  
-
   const CadastroInner: React.FC = () => {
   //  Para usar o DarkMode
     const { isDarkMode, toggleDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;
-    // Criando nossos estados para validar
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    // Estados para validar erros
     const [errorEmail, setErrorEmail] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
     const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
 
-  //? --- FUNÇÕES QUE VOU DEIXAR SOLTAS
+
     const verifyEmail = (email:string) => {
         setErrorEmail('');
         const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
@@ -49,11 +45,11 @@
         setErrorConfirmPassword('');
         const validPassword = (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/); // (rodrigo) - regex que verifica : numero e letra
         if(password.length < 8){
-            return "Sua senha deve possuir no mínimo 8 caracteres."; // Fazer uma estilização no input
+            return "Sua senha deve possuir no mínimo 8 caracteres"; // Fazer uma estilização no input
                                                                 // * Talvez um check
         }
         if(validPassword.test(password) == false){
-          return "Sua senha deve conter letras e números."; // Fazer uma estilização no input
+          return "Sua senha deve conter letras e números"; // Fazer uma estilização no input
         }
         else{
           return '';
@@ -69,7 +65,6 @@
           return '';
         }
       }
-// ? --- FIM DAS FUNÇÕES SOLTAR
 
    
     React.useEffect(() => {
@@ -77,7 +72,6 @@
       if(password) setErrorPassword(verifyPassword(password));
       if(confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password,confirmPassword));
     }),[email,password,confirmPassword];
-
 
     const statusBtnCadastro = () => {
       const errEmail = verifyEmail(email);
@@ -87,19 +81,16 @@
       setErrorEmail(errEmail);
       setErrorPassword(errPassword);
       setErrorConfirmPassword(errConfirmrPassword);
-      
+
       if(!errEmail && !errPassword && !errConfirmrPassword){
         setTimeout(() => {
+          
           router.push("/(DashBoard)/Home")
         }, 2000);
       }else{
 
       }
     }
-
-// (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto... 
-   
-
 
   //  Para usar DarkMode nos styles  
     const styles = makeStyles(theme);
@@ -111,15 +102,13 @@
 
     return (
         <ThemedView style={styles.bg}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 80, backgroundColor: theme.background}}>
-        <ThemedView style={styles.container}>
-          
+          <ScrollView contentContainerStyle={styles.scrollContainer}>        <ThemedView style={styles.container}>
           {/* Dark/Light mode (PlaceHolder)*/}
-          <Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
+          {/* <Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
             <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
 
             </Text>
-          </Button1Comp>
+          </Button1Comp> */}
           {/* */}
 
           <Image source={NamedLogo} style={styles.img}/>
@@ -127,32 +116,35 @@
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
               <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
-              <Spacer height={30}/>
+              <Spacer height={40}/>
+              
+              <InputComp label="Nome de Usuário" iconName="person-sharp"></InputComp>
+              
+              <Spacer height={40}/>
 
               <InputComp label="E-mail" iconName="at"                               // ! email
               keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
               
-              <Spacer height={45}/>
+              <Spacer height={50}/>
               
               <InputComp label="Senha" iconName="key"                               // ! senha
               secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
               
-              <Spacer height={45}/>                  
+              <Spacer height={60}/>                  
            
-              <InputComp label="Confirme sua senha" iconName="key"                  //! Confrima senha
-              secureTextEntry={true} textContentType="password"  value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
-           
+              <InputComp label="Confirme sua senha" iconName="key"   //! Confrima senha
+              secureTextEntry={true} textContentType="password" value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
+              <Spacer height={50}/>
             </View>
             <View style={styles.redirectInfos}>
-              <Button1Comp onPress={statusBtnCadastro} >Criar conta</Button1Comp>
-              <Spacer height={15}/>
+              <Button1Comp onPress={statusBtnCadastro}>Criar conta</Button1Comp>
+              <Spacer height={30}/>
               <Text style={styles.txt}>Ja possui uma conta?</Text>
-              <Spacer height={9}/>
-              <Button2Comp onPress={()=> router.push('/(Auth)/login')}>Login</Button2Comp>
+              <Spacer height={10}/>
+              <Button2Comp onPress={() => router.push('/(Auth)/login')}>Login</Button2Comp>
             </View>
 
           </View>
-
         </ThemedView>
       </ScrollView>
       </ThemedView>
@@ -166,21 +158,24 @@
         flex:1,
         backgroundColor: theme.background,
       },
+      scrollContainer:{
+        flexGrow:1,
+        justifyContent:'center',
+        padding:16 
+      },
       container: {
-        flex: 1,
         alignItems: "center",
-        padding: 16,
+        width:'100%'
         // backgroundColor: 'red',
       },
       containerInfos:{
-        height:'100%',
         width:'100%',
       },
 
       img: {
         marginVertical: 60,
         marginTop: 0,
-        height:'20%',
+        height:150,
       },
       txt: {
         color: theme.text,
@@ -191,16 +186,14 @@
       inputContainer:{
         flexDirection:'column',
         alignItems:'center',
-        marginTop:-20,
-        height:'71%',
+        marginTop:-40,
         width:'100%',
         
       },
       redirectInfos:{
         flexDirection:'column',
-        justifyContent:'flex-start',
         alignItems:'center',
-        height:'30%',
         width:'100%',
+        marginTop:10, 
       }
     });
