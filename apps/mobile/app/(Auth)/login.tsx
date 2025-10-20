@@ -9,50 +9,64 @@ import { useRouter } from "expo-router";
 import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
+import InputComp from "@/components/InputComp";
 
 const Home: React.FC = () => {
   return <HomeInner />;
 };
 
 const HomeInner: React.FC = () => {
-//  Para usar o DarkMode
+  //  Para usar o DarkMode
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-  
-//  Para usar DarkMode nos styles  
+
+  //  Para usar DarkMode nos styles
   const styles = makeStyles(theme);
 
-//  Para usar o Link no Botao
+  //  Para usar o Link no Botao
   const router = useRouter();
 
   return (
     <ThemedView style={styles.container}>
       {/* Dark/Light mode */}
-      <Button1Comp onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
-        <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
+      <Button1Comp
+        onPress={toggleDarkMode}
+        style={{
+          width: 40,
+          height: 40,
+          padding: 0,
+          margin: 0,
+          alignSelf: "flex-end",
+          alignContent: "center",
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <Text
+          style={[
+            {
+              fontWeight: "700",
+              fontSize: 30,
+              alignContent: "center",
+              justifyContent: "center",
+              alignItems: "center",
+            },
+          ]}
+        >
           *
         </Text>
-        </Button1Comp>
+      </Button1Comp>
 
       <Image source={NamedLogo} style={styles.img} />
 
-      <View style={[styles.inputDiv]}>
-        <View style={styles.inputLabel}>
-          <Text style={styles.txt}>Nome de usuário</Text>
-        </View>
-        <View style={styles.inputBox}></View>
+      <View style={styles.container_input}>
+        <InputComp label="Nome de usuario" iconName="person"></InputComp>
+        <Spacer height={20} />
+        <InputComp label="Senha" iconName="key" secureTextEntry={true}></InputComp>
       </View>
 
-      <Spacer height={40}></Spacer>
-
-      <View style={styles.inputDiv}>
-        <View style={styles.inputLabel}>
-          <Text style={styles.txt}>Senha</Text>
-        </View>
-        <View style={styles.inputBox}></View>
-      </View>
-
-      <Button1Comp onPress={() => router.push('/Home')} style={{ top: 60 }}>
+      <Button1Comp onPress={() => router.push("/Home")} style={{ top: 60 }}>
         <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
           Login
         </Text>
@@ -64,7 +78,7 @@ const HomeInner: React.FC = () => {
 
       <Spacer height={20} />
 
-      <Button2Comp onPress={() =>  router.push('/cadastro')}>
+      <Button2Comp onPress={() => router.push("/cadastro")}>
         <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
           Cadastre-se
         </Text>
@@ -78,6 +92,13 @@ export default Home;
 
 const makeStyles = (theme: any) =>
   StyleSheet.create({
+    container_input: {
+      flexDirection: "column",
+      alignItems: "center",
+      marginTop: -20,
+      height: "70%",
+      width: "100%",
+    },
     container: {
       flex: 1,
       alignItems: "center",
@@ -92,6 +113,7 @@ const makeStyles = (theme: any) =>
       fontWeight: "500",
     },
     inputDiv: {
+      backgroundColor: "blue",
       width: "85%",
       justifyContent: "flex-start",
       alignItems: "center",
