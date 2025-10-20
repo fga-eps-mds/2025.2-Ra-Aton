@@ -20,6 +20,7 @@
         bgColor?: ColorValue;
         children?: React.ReactNode;
         status?: boolean;
+        placeholder?:string;
         statusText?: string;
         iconName?: keyof typeof Ionicons.glyphMap;
     };
@@ -80,7 +81,6 @@
                 borderColor: theme.orange,
       
                 paddingHorizontal:20,
-                // paddingVertical,
                 textAlignVertical:'center',
                 fontFamily:Fonts.primaryFont.dongleRegular,
                 color: theme.text,
@@ -107,7 +107,7 @@
             textStatusMessage:{
                 marginLeft: 17,
                 alignSelf: 'flex-start',
-                fontSize:14,
+                fontSize:13,
                 color: Colors.warning,                
             }
 
