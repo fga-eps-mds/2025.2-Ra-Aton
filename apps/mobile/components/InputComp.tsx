@@ -62,7 +62,7 @@
                 </View>
                 <View style={styles.inputCompContainer}>
                     {iconName && (<Ionicons name={iconName} size={20} color='orange' style={styles.inputIcon}/>)}
-                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor}]} {...rest} />
+                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor}]} secureTextEntry={secureTextEntry} {...rest} />
                 </View>
                     <Text style={styles.textStatusMessage}>{statusText}</Text>
             </View>
