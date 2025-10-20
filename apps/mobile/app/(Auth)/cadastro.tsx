@@ -50,7 +50,8 @@
       const verifyEmail = (email:string) => {
         setErrorEmail('');
         const validEmail = (/^[^\s@]+@[^\s@]+\.[\s@]{2,}$/); // (rodrigo) - regex que verifica : formato de email
-        
+
+    
         if(validEmail.test(email) == false){
           return "insira um email válido"; // Fazer uma estilização no input
         }
