@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["develop", "main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/aton
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: aton
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d aton" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Wait for Postgres
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/aton
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U postgres && break || sleep 1
+          done
+
+      - name: Generate Prisma client (api)
+        working-directory: apps/api
+        run: pnpm prisma generate
+
+      - name: Run workspace tests
+        working-directory: .
+        run: pnpm test
+
+      - name: Workspace typecheck
+        run: pnpm -w -s run check-types || true
