@@ -1,6 +1,6 @@
-import { render } from '@testing-library/react-native'
+import { render } from "@testing-library/react-native";
 
-import { MonoText } from '../StyledText';
+import { MonoText } from "../StyledText";
 
 describe("<MonoText />", () => {
   test("renders correctly with given children", () => {

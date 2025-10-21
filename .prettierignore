@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+coverage
+**/generated
+**/generated/**
+*.lock
+*.log
+*.min.js
+**/*.wasm
+**/*.so
+.github/
+**.md
+**.test.**

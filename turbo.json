@@ -30,5 +30,6 @@
       "dependsOn": ["^test"],
       "inputs": ["$TURBO_DEFAULT$", "jest-preset.js"]
     }
-  }
+  },
+  "globalEnv": [".env**"]
 }

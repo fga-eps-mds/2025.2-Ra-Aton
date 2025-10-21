@@ -10,7 +10,7 @@ describe('API basic', () => {
       await prisma.$connect();
       dbAvailable = true;
     } catch (err) {
-      // eslint-disable-next-line no-console
+       
       console.warn('DB not available for tests, skipping integration tests.');
       dbAvailable = false;
     }
