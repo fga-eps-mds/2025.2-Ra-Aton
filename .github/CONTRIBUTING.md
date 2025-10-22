@@ -57,6 +57,30 @@ Agora é a hora de codificar\! 👨‍💻
 - **Implemente a Funcionalidade:** Escreva o código necessário para resolver a issue.
 - **Crie Testes Unitários:** Toda nova funcionalidade ou correção **deve** ser acompanhada de testes unitários que validem seu comportamento.
 - **Teste Localmente:** Antes de commitar, rode a aplicação e os testes para garantir que tudo está funcionando como esperado e que você não quebrou nada.
+No nosso caso, usamos o framework [Jest](https://jestjs.io/pt-BR/docs/getting-started).
+os comandos para criar os testes unitários e rodar eles sao:
+
+```bash
+# 1. Crie um teste em __tests__/
+
+# 2. Rode os testes
+pnpm test:api 
+# ou 
+pnpm test:mobile
+# ou ambos
+pnpm test
+
+```
+Depois de testar pode utilizar a biblioteca de Lint [ESLint](https://eslint.org/) para validar o seu código.
+além da biblioteca de formatação [Prettier](https://prettier.io/).
+```bash
+# 1. Rode o Lint
+pnpm lint
+
+# 2. Rode o Format
+pnpm format
+
+```
 
 Quando estiver pronto para salvar seu progresso, use commits que sigam o nosso padrão.
 

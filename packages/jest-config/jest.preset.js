@@ -1,17 +1,45 @@
-const { pathsToModuleNameMapper } = require("ts-jest");
-// Carrega os mapeamentos de paths do tsconfig base do monorepo
-const { compilerOptions } = require("../../tsconfig.base.json");
+const { pathsToModuleNameMapper } = require('ts-jest');
+
+// Try to locate the monorepo TS base config (different projects use different paths).
+// Common locations:
+//  - ./tsconfig.base.json (repo root)
+//  - ../typescript-config/base.json (packages/typescript-config)
+//  - ../../packages/typescript-config/base.json
+const tsconfigCandidates = [
+  '../../tsconfig.base.json',
+  '../typescript-config/base.json',
+  '../../packages/typescript-config/base.json',
+  '../packages/typescript-config/base.json',
+];
+
+let compilerOptions;
+for (const candidate of tsconfigCandidates) {
+  try {
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    const conf = require(candidate);
+    if (conf && conf.compilerOptions) {
+      compilerOptions = conf.compilerOptions;
+      break;
+    }
+  } catch (e) {
+    // ignore and try next
+  }
+}
+
+if (!compilerOptions) {
+  throw new Error(
+    'Cannot find TypeScript base config (tsconfig). Checked: ' + tsconfigCandidates.join(', ')
+  );
+}
 
 module.exports = {
-  // Limpa mocks e spies entre cada teste para garantir isolamento
+  // clear mocks between tests
   clearMocks: true,
-  // Define o preset para transpilar TypeScript com ts-jest
-  preset: "ts-jest",
-  // Pastas a serem ignoradas durante a execução dos testes
-  testPathIgnorePatterns: ["/node_modules/", "/.turbo/", "/dist/"],
-  // Converte os aliases de importação do tsconfig (`@repo/*`) para um formato
-  // que o Jest entende, essencial para testes em um monorepo.
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-    prefix: "<rootDir>/../../",
+  // ignore common build folders
+  testPathIgnorePatterns: ['/node_modules/', '/.turbo/', '/dist/'],
+  // map TS path aliases for Jest (projects will share same tsconfig paths)
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths || {}, {
+    prefix: '<rootDir>/../../',
   }),
+  
 };
