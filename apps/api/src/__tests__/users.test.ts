@@ -1,8 +1,8 @@
-import request from 'supertest';
-import app from '../app';
-import { prisma } from '../prisma';
+import request from "supertest";
+import app from "../app";
+import { prisma } from "../prisma";
 
-describe('API basic', () => {
+describe("API basic", () => {
   let dbAvailable = true;
   beforeAll(async () => {
     try {
@@ -10,8 +10,10 @@ describe('API basic', () => {
       await prisma.$connect();
       dbAvailable = true;
     } catch (err) {
-       
-      console.warn('DB not available for tests, skipping integration tests.');
+      console.warn(
+        "DB not available for tests, skipping integration tests.",
+        err,
+      );
       dbAvailable = false;
     }
   });
@@ -23,19 +25,21 @@ describe('API basic', () => {
     }
   });
 
-  it('GET / responds', async () => {
-    const res = await request(app).get('/');
+  it("GET / responds", async () => {
+    const res = await request(app).get("/");
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('service', 'api');
+    expect(res.body).toHaveProperty("service", "api");
   });
 
-  it('CRUD /users', async () => {
+  it("CRUD /users", async () => {
     if (!dbAvailable) return; // skip when DB isn't available
-    const create = await request(app).post('/users').send({ name: 'Test', email: 'test@example.com' });
+    const create = await request(app)
+      .post("/users")
+      .send({ name: "Test", email: "test@example.com" });
     expect(create.status).toBe(201);
-    expect(create.body).toHaveProperty('id');
+    expect(create.body).toHaveProperty("id");
 
-    const list = await request(app).get('/users');
+    const list = await request(app).get("/users");
     expect(list.status).toBe(200);
     expect(Array.isArray(list.body)).toBe(true);
 

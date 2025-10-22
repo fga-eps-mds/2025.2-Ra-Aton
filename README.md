@@ -22,7 +22,7 @@ pnpm install
 - criar um banco de dados Postgres (local ou via Docker)
 se o tiver o docker instalado, pode rodar o comando abaixo na raiz do projeto para criar um container com o Postgres:
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
 
 - criar um arquivo `.env` na pasta `apps/api` com a variável `DATABASE_URL` apontando para o banco de dados criado
