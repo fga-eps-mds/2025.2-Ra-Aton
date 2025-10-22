@@ -21,3 +21,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// model sessoes {
+//   id_sessao primaria @id @default(uuid())
+//   id_user estrangeira
+//   token 'afid019' @unique
+// }

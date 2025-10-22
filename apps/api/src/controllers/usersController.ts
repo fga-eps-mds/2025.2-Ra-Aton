@@ -8,6 +8,7 @@ export async function listUsers(_req: Request, res: Response) {
 
 export async function getUser(req: Request, res: Response) {
   const { id } = req.params;
+
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json(user);
