@@ -18,6 +18,10 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
+  // passwordHash stores bcrypt hashed password. Nullable for existing legacy records; should be populated.
+  passwordHash String?
+  // profileType identifies the user role; defaulting to 'jogador'.
+  profileType String @default("jogador")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

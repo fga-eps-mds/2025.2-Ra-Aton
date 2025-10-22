@@ -13,7 +13,8 @@
     "db:migrate": "prisma migrate dev --name init",
     "db:studio": "prisma studio",
     "prepare:db": "pnpm db:generate && pnpm db:migrate",
-    "dev:ready": "pnpm prepare:db && pnpm dev"
+    "dev:ready": "pnpm prepare:db && pnpm dev",
+    "db:seed": "pnpm exec ts-node src/scripts/seedUser.ts"
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,13 @@
 import app from './app';
 import { prisma } from './prisma';
 
+// Validate required environment variables
+if (!process.env.JWT_SECRET) {
+	// eslint-disable-next-line no-console
+	console.error('FATAL: missing environment variable JWT_SECRET')
+	process.exit(1)
+}
+
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 const server = app.listen(PORT, () => {
