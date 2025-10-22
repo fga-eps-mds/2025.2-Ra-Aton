@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { auth } from "../middlewares/authMock"
+import { Router } from "express";
+import { auth } from "../middlewares/authMock";
 import {
   listUsers,
   getUser,
@@ -10,10 +10,10 @@ import {
 
 const router: Router = Router();
 
-router.get('/', listUsers);
-router.get('/:id', getUser);
-router.post('/', createUser);
-router.put('/:id', auth, updateUser);
-router.delete('/:id', auth, deleteUser);
+router.get("/", listUsers);
+router.get("/:userName", getUser);
+router.post("/", createUser);
+router.put("/:userName", auth, updateUser);
+router.delete("/:userName", auth, deleteUser);
 
 export default router;

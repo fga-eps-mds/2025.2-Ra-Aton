@@ -18,11 +18,13 @@ enum ProfileType {
   JOGADOR
   TORCEDOR
   ATLETICA
+  NONE
 }
 
 model User {
   id          String      @id @default(uuid())
   name        String
+  userName    String      @unique
   email       String      @unique
   password    String
   profileType ProfileType

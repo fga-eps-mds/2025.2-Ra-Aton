@@ -1,14 +1,12 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma";
-import { emit } from "process";
-import { profile } from "console";
 
 const uuidRegex =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const allowedProfileType = ["JOGADOR", "TORCEDOR", "ATLETICA"] as const;
+const allowedProfileType = ["JOGADOR", "TORCEDOR", "ATLETICA", "NONE"] as const;
 
 export async function listUsers(_req: Request, res: Response) {
   const users = await prisma.user.findMany({
@@ -18,6 +16,7 @@ export async function listUsers(_req: Request, res: Response) {
     select: {
       id: true,
       name: true,
+      userName: true,
       email: true,
       profileType: true,
       createdAt: true,
@@ -28,17 +27,15 @@ export async function listUsers(_req: Request, res: Response) {
 }
 
 export async function getUser(req: Request, res: Response) {
-  const { id } = req.params;
-
-  if (!id || !uuidRegex.test(id)) {
-    return res.status(400).json({ error: "Invalid id format" });
-  }
+  const { userName } = req.params;
+  console.log("username:" + userName);
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { userName: String(userName) },
       select: {
         id: true,
         name: true,
+        userName: true,
         email: true,
         profileType: true,
         createdAt: true,
@@ -55,11 +52,12 @@ export async function getUser(req: Request, res: Response) {
 }
 
 export async function createUser(req: Request, res: Response) {
-  const { name, email, password, profileType } = req.body;
-  if (!name || !email || !password || !profileType)
+  const { name, userName, email, password } = req.body;
+  const profileType = "NONE";
+  if (!name || !email || !password || !userName)
     return res
       .status(400)
-      .json({ error: "name, email, password and profile type are required" });
+      .json({ error: "name, email, password and username are required" });
 
   const pt = String(profileType).toUpperCase();
   if (!allowedProfileType.includes(pt as any)) {
@@ -71,17 +69,26 @@ export async function createUser(req: Request, res: Response) {
   }
 
   try {
-    const existingAccount = await prisma.user.findUnique({
+    const existingEmailAccount = await prisma.user.findUnique({
       where: { email: String(email).toLowerCase().trim() },
     });
-    if (existingAccount) {
+    if (existingEmailAccount) {
       // Initial validation
       return res.status(404).json({ error: "Email already in use" });
     }
+
+    const existingUserNameAccount = await prisma.user.findUnique({
+      where: { userName: String(userName).trim() },
+    });
+    if (existingUserNameAccount) {
+      return res.status(404).json({ error: "Username already in use" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
         name,
+        userName,
         email,
         password: hashedPassword,
         profileType: profileType,
@@ -98,27 +105,34 @@ export async function createUser(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
-  const { id } = req.params;
+  const { userName } = req.params;
+  const userFound = await prisma.user.findUnique({
+    where: { userName: String(userName).trim() },
+  });
+  if (!userFound) {
+    return res.status(404).json({ error: `User with ${userName} not found` });
+  }
   const authUser = (req as any).user;
   if (!authUser || !authUser.id) {
     return res.status(401).json({ error: "Unauthorized user" });
   }
-  if (!id || !uuidRegex.test(id)) {
-    return res.status(400).json({ error: "Invalid id format" });
-  }
-  if (authUser.id !== id) {
+
+  if (authUser.id !== userFound.id) {
     return res
       .status(403)
       .json({ error: "Forbidden: cannot update other user" });
   }
 
-  const { name, email, profileType } = req.body ?? {};
-  if (!name && !email && !profileType) {
+  const { name, newUserName, email, profileType } = req.body ?? {};
+  if (!name && !email && !profileType && !newUserName) {
     return res.status(400).json({ error: "Nothing to change" });
   }
   const data: any = {};
   if (name) {
     data.name = String(name).trim();
+  }
+  if (newUserName) {
+    data.userName = String(newUserName);
   }
   if (email) {
     if (!emailRegex.test(String(email).toLowerCase())) {
@@ -128,36 +142,33 @@ export async function updateUser(req: Request, res: Response) {
       where: { email: String(email).toLowerCase().trim() },
     });
     if (existingUser) {
-      return res.status(404).json({ error: "Email already in use"});
+      return res.status(404).json({ error: "Email already in use" });
     }
     data.email = String(email).toLowerCase().trim();
   }
   if (profileType) {
     const pt = String(profileType).toUpperCase();
     if (!allowedProfileType.includes(pt as any)) {
-      return res.status(404).json({ error: "Invalid profile type"})
+      return res.status(404).json({ error: "Invalid profile type" });
     }
     data.profileType = pt;
   }
   try {
     const user = await prisma.user.update({
-      where: { id },
+      where: { id: userFound.id },
       data,
       select: {
         id: true,
         name: true,
+        userName: true,
         email: true,
         profileType: true,
         createdAt: true,
         updatedAt: true,
-      }
+      },
     });
     return res.status(200).json(user);
   } catch (err: any) {
-    if (err.code === "P2025")
-      return res.status(404).json({ error: "User not found" });
-    if (err.code === "P2002")
-      return res.status(409).json({ error: "Email already in use" });
     if (err.code === "P2025")
       return res.status(404).json({ error: "User not found" });
     if (err.code === "P2002")
@@ -167,27 +178,28 @@ export async function updateUser(req: Request, res: Response) {
 }
 
 export async function deleteUser(req: Request, res: Response) {
-  const { id } = req.params;
+  const { userName } = req.params;
+  const userFound = await prisma.user.findUnique({
+    where: { userName: String(userName).trim() },
+  });
+  if (!userFound) {
+    return res.status(404).json({ error: `User with ${userName} not found` });
+  }
   const authUser = (req as any).user;
   if (!authUser || !authUser.id) {
     return res.status(401).json({ error: "Unauthorized user" });
   }
-  if (!id || !uuidRegex.test(id)) {
-    return res.status(400).json({ error: "Invalid id format" });
-  }
-  if (authUser.id !== id) {
+  if (authUser.id !== userFound.id) {
     return res
       .status(403)
       .json({ error: "Forbidden: cannot update other user" });
   }
   try {
     // adicionar verificação de session
-    await prisma.user.delete({ where: { id } });
+    await prisma.user.delete({ where: { id: userFound.id } });
     // adicionar cleanup de session
     res.status(204).send();
   } catch (err: any) {
-    if (err.code === "P2025")
-      return res.status(404).json({ error: "User not found" });
     if (err.code === "P2025")
       return res.status(404).json({ error: "User not found" });
     throw err;
