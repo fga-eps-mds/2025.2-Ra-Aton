@@ -158,6 +158,10 @@ export async function updateUser(req: Request, res: Response) {
       return res.status(404).json({ error: "User not found" });
     if (err.code === "P2002")
       return res.status(409).json({ error: "Email already in use" });
+    if (err.code === "P2025")
+      return res.status(404).json({ error: "User not found" });
+    if (err.code === "P2002")
+      return res.status(409).json({ error: "Email already in use" });
     throw err;
   }
 }
@@ -182,6 +186,8 @@ export async function deleteUser(req: Request, res: Response) {
     // adicionar cleanup de session
     res.status(204).send();
   } catch (err: any) {
+    if (err.code === "P2025")
+      return res.status(404).json({ error: "User not found" });
     if (err.code === "P2025")
       return res.status(404).json({ error: "User not found" });
     throw err;

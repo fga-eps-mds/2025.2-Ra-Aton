@@ -1,6 +1,6 @@
 # Aton 
 
-# dependências
+# Dependências necessárias
 - pnpm 
 - node 18+
 - banco de dados Postgres rodando (local ou via Docker)
@@ -20,8 +20,13 @@ pnpm install
 ```
 4. configurar o banco de dados
 - criar um banco de dados Postgres (local ou via Docker)
+se o tiver o docker instalado, pode rodar o comando abaixo na raiz do projeto para criar um container com o Postgres:
+```bash
+docker-compose up -d
+```
+
 - criar um arquivo `.env` na pasta `apps/api` com a variável `DATABASE_URL` apontando para o banco de dados criado
-ex: `DATABASE_URL="postgresql://usuario:senha@localhost:5432/nome_do_banco"`
+ex: `DATABASE_URL="postgresql://usuario:senha@localhost:5432/nome_do_banco`
 
 5. rodar o projeto
 ```bash
@@ -35,8 +40,13 @@ pnpm dev:mobile # roda só o frontend (apps/mobile)
 6. acessar:
 
     http://localhost:4000 (API rodando com nodemon + ts-node-dev)
-
     ou
-
     http://localhost:8081 (frontend rodando com Expo)
+
+# rodar testes
+```bash
+pnpm test:api # roda os testes do backend (apps/api)
+pnpm test:mobile # roda os testes do frontend (apps/mobile)
+pnpm test # roda os testes do backend e do frontend
+```
 

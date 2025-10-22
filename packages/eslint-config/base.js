@@ -19,6 +19,7 @@ export const config = [
     },
     rules: {
       "turbo/no-undeclared-env-vars": "warn",
+      "no-consoleeslint": 0,
     },
   },
   {
@@ -27,6 +28,6 @@ export const config = [
     },
   },
   {
-    ignores: ["dist/**"],
+    ignores: ["dist/**", "build/**", "node_modules/**", "**.config.js", "**.config.ts", "**.config.cjs", "**.js" , "**/generated/**", "coverage/**", "**.sql", ],
   },
 ];

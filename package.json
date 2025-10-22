@@ -6,6 +6,9 @@
     "dev": "turbo run dev --parallel",
     "dev:api": "pnpm --filter api dev:ready",
     "dev:mobile": "pnpm --filter mobile dev",
+    "test": "turbo run test --parallel",
+    "test:api": "pnpm --filter api -s test",
+    "test:mobile": "pnpm --filter mobile -s test",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
@@ -13,7 +16,10 @@
   "devDependencies": {
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
+    "@types/jest": "^29.5.4"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

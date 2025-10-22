@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest",
+    "lint": "eslint . --ext .ts,.tsx --fix",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --name init",
     "db:studio": "prisma studio",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
+    "@repo/jest-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.19",
@@ -40,8 +42,14 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^22.15.3",
     "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.5.4",
+    "jest": "^30.2.0",
     "prisma": "^6.17.1",
     "supertest": "^7.1.4",
+    "ts-jest": "^29.4.5",
     "ts-node-dev": "^2.0.0"
   }
 }
