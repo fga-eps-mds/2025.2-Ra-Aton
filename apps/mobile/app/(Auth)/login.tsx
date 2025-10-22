@@ -24,6 +24,25 @@ import InputComp from "@/components/InputComp";
 import * as SecureStore from "expo-secure-store";
 // import LoginScreen from "../../app/(Auth)/teste"; // Removido (lógica integrada)
 
+const showAlert = () => {
+  Alert.alert(
+    "Título do Alerta",
+    "Esta é a mensagem que será exibida no alerta.",
+    [
+      {
+        text: "Cancelar",
+        onPress: () => console.log("Botão Cancelar Pressionado"),
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: () => console.log("Botão OK Pressionado"),
+      },
+    ],
+    { cancelable: false }
+  );
+};
+
 // Hook para simular uma chamada de API (mantido)
 const useAuth = () => {
   const login = (
@@ -140,6 +159,10 @@ const HomeInner: React.FC = () => {
 
   // --- Fim da Lógica de Login ---
 
+  // >>> Inicio da logica de recuperar a senha <<<
+
+  // >>> Fim da logica de recuperar a senha <<<
+
   return (
     <ScrollView
       contentContainerStyle={{
@@ -187,12 +210,15 @@ const HomeInner: React.FC = () => {
 
         {/* CA8: Link "Esqueci minha senha" */}
         <TouchableOpacity
+          
           style={styles.forgotPasswordButton}
-          onPress={() => {
-            /* TODO: Adicionar navegação para fluxo de recuperação */
-          }}
+
+          /* TODO: Adicionar navegação para fluxo de recuperação */
         >
-          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+          <Spacer height={20} />
+          <Text style={styles.forgotPasswordText} onPress={showAlert}>
+            Esqueci minha senha
+          </Text>
         </TouchableOpacity>
 
         {/* CA4: Exibição de Erro */}
