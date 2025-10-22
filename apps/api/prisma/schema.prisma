@@ -14,10 +14,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ProfileType {
+  JOGADOR
+  TORCEDOR
+  ATLETICA
+}
+
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String      @id @default(uuid())
+  name        String
+  email       String      @unique
+  password    String
+  profileType ProfileType
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
