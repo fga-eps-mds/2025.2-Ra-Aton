@@ -23,10 +23,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+      - name: Caching pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 18
           cache: 'pnpm'
@@ -37,20 +39,32 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Wait for Postgres
-        env:
-          DATABASE_URL: postgresql://postgres:password@localhost:5432/aton
-        run: |
-          for i in {1..30}; do
-            pg_isready -h localhost -p 5432 -U postgres && break || sleep 1
-          done
-
       - name: Generate Prisma client (api)
         working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
         run: pnpm prisma generate
+
+      # --- NOVO PASSO ADICIONADO AQUI ---
+      # Aplica o schema.prisma ao banco de dados vazio
+      - name: Apply DB schema
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: pnpm prisma db push
+      # ------------------------------------
+      
+      - name: Set up environment for tests
+        run: |
+          echo "DATABASE_URL=${{ env.DATABASE_URL }}" >> $GITHUB_ENV
+          mkdir -p apps/api/prisma
+          echo "DATABASE_URL=${{ env.DATABASE_URL }}" > apps/api/prisma/.env
+          echo "DATABASE_URL=${{ env.DATABASE_URL }}" > apps/api/.env
 
       - name: Run workspace tests
         working-directory: .
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
         run: pnpm test
 
       - name: Workspace typecheck
