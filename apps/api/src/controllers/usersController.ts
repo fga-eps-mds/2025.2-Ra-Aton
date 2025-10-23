@@ -2,11 +2,8 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma";
 
-const uuidRegex =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const allowedProfileType = ["JOGADOR", "TORCEDOR", "ATLETICA", "NONE"] as const;
+const allowedProfileType = ["JOGADOR", "TORCEDOR", "ATLETICA"] as const;
 
 export async function listUsers(_req: Request, res: Response) {
   const users = await prisma.user.findMany({
@@ -53,16 +50,10 @@ export async function getUser(req: Request, res: Response) {
 
 export async function createUser(req: Request, res: Response) {
   const { name, userName, email, password } = req.body;
-  const profileType = "NONE";
   if (!name || !email || !password || !userName)
     return res
       .status(400)
       .json({ error: "name, email, password and username are required" });
-
-  const pt = String(profileType).toUpperCase();
-  if (!allowedProfileType.includes(pt as any)) {
-    return res.status(404).json({ error: "Invalid profile type" });
-  }
 
   if (!emailRegex.test(String(email).toLowerCase())) {
     return res.status(404).json({ error: "Invalid email format" });
@@ -91,10 +82,10 @@ export async function createUser(req: Request, res: Response) {
         userName,
         email,
         password: hashedPassword,
-        profileType: profileType,
       },
     });
-    res.status(201).json(user);
+    const {password: _, ...userNoPassword } = user;
+    res.status(201).json(userNoPassword);
   } catch (err: any) {
     // Extra validation
     if (err.code === "P2002") {

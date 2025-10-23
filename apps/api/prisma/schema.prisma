@@ -18,16 +18,15 @@ enum ProfileType {
   JOGADOR
   TORCEDOR
   ATLETICA
-  NONE
 }
 
 model User {
   id          String      @id @default(uuid())
   name        String
-  userName    String      @unique
   email       String      @unique
+  userName    String      @unique
   password    String
-  profileType ProfileType
+  profileType ProfileType?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
