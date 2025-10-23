@@ -6,8 +6,6 @@ dotenv.config()
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const token = req.headers['authorization']
-  //const token = authHeader && authHeader.split(' ')[1] <- Não tava funcionando
-  console.log(token);
   if (!token) {
     return res.status(401).json({ message: 'Token não fornecido.' })
   }
@@ -18,6 +16,6 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     ;(req as any).user = decoded
     next()
   } catch (err) {
-    return res.status(401).json({ message: 'Token inválido.' })
+    return res.status(401).json({ message: 'Token expirado ou inválido.' })
   }
 };
