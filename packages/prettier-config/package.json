@@ -1,0 +1,13 @@
+{
+  "name": "@repo/prettier-config",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "exports": {
+    "./base": "./base.js"
+  },
+  "devDependencies": {
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2"
+  }
+}
