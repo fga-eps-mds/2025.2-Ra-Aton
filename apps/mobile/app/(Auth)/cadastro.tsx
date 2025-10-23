@@ -27,7 +27,7 @@ import { Ionicons } from "@expo/vector-icons";
       const styles = makeStyles(theme);
       const [name, setName] = useState(''); 
       const [email, setEmail] = useState('');
-      const [nickname, setNickname] = useState('');
+      const [userName, setNickname] = useState('');
       const [password, setPassword] = useState('');
       const [confirmPassword, setConfirmPassword] = useState('');
       const [errorName, setErrorName] = useState('');
@@ -57,9 +57,9 @@ import { Ionicons } from "@expo/vector-icons";
           }
         }
 
-      const verifyNickname = (nickname:string) => {
+      const verifyNickname = (userName:string) => {
         setErrorNickname('');
-        if(nickname.length < 3) return "Digite um apelido válido"
+        if(userName.length < 3) return "Digite um apelido válido"
         else return '';
 
       } 
@@ -94,15 +94,17 @@ import { Ionicons } from "@expo/vector-icons";
         if(email) setErrorEmail(verifyEmail(email));
         if(password) setErrorPassword(verifyPassword(password));
         if(confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password,confirmPassword));
-        if(nickname) setErrorNickname(verifyNickname(nickname));
-      },[name,email,password,confirmPassword,nickname]);
+        if(userName) setErrorNickname(verifyNickname(userName));
+      },[name,email,password,confirmPassword,userName]);
+
+      const isDisabled = !email || !password || !confirmPassword;
 
       const statusBtnCadastro = () => {
         const errName = verifyName(name);
         const errEmail = verifyEmail(email);
         const errPassword = verifyPassword(password);
         const errConfirmrPassword = verifyConfirmPassword(password,confirmPassword);
-        const errNickname = verifyNickname(nickname);
+        const errNickname = verifyNickname(userName);
         setErrorName(errName);
         setErrorEmail(errEmail);
         setErrorPassword(errPassword);
@@ -115,19 +117,53 @@ import { Ionicons } from "@expo/vector-icons";
       const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline"; 
     
       if(!errName && !errNickname && !errEmail && !errPassword && !errConfirmrPassword){      
-          router.push("/(Auth)/formsCadastro")  
+          // router.push("/(Auth)/formsCadastro")
+          console.log("Credenciais Validas");
+          handleRegister()
       }
     }
+    // Função para mandar os dados do registro para o BackEnd
+    const handleRegister = async () => {
+      //const profileType = "NONE";
+      try {
+        const response = await fetch("http://localhost:4000/users/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            userName,
+            email,
+            password,
+          //  profileType,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Erro ao cadastrar.");
+          return;
+        }
+
+        alert("Cadastro realizado com sucesso!");
+        router.push("/(Auth)/login");
+      } catch (error) {
+        console.error("Erro:", error);
+        alert("Não foi possível conectar ao servidor.");
+      }
+    };
+
       return (
         <ThemedView style={styles.bg}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>        
             <ThemedView style={styles.container}>
             {/* Dark/Light mode (PlaceHolder)*/}
-            {/* <Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
+             {/*<Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
               <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
 
               </Text>
-            </Button1Comp> */}
+            </Button1Comp>
+            */} 
             {/* */}
 
             <Image source={NamedLogo} style={styles.img}/>
@@ -137,7 +173,7 @@ import { Ionicons } from "@expo/vector-icons";
                 <InputComp label="Nome de Usuário" iconName="person-sharp" value={name} onChangeText={setName} status={!!errorName} statusText={errorName}></InputComp>
                 <Spacer height={40}/>
                 
-                <InputComp label="Apelido" iconName="pricetag-outline" value={nickname} onChangeText={setNickname} status={!!errorNickname} statusText={errorNickname}></InputComp>
+                <InputComp label="Apelido" iconName="pricetag-outline" value={userName} onChangeText={setNickname} status={!!errorNickname} statusText={errorNickname}></InputComp>
                 
                 <Spacer height={40}/>
 
@@ -159,7 +195,7 @@ import { Ionicons } from "@expo/vector-icons";
               </View>
               <View style={styles.redirectInfos}>
                 {/* <Spacer height={20}/>  */}
-                <Button1Comp onPress={statusBtnCadastro}>Criar conta</Button1Comp>
+                <Button1Comp disabled={isDisabled} onPress={statusBtnCadastro}>Criar conta</Button1Comp>
                 <Spacer height={30}/>
                 <Text style={styles.txt}>Ja possui uma conta?</Text>
                 <Spacer height={10}/>
