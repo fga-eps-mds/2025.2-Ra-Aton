@@ -5,9 +5,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-
+  const token = req.headers['authorization']
+  //const token = authHeader && authHeader.split(' ')[1] <- Não tava funcionando
+  console.log(token);
   if (!token) {
     return res.status(401).json({ message: 'Token não fornecido.' })
   }
@@ -20,4 +20,4 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   } catch (err) {
     return res.status(401).json({ message: 'Token inválido.' })
   }
-}
+};

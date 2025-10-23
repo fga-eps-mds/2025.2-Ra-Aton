@@ -8,9 +8,9 @@ const router: Router = Router()
 
 router.post('/login', async (req: Request, res: Response) => {
   try {
-    const { email, senha } = req.body
+    const { email, passwordHash } = req.body // TODO: Renomear para password
 
-    if (!email || !senha) {
+    if (!email || !passwordHash) {
       return res.status(400).json({ message: 'Campos ausentes.' })
     }
 
@@ -29,12 +29,12 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(500).json({ message: 'Conta inválida no banco (senha ausente). Verifique a migração do Prisma.' })
     }
 
-    const senhaValida = await bcrypt.compare(senha, dbPassword)
+    const senhaValida = await bcrypt.compare(passwordHash, dbPassword) // TODO: Comparar com password 
     if (!senhaValida) {
       return res.status(401).json({ message: 'E-mail ou senha incorretos.' })
     }
 
-    const secret: Secret = process.env.JWT_SECRET as Secret
+  const secret: Secret = process.env.JWT_SECRET as Secret
   const options: SignOptions = { expiresIn: (process.env.JWT_EXPIRATION ?? '1h') as SignOptions['expiresIn'] }
 
     const profileType = (user as any).profileType ?? 'jogador'
