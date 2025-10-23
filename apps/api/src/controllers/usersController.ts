@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma";
+import { User } from "@prisma/client";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const allowedProfileType = ["JOGADOR", "TORCEDOR", "ATLETICA"] as const;
@@ -10,38 +11,21 @@ export async function listUsers(_req: Request, res: Response) {
     orderBy: {
       createdAt: "desc",
     },
-    select: {
-      id: true,
-      name: true,
-      userName: true,
-      email: true,
-      profileType: true,
-      createdAt: true,
-      updatedAt: true,
-    },
   });
-  res.json(users);
+  const usersNoPassword = users.map(({ password, ...rest }) => rest);
+
+  res.json(usersNoPassword);
 }
 
 export async function getUser(req: Request, res: Response) {
   const { userName } = req.params;
-  console.log("username:" + userName);
   try {
     const user = await prisma.user.findUnique({
       where: { userName: String(userName) },
-      select: {
-        id: true,
-        name: true,
-        userName: true,
-        email: true,
-        profileType: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
     if (!user) return res.status(404).json({ error: "User not found" });
-
-    return res.status(200).json(user);
+    const { password: _, ...userNoPassword } = user;
+    return res.status(200).json(userNoPassword);
   } catch (err) {
     console.error("getUser error:", err);
     return res.status(500).json({ error: "Internal server error" });
@@ -84,7 +68,7 @@ export async function createUser(req: Request, res: Response) {
         password: hashedPassword,
       },
     });
-    const {password: _, ...userNoPassword } = user;
+    const { password: _, ...userNoPassword } = user;
     res.status(201).json(userNoPassword);
   } catch (err: any) {
     // Extra validation
@@ -148,17 +132,9 @@ export async function updateUser(req: Request, res: Response) {
     const user = await prisma.user.update({
       where: { id: userFound.id },
       data,
-      select: {
-        id: true,
-        name: true,
-        userName: true,
-        email: true,
-        profileType: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
-    return res.status(200).json(user);
+    const { password: _, ...userNoPassword } = user;
+    return res.status(200).json(userNoPassword);
   } catch (err: any) {
     if (err.code === "P2025")
       return res.status(404).json({ error: "User not found" });
@@ -189,7 +165,7 @@ export async function deleteUser(req: Request, res: Response) {
     // adicionar verificação de session
     await prisma.user.delete({ where: { id: userFound.id } });
     // adicionar cleanup de session
-    res.status(204).send();
+    res.status(204).json();
   } catch (err: any) {
     if (err.code === "P2025")
       return res.status(404).json({ error: "User not found" });
