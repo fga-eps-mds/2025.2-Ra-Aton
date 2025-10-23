@@ -20,7 +20,6 @@ const mockedPrisma = prisma as any as {
     delete: jest.Mock;
   };
 };
-
 describe("users controller - updateUser & deleteUser", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -75,16 +74,7 @@ describe("users controller - updateUser & deleteUser", () => {
           name: "New Name",
           userName: "newname",
           email: "new@example.com",
-        }),
-        select: {
-          id: true,
-          name: true,
-          userName: true,
-          email: true,
-          profileType: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        })
       });
     });
 

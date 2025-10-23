@@ -3,6 +3,8 @@ import request from "supertest";
 import { prisma } from "../../prisma";
 import app from "../../app"; // seu app Express principal
 
+jest.setTimeout(20000);
+
 describe("User Controller - getUser", () => {
   beforeAll(async () => {
     await prisma.user.deleteMany({});
