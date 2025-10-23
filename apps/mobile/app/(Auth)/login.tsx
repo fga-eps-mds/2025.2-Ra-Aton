@@ -39,7 +39,7 @@ const showAlert = () => {
         onPress: () => console.log("Botão OK Pressionado"),
       },
     ],
-    { cancelable: false }
+    { cancelable: false },
   );
 };
 
@@ -47,7 +47,7 @@ const showAlert = () => {
 const useAuth = () => {
   const login = (
     email: string,
-    password: string
+    password: string,
   ): Promise<{ token: string }> => {
     console.log("[useAuth.login] called with", { email, password });
     return new Promise<{ token: string }>((resolve, reject) => {
@@ -210,7 +210,6 @@ const HomeInner: React.FC = () => {
 
         {/* CA8: Link "Esqueci minha senha" */}
         <TouchableOpacity
-          
           style={styles.forgotPasswordButton}
 
           /* TODO: Adicionar navegação para fluxo de recuperação */

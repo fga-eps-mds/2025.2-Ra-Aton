@@ -8,28 +8,48 @@ import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 const Teams = () => {
-    const { isDarkMode, toggleDarkMode } = useTheme();
-    const theme = isDarkMode ? Colors.dark : Colors.light;
-    const styles = makeStyles(theme);
-    const router = useRouter();
-  
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const theme = isDarkMode ? Colors.dark : Colors.light;
+  const styles = makeStyles(theme);
+  const router = useRouter();
+
   return (
     <ThemedView style={styles.container}>
-     
-      <Button1Comp onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
-        <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
+      <Button1Comp
+        onPress={toggleDarkMode}
+        style={{
+          width: 40,
+          height: 40,
+          padding: 0,
+          margin: 0,
+          alignSelf: "flex-end",
+          alignContent: "center",
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <Text
+          style={[
+            {
+              fontWeight: "700",
+              fontSize: 30,
+              alignContent: "center",
+              justifyContent: "center",
+              alignItems: "center",
+            },
+          ]}
+        >
           *
         </Text>
       </Button1Comp>
 
-      <Text style={[styles.txt, { textAlign: 'center'}]}>Teams</Text>
-
-      
+      <Text style={[styles.txt, { textAlign: "center" }]}>Teams</Text>
     </ThemedView>
-  )
-}
+  );
+};
 
-export default Teams
+export default Teams;
 
 const makeStyles = (theme: any) =>
   StyleSheet.create({
@@ -38,12 +58,12 @@ const makeStyles = (theme: any) =>
       backgroundColor: theme.background,
       padding: 16,
     },
-       txt: {
+    txt: {
       color: theme.text,
       fontWeight: "500",
     },
-    
-        inputBox: {
+
+    inputBox: {
       width: "100%",
       height: 40,
       borderRadius: 34,

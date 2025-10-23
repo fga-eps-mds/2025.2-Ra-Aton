@@ -13,27 +13,46 @@ import { Ionicons } from "@expo/vector-icons";
 
 type Button1CompProps = {
   style?: StyleProp<ViewStyle>;
-  iconName?: keyof typeof Ionicons.glyphMap
+  iconName?: keyof typeof Ionicons.glyphMap;
 } & TouchableOpacityProps;
 
-const Button1Comp: React.FC<Button1CompProps> = ({ style, children, iconName, ...props }) => {
+const Button1Comp: React.FC<Button1CompProps> = ({
+  style,
+  children,
+  iconName,
+  ...props
+}) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
   return (
     <TouchableOpacity
-        style={[{     
-            backgroundColor: themeColors.orange,
-            width: '60%',
-            height: 60,
-            borderRadius: 30,
-            alignItems: "center",
-            justifyContent: 'center' }, style]}
-        {...props}
+      style={[
+        {
+          backgroundColor: themeColors.orange,
+          width: "60%",
+          height: 60,
+          borderRadius: 30,
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        style,
+      ]}
+      {...props}
     >
-      {iconName ? ( <Ionicons name={iconName} size={24} color={themeColors.text} /> )
-            :
-            <Text style={{ color: themeColors.text, textAlign: "center", fontWeight: '700', fontSize: 18 }}>{children}</Text>}
-    
+      {iconName ? (
+        <Ionicons name={iconName} size={24} color={themeColors.text} />
+      ) : (
+        <Text
+          style={{
+            color: themeColors.text,
+            textAlign: "center",
+            fontWeight: "700",
+            fontSize: 18,
+          }}
+        >
+          {children}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };

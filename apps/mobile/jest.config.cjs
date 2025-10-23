@@ -12,5 +12,5 @@ module.exports = {
   ],
   // keep mobile specific setup from package.json if needed
   setupFiles: ['<rootDir>/jest-setup.js'],
-  setupFilesAfterEnv: ['@testing-library/jest-native'],
+  setupFilesAfterEnv: ['@testing-library/jest-native', '@testing-library/react-native'],
 };

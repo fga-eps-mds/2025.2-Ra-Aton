@@ -8,13 +8,12 @@ type ThemedViewProps = {
 
 const ThemedView: React.FC<ThemedViewProps> = ({ style, ...props }) => {
   const { isDarkMode } = useTheme();
-  const backgroundColor = isDarkMode ? Colors.dark.background : Colors.light.background;
+  const backgroundColor = isDarkMode
+    ? Colors.dark.background
+    : Colors.light.background;
   const theme = { background: backgroundColor };
   return (
-    <View
-      style={[{ backgroundColor: theme.background}, style]}
-      {...props}
-    />
+    <View style={[{ backgroundColor: theme.background }, style]} {...props} />
   );
 };
 
