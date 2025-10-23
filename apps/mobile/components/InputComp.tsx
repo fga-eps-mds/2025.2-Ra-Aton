@@ -6,11 +6,14 @@
         TextInput,
         TextInputProps,
         StyleSheet,
+        TouchableOpacity,
     } from "react-native";
+    import { useState } from "react";
     import { Ionicons } from "@expo/vector-icons";
     import { useTheme } from "../constants/Theme";
     import { Colors } from "../constants/Colors";
     import { Fonts } from "@/constants/Fonts";
+import Spacer from "./SpacerComp";
 
     
     type InputCompProps = TextInputProps & {
@@ -27,7 +30,7 @@
 
     const InputComp = ({
         width = "100%",
-        height = 67,
+        // height = 67,
         bgColor,
         label,
         children,
@@ -42,30 +45,62 @@
         const themeColors = isDarkMode ? Colors.dark : Colors.light;
         const inputPaddingVertical = (45 - 20) / 2
         const inputPaddingLeft = iconName ? 40 : 20;
+        const inputPaddingRight = secureTextEntry? 40:20;
         const backgroundColor = bgColor || themeColors.input;
         const statusBorderColor = status ? Colors.warning : themeColors.orange
-
+        
+        const [showPassword, setShowPassword] = useState(false);
+        
         const styles = makeStyles(themeColors, inputPaddingVertical);
+
+
+        
         return (
-            <View
-                style={{
-                    width,
-                    height,
-                    backgroundColor: bgColor,
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    padding: 0,
-                }}
-            >
-                <View style={styles.inpuxLabel}>
-                    <Text style={styles.txt}>{label}</Text>
-                </View>
-                <View style={styles.inputCompContainer}>
-                    {iconName && (<Ionicons name={iconName} size={20} color='orange' style={styles.inputIcon}/>)}
-                    <TextInput style={[styles.inputBox, { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor}]} secureTextEntry={secureTextEntry} {...rest} />
-                </View>
-                    <Text style={styles.textStatusMessage}>{statusText}</Text>
+            <View style={{ width, alignItems: "center" }}>
+            <View style={styles.inpuxLabel}>
+                <Text style={styles.txt}>{label}</Text>
             </View>
+
+            <View style={styles.inputCompContainer}>
+                {iconName && (
+                <Ionicons
+                    name={iconName}
+                    size={20}
+                    color="orange"
+                    style={styles.inputIcon}
+                />
+                )}
+                <TextInput
+                style={[
+                    styles.inputBox,
+                    { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor, paddingRight: inputPaddingRight },
+                ]}
+                secureTextEntry={secureTextEntry && !showPassword}
+                  placeholder={placeholder}             
+                  placeholderTextColor={themeColors.text + "99"} // semi-transparente
+                {...rest}
+                />
+                 {/* Ícone do lado direito */}
+                {secureTextEntry && (
+                    <TouchableOpacity
+                        onPress={() => setShowPassword(!showPassword)}
+                        style={{ position: "absolute", right: 10, top: "50%", transform: [{ translateY: -10 }] }}
+                    >
+                        <Ionicons
+                            name={showPassword ? "eye-off" : "eye"}
+                            size={20}
+                            style={styles.passwordIcon}
+                        />
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            <Text style={[styles.textStatusMessage, { color: statusBorderColor }]}>
+            {statusText || " "}  {/* Se trocar por "" o tamanho ja fica esperando a mensagem no lugar de aparece condicionalmente*/}
+            </Text>
+
+            </View>
+
         );
     };
 
@@ -73,8 +108,9 @@
         StyleSheet.create({
             
             inputBox: {
-                width: "100%",
-                height: 45,
+                // width: "100%",
+                flex:1,
+                minHeight: 45,
                 borderRadius: 34,
                 backgroundColor: theme.input,
                 borderWidth: 1,
@@ -96,6 +132,7 @@
             inputCompContainer:{
                 width: "100%",
                 justifyContent: 'center',
+                position: 'relative',
             },  
             inputIcon:{
                 position: 'absolute', 
@@ -104,11 +141,15 @@
                 color:Colors.text.iconColors
 
             },
+            passwordIcon:{
+                color:Colors.text.iconColors
+            },
             textStatusMessage:{
                 marginLeft: 17,
                 alignSelf: 'flex-start',
                 fontSize:13,
-                color: Colors.warning,                
+                color: Colors.warning,     
+                // marginBottom:40,           
             }
 
         });
