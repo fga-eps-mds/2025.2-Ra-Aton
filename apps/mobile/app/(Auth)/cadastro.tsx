@@ -12,6 +12,8 @@
     import { useRouter } from "expo-router";
     import { Fonts } from "@/constants/Fonts";
 import { Ionicons } from "@expo/vector-icons";
+
+import { registerUser } from "@/libs/handleRegister";
     
     const Cadastro: React.FC = () => {
       return <CadastroInner />;
@@ -126,31 +128,13 @@ import { Ionicons } from "@expo/vector-icons";
     const handleRegister = async () => {
       //const profileType = "NONE";
       try {
-        const response = await fetch("http://localhost:4000/users/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            userName,
-            email,
-            password,
-          //  profileType,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          alert(data.error || "Erro ao cadastrar.");
-          return;
-        }
-
-        alert("Cadastro realizado com sucesso!");
+        await registerUser({ name, userName, email, password });
+        console.log("Cadastro realizado");
         router.push("/(Auth)/login");
-      } catch (error) {
-        console.error("Erro:", error);
-        alert("Não foi possível conectar ao servidor.");
+      }catch (error : any) {
+        console.log(error.message);
       }
+
     };
 
       return (
