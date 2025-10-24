@@ -23,12 +23,12 @@ export async function getUser(req: Request, res: Response) {
     const user = await prisma.user.findUnique({
       where: { userName: String(userName) },
     });
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
     const { password: _, ...userNoPassword } = user;
     return res.status(200).json(userNoPassword);
   } catch (err) {
     console.error("getUser error:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
 
@@ -37,10 +37,10 @@ export async function createUser(req: Request, res: Response) {
   if (!name || !email || !password || !userName)
     return res
       .status(400)
-      .json({ error: "name, email, password and username are required" });
+      .json({ error: "nome, email, password e username são obrigatorios" });
 
   if (!emailRegex.test(String(email).toLowerCase())) {
-    return res.status(404).json({ error: "Invalid email format" });
+    return res.status(404).json({ error: "Formato de email invalido" });
   }
 
   try {
@@ -49,14 +49,14 @@ export async function createUser(req: Request, res: Response) {
     });
     if (existingEmailAccount) {
       // Initial validation
-      return res.status(404).json({ error: "Email already in use" });
+      return res.status(404).json({ error: "Email já registrado" });
     }
 
     const existingUserNameAccount = await prisma.user.findUnique({
       where: { userName: String(userName).trim() },
     });
     if (existingUserNameAccount) {
-      return res.status(404).json({ error: "Username already in use" });
+      return res.status(404).json({ error: "Username já registrado" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -73,7 +73,7 @@ export async function createUser(req: Request, res: Response) {
   } catch (err: any) {
     // Extra validation
     if (err.code === "P2002") {
-      return res.status(409).json({ error: "Email already in use" });
+      return res.status(409).json({ error: "Email já registrado" });
     }
     throw err;
   }
@@ -85,22 +85,24 @@ export async function updateUser(req: Request, res: Response) {
     where: { userName: String(userName).trim() },
   });
   if (!userFound) {
-    return res.status(404).json({ error: `User with ${userName} not found` });
+    return res
+      .status(404)
+      .json({ error: `Usuário com username: ${userName} não encontrado` });
   }
   const authUser = (req as any).user;
   if (!authUser || !authUser.id) {
-    return res.status(401).json({ error: "Unauthorized user" });
+    return res.status(401).json({ error: "Usuário não autorizado" });
   }
 
   if (authUser.id !== userFound.id) {
     return res
       .status(403)
-      .json({ error: "Forbidden: cannot update other user" });
+      .json({ error: "Forbidden: não é possivel dar update em outro usuário" });
   }
 
   const { name, newUserName, email, profileType } = req.body ?? {};
   if (!name && !email && !profileType && !newUserName) {
-    return res.status(400).json({ error: "Nothing to change" });
+    return res.status(400).json({ error: "Nenhuma mudança encontrada" });
   }
   const data: any = {};
   if (name) {
@@ -111,20 +113,20 @@ export async function updateUser(req: Request, res: Response) {
   }
   if (email) {
     if (!emailRegex.test(String(email).toLowerCase())) {
-      return res.status(400).json({ error: "Invalid email format" });
+      return res.status(400).json({ error: "Formato de email invalido" });
     }
     const existingUser = await prisma.user.findUnique({
       where: { email: String(email).toLowerCase().trim() },
     });
     if (existingUser) {
-      return res.status(404).json({ error: "Email already in use" });
+      return res.status(404).json({ error: "Email já registrado" });
     }
     data.email = String(email).toLowerCase().trim();
   }
   if (profileType) {
     const pt = String(profileType).toUpperCase();
     if (!allowedProfileType.includes(pt as any)) {
-      return res.status(404).json({ error: "Invalid profile type" });
+      return res.status(404).json({ error: "Profile type invalido" });
     }
     data.profileType = pt;
   }
@@ -137,9 +139,9 @@ export async function updateUser(req: Request, res: Response) {
     return res.status(200).json(userNoPassword);
   } catch (err: any) {
     if (err.code === "P2025")
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "Usuário não encontrado" });
     if (err.code === "P2002")
-      return res.status(409).json({ error: "Email already in use" });
+      return res.status(409).json({ error: "Email já registrado" });
     throw err;
   }
 }
@@ -150,16 +152,18 @@ export async function deleteUser(req: Request, res: Response) {
     where: { userName: String(userName).trim() },
   });
   if (!userFound) {
-    return res.status(404).json({ error: `User with ${userName} not found` });
+    return res
+      .status(404)
+      .json({ error: `Usuário com username: ${userName} não encontrado` });
   }
   const authUser = (req as any).user;
   if (!authUser || !authUser.id) {
-    return res.status(401).json({ error: "Unauthorized user" });
+    return res.status(401).json({ error: "Usuário não autorizado" });
   }
   if (authUser.id !== userFound.id) {
     return res
       .status(403)
-      .json({ error: "Forbidden: cannot update other user" });
+      .json({ error: "Forbidden: não é possivel dar update em outro usuário" });
   }
   try {
     // adicionar verificação de session
@@ -168,7 +172,7 @@ export async function deleteUser(req: Request, res: Response) {
     res.status(204).json();
   } catch (err: any) {
     if (err.code === "P2025")
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "Usuário não encontrado" });
     throw err;
   }
 }

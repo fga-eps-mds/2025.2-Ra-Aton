@@ -40,6 +40,6 @@ describe("User Controller - getUser", () => {
   it("deve retornar 404 se o usuário não existir", async () => {
     const res = await request(app).get("/users/naoexiste123");
     expect(res.status).toBe(404);
-    expect(res.body).toHaveProperty("error", "User not found");
+    expect(res.body).toHaveProperty("error", "Usuário não encontrado");
   });
 });

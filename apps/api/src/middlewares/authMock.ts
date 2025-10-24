@@ -40,8 +40,8 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
       return next()
     }
 
-    return res.status(401).json({ error: "Missing dev auth header. Use 'Authorization: Bearer user:<user_id>' or set DEV_USER_ID in '.env'."});
+    return res.status(401).json({ error: "Faltando dev auth header: Use 'Authorization: Bearer user:<user_id>'"});
   }
 
-  return res.status(401).json({ error: "Invalid auth mode" });
+  return res.status(401).json({ error: "Formato de validação invalido" });
 }

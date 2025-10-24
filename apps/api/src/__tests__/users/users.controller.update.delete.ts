@@ -74,7 +74,7 @@ describe("users controller - updateUser & deleteUser", () => {
           name: "New Name",
           userName: "newname",
           email: "new@example.com",
-        })
+        }),
       });
     });
 
@@ -91,12 +91,12 @@ describe("users controller - updateUser & deleteUser", () => {
 
       expect(res.status).toBe(403);
       expect(res.body).toEqual({
-        error: "Forbidden: cannot update other user",
+        error: "Forbidden: não é possivel dar update em outro usuário",
       });
       expect(mockedPrisma.user.update).not.toHaveBeenCalled();
     });
 
-    it("returns 400 for invalid email format", async () => {
+    it("retorna 400 para formatos de email invalidos", async () => {
       const userName = "bob";
       const userFound = { id: "bob-id", userName, email: "b@x.com" };
 
@@ -108,11 +108,11 @@ describe("users controller - updateUser & deleteUser", () => {
         .send({ email: "invalid-email-format" });
 
       expect(res.status).toBe(400);
-      expect(res.body).toEqual({ error: "Invalid email format" });
+      expect(res.body).toEqual({ error: "Formato de email invalido" });
       expect(mockedPrisma.user.update).not.toHaveBeenCalled();
     });
 
-    it("returns 404 if new email already in use", async () => {
+    it("retorna 404 se o email já está em uso", async () => {
       const userName = "carol";
       const userFound = { id: "carol-id", userName, email: "c@x.com" };
 
@@ -129,11 +129,11 @@ describe("users controller - updateUser & deleteUser", () => {
         .send({ email: "taken@example.com" });
 
       expect(res.status).toBe(404);
-      expect(res.body).toEqual({ error: "Email already in use" });
+      expect(res.body).toEqual({ error: "Email já registrado" });
       expect(mockedPrisma.user.update).not.toHaveBeenCalled();
     });
 
-    it("returns 400 if nothing to change", async () => {
+    it("retorna 400 se não houver algo para mudar", async () => {
       const userName = "empty-change";
       const userFound = { id: "u-id", userName, email: "u@x.com" };
 
@@ -145,13 +145,13 @@ describe("users controller - updateUser & deleteUser", () => {
         .send({});
 
       expect(res.status).toBe(400);
-      expect(res.body).toEqual({ error: "Nothing to change" });
+      expect(res.body).toEqual({ error: "Nenhuma mudança encontrada" });
       expect(mockedPrisma.user.update).not.toHaveBeenCalled();
     });
   });
 
   describe("deleteUser", () => {
-    it("deletes user successfully and returns 204 (authorized)", async () => {
+    it("deletes user successfully and returns 204 Deleta user e return 204 (authorized)", async () => {
       const userName = "deleteme";
       const userFound = { id: "del-id", userName, email: "d@x.com" };
 
@@ -169,7 +169,7 @@ describe("users controller - updateUser & deleteUser", () => {
       });
     });
 
-    it("returns 404 if user not found", async () => {
+    it("retorna 404 se não encontrar o usuário", async () => {
       const userName = "notfound";
 
       mockedPrisma.user.findUnique.mockResolvedValueOnce(null);
@@ -179,11 +179,13 @@ describe("users controller - updateUser & deleteUser", () => {
         .set(authHeader({ id: "whatever" }));
 
       expect(res.status).toBe(404);
-      expect(res.body).toEqual({ error: `User with ${userName} not found` });
+      expect(res.body).toEqual({
+        error: `Usuário com username: ${userName} não encontrado`,
+      });
       expect(mockedPrisma.user.delete).not.toHaveBeenCalled();
     });
 
-    it("returns 401 if no auth user present", async () => {
+    it("retorna 401 se o usuário não for autenticado", async () => {
       const userName = "someone";
       const userFound = { id: "s-id", userName, email: "s@x.com" };
 
@@ -196,12 +198,12 @@ describe("users controller - updateUser & deleteUser", () => {
       expect(res.status).toBe(401);
       expect(res.body).toEqual({
         error:
-          "Missing dev auth header. Use 'Authorization: Bearer user:<user_id>' or set DEV_USER_ID in '.env'.",
+          "Faltando dev auth header: Use 'Authorization: Bearer user:<user_id>'",
       });
       expect(mockedPrisma.user.delete).not.toHaveBeenCalled();
     });
 
-    it("returns 403 if auth user is different (forbidden)", async () => {
+    it("retorna 403 se a autenticação do usuário for diferente (forbidden)", async () => {
       const userName = "protected";
       const userFound = { id: "protected-id", userName, email: "p@x.com" };
 
@@ -213,7 +215,7 @@ describe("users controller - updateUser & deleteUser", () => {
 
       expect(res.status).toBe(403);
       expect(res.body).toEqual({
-        error: "Forbidden: cannot update other user",
+        error: "Forbidden: não é possivel dar update em outro usuário",
       });
       expect(mockedPrisma.user.delete).not.toHaveBeenCalled();
     });
