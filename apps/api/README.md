@@ -24,7 +24,7 @@ pnpm dev
 
 Routes:
 - GET /users
-- GET /users/:id
-- POST /users  { name, email }
-- PUT /users/:id
-- DELETE /users/:id
+- GET /users/:username
+- POST /users  { name, username, email, password }
+- PUT /users/:username
+- DELETE /users/:username
