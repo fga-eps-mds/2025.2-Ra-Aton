@@ -8,6 +8,7 @@ import { useRouter } from "expo-router";
 import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
+import BackGroundComp from "@/components/BackGroundComp";
 
 const Home: React.FC = () => {
   return <HomeInner />;
@@ -25,7 +26,7 @@ const HomeInner: React.FC = () => {
   const router = useRouter();
 
   return (
-    <ThemedView style={styles.container}>
+    <BackGroundComp style={styles.container}>
       {/* Dark/Light mode */}
       <Button1Comp onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
         <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
@@ -69,7 +70,7 @@ const HomeInner: React.FC = () => {
         </Text>
       </Button2Comp>
       {/* <TextInput style={{backgroundColor: 'red'}}></TextInput> */}
-    </ThemedView>
+    </BackGroundComp>
   );
 };
 
