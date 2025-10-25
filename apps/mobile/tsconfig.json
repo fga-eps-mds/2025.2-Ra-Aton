@@ -1,6 +1,8 @@
 {
   "extends": "../../packages/typescript-config/react-native.json",
   "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["ES2017", "DOM"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "ignoreDeprecations": "6.0",

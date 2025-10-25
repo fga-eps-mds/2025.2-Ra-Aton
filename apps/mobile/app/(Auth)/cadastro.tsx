@@ -18,6 +18,8 @@
     import Button1Comp from "../../components/Button1Comp";
     import Button2Comp from "../../components/Button2Comp";
     import InputComp from "@/components/InputComp";
+
+    import { registerUser } from "@/libs/auth/handleRegister";
     
     const Cadastro: React.FC = () => {
       return <CadastroInner />;
@@ -129,25 +131,12 @@
       }
     }
     // Função para mandar os dados do registro para o BackEnd
-    const handleRegister = async () => {
-      //const profileType = "NONE";
+    const handleRegister = async() => {
       try {
-        const response = await fetch("http://localhost:4000/users/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            userName,
-            email,
-            password,
-          //  profileType,
-          }),
-        });
+        const data = await registerUser({ name, userName, email, password });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          alert(data.error || "Erro ao cadastrar.");
+        if (data.error) {
+          alert(data.error);
           return;
         }
 
