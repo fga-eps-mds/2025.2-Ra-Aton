@@ -21,7 +21,6 @@ jest.mock("@expo/vector-icons", () => {
   return { Ionicons: (props: any) => React.createElement("Ionicons", props) };
 });
 
-// safe-area-context used by some components — mock it to avoid native TurboModule errors
 jest.mock("react-native-safe-area-context", () => {
   const React = require("react");
   return {
