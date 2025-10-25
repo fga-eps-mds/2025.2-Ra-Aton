@@ -9,7 +9,6 @@ export async function registerUser({
   email: string;
   password: string;
 }) {
-    console.log("Ambiente de execução:", typeof window === "undefined" ? "Node" : "Browser");
   try {
     const response = await fetch("http://localhost:4000/users/", {
       method: "POST",

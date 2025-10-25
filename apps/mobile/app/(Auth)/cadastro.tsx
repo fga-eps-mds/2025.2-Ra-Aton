@@ -1,17 +1,25 @@
     /* cadastro page */
+
     import React, { useState, useEffect } from "react";
-    import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity} from "react-native";
+    import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform} from "react-native";
+    import { Colors } from "../../constants/Colors";
+    import { useTheme } from "../../constants/Theme";
+    import { useRouter } from "expo-router";
+    import { Fonts } from "@/constants/Fonts";
+    import { Ionicons } from "@expo/vector-icons";
+    
+    // Imagens
+    import NamedLogo from "../../assets/img/Logo_1_Atom.png";
+    
+    // Componentes
+    import BackGroundComp from "@/components/BackGroundComp";
     import ThemedView from "../../components/ThemedView";
     import Spacer from "../../components/SpacerComp";
     import Button1Comp from "../../components/Button1Comp";
     import Button2Comp from "../../components/Button2Comp";
     import InputComp from "@/components/InputComp";
-    import NamedLogo from "../../assets/img/Logo_1_Atom.png";
-    import { Colors } from "../../constants/Colors";
-    import { useTheme } from "../../constants/Theme";
-    import { useRouter } from "expo-router";
-    import { Fonts } from "@/constants/Fonts";
-import { Ionicons } from "@expo/vector-icons";
+
+    import { registerUser } from "@/libs/auth/handleRegister";
     
     const Cadastro: React.FC = () => {
       return <CadastroInner />;
@@ -35,7 +43,7 @@ import { Ionicons } from "@expo/vector-icons";
       const [errorNickname, setErrorNickname] = useState('');
       const [errorPassword, setErrorPassword] = useState('');
       const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
-      const [hidePassword,setHidePassword] = useState(true);
+      // const [hidePassword,setHidePassword] = useState(true);
   //--------------------------------------------------------------------------- separando...
       const verifyName = (name:string) =>{
         setErrorName('');
@@ -97,7 +105,7 @@ import { Ionicons } from "@expo/vector-icons";
         if(userName) setErrorNickname(verifyNickname(userName));
       },[name,email,password,confirmPassword,userName]);
 
-      const isDisabled = !email || !password || !confirmPassword ? true : false;
+      const isDisabled = !email || !password || !confirmPassword || !name || !userName || !(password === confirmPassword)? true : false; // talvez verificar os regex 1°?
 
       const statusBtnCadastro = () => {
         const errName = verifyName(name);
@@ -123,25 +131,12 @@ import { Ionicons } from "@expo/vector-icons";
       }
     }
     // Função para mandar os dados do registro para o BackEnd
-    const handleRegister = async () => {
-      //const profileType = "NONE";
+    const handleRegister = async() => {
       try {
-        const response = await fetch("http://localhost:4000/users/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            userName,
-            email,
-            password,
-          //  profileType,
-          }),
-        });
+        const data = await registerUser({ name, userName, email, password });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          alert(data.error || "Erro ao cadastrar.");
+        if (data.error) {
+          alert(data.error);
           return;
         }
 
@@ -154,9 +149,10 @@ import { Ionicons } from "@expo/vector-icons";
     };
 
       return (
-        <ThemedView style={styles.bg}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>        
-            <ThemedView style={styles.container}>
+        <BackGroundComp>
+             <KeyboardAvoidingView style={[{ flex: 1 }]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+            <ScrollView contentContainerStyle={{padding: 20,paddingBottom: 80,backgroundColor: theme.background, flexGrow:1}}keyboardShouldPersistTaps="handled">        
+            {/* <ThemedView style={styles.container}> */}
             {/* Dark/Light mode (PlaceHolder)*/}
              {/*<Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
               <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
@@ -170,31 +166,25 @@ import { Ionicons } from "@expo/vector-icons";
             
             <View style={styles.containerInfos}>
               <View style={styles.inputContainer}>
-                <InputComp label="Nome de Usuário" iconName="person-sharp" value={name} onChangeText={setName} status={!!errorName} statusText={errorName}></InputComp>
-                <Spacer height={40}/>
+                <InputComp label="Nome de Usuário" iconName="person-sharp"
+                 value={name} onChangeText={setName} status={!!errorName} statusText={errorName}></InputComp>
                 
-                <InputComp label="Apelido" iconName="pricetag-outline" value={userName} onChangeText={setNickname} status={!!errorNickname} statusText={errorNickname}></InputComp>
+                <InputComp label="Apelido" iconName="pricetag-outline"
+                 value={userName} onChangeText={setNickname} status={!!errorNickname} statusText={errorNickname}></InputComp>
                 
-                <Spacer height={40}/>
-
                 <InputComp label="E-mail" iconName="at"                               // ? email
-                keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
-                
-                <Spacer height={50}/>
-                
+                keyboardType="email-address" autoComplete="email" autoCapitalize="none" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
+                                
                 <InputComp label="Senha" iconName="key"                               // ? senha
-                secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}>
-                  <TouchableOpacity> <Ionicons name="eye" color={'black'} size={20}/> </TouchableOpacity>
-                </InputComp>
-                
-                <Spacer height={60}/>                  
-            
+                secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
+                            
                 <InputComp label="Confirme sua senha" iconName="key"   //? Confrima senha
                 secureTextEntry={true} textContentType="password" value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
-                <Spacer height={50}/>
+
               </View>
+
+              <Spacer height={40}/>
               <View style={styles.redirectInfos}>
-                {/* <Spacer height={20}/>  */}
                 <Button1Comp disabled={isDisabled} onPress={statusBtnCadastro}>Criar conta</Button1Comp>
                 <Spacer height={30}/>
                 <Text style={styles.txt}>Ja possui uma conta?</Text>
@@ -203,9 +193,9 @@ import { Ionicons } from "@expo/vector-icons";
               </View>
 
             </View>
-          </ThemedView>
         </ScrollView>
-        </ThemedView>
+          </KeyboardAvoidingView>
+         </BackGroundComp>
       );
     };
 
@@ -224,7 +214,7 @@ import { Ionicons } from "@expo/vector-icons";
         },
         container: {
           alignItems: "center",
-          width:'100%'
+          flex:1,
           // backgroundColor: 'red',
         },
         containerInfos:{
@@ -235,6 +225,7 @@ import { Ionicons } from "@expo/vector-icons";
           marginVertical: 60,
           marginTop: 0,
           height:150,
+          alignSelf: 'center',
         },
         txt: {
           fontFamily:Fonts.primaryFont.dongleBold,
@@ -246,7 +237,7 @@ import { Ionicons } from "@expo/vector-icons";
         inputContainer:{
           flexDirection:'column',
           alignItems:'center',
-          marginTop:-40,
+          // marginTop:-40,
           width:'100%',
           
         },
