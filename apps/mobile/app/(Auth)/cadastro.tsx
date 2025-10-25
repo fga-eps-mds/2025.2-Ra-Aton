@@ -172,13 +172,13 @@
                 <InputComp label="Apelido" iconName="pricetag-outline"
                  value={userName} onChangeText={setNickname} status={!!errorNickname} statusText={errorNickname}></InputComp>
                 
-                <InputComp label="E-mail" iconName="at"                               // ? email
+                <InputComp label="E-mail" iconName="at"                               
                 keyboardType="email-address" autoComplete="email" autoCapitalize="none" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
                                 
-                <InputComp label="Senha" iconName="key"                               // ? senha
+                <InputComp label="Senha" iconName="key"                              
                 secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
                             
-                <InputComp label="Confirme sua senha" iconName="key"   //? Confrima senha
+                <InputComp label="Confirme sua senha" iconName="key"   
                 secureTextEntry={true} textContentType="password" value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
 
               </View>
