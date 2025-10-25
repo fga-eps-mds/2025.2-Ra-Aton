@@ -47,8 +47,7 @@
       const verifyName = (name:string) =>{
         setErrorName('');
         
-        const maxLenghtName = name.trim().split(" ").length <= 50;
-        if(!maxLenghtName) return "O apelido não pode ultrapassar 50 caracteres";
+        if(name.length > 50) return "O apelido não pode ultrapassar 50 caracteres";
         
         const verifyName = name.trim().split(" ").length >= 2; // vericação se o usuário preencher pelo menos nome e sobrenome
         if(!verifyName) return "Preencha nome e sobrenome";
@@ -59,7 +58,7 @@
       const verifyEmail = (email:string) => {
           setErrorEmail('');
 
-          if(email.length > 50) return "O email não pode ultrapassar 50 caracteres"
+          if(email.length > 256) return "O email não pode ultrapassar 256 caracteres"
           
           const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
           if(validEmail.test(email) == false){
