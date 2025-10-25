@@ -19,7 +19,7 @@ function parseDevHeader(header: string | undefined) {
 export async function auth(req: Request, res: Response, next: NextFunction) {
   if (AUTH_MODE === "mock") {
     const devHeaderUser = parseDevHeader(
-      req.headers.authorization as string | undefined
+      req.headers.authorization as string | undefined,
     );
     const devUserFromEnv =
       process.env.DEV_USER_ID && process.env.DEV_USER_ID.trim() !== ""
@@ -37,10 +37,15 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
         id: devHeaderUser,
         jti: "dev",
       };
-      return next()
+      return next();
     }
 
-    return res.status(401).json({ error: "Faltando dev auth header: Use 'Authorization: Bearer user:<user_id>'"});
+    return res
+      .status(401)
+      .json({
+        error:
+          "Faltando dev auth header: Use 'Authorization: Bearer user:<user_id>'",
+      });
   }
 
   return res.status(401).json({ error: "Formato de validação invalido" });

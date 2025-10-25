@@ -15,7 +15,7 @@ app.use("/private", privateRoutes);
 
 app.use("/auth", authRoutes);
 
-app.use("/user", userRoutes);
+app.use("/users", userRoutes);
 
 app.get("/", (_req, res) => {
   res.send({ status: "ok", service: "api" });

@@ -45,8 +45,6 @@ describe("users controller - updateUser & deleteUser", () => {
         userName: "newname",
         email: "new@example.com",
         profileType: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
       mockedPrisma.user.update.mockResolvedValueOnce(updated);
 
@@ -55,7 +53,7 @@ describe("users controller - updateUser & deleteUser", () => {
         .set(authHeader({ id: userFound.id }))
         .send({
           name: "New Name",
-          newUserName: "newname",
+          userName: "newname",
           email: "new@example.com",
         });
 

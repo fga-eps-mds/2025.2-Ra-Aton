@@ -24,13 +24,6 @@ router.post("/login", async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Usuário não encontrado." });
     }
 
-    if (user.profileType == null) {
-      return res.status(403).json({
-        message: "Configuração de perfil pendente.",
-        code: "PROFILE_TYPE_NULL", // TODO: anotar na documentação da api pro front verificar
-      });
-    }
-
     const hashedPassword: string = user.passwordHash;
     if (!hashedPassword) {
       console.error(
@@ -56,6 +49,12 @@ router.post("/login", async (req: Request, res: Response) => {
 
     const token = sign({ id: user.id }, secret, options);
 
+    const warns: string[] = []; // Warning messages to return to client
+
+    if (user.profileType == null) {
+      warns.push("Configuração de perfil pendente.");
+    }
+
     return res.json({
       token,
       user: {
@@ -63,6 +62,7 @@ router.post("/login", async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
       },
+      warns: warns,
     });
   } catch (err) {
     console.error(err);
