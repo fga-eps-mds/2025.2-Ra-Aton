@@ -4,4 +4,11 @@
 // Example: silence a warning or mock a native module
 // jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
-module.exports = {};
+//module.exports = {};
+
+/** @type {import('jest').Config} */
+const config = {
+  verbose: true,
+};
+
+module.exports = config;

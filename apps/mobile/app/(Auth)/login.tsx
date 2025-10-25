@@ -236,6 +236,7 @@ const HomeInner: React.FC = () => {
             onPress={handleLogin}
             style={{ top: 60 }}
             disabled={isButtonDisabled}
+            testID="botaoLogin"
           >
             <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
               Login

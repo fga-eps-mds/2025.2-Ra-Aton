@@ -7,8 +7,14 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest",
+    "test": "jest --watchAll",
     "lint": "eslint . --ext .ts,.tsx --fix"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(jest-)?react-native|@react-native|@react-navigation|@expo|expo(nent)?|@unimodules|unimodules|sentry-expo|native-base|@native-base)"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
