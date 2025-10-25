@@ -59,7 +59,7 @@ import { Ionicons } from "@expo/vector-icons";
 
       const verifyNickname = (userName:string) => {
         setErrorNickname('');
-        if(userName.length < 3) return "Digite um apelido válido"
+        if(userName.length < 4) return "Digite um apelido válido"
         else return '';
 
       } 
@@ -209,7 +209,8 @@ import { Ionicons } from "@expo/vector-icons";
       );
     };
 
-    export default Cadastro;  
+    export default Cadastro; 
+     
     const makeStyles = (theme: any) => 
       StyleSheet.create({
         bg: {

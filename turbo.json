@@ -25,6 +25,13 @@
     },
     "prepare:db": {
       "cache": false
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "inputs": ["$TURBO_DEFAULT$", "jest-preset.js"],
+      "cache": false,
+      "passThroughEnv": ["DATABASE_URL"]
     }
-  }
+  },
+  "globalEnv": [".env**"]
 }

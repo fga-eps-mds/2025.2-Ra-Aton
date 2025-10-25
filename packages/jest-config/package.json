@@ -2,7 +2,7 @@
   "name": "@repo/jest-config",
   "version": "1.0.0",
   "private": true,
-  "main": "jest.preset.js",
+  "main": "jest-preset.js",
   "dependencies": {
     "@types/jest": "^30.0.0",
     "jest": "^30.2.0",

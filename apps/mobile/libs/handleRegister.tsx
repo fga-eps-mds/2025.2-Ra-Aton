@@ -1,4 +1,3 @@
-
 export async function registerUser({
   name,
   userName,
