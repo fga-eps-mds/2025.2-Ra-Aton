@@ -11,9 +11,7 @@ const DashboardLayout = () => {
   
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-                                                                  //! Esse layout não renderiza as coisas do app
-                                                                    //! Se for colocar algo que deve aparecer em todas as páginas
-                                                                      //! Usa o layout que está fora da pasta
+                                                            
   return (
     <Tabs
       screenOptions={{

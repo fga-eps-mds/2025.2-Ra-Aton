@@ -4,8 +4,6 @@ import { Stack } from "expo-router";
 import {Fonts} from "../constants/Fonts"
 import {useFonts} from "expo-font"
 
-                                                //? Esse renderiza as páginas em primeiro lugar
-
 
 export default function RootLayout() {
  const [fontsLoaded, fontsError] = useFonts({
