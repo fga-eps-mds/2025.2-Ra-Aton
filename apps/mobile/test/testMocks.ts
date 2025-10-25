@@ -21,6 +21,16 @@ jest.mock("@expo/vector-icons", () => {
   return { Ionicons: (props: any) => React.createElement("Ionicons", props) };
 });
 
+// safe-area-context used by some components — mock it to avoid native TurboModule errors
+jest.mock("react-native-safe-area-context", () => {
+  const React = require("react");
+  return {
+    SafeAreaView: (props: any) => React.createElement("View", props),
+    SafeAreaProvider: (props: any) => React.createElement("View", props),
+    useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+  };
+});
+
 jest.mock("expo-router", () => ({ useRouter: () => ({ push: jest.fn() }) }));
 
 jest.mock("../components/InputComp", () => {
@@ -28,7 +38,28 @@ jest.mock("../components/InputComp", () => {
   return {
     __esModule: true,
     default: ({ label, value, onChangeText }: any) =>
-      React.createElement("TextInput", { testID: label, value, onChangeText }),
+      // expose accessibilityLabel so getByLabelText() works in tests
+      React.createElement("TextInput", {
+        testID: label,
+        accessibilityLabel: label,
+        value,
+        onChangeText,
+      }),
+  };
+});
+
+// also mock module path with alias used in app imports
+jest.mock("@/components/InputComp", () => {
+  const React = require("react");
+  return {
+    __esModule: true,
+    default: ({ label, value, onChangeText }: any) =>
+      React.createElement("TextInput", {
+        testID: label,
+        accessibilityLabel: label,
+        value,
+        onChangeText,
+      }),
   };
 });
 
@@ -72,6 +103,14 @@ jest.mock("../components/ThemedView", () => {
   return {
     __esModule: true,
     default: ({ children }: any) => React.createElement("View", null, children),
+  };
+});
+
+jest.mock("@/components/BackGroundComp", () => {
+  const React = require("react");
+  return {
+    __esModule: true,
+    default: ({ children, style, ...props }: any) => React.createElement("View", { style, ...props }, children),
   };
 });
 
