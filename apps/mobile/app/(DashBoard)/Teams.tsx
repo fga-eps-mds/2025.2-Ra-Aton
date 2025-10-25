@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import React from "react";
-import ThemedView from "../../components/ThemedView";
 import Button1Comp from "../../components/Button1Comp";
 import Button2Comp from "../../components/Button2Comp";
 import { useRouter } from "expo-router";
 import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
+import BackGroundComp from "@/components/BackGroundComp";
 const Teams = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;
@@ -14,7 +14,7 @@ const Teams = () => {
     const router = useRouter();
   
   return (
-    <ThemedView style={styles.container}>
+    <BackGroundComp style={styles.container}>
      
       <Button1Comp onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
         <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
@@ -25,7 +25,7 @@ const Teams = () => {
       <Text style={[styles.txt, { textAlign: 'center'}]}>Teams</Text>
 
       
-    </ThemedView>
+    </BackGroundComp>
   )
 }
 

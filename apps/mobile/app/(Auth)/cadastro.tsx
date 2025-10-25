@@ -13,7 +13,6 @@
     
     // Componentes
     import BackGroundComp from "@/components/BackGroundComp";
-    import ThemedView from "../../components/ThemedView";
     import Spacer from "../../components/SpacerComp";
     import Button1Comp from "../../components/Button1Comp";
     import Button2Comp from "../../components/Button2Comp";
@@ -136,15 +135,21 @@
         const data = await registerUser({ name, userName, email, password });
 
         if (data.error) {
-          alert(data.error);
+          console.log(data.error);
+          if(data.error === "Email já registrado"){
+            setErrorEmail(data.error);
+          }
+          else if(data.error === "Username já registrado"){
+            setErrorNickname(data.error);
+          }
           return;
         }
 
-        alert("Cadastro realizado com sucesso!");
+        console.log("Cadastro realizado com sucesso!");
         router.push("/(Auth)/login");
       } catch (error) {
         console.error("Erro:", error);
-        alert("Não foi possível conectar ao servidor.");
+        console.log("Não foi possível conectar ao servidor.");
       }
     };
 
