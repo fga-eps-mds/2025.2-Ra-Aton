@@ -24,7 +24,7 @@ export async function registerUser({
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || "Erro ao cadastrar.");
+      return { error: data.error || "Erro ao cadastrar." };
     }
 
     return data;
