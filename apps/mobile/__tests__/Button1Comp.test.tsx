@@ -15,26 +15,31 @@ describe("Testando renderização do inputComp", () => {
     describe("InputComp", () => {
         it("deve renderizar o input de preenchimento do campo de usuário", () => {
             const inputNome = screen.getByLabelText('Nome de usuário');
+            expect(inputNome).toBeTruthy();
         });
     });
     describe("InputComp", () => {
         it("deve renderizar o input de preenchimento de apelido", () => {
             const inputNome = screen.getByLabelText('Apelido');
+            expect(inputNome).toBeTruthy();
         });
     }) 
     describe("deve renderizar o input de preenchimento de e-mail", () => {
         it("deve renderizar o texto passado", () => {
             const inputNome = screen.getByLabelText('E-mail');
+            expect(inputNome).toBeTruthy();
         });
     })
     describe("deve renderizar o input de preenchimento de senha", () => {
         it("deve renderizar o texto passado", () => {
             const inputNome = screen.getByLabelText('Senha');
+            expect(inputNome).toBeTruthy();
         });
     })
     describe("deve renderizar o input de confirmação de senha", () => {
         it("deve renderizar o texto passado", () => {
             const inputNome = screen.getByLabelText('Confirme sua senha');
+            expect(inputNome).toBeTruthy();
         });
     })
 })
