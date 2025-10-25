@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { auth } from "../middlewares/authMock";
 import {
   listUsers,
   getUser,
@@ -8,10 +9,10 @@ import {
 } from "../controllers/usersController";
 const router: Router = Router();
 
-router.get("/", listUsers); // SELECT *
-router.get("/:id", getUser); // SELECT * WHERE ID='ID ESPECIFICADO'
+router.get("/", listUsers);
+router.get("/:userName", getUser);
 router.post("/", createUser);
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+router.put("/:userName", auth, updateUser);
+router.delete("/:userName", auth, deleteUser);
 
 export default router;
