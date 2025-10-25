@@ -22,6 +22,7 @@ import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import InputComp from "@/components/InputComp";
 import * as SecureStore from "expo-secure-store";
+import handleLogin from "../libs/handleLogin"; // Função de login importada
 // import LoginScreen from "../../app/(Auth)/teste"; // Removido (lógica integrada)
 
 const showAlert = () => {
@@ -120,8 +121,10 @@ const HomeInner: React.FC = () => {
 
     try {
       // Usamos .trim() para limpar espaços em branco
-      const response = await login(email.trim(), password);
+      // usar a função importada (handleLogin.ts)
+      const response = await handleLogin(email.trim(), password);
       console.log("handleLogin] login response", response);
+      // renderizar response.message se houver
 
       // CA7: Armazenamento seguro do token
       try {
