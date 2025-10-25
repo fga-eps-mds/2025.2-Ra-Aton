@@ -62,7 +62,7 @@ describe("API Testes", () => {
 
       // 2. Act (Agir)
       const res = await request(app)
-        .post("/users")
+        .post("/user")
         .send({ name: "Test", email: "test@example.com" });
 
       // 3. Assert (Verificar)
@@ -88,7 +88,7 @@ describe("API Testes", () => {
       prismaMock.user.findMany.mockResolvedValue(mockUsers);
 
       // 2. Act
-      const res = await request(app).get("/users");
+      const res = await request(app).get("/user");
 
       // 3. Assert
       expect(res.status).toBe(200);
@@ -107,7 +107,7 @@ describe("API Testes", () => {
       prismaMock.user.findUnique.mockResolvedValue(mockUser);
 
       // 2. Act
-      const res = await request(app).get("/users/mock-uuid-123");
+      const res = await request(app).get("/user/mock-uuid-123");
 
       // 3. Assert
       expect(res.status).toBe(200);
@@ -127,7 +127,7 @@ describe("API Testes", () => {
       });
 
       // 2. Act
-      const res = await request(app).delete("/users/mock-uuid-123");
+      const res = await request(app).delete("/user/mock-uuid-123");
 
       // 3. Assert
       expect(res.status).toBe(204);

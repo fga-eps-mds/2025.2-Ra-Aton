@@ -16,9 +16,12 @@ export async function getUser(req: Request, res: Response) {
 
 export async function createUser(req: Request, res: Response) {
   const { name, email, passwordHash } = req.body;
-  if (!name || !email) return res.status(400).json({ error: 'name and email are required' });
+  if (!name || !email)
+    return res.status(400).json({ error: "name and email are required" });
   try {
-    const user = await prisma.user.create({ data: { name, email, passwordHash } });
+    const user = await prisma.user.create({
+      data: { name, email, passwordHash },
+    });
     res.status(201).json(user);
   } catch (err: any) {
     if (err.code === "P2002") {

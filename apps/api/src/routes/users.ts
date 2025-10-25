@@ -5,13 +5,13 @@ import {
   createUser,
   updateUser,
   deleteUser,
-} from '../controllers/usersController';
+} from "../controllers/usersController";
 const router: Router = Router();
 
-router.get('/', listUsers); // SELECT *
-router.get('/:id', getUser); // SELECT * WHERE ID='ID ESPECIFICADO'
-router.post('/', createUser);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.get("/", listUsers); // SELECT *
+router.get("/:id", getUser); // SELECT * WHERE ID='ID ESPECIFICADO'
+router.post("/", createUser);
+router.put("/:id", updateUser);
+router.delete("/:id", deleteUser);
 
 export default router;
