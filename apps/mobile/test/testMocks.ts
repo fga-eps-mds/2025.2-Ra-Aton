@@ -38,7 +38,6 @@ jest.mock("../components/InputComp", () => {
   return {
     __esModule: true,
     default: ({ label, value, onChangeText }: any) =>
-      // expose accessibilityLabel so getByLabelText() works in tests
       React.createElement("TextInput", {
         testID: label,
         accessibilityLabel: label,
@@ -48,7 +47,6 @@ jest.mock("../components/InputComp", () => {
   };
 });
 
-// also mock module path with alias used in app imports
 jest.mock("@/components/InputComp", () => {
   const React = require("react");
   return {
@@ -110,7 +108,8 @@ jest.mock("@/components/BackGroundComp", () => {
   const React = require("react");
   return {
     __esModule: true,
-    default: ({ children, style, ...props }: any) => React.createElement("View", { style, ...props }, children),
+    default: ({ children, style, ...props }: any) =>
+      React.createElement("View", { style, ...props }, children),
   };
 });
 
