@@ -96,13 +96,18 @@ jest.mock("../components/SpacerComp", () => {
   return { __esModule: true, default: () => React.createElement("View", null) };
 });
 
-jest.mock("../components/ThemedView", () => {
-  const React = require("react");
-  return {
-    __esModule: true,
-    default: ({ children }: any) => React.createElement("View", null, children),
-  };
-});
+jest.mock(
+  "../components/ThemedView",
+  () => {
+    const React = require("react");
+    return {
+      __esModule: true,
+      default: ({ children }: any) =>
+        React.createElement("View", null, children),
+    };
+  },
+  { virtual: true },
+);
 
 jest.mock("@/components/BackGroundComp", () => {
   const React = require("react");
