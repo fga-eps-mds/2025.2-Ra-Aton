@@ -13,7 +13,6 @@
     
     // Componentes
     import BackGroundComp from "@/components/BackGroundComp";
-    import ThemedView from "../../components/ThemedView";
     import Spacer from "../../components/SpacerComp";
     import Button1Comp from "../../components/Button1Comp";
     import Button2Comp from "../../components/Button2Comp";
@@ -47,6 +46,10 @@
   //--------------------------------------------------------------------------- separando...
       const verifyName = (name:string) =>{
         setErrorName('');
+        
+        const maxLenghtName = name.trim().split(" ").length <= 50;
+        if(!maxLenghtName) return "O apelido não pode ultrapassar 50 caracteres";
+        
         const verifyName = name.trim().split(" ").length >= 2; // vericação se o usuário preencher pelo menos nome e sobrenome
         if(!verifyName) return "Preencha nome e sobrenome";
         else return '';
@@ -55,8 +58,10 @@
 
       const verifyEmail = (email:string) => {
           setErrorEmail('');
-          const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
+
+          if(email.length > 50) return "O email não pode ultrapassar 50 caracteres"
           
+          const validEmail = (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/); 
           if(validEmail.test(email) == false){
             return "Insira um email válido"; 
           }
@@ -67,6 +72,9 @@
 
       const verifyNickname = (userName:string) => {
         setErrorNickname('');
+
+        if(userName.length > 50) return "O apelido não pode ultrapassar 50 caracteres"
+
         if(userName.length < 4) return "Digite um apelido válido"
         else return '';
 
@@ -75,6 +83,9 @@
       const verifyPassword = (password:string) => {
           setErrorPassword('');
           setErrorConfirmPassword('');
+
+          if(password.length > 50) return "A senha não pode ultrapassar 50 caracteres"
+
           const validPassword = (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/); // (rodrigo) - regex que verifica : numero e letra
           if(password.length < 8){
               return "Sua senha deve possuir no mínimo 8 caracteres"; // Fazer uma estilização no input
@@ -89,6 +100,10 @@
         }
 
         const verifyConfirmPassword = (password:string, confirmPassword:string) => {
+
+          if(confirmPassword.length > 50) return "A senha não pode ultrapassar 50 caracteres"
+
+
           if(password != confirmPassword){
             return "As senhas não coincidem";
           }
@@ -104,6 +119,14 @@
         if(confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password,confirmPassword));
         if(userName) setErrorNickname(verifyNickname(userName));
       },[name,email,password,confirmPassword,userName]);
+      
+      React.useEffect(() => {
+        if (email) setBackendErrorEmail('');
+      }, [email]);
+
+      React.useEffect(() => {
+        if (userName) setBackendErrorNickname('');
+      }, [userName]);
 
       const isDisabled = !email || !password || !confirmPassword || !name || !userName || !(password === confirmPassword)? true : false; // talvez verificar os regex 1°?
 
@@ -131,20 +154,28 @@
       }
     }
     // Função para mandar os dados do registro para o BackEnd
+    const [backendErrorEmail, setBackendErrorEmail] = useState('');
+    const [backendErrorNickname, setBackendErrorNickname] = useState('');
     const handleRegister = async() => {
       try {
         const data = await registerUser({ name, userName, email, password });
 
         if (data.error) {
-          alert(data.error);
+          console.log(data.error);
+          if(data.error === "Email já registrado"){
+            setBackendErrorEmail(data.error);
+          }
+          else if(data.error === "Username já registrado"){
+            setBackendErrorNickname(data.error);
+          }
           return;
         }
 
-        alert("Cadastro realizado com sucesso!");
+        console.log("Cadastro realizado com sucesso!");
         router.push("/(Auth)/login");
       } catch (error) {
         console.error("Erro:", error);
-        alert("Não foi possível conectar ao servidor.");
+        console.log("Não foi possível conectar ao servidor.");
       }
     };
 
@@ -170,10 +201,10 @@
                  value={name} onChangeText={setName} status={!!errorName} statusText={errorName}></InputComp>
                 
                 <InputComp label="Apelido" iconName="pricetag-outline"
-                 value={userName} onChangeText={setNickname} status={!!errorNickname} statusText={errorNickname}></InputComp>
+                 value={userName} onChangeText={setNickname} status={!!errorNickname || !!backendErrorNickname} statusText={errorNickname || backendErrorNickname}></InputComp>
                 
                 <InputComp label="E-mail" iconName="at"                               
-                keyboardType="email-address" autoComplete="email" autoCapitalize="none" value={email} onChangeText={setEmail} status={!!errorEmail} statusText={errorEmail}></InputComp>
+                keyboardType="email-address" autoComplete="email" autoCapitalize="none" value={email} onChangeText={setEmail} status={!!errorEmail || !!backendErrorEmail} statusText={errorEmail || backendErrorEmail}></InputComp>
                                 
                 <InputComp label="Senha" iconName="key"                              
                 secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
@@ -248,3 +279,4 @@
           marginTop:10, 
         }
       });
+

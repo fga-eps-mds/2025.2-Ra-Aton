@@ -2,7 +2,6 @@
 import { StyleSheet, Text, View, Image, TextInput } from "react-native";
 import React from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
-import ThemedView from "../../components/ThemedView";
 import Button1Comp from "../../components/Button1Comp";
 import Button2Comp from "../../components/Button2Comp";
 import { useRouter } from "expo-router";
