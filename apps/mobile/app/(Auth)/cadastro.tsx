@@ -32,6 +32,8 @@
       const { isDarkMode, toggleDarkMode } = useTheme();
       const theme = isDarkMode ? Colors.dark : Colors.light;
       const styles = makeStyles(theme);
+      // const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline"; 
+
       const [name, setName] = useState(''); 
       const [email, setEmail] = useState('');
       const [userName, setNickname] = useState('');
@@ -144,7 +146,6 @@
       //  Para usar DarkMode nos styles  
 
       //  Para usar o Link no Botao
-      const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline"; 
     
       if(!errName && !errNickname && !errEmail && !errPassword && !errConfirmrPassword){      
           // router.push("/(Auth)/formsCadastro")
@@ -182,14 +183,13 @@
         <BackGroundComp>
              <KeyboardAvoidingView style={[{ flex: 1 }]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{padding: 20,paddingBottom: 80,backgroundColor: theme.background, flexGrow:1}}keyboardShouldPersistTaps="handled">        
-            {/* <ThemedView style={styles.container}> */}
             {/* Dark/Light mode (PlaceHolder)*/}
-             {/*<Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
+             {/* <Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
               <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
 
               </Text>
-            </Button1Comp>
-            */} 
+            </Button1Comp> */}
+             
             {/* */}
 
             <Image source={NamedLogo} style={styles.img}/>
@@ -206,10 +206,10 @@
                 keyboardType="email-address" autoComplete="email" autoCapitalize="none" value={email} onChangeText={setEmail} status={!!errorEmail || !!backendErrorEmail} statusText={errorEmail || backendErrorEmail}></InputComp>
                                 
                 <InputComp label="Senha" iconName="key"                              
-                secureTextEntry={true} textContentType="password" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
+                secureTextEntry={true} textContentType="password" autoCapitalize="none" value={password} onChangeText={setPassword} status={!!errorPassword} statusText={errorPassword}></InputComp>
                             
                 <InputComp label="Confirme sua senha" iconName="key"   
-                secureTextEntry={true} textContentType="password" value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
+                secureTextEntry={true} textContentType="password" autoCapitalize="none" value={confirmPassword} onChangeText={setConfirmPassword} status={!!errorConfirmPassword} statusText={errorConfirmPassword}></InputComp>
 
               </View>
 
