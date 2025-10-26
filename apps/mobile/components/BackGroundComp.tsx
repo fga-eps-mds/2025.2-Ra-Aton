@@ -1,7 +1,7 @@
 import React from "react";
 import { ViewProps, StyleProp, ViewStyle } from "react-native";
-import { useTheme } from "../constants/Theme";
-import { Colors } from "../constants/Colors";
+import { useTheme } from "@/constants/Theme";
+import { Colors } from "@/constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 type BackGroundCompProps = {
   style?: StyleProp<ViewStyle>;

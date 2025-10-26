@@ -2,20 +2,20 @@
 
     import React, { useState, useEffect } from "react";
     import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform} from "react-native";
-    import { Colors } from "../../constants/Colors";
-    import { useTheme } from "../../constants/Theme";
+    import { Colors } from "@/constants/Colors";
+    import { useTheme } from "@/constants/Theme";
     import { useRouter } from "expo-router";
     import { Fonts } from "@/constants/Fonts";
     import { Ionicons } from "@expo/vector-icons";
     
     // Imagens
-    import NamedLogo from "../../assets/img/Logo_1_Atom.png";
+    import NamedLogo from "@/assets/img/Logo_1_Atom.png";
     
     // Componentes
     import BackGroundComp from "@/components/BackGroundComp";
-    import Spacer from "../../components/SpacerComp";
-    import Button1Comp from "../../components/Button1Comp";
-    import Button2Comp from "../../components/Button2Comp";
+    import Spacer from "@/components/SpacerComp";
+    import Button1Comp from "@/components/Button1Comp";
+    import Button2Comp from "@/components/Button2Comp";
     import InputComp from "@/components/InputComp";
 
     import { registerUser } from "@/libs/auth/handleRegister";
@@ -254,7 +254,7 @@
         img: {
           marginVertical: 60,
           marginTop: 0,
-          height:150,
+          maxWidth: '100%',
           alignSelf: 'center',
         },
         txt: {

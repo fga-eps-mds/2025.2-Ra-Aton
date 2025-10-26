@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from "react-native";
-import { useTheme } from "../constants/Theme";
-import { Colors } from "../constants/Colors";
+import { useTheme } from "@/constants/Theme";
+import { Colors } from "@/constants/Colors";
 type Button2CompProps = {
   style?: StyleProp<ViewStyle>;
 } & TouchableOpacityProps;

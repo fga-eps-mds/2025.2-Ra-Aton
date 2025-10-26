@@ -1,13 +1,13 @@
 /* home page */
 import { StyleSheet, Text, View, Image, TextInput } from "react-native";
 import React from "react";
-import NamedLogo from "../../assets/img/Logo_1_Atom.png";
-import Button1Comp from "../../components/Button1Comp";
-import Button2Comp from "../../components/Button2Comp";
+import NamedLogo from "@/assets/img/Logo_1_Atom.png";
+import Button1Comp from "@/components/Button1Comp";
+import Button2Comp from "@/components/Button2Comp";
 import { useRouter } from "expo-router";
-import Spacer from "../../components/SpacerComp";
-import { useTheme } from "../../constants/Theme";
-import { Colors } from "../../constants/Colors";
+import Spacer from "@/components/SpacerComp";
+import { useTheme } from "@/constants/Theme";
+import { Colors } from "@/constants/Colors";
 import BackGroundComp from "@/components/BackGroundComp";
 
 const Home: React.FC = () => {

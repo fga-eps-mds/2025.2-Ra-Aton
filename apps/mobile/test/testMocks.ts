@@ -32,19 +32,6 @@ jest.mock("react-native-safe-area-context", () => {
 
 jest.mock("expo-router", () => ({ useRouter: () => ({ push: jest.fn() }) }));
 
-jest.mock("../components/InputComp", () => {
-  const React = require("react");
-  return {
-    __esModule: true,
-    default: ({ label, value, onChangeText }: any) =>
-      React.createElement("TextInput", {
-        testID: label,
-        accessibilityLabel: label,
-        value,
-        onChangeText,
-      }),
-  };
-});
 
 jest.mock("@/components/InputComp", () => {
   const React = require("react");
@@ -60,7 +47,7 @@ jest.mock("@/components/InputComp", () => {
   };
 });
 
-jest.mock("../components/Button1Comp", () => {
+jest.mock("@/components/Button1Comp", () => {
   const React = require("react");
   return {
     __esModule: true,
@@ -77,7 +64,7 @@ jest.mock("../components/Button1Comp", () => {
   };
 });
 
-jest.mock("../components/Button2Comp", () => {
+jest.mock("@/components/Button2Comp", () => {
   const React = require("react");
   return {
     __esModule: true,
@@ -90,23 +77,11 @@ jest.mock("../components/Button2Comp", () => {
   };
 });
 
-jest.mock("../components/SpacerComp", () => {
+jest.mock("@/components/SpacerComp", () => {
   const React = require("react");
   return { __esModule: true, default: () => React.createElement("View", null) };
 });
 
-jest.mock(
-  "../components/ThemedView",
-  () => {
-    const React = require("react");
-    return {
-      __esModule: true,
-      default: ({ children }: any) =>
-        React.createElement("View", null, children),
-    };
-  },
-  { virtual: true },
-);
 
 jest.mock("@/components/BackGroundComp", () => {
   const React = require("react");
@@ -117,7 +92,7 @@ jest.mock("@/components/BackGroundComp", () => {
   };
 });
 
-jest.mock("../constants/Theme", () => ({
+jest.mock("@/constants/Theme", () => ({
   useTheme: () => ({ isDarkMode: false, toggleDarkMode: () => {} }),
 }));
 

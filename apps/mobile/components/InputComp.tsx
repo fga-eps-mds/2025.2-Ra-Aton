@@ -10,10 +10,9 @@
     } from "react-native";
     import { useState } from "react";
     import { Ionicons } from "@expo/vector-icons";
-    import { useTheme } from "../constants/Theme";
-    import { Colors } from "../constants/Colors";
+    import { useTheme } from "@/constants/Theme";
+    import { Colors } from "@/constants/Colors";
     import { Fonts } from "@/constants/Fonts";
-import Spacer from "./SpacerComp";
 
     
     type InputCompProps = TextInputProps & {

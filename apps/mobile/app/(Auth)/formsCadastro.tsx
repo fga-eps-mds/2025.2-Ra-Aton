@@ -4,7 +4,7 @@ import { router, Router, useRouter } from "expo-router";
 import Button1Comp from "@/components/Button1Comp";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import Logo from "../../assets/img/Logo_1_Atom.png";
+import Logo from "@/assets/img/Logo_1_Atom.png";
 import { Fonts } from "@/constants/Fonts";
 import Spacer from "@/components/SpacerComp";
 
