@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 18
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@9.0.0 --activate
@@ -53,13 +53,14 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: pnpm prisma db push
       # ------------------------------------
-      
+
       - name: Set up environment for tests
         run: |
           echo "DATABASE_URL=${{ env.DATABASE_URL }}" >> $GITHUB_ENV
           mkdir -p apps/api/prisma
           echo "DATABASE_URL=${{ env.DATABASE_URL }}" > apps/api/prisma/.env
           echo "DATABASE_URL=${{ env.DATABASE_URL }}" > apps/api/.env
+          echo "JWT_SECRET='your_jwt_secret_key'" >> apps/api/.env
 
       - name: Run workspace tests
         working-directory: .
