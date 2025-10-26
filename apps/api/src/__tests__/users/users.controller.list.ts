@@ -5,7 +5,7 @@ import app from "../../app";
 jest.setTimeout(20000);
 
 describe("User Controller - listUsers", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await prisma.user.deleteMany({});
   });
 
@@ -39,11 +39,10 @@ describe("User Controller - listUsers", () => {
     expect(Array.isArray(res.body)).toBe(true);
 
     // Deve conter pelo menos os dois usuários criados
-    const emails = res.body.map((u: any) => u.email);
+    const emails = res.body.map((u: { email: string }) => u.email);
     expect(emails).toEqual(expect.arrayContaining([user1.email, user2.email]));
-
     // Nenhum usuário deve expor senha
-    res.body.forEach((u: any) => {
+    res.body.forEach((u: { password?: string }) => {
       expect(u).not.toHaveProperty("password");
     });
   });
