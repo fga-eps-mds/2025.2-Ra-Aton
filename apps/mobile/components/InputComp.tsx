@@ -110,7 +110,7 @@ const makeStyles = (theme: any) =>
     inputBox: {
       // width: "100%",
       flex: 1,
-      minHeight: 45,
+      height: 45,
       borderRadius: 34,
       backgroundColor: theme.input,
       borderWidth: 1,
