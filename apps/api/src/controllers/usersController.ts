@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma";
-import { User } from "@prisma/client";
-
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const allowedProfileType = ["JOGADOR", "TORCEDOR", "ATLETICA"] as const;
 
@@ -12,7 +10,7 @@ export async function listUsers(_req: Request, res: Response) {
       createdAt: "desc",
     },
   });
-  const usersNoPassword = users.map(({ password, ...rest }) => rest);
+  const usersNoPassword = users.map(({ passwordHash, ...rest }) => rest);
 
   res.json(usersNoPassword);
 }
@@ -24,7 +22,7 @@ export async function getUser(req: Request, res: Response) {
       where: { userName: String(userName) },
     });
     if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-    const { password: _, ...userNoPassword } = user;
+    const { passwordHash: _, ...userNoPassword } = user;
     return res.status(200).json(userNoPassword);
   } catch (err) {
     console.error("getUser error:", err);
@@ -40,7 +38,7 @@ export async function createUser(req: Request, res: Response) {
       .json({ error: "nome, email, password e username são obrigatorios" });
 
   if (!emailRegex.test(String(email).toLowerCase())) {
-    return res.status(404).json({ error: "Formato de email invalido" });
+    return res.status(400).json({ error: "Formato de email invalido" });
   }
 
   try {
@@ -49,14 +47,14 @@ export async function createUser(req: Request, res: Response) {
     });
     if (existingEmailAccount) {
       // Initial validation
-      return res.status(404).json({ error: "Email já registrado" });
+      return res.status(409).json({ error: "Email já registrado. " });
     }
 
     const existingUserNameAccount = await prisma.user.findUnique({
       where: { userName: String(userName).trim() },
     });
     if (existingUserNameAccount) {
-      return res.status(404).json({ error: "Username já registrado" });
+      return res.status(409).json({ error: "Username já registrado" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -65,10 +63,10 @@ export async function createUser(req: Request, res: Response) {
         name,
         userName,
         email,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       },
     });
-    const { password: _, ...userNoPassword } = user;
+    const { passwordHash: _, ...userNoPassword } = user;
     res.status(201).json(userNoPassword);
   } catch (err: any) {
     // Extra validation
@@ -100,7 +98,7 @@ export async function updateUser(req: Request, res: Response) {
       .json({ error: "Forbidden: não é possivel dar update em outro usuário" });
   }
 
-  const { name, newUserName, email, profileType } = req.body ?? {};
+  const { name, userName: newUserName, email, profileType } = req.body ?? {};
   if (!name && !email && !profileType && !newUserName) {
     return res.status(400).json({ error: "Nenhuma mudança encontrada" });
   }
@@ -135,7 +133,7 @@ export async function updateUser(req: Request, res: Response) {
       where: { id: userFound.id },
       data,
     });
-    const { password: _, ...userNoPassword } = user;
+    const { passwordHash: _, ...userNoPassword } = user;
     return res.status(200).json(userNoPassword);
   } catch (err: any) {
     if (err.code === "P2025")

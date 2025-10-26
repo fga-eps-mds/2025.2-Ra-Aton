@@ -7,7 +7,6 @@ import {
   updateUser,
   deleteUser,
 } from "../controllers/usersController";
-
 const router: Router = Router();
 
 router.get("/", listUsers);
