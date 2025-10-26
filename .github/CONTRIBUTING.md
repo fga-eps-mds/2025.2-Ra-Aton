@@ -196,15 +196,26 @@ git log --oneline --graph --decorate --all
     git pull --rebase origin <nome-do-branch>
     ```
 
-- **Merge (`git pull --no-rebase`)**
+- **Merge (`git merge --no-rebase`)**
 
   - Usar em _branches principais_ (`main` ou `dev`).
   - Preserva o histórico completo sem reescrever commits já compartilhados.
   - Exemplo:
 
     ```bash
-    git pull origin <nome-do-branch>
+    git fetch origin # Pega as últimas mudanças
+    git merge origin <nome-do-branch>
     ```
+
+    > **Nota:** Sempre antes de fazer merge, certifique-se de estar na branch correta. 
+    > Para atualizar sua branch de feature com as últimas mudanças da `develop`, faça:
+
+    ```bash
+    git fetch origin
+    git checkout <sua-branch-de-feature>
+    git merge origin/develop
+    ```
+    Resolva os conflitos, se houver, e depois continue com seus commits normalmente.
 
 - **Fast-forward only (`git pull --ff-only`)**
 
