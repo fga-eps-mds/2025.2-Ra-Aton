@@ -47,7 +47,7 @@ export async function createUser(req: Request, res: Response) {
     });
     if (existingEmailAccount) {
       // Initial validation
-      return res.status(409).json({ error: "Email já registrado. " });
+      return res.status(409).json({ error: "Email já registrado" });
     }
 
     const existingUserNameAccount = await prisma.user.findUnique({
