@@ -1,4 +1,3 @@
-//? Faz todas as importações necessáriasa
 import {
   View,
   DimensionValue,
@@ -7,33 +6,30 @@ import {
   TextInput,
   TextInputProps,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "../constants/Theme";
-import { Colors } from "../constants/Colors";
+import { useTheme } from "@/constants/Theme";
+import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
-//? --------------------------------------------------
 
-// * AQUI É PASSADO TODAS AS PROPRIEDADES QUE NOSSO INPUT (DEVE OU PODE TER) TER. OU SEJA TODAS AS COISAS QUE NÓS SEREMOS CAPAZ DE USAR DENTRO DO INPUT*\
 type InputCompProps = TextInputProps & {
-  width?: DimensionValue; //*  QUANDO NÓS USAMOS O OPERADO ( ? ) TORNAMOS A PROPRIEDADE OPCIONAL
+  width?: DimensionValue;
   height?: DimensionValue;
   label?: string;
   bgColor?: ColorValue;
-  children?: React.ReactNode;
   status?: boolean;
+  placeholder?: string;
   statusText?: string;
   iconName?: keyof typeof Ionicons.glyphMap;
-  secureTextEntry?: boolean;
 };
 
 const InputComp = ({
-  //* ALI EM CIMA NÓS DEFINIMOS AS COISAS QUE NÓS TEMOS NO INPUT
-  width = "100%", //* AGORA NÓS TEMOS QUE PASSAR PARA NOSSA FUNÇÃO, TUDO QUE QUEREMOS USAR
-  height = 67, //! GERALMENTE É SO REPETIR TUDO QUE FOI ESCRITO ACIMA, MAS COM SEUS VALORES DEFINIDOS
+  width = "100%",
+  // height = 67,
   bgColor,
   label,
-  children,
   iconName,
   status,
   statusText,
@@ -41,30 +37,23 @@ const InputComp = ({
   secureTextEntry,
   ...rest
 }: InputCompProps) => {
-  // * VARIAVEIS QUE NÓS USAMOS PARA MANIPULAR DIFEFRENTES PARTES DO INPUT OU DA ESTRUTURA;
-  //* ISSO NÃO É ALGO OBRIGATÓRIO, NÓS USAMOS APENAS PARA FAZER ALGUMAS OPERAÇÕES;
   const { isDarkMode, toggleDarkMode } = useTheme();
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
-  const inputPaddingVertical = 45 - 20;
   const inputPaddingLeft = iconName ? 40 : 20;
-  const backgroundColor = bgColor || themeColors.input; // ! NÃO ESTÁ SENDO UTILIZADA
-  const statusBorderColor = status ? Colors.warning : themeColors.orange; //? IF ELSE PARA DEFINIR A COR DA BORDA
-  const styles = makeStyles(themeColors, inputPaddingVertical);
+  const inputPaddingRight = secureTextEntry ? 40 : 20;
+  const backgroundColor = bgColor || themeColors.input;
+  const statusBorderColor = status ? Colors.warning : themeColors.orange;
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const styles = makeStyles(themeColors);
+
   return (
-    <View //! AQUI SE INICIA A ESTRUTURA DO NOSSO INPUT,
-      style={{
-        //*ESTILIZAÇÃO DO LUGAR ONDE GUARDAMOS NOSSO INPUT; TIPO A CAIXA ONDE ELE ESTÁ INSERIDO
-        width,
-        height,
-        backgroundColor: bgColor,
-        justifyContent: "flex-start",
-        alignItems: "center",
-        padding: 0,
-      }}
-    >
+    <View style={{ width, alignItems: "center" }}>
       <View style={styles.inpuxLabel}>
         <Text style={styles.txt}>{label}</Text>
       </View>
+
       <View style={styles.inputCompContainer}>
         {iconName && (
           <Ionicons
@@ -75,25 +64,52 @@ const InputComp = ({
           />
         )}
         <TextInput
-          secureTextEntry={secureTextEntry}
           style={[
             styles.inputBox,
-            { paddingLeft: inputPaddingLeft, borderColor: statusBorderColor },
+            {
+              paddingLeft: inputPaddingLeft,
+              borderColor: statusBorderColor,
+              paddingRight: inputPaddingRight,
+            },
           ]}
+          secureTextEntry={secureTextEntry && !showPassword}
+          placeholder={placeholder}
+          placeholderTextColor={themeColors.text + "99"} // semi-transparente
           {...rest}
         />
+        {/* Ícone do lado direito */}
+        {secureTextEntry && (
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={{
+              position: "absolute",
+              right: 10,
+              top: "50%",
+              transform: [{ translateY: -10 }],
+            }}
+          >
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}
+              size={20}
+              style={styles.passwordIcon}
+            />
+          </TouchableOpacity>
+        )}
       </View>
-      <Text style={styles.textStatusMessage}>{statusText}</Text>
-    </View> //! AQUI NÓS APENAS COLOCAMOS TODAS AS PROPRIEDADES QUE QUEREMOS USAR DENTRO DO INPU
-    //         ! TAMBÉM PASSAMOS A ESTILIZAÇÃO DO NOSSO INPUT, POR MEIO DE NOMES ESPECIFICOS COMO:
-    //? (styles.inputContainer) isso nada mais é do que o nome da estilização  que cobre o nosso input
+
+      <Text style={[styles.textStatusMessage, { color: statusBorderColor }]}>
+        {statusText || " "}{" "}
+        {/* Se trocar por "" o tamanho ja fica esperando a mensagem no lugar de aparece condicionalmente*/}
+      </Text>
+    </View>
   );
 };
-//* TODA A ESTILIZAÇÃO:
-const makeStyles = (theme: any, paddingVertical: number) =>
+
+const makeStyles = (theme: any) =>
   StyleSheet.create({
     inputBox: {
-      width: "100%",
+      // width: "100%",
+      flex: 1,
       height: 45,
       borderRadius: 34,
       backgroundColor: theme.input,
@@ -101,7 +117,6 @@ const makeStyles = (theme: any, paddingVertical: number) =>
       borderColor: theme.orange,
 
       paddingHorizontal: 20,
-      paddingVertical,
       textAlignVertical: "center",
       fontFamily: Fonts.primaryFont.dongleRegular,
       color: theme.text,
@@ -111,15 +126,18 @@ const makeStyles = (theme: any, paddingVertical: number) =>
       width: "100%",
       marginLeft: 17,
     },
+
     txt: {
       color: theme.text,
       fontWeight: "300",
       fontSize: 25,
       fontFamily: Fonts.primaryFont.dongleRegular,
     },
+
     inputCompContainer: {
       width: "100%",
       justifyContent: "center",
+      position: "relative",
     },
     inputIcon: {
       position: "absolute",
@@ -127,7 +145,16 @@ const makeStyles = (theme: any, paddingVertical: number) =>
       zIndex: 1,
       color: Colors.text.iconColors,
     },
-    textStatusMessage: {},
+    passwordIcon: {
+      color: Colors.text.iconColors,
+    },
+    textStatusMessage: {
+      marginLeft: 17,
+      alignSelf: "flex-start",
+      fontSize: 13,
+      color: Colors.warning,
+      // marginBottom:40,
+    },
   });
 
 export default InputComp;

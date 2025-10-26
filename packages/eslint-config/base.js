@@ -28,6 +28,17 @@ export const config = [
     },
   },
   {
-    ignores: ["dist/**", "build/**", "node_modules/**", "**.config.js", "**.config.ts", "**.config.cjs", "**.js" , "**/generated/**", "coverage/**", "**.sql", ],
+    ignores: [
+      "dist/**",
+      "build/**",
+      "node_modules/**",
+      "**.config.js",
+      "**.config.ts",
+      "**.config.cjs",
+      "**.js",
+      "**/generated/**",
+      "coverage/**",
+      "**.sql",
+    ],
   },
 ];

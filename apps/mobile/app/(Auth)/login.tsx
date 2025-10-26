@@ -13,17 +13,17 @@ import {
 } from "react-native";
 import React, { useState, useMemo } from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
-import ThemedView from "../../components/ThemedView";
-import Button1Comp from "../../components/Button1Comp";
-import Button2Comp from "../../components/Button2Comp";
+import ThemedView from "../../components/BackGroundComp";
+import PrimaryButton from "../../components/PrimaryButton";
+import SecondaryButton from "../../components/SecondaryButton";
 import { useRouter } from "expo-router";
 import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import InputComp from "@/components/InputComp";
 import * as SecureStore from "expo-secure-store";
-import handleLogin from "../libs/handleLogin"; // Função de login importada
-// import LoginScreen from "../../app/(Auth)/teste"; // Removido (lógica integrada)
+import { handleLogin } from "../libs/handleLogin"; // Função de login importada
+//import LoginScreen from "../../app/(Auth)/teste"; // Removido (lógica integrada)
 
 const showAlert = () => {
   Alert.alert(
@@ -122,7 +122,7 @@ const HomeInner: React.FC = () => {
     try {
       // Usamos .trim() para limpar espaços em branco
       // usar a função importada (handleLogin.ts)
-      const response = await handleLogin(email.trim(), password);
+      const response = await handleLogin();
       console.log("handleLogin] login response", response);
       // renderizar response.message se houver
 
@@ -177,13 +177,13 @@ const HomeInner: React.FC = () => {
     >
       <ThemedView style={styles.container}>
         {/* Dark/Light mode (PlaceHolder)*/}
-        <Button1Comp
+        <PrimaryButton
           iconName={iconTheme}
           onPress={toggleDarkMode}
           style={styles.toggleButton} // Estilo extraído
         >
           {/* Removido o <Text> vazio de dentro do botão de tema */}
-        </Button1Comp>
+        </PrimaryButton>
         {/* Dark/Light mode */}
         <Image source={NamedLogo} style={styles.img} />
 
@@ -235,7 +235,7 @@ const HomeInner: React.FC = () => {
           />
         ) : (
           /* CA3: Botão Entrar com estado 'disabled' */
-          <Button1Comp
+          <PrimaryButton
             onPress={handleLogin}
             style={{ top: 60 }}
             disabled={isButtonDisabled}
@@ -244,18 +244,18 @@ const HomeInner: React.FC = () => {
             <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
               Login
             </Text>
-          </Button1Comp>
+          </PrimaryButton>
         )}
 
         <Spacer height={80} />
         <Text style={styles.txt}>ou</Text>
         <Spacer height={20} />
 
-        <Button2Comp onPress={() => router.push("/cadastro")}>
+        <SecondaryButton onPress={() => router.push("/cadastro")}>
           <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
             Cadastre-se
           </Text>
-        </Button2Comp>
+        </SecondaryButton>
       </ThemedView>
     </ScrollView>
   );

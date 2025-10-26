@@ -1,131 +1,226 @@
 /* cadastro page */
+
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
-import ThemedView from "../../components/ThemedView";
-import Spacer from "../../components/SpacerComp";
-import Button1Comp from "../../components/Button1Comp";
-import Button2Comp from "../../components/Button2Comp";
-import InputComp from "@/components/InputComp";
-import NamedLogo from "../../assets/img/Logo_1_Atom.png";
-import { Colors } from "../../constants/Colors";
-import { useTheme } from "../../constants/Theme";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/constants/Theme";
 import { useRouter } from "expo-router";
+import { Fonts } from "@/constants/Fonts";
+
+// Imagens
+import NamedLogo from "@/assets/img/Logo_1_Atom.png";
+
+// Componentes
+import BackGroundComp from "@/components/BackGroundComp";
+import Spacer from "@/components/SpacerComp";
+import Button1Comp from "@/components/PrimaryButton";
+import Button2Comp from "@/components/SecondaryButton";
+import InputComp from "@/components/InputComp";
+
+import { registerUser } from "@/libs/auth/handleRegister";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
 };
 
-//! Consts especificas dos inputs - Validação
-
 const CadastroInner: React.FC = () => {
+  const router = useRouter();
+
   //  Para usar o DarkMode
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-  // Criando nossos estados para validar
+  const styles = makeStyles(theme);
+  // const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
+
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [userName, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  // Estados para validar erros
+  const [errorName, setErrorName] = useState("");
   const [errorEmail, setErrorEmail] = useState("");
+  const [errorNickname, setErrorNickname] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
   const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
+  // const [hidePassword,setHidePassword] = useState(true);
+  //--------------------------------------------------------------------------- separando...
+  const verifyName = (name: string) => {
+    setErrorName("");
 
-  // (rodrigo) - logica para validar a criação da conta - não vou utilizar json, para enviar respostas ao back, por enquanto...
-  const verifyAccount = () => {
-    setErrorEmail("");
-    setErrorPassword("");
-    setErrorConfirmPassword("");
-    const status = true;
+    if (name.length > 256) return "O Nome não pode ultrapassar 256 caracteres";
 
-    //! Verificando o EMAIL
-    const verifyEmail = (email: string) => {
-      setErrorEmail("");
-      const validEmail = /^[^\s@]+@[^\s@]+\.[\s@]{2,}$/; // (rodrigo) - regex que verifica : formato de email
-
-      if (validEmail.test(email) == false) {
-        return "insira um email válido"; // Fazer uma estilização no input
-      } else {
-        return "";
-      }
-    };
-
-    // ! Verificando a SENHA
-    const verifyPassword = (password: string) => {
-      setErrorPassword("");
-      setErrorConfirmPassword("");
-      const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // (rodrigo) - regex que verifica : numero e letra
-      if (password.length < 8) {
-        return "Sua senha deve possuir no mínimo 8 caracteres."; // Fazer uma estilização no input
-        // * Talvez um check
-      }
-      if (validPassword.test(password) == false) {
-        return "Sua senha deve conter letras e números."; // Fazer uma estilização no input
-      } else {
-        return "";
-      }
-    };
-
-    const verifyConfirmPassword = (
-      password: string,
-      confirmPassword: string,
-    ) => {
-      if (password != confirmPassword) {
-        return "As senhas não coincidem";
-      } else {
-        return "";
-      }
-    };
-    verifyEmail(email);
-    verifyPassword(password);
-    verifyConfirmPassword(password, confirmPassword);
-    // router.push('/(Auth)/login')
+    const verifyName = name.trim().split(" ").length >= 2; // vericação se o usuário preencher pelo menos nome e sobrenome
+    if (!verifyName) return "Preencha nome e sobrenome";
+    else return "";
   };
 
-  //  Para usar DarkMode nos styles
-  const styles = makeStyles(theme);
+  const verifyEmail = (email: string) => {
+    setErrorEmail("");
 
-  //  Para usar o Link no Botao
-  const router = useRouter();
-  const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
+    if (email.length > 256)
+      return "O email não pode ultrapassar 256 caracteres";
+
+    const validEmail = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+    if (validEmail.test(email) == false) {
+      return "Insira um email válido";
+    } else {
+      return "";
+    }
+  };
+
+  const verifyNickname = (userName: string) => {
+    setErrorNickname("");
+
+    if (userName.length > 45)
+      return "O nome de usuario não pode ultrapassar 45 caracteres";
+
+    if (userName.length < 4) return "Digite um nome de usuario válido";
+    else return "";
+  };
+
+  const verifyPassword = (password: string) => {
+    setErrorPassword("");
+    setErrorConfirmPassword("");
+
+    if (password.length > 50)
+      return "A senha não pode ultrapassar 50 caracteres";
+
+    const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // (rodrigo) - regex que verifica : numero e letra
+    if (password.length < 8) {
+      return "Sua senha deve possuir no mínimo 8 caracteres"; // Fazer uma estilização no input
+      // * Talvez um check
+    }
+    if (validPassword.test(password) == false) {
+      return "Sua senha deve conter letras e números"; // Fazer uma estilização no input
+    } else {
+      return "";
+    }
+  };
+
+  const verifyConfirmPassword = (password: string, confirmPassword: string) => {
+    if (confirmPassword.length > 50)
+      return "A senha não pode ultrapassar 50 caracteres";
+
+    if (password != confirmPassword) {
+      return "As senhas não coincidem";
+    } else {
+      return "";
+    }
+  };
+
+  React.useEffect(() => {
+    if (name) setErrorName(verifyName(name));
+    if (email) setErrorEmail(verifyEmail(email));
+    if (password) setErrorPassword(verifyPassword(password));
+    if (confirmPassword)
+      setErrorConfirmPassword(verifyConfirmPassword(password, confirmPassword));
+    if (userName) setErrorNickname(verifyNickname(userName));
+  }, [name, email, password, confirmPassword, userName]);
+
+  React.useEffect(() => {
+    if (email) setBackendErrorEmail("");
+  }, [email]);
+
+  React.useEffect(() => {
+    if (userName) setBackendErrorNickname("");
+  }, [userName]);
+
+  const isDisabled =
+    !email ||
+    !password ||
+    !confirmPassword ||
+    !name ||
+    !userName ||
+    !(password === confirmPassword)
+      ? true
+      : false; // talvez verificar os regex 1°?
+
+  const statusBtnCadastro = () => {
+    const errName = verifyName(name);
+    const errEmail = verifyEmail(email);
+    const errPassword = verifyPassword(password);
+    const errConfirmrPassword = verifyConfirmPassword(
+      password,
+      confirmPassword,
+    );
+    const errNickname = verifyNickname(userName);
+    setErrorName(errName);
+    setErrorEmail(errEmail);
+    setErrorPassword(errPassword);
+    setErrorConfirmPassword(errConfirmrPassword);
+    setErrorNickname(errNickname);
+
+    //  Para usar DarkMode nos styles
+
+    //  Para usar o Link no Botao
+
+    if (
+      !errName &&
+      !errNickname &&
+      !errEmail &&
+      !errPassword &&
+      !errConfirmrPassword
+    ) {
+      // router.push("/(Auth)/formsCadastro")
+      console.log("Credenciais Validas");
+      handleRegister();
+    }
+  };
+  // Função para mandar os dados do registro para o BackEnd
+  const [backendErrorEmail, setBackendErrorEmail] = useState("");
+  const [backendErrorNickname, setBackendErrorNickname] = useState("");
+  const handleRegister = async () => {
+    try {
+      const data = await registerUser({ name, userName, email, password });
+
+      if (data.error) {
+        console.log(data.error);
+        if (data.error === "Email já registrado") {
+          setBackendErrorEmail(data.error);
+        } else if (data.error === "Username já registrado") {
+          setBackendErrorNickname(data.error);
+        }
+        return;
+      }
+
+      console.log("Cadastro realizado com sucesso!");
+      router.push("/(Auth)/login");
+    } catch (error) {
+      console.error("Erro:", error);
+      console.log("Não foi possível conectar ao servidor.");
+    }
+  };
 
   return (
-    <ThemedView style={styles.bg}>
-      <ScrollView
-        contentContainerStyle={{
-          padding: 20,
-          paddingBottom: 80,
-          backgroundColor: theme.background,
-        }}
+    <BackGroundComp>
+      <KeyboardAvoidingView
+        style={[{ flex: 1 }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ThemedView style={styles.container}>
+        <ScrollView
+          contentContainerStyle={{
+            padding: 20,
+            paddingBottom: 80,
+            backgroundColor: theme.background,
+            flexGrow: 1,
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Dark/Light mode (PlaceHolder)*/}
-          <Button1Comp
-            iconName={iconTheme}
-            onPress={toggleDarkMode}
-            style={{
-              width: 40,
-              height: 40,
-              padding: 0,
-              margin: 0,
-              alignSelf: "flex-end",
-              alignContent: "center",
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: 20,
-            }}
-          >
-            <Text
-              style={[
-                {
-                  fontWeight: "700",
-                  fontSize: 30,
-                  alignContent: "center",
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
-              ]}
-            ></Text>
-          </Button1Comp>
+          {/* <Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
+              <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
+
+              </Text>
+            </Button1Comp> */}
+
           {/* */}
 
           <Image source={NamedLogo} style={styles.img} />
@@ -133,84 +228,109 @@ const CadastroInner: React.FC = () => {
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
               <InputComp
-                label="Nome de Usuário"
+                label="Nome completo"
                 iconName="person-sharp"
+                value={name}
+                onChangeText={setName}
+                status={!!errorName}
+                statusText={errorName}
               ></InputComp>
-              <Spacer height={20} />
+
+              <InputComp
+                label="Nome de usuário"
+                iconName="pricetag-outline"
+                value={userName}
+                onChangeText={setNickname}
+                status={!!errorNickname || !!backendErrorNickname}
+                statusText={errorNickname || backendErrorNickname}
+              ></InputComp>
 
               <InputComp
                 label="E-mail"
-                iconName="at" // ! email
+                iconName="at"
                 keyboardType="email-address"
                 autoComplete="email"
+                autoCapitalize="none"
                 value={email}
                 onChangeText={setEmail}
+                status={!!errorEmail || !!backendErrorEmail}
+                statusText={errorEmail || backendErrorEmail}
               ></InputComp>
-
-              <Spacer height={20} />
 
               <InputComp
                 label="Senha"
-                iconName="key" // ! senha
+                iconName="key"
                 secureTextEntry={true}
                 textContentType="password"
+                autoCapitalize="none"
                 value={password}
                 onChangeText={setPassword}
+                status={!!errorPassword}
+                statusText={errorPassword}
               ></InputComp>
-
-              <Spacer height={20} />
 
               <InputComp
                 label="Confirme sua senha"
-                iconName="key" //! Confrima senha
+                iconName="key"
                 secureTextEntry={true}
                 textContentType="password"
+                autoCapitalize="none"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
+                status={!!errorConfirmPassword}
+                statusText={errorConfirmPassword}
               ></InputComp>
             </View>
+
+            <Spacer height={40} />
             <View style={styles.redirectInfos}>
-              <Button1Comp onPress={() => router.push("/(DashBoard)/Home")}>
+              <Button1Comp disabled={isDisabled} onPress={statusBtnCadastro}>
                 Criar conta
               </Button1Comp>
-              <Spacer height={15} />
+              <Spacer height={30} />
               <Text style={styles.txt}>Ja possui uma conta?</Text>
-              <Spacer height={9} />
+              <Spacer height={10} />
               <Button2Comp onPress={() => router.push("/(Auth)/login")}>
                 Login
               </Button2Comp>
             </View>
           </View>
-        </ThemedView>
-      </ScrollView>
-    </ThemedView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </BackGroundComp>
   );
 };
 
 export default Cadastro;
+
 const makeStyles = (theme: any) =>
   StyleSheet.create({
     bg: {
       flex: 1,
       backgroundColor: theme.background,
     },
-    container: {
-      flex: 1,
-      alignItems: "center",
+    scrollContainer: {
+      flexGrow: 1,
+      justifyContent: "center",
       padding: 16,
+    },
+    container: {
+      alignItems: "center",
+      flex: 1,
       // backgroundColor: 'red',
     },
     containerInfos: {
-      height: "100%",
       width: "100%",
     },
 
     img: {
       marginVertical: 60,
       marginTop: 0,
-      height: "20%",
+      maxWidth: "100%",
+      alignSelf: "center",
     },
     txt: {
+      fontFamily: Fonts.primaryFont.dongleBold,
       color: theme.text,
       fontWeight: "500",
       fontSize: 18,
@@ -219,15 +339,13 @@ const makeStyles = (theme: any) =>
     inputContainer: {
       flexDirection: "column",
       alignItems: "center",
-      marginTop: -20,
-      height: "70%",
+      // marginTop:-40,
       width: "100%",
     },
     redirectInfos: {
       flexDirection: "column",
-      justifyContent: "flex-start",
       alignItems: "center",
-      height: "30%",
       width: "100%",
+      marginTop: 10,
     },
   });

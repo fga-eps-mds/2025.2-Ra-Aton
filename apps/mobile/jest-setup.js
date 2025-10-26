@@ -4,11 +4,24 @@
 // Example: silence a warning or mock a native module
 // jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
-//module.exports = {};
+// define __DEV__ used by react-native
+global.__DEV__ = true;
 
-/** @type {import('jest').Config} */
-const config = {
-  verbose: true,
-};
+// define __fbBatchedBridgeConfig so react-native native modules initialization is bypassed in tests
+global.__fbBatchedBridgeConfig = {};
 
-module.exports = config;
+// basic mocks for environment pieces react-native may expect
+if (typeof TextEncoder === "undefined") {
+  const { TextEncoder, TextDecoder } = require("util");
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
+// silence Animated native driver warning by mocking NativeAnimatedHelper
+try {
+  jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
+} catch (e) {
+  // jest.mock may not be available in some environments of setup execution — ignore
+}
+
+module.exports = {};

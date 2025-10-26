@@ -1,4 +1,4 @@
-async function handleLogin(email: string, password: string) {
+export async function handleLogin(email: string, password: string) {
   const response = await fetch("http://localhost:4000/api/login", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -14,7 +14,6 @@ async function handleLogin(email: string, password: string) {
   console.log("Login successful:", data);
   return data;
 }
-
 /*
 body = {
     email: "email",

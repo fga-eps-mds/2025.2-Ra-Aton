@@ -1,13 +1,13 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import React from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
-import ThemedView from "../../components/ThemedView";
-import Button1Comp from "../../components/Button1Comp";
-import Button2Comp from "../../components/Button2Comp";
+import Button1Comp from "../../components/PrimaryButton";
+import Button2Comp from "../../components/SecondaryButton";
 import { useRouter } from "expo-router";
 import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
+import BackGroundComp from "@/components/BackGroundComp";
 
 const Home = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -16,7 +16,7 @@ const Home = () => {
   const router = useRouter();
 
   return (
-    <ThemedView style={styles.container}>
+    <BackGroundComp style={styles.container}>
       <Button1Comp
         onPress={toggleDarkMode}
         style={{
@@ -47,7 +47,7 @@ const Home = () => {
       </Button1Comp>
 
       <Text style={[styles.txt, { textAlign: "center" }]}>Home</Text>
-    </ThemedView>
+    </BackGroundComp>
   );
 };
 
