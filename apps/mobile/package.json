@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest --watch",
+    "test": "jest",
     "lint": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {

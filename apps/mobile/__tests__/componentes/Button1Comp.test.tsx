@@ -1,6 +1,6 @@
 import "@/test/testMocks";
 import { render } from "@testing-library/react-native";
-import Button1Comp from "@/components/Button1Comp";
+import Button1Comp from "@/components/PrimaryButton";
 
 describe("Button1Comp", () => {
   it("deve renderizar o texto passado como children", () => {
@@ -8,4 +8,3 @@ describe("Button1Comp", () => {
     expect(getByText("Clique em mim")).toBeTruthy();
   });
 });
-

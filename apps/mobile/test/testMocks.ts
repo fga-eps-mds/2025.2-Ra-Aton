@@ -32,7 +32,6 @@ jest.mock("react-native-safe-area-context", () => {
 
 jest.mock("expo-router", () => ({ useRouter: () => ({ push: jest.fn() }) }));
 
-
 jest.mock("@/components/InputComp", () => {
   const React = require("react");
   return {
@@ -47,7 +46,7 @@ jest.mock("@/components/InputComp", () => {
   };
 });
 
-jest.mock("@/components/Button1Comp", () => {
+jest.mock("@/components/PrimaryButton", () => {
   const React = require("react");
   return {
     __esModule: true,
@@ -64,7 +63,7 @@ jest.mock("@/components/Button1Comp", () => {
   };
 });
 
-jest.mock("@/components/Button2Comp", () => {
+jest.mock("@/components/SecondaryButton", () => {
   const React = require("react");
   return {
     __esModule: true,
@@ -81,7 +80,6 @@ jest.mock("@/components/SpacerComp", () => {
   const React = require("react");
   return { __esModule: true, default: () => React.createElement("View", null) };
 });
-
 
 jest.mock("@/components/BackGroundComp", () => {
   const React = require("react");
