@@ -1,5 +1,5 @@
 export async function handleLogin(email: string, password: string) {
-  const response = await fetch("http://localhost:4000/api/login", {
+  const response = await fetch("http://localhost:4000/auth/login", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -14,14 +14,22 @@ export async function handleLogin(email: string, password: string) {
   console.log("Login successful:", data);
   return data;
 }
-/*
-body = {
-    email: "email",
-    password: "senha"
-}
-const data = {
-    response: 200, // deu certo
-    token: fnkfjs137418fjk
-}
 
-*/
+
+// Caso de certo o BackEnd vai responder:
+// if (user.profileType == null) {
+//       warns.push("Configuração de perfil pendente.");
+//     }
+
+//     return res.json({
+//       token,
+//       user: {
+//         id: user.id,
+//         name: user.name,
+//         email: user.email,
+//       },
+//       warns: warns,
+//     });
+// }
+
+// (Encontrado em C:\MDS\clone3\2025.2-Ra-Aton\apps\api\src\routes\auth.routes.ts)

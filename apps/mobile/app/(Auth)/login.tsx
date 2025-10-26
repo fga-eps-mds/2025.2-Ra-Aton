@@ -25,51 +25,6 @@ import * as SecureStore from "expo-secure-store";
 import { handleLogin } from "../libs/handleLogin"; // Função de login importada
 //import LoginScreen from "../../app/(Auth)/teste"; // Removido (lógica integrada)
 
-const showAlert = () => {
-  Alert.alert(
-    "Título do Alerta",
-    "Esta é a mensagem que será exibida no alerta.",
-    [
-      {
-        text: "Cancelar",
-        onPress: () => console.log("Botão Cancelar Pressionado"),
-        style: "cancel",
-      },
-      {
-        text: "OK",
-        onPress: () => console.log("Botão OK Pressionado"),
-      },
-    ],
-    { cancelable: false },
-  );
-};
-
-// Hook para simular uma chamada de API (mantido)
-const useAuth = () => {
-  const login = (
-    email: string,
-    password: string,
-  ): Promise<{ token: string }> => {
-    console.log("[useAuth.login] called with", { email, password });
-    return new Promise<{ token: string }>((resolve, reject) => {
-      setTimeout(() => {
-        if (email === "aton@exemplo.com" && password === "123456") {
-          const token = "mock-jwt-token-12345";
-          resolve({ token });
-        } else {
-          console.warn("[useAuth.login] rejecting - credenciais inválidas", {
-            email,
-            password,
-          });
-          // CA4: Erro simulado
-          reject(new Error("Credenciais Inválidas"));
-        }
-      }, 1500); // Simula 1.5s de delay
-    });
-  };
-  return { login };
-};
-
 const Home: React.FC = () => {
   return <HomeInner />;
 };
@@ -93,7 +48,6 @@ const HomeInner: React.FC = () => {
 
   // CA4: Estado de Mensagem de erro
   const [error, setError] = useState<string | null>(null);
-  const { login } = useAuth();
 
   // CA2: Validação de formato de e-mail
   const validateEmail = (text: string) => {
@@ -111,55 +65,10 @@ const HomeInner: React.FC = () => {
     return isLoading || !isEmailValid || !isPasswordValid;
   }, [email, password, isLoading, isEmailValid, isPasswordValid]);
 
-  const handleLogin = async () => {
-    // Prevenção extra, embora o botão deva estar desabilitado
-    if (isButtonDisabled) return;
-
-    console.log("[handleLogin] start");
-    setIsLoading(true); // CA5: Ativa o loader
-    setError(null); // Limpa erros anteriores
-
-    try {
-      // Usamos .trim() para limpar espaços em branco
-      // usar a função importada (handleLogin.ts)
-      const response = await handleLogin();
-      console.log("handleLogin] login response", response);
-      // renderizar response.message se houver
-
-      // CA7: Armazenamento seguro do token
-      try {
-        await SecureStore.setItemAsync("userToken", response.token);
-        console.log("handleLogin] Token saved to SecureStore");
-      } catch (storageErr) {
-        console.warn("Falha ao salvar token no SecureStore:", storageErr);
-        setError("Erro ao salvar sessão. Tente novamente.");
-        // Se o armazenamento falhar, não continuamos o login
-        throw new Error("Falha ao salvar token");
-      }
-
-      // CA6: Redirecionamento
-      // CA9: A sessão persistente será tratada pelo layout raiz
-      //      que verificará o token salvo antes de renderizar esta tela.
-      router.replace("/(DashBoard)/Home"); // Usamos 'replace' para não deixar o usuário voltar para o Login
-      console.log("Login bem-sucedido. Token:", response.token);
-    } catch (err: any) {
-      console.error("handleLogin] auth error", err);
-
-      // CA4: Exibe mensagem de erro clara
-      if (err.message === "Credenciais Inválidas") {
-        setError("E-mail ou senha inválidos");
-      } else {
-        setError("Ocorreu um erro. Tente novamente.");
-      }
-
-      // Alternativa (se preferir um pop-up):
-      // Alert.alert("Erro de Login", "E-mail ou senha inválidos");
-    } finally {
-      setIsLoading(false); // CA5: Desativa o loader
-      console.log("[handleLogin] done");
-    }
-  };
-
+  const sendLogin = () =>{
+    console.log("Enviando dados do login...")
+    handleLogin(email, password);
+  }
   // --- Fim da Lógica de Login ---
 
   // >>> Inicio da logica de recuperar a senha <<<
@@ -218,7 +127,7 @@ const HomeInner: React.FC = () => {
           /* TODO: Adicionar navegação para fluxo de recuperação */
         >
           <Spacer height={20} />
-          <Text style={styles.forgotPasswordText} onPress={showAlert}>
+          <Text style={styles.forgotPasswordText}>
             Esqueci minha senha
           </Text>
         </TouchableOpacity>
@@ -236,7 +145,7 @@ const HomeInner: React.FC = () => {
         ) : (
           /* CA3: Botão Entrar com estado 'disabled' */
           <PrimaryButton
-            onPress={handleLogin}
+            onPress={sendLogin}
             style={{ top: 60 }}
             disabled={isButtonDisabled}
             testID="botaoLogin"
