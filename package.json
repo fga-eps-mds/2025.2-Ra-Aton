@@ -14,12 +14,14 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "prettier": "^3.6.2",
-    "turbo": "^2.5.8",
-    "typescript": "5.9.2",
+    "@testing-library/jest-native": "^5.0.2",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^29.5.4",
     "jest": "^30.2.0",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.4.5",
-    "@types/jest": "^29.5.4"
+    "turbo": "^2.5.8",
+    "typescript": "5.9.2"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
