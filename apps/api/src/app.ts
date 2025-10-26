@@ -1,16 +1,24 @@
 import express from "express";
-import helmet from "helmet";
-import morgan from "morgan";
 import cors from "cors";
-import usersRouter from "./routes/users";
+import dotenv from "dotenv";
+import privateRoutes from "./routes/private.routes";
+import userRoutes from "./routes/users";
+import authRoutes from "./routes/auth.routes";
 
+dotenv.config();
 const app: express.Express = express();
 
-app.use(helmet());
-app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
-app.get("/", (_req, res) => res.send({ status: "ok", service: "api" }));
-app.use("/users", usersRouter);
+
+app.use("/private", privateRoutes);
+
+app.use("/auth", authRoutes);
+
+app.use("/users", userRoutes);
+
+app.get("/", (_req, res) => {
+  res.send({ status: "ok", service: "api" });
+});
 
 export default app;
