@@ -65,9 +65,18 @@ const HomeInner: React.FC = () => {
     return isLoading || !isEmailValid || !isPasswordValid;
   }, [email, password, isLoading, isEmailValid, isPasswordValid]);
 
-  const sendLogin = () =>{
+  const sendLogin = async () =>{
     console.log("Enviando dados do login...")
-    handleLogin(email, password);
+    try{
+      setIsLoading(true);
+      const data = await handleLogin(email, password);
+      console.log("Data => ", data);
+    }
+    catch(error:any){
+      setIsLoading(false);
+      console.log("Erro no envio do formulário: ", error.message);
+      Alert.alert("Erro de conexão", error.message);
+    }
   }
   // --- Fim da Lógica de Login ---
 
