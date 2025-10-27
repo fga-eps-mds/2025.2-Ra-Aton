@@ -56,6 +56,9 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
+      http-status:
+        specifier: ^2.1.0
+        version: 2.1.0
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -3642,6 +3645,10 @@ packages:
   http-proxy-agent@5.0.0:
     resolution: {integrity: sha512-n2hY8YdoRE1i7r6M0w9DIw5GgZN0G25P8zLCRQ8rjXtTU3vsNFBI/vWK/UIeE6g5MUUz6avwAPXmL6Fy9D/90w==}
     engines: {node: '>= 6'}
+
+  http-status@2.1.0:
+    resolution: {integrity: sha512-O5kPr7AW7wYd/BBiOezTwnVAnmSNFY+J7hlZD2X5IOxVBetjcHAiTXhzj0gMrnojQlwy+UT1/Y3H3vJ3UlmvLA==}
+    engines: {node: '>= 0.4.0'}
 
   https-proxy-agent@5.0.1:
     resolution: {integrity: sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==}
@@ -10766,6 +10773,8 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
+
+  http-status@2.1.0: {}
 
   https-proxy-agent@5.0.1:
     dependencies:
