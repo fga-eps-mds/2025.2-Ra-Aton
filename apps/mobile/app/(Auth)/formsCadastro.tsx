@@ -8,12 +8,16 @@ import {
 } from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
-import Button1Comp from "@/components/PrimaryButton";
+import PrimaryButton from "@/components/PrimaryButton";
+import SecondaryButton from "@/components/SecondaryButton";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import Logo from "@/assets/img/Logo_1_Atom.png";
 import { Fonts } from "@/constants/Fonts";
 import Spacer from "@/components/SpacerComp";
+import { useTheme } from "@/constants/Theme";
+import BackGroundComp from "@/components/BackGroundComp";
+import { DarkTheme } from "@react-navigation/native";
 
 const FormsCadastro: React.FC = () => {
   return <FormsCadastroInner />;
@@ -21,108 +25,93 @@ const FormsCadastro: React.FC = () => {
 
 const FormsCadastroInner: React.FC = () => {
   const router = useRouter();
-
+  
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const theme = isDarkMode ? Colors.dark : Colors.light;
+  const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
+  const styles = makeStyles(theme);
+  const underLineColor = isDarkMode ? '#F9F8F8' : '#121212'; 
   const comebackPage = () => {
     router.push("/(Auth)/cadastro");
   };
 
   return (
-    <ScrollView style={styles.scrollContainer}>
-      <View style={styles.container}>
-        <View style={styles.backPageDiv}>
-          <TouchableOpacity onPress={comebackPage}>
-            <Ionicons name="arrow-back" color={Colors.light.gray} size={50} />
-          </TouchableOpacity>
-        </View>
+    <BackGroundComp>
+      <ScrollView contentContainerStyle={{padding: 20,paddingBottom: 80,backgroundColor: theme.background,flexGrow: 1,}}>
+        <PrimaryButton iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
+              <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
 
-        <View style={styles.imageDiv}>
-          <Image source={Logo} />
-        </View>
-        <View style={styles.containerInfos}>
-          <View style={styles.txtDiv}>
-            <View
-              style={{
-                height: 200,
-                width: 300,
-                alignItems: "center",
-                justifyContent: "flex-start",
-              }}
-            >
-              <Text style={styles.txt}>
-                Para finalizar o seu cadastro, responda este formulário e
-                participe ativamente da sua comunidade!
               </Text>
-            </View>
+            </PrimaryButton> 
+        <Image source={Logo} style={styles.img}/>
+        <View style={styles.container}>
+          <View style={styles.txtInfo}>
+            <Text style={styles.txt}>Para finalizar o seu cadastro,  responda este formulário e participe ativamente da sua comunidade!</Text>  
           </View>
-          <View>
-            <Text
-              style={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: 30,
-                fontFamily: Fonts.primaryFont.dongleRegular,
-              }}
-            >
-              Selecione seu perfil:
-            </Text>
+          <View style={styles.containerBtns}>
+            <Text style={styles.txt}>Selecione seu perfil</Text>
+            <Spacer height={30}/>
+            <PrimaryButton>Atlética</PrimaryButton>
+            <Spacer height={40}/>
+            <PrimaryButton>Jogador</PrimaryButton>
+            <Spacer height={40}/>
+            <PrimaryButton>Torcedor</PrimaryButton>
+            <Spacer height={40}/>
           </View>
-          <View style={styles.btnDiv}>
-            <Spacer height={2} />
-            <Button1Comp style={styles.btnRegister}>Atlética</Button1Comp>
-            <Button1Comp style={styles.btnRegister}>Jogador</Button1Comp>
-            <Button1Comp style={styles.btnRegister}>Torcedor</Button1Comp>
-          </View>
+          <Spacer height={20}/>
+          <SecondaryButton style={styles.BtnSkip} decoration={{textDecorationLine:'underline', textDecorationColor: theme.text}}>Pular esta etapa</SecondaryButton>
         </View>
-      </View>
-    </ScrollView>
-  );
+      </ScrollView>
+    </BackGroundComp>
+  );  
 };
 
-const styles = StyleSheet.create({
-  scrollContainer: {
-    flex: 1,
-    width: "100%",
+const makeStyles = (theme: any) =>
+  StyleSheet.create({
+  img:{
+      marginVertical: 20,
+      marginTop: 0,
+      maxWidth: "100%",
+      alignSelf: "center",
+  },
+  container:{
+      flexDirection: "column",
+      alignItems: "center",
+      flex: 1,
+      // backgroundColor: 'blue',
+  },
+  txtInfo:{
+      marginTop:15,
+      height:100,
+      width:'100%',
+      // backgroundColor:'green'
+  },
+  txt:{
+    alignSelf: 'center',
+    textAlign:'center',
+    width: '100%',
+    color: theme.text,
+    fontFamily: Fonts.primaryFont.dongleRegular ,
+    fontWeight: "500",
+    fontSize: 35,
+    lineHeight: 24,
+  },
+  containerBtns:{
+    marginTop:20,
+    // backgroundColor:'red',
+    flexDirection: "column",
+    alignItems: "center",
+    width:'100%',
   },
 
-  container: {
-    width: "100%",
+  txtSkipRegister:{
+    color:Colors.light.gray,
+    textDecorationLine:'underline' ,  
   },
-  backPageDiv: {
-    height: 100,
-    width: "100%",
-    justifyContent: "flex-end",
-    marginLeft: 10,
-  },
-  imageDiv: {
-    height: 200,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  containerInfos: {
-    height: 573,
-    width: "100%",
-  },
-  txtDiv: {
-    height: 200,
-    width: "100%",
-    marginTop: 20,
-    alignItems: "center",
-    justifyContent: "flex-start",
-  },
-  txt: {
-    fontSize: 35,
-    fontFamily: Fonts.primaryFont.dongleRegular,
-    textAlign: "center",
-    lineHeight: 40,
-  },
-  btnDiv: {
-    justifyContent: "flex-start",
-    alignItems: "center",
-    height: 300,
-    gap: 15,
-    width: "100%",
-  },
-  btnRegister: {},
+  BtnSkip:{
+     backgroundColor:'transparent',
+    // textDecorationLine:'underline',
+    // textDecorationColor: theme.txt,   
+  }  
 });
 export default FormsCadastro;
