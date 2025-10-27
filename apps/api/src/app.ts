@@ -1,24 +1,40 @@
-import express from "express";
+import express, { Express, Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import privateRoutes from "./routes/private.routes";
-import userRoutes from "./routes/users";
-import authRoutes from "./routes/auth.routes";
+import helmet from "helmet";
+import { globalErrorHandler } from "./middlewares/errorHandler";
+import { ApiError } from "./utils/ApiError";
+import userRoutes from "./modules/user/user.routes"; // <-- Importe as novas rotas
+import { authRoutes } from "./modules/auth/auth.routes";
+// NÃO IMPORTE MAIS:
+// import oldUserRoutes from './routes/users';
+// import { ... } from './controllers/userController';
 
-dotenv.config();
-const app: express.Express = express();
+const app: Express = express();
 
-app.use(cors());
+// Middlewares Globais
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors()); // Configure as opções de CORS se necessário
+app.use(helmet());
 
-app.use("/private", privateRoutes);
-
-app.use("/auth", authRoutes);
-
-app.use("/users", userRoutes);
-
-app.get("/", (_req, res) => {
-  res.send({ status: "ok", service: "api" });
+// Rota de Health Check
+app.get("/", (_req: Request, res: Response) => {
+  res.status(200).send({ status: "ok", service: "api" });
 });
+
+// --- MONTAGEM DAS ROTAS ---
+// Use as novas rotas modulares
+app.use("/users", userRoutes);
+app.use("/login", authRoutes);
+// (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
+
+// --- TRATAMENTO DE ERROS ---
+// Middleware para rotas não encontradas (404)
+app.use((req, res, next) => {
+  next(new ApiError(404, "Rota não encontrada"));
+});
+
+// Middleware Global de Erros (DEVE SER O ÚLTIMO)
+app.use(globalErrorHandler);
 
 export default app;
