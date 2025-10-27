@@ -1,5 +1,5 @@
 import request from "supertest";
-import { prisma } from "../../prisma";
+import { prisma } from "../../database/prisma.client";
 import app from "../../app";
 
 jest.setTimeout(20000);

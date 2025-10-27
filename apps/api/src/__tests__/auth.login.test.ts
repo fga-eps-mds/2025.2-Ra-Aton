@@ -2,19 +2,22 @@ import request from "supertest";
 // Importamos o 'app' real, que usará o 'prisma' mockado
 import app from "../app";
 // Importamos o 'prisma' para ter uma referência ao mock e controlar seu comportamento
-import { prisma } from "../prisma";
+import { prisma } from "../database/prisma.client";
 
 import bcrypt from "bcrypt";
 
 import { verify } from "jsonwebtoken";
 
-jest.mock("../prisma", () => ({
+import { config } from "../config/env";
+
+jest.mock("../database/prisma.client", () => ({
   prisma: {
     user: {
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
       delete: jest.fn(),
+      deleteMany: jest.fn(),
     },
     // Mockamos $connect e $disconnect para não fazerem nada
     $connect: jest.fn(),
@@ -29,6 +32,10 @@ describe("API Testes", () => {
   // Isso garante que um teste não interfira no outro
   beforeEach(() => jest.clearAllMocks());
 
+  beforeEach(async () => {
+    await prisma.user.deleteMany({});
+  });
+
   it("teste de API funcionando", async () => {
     const res = await request(app).get("/");
     expect(res.status).toBe(200);
@@ -38,26 +45,26 @@ describe("API Testes", () => {
   // --- Testes de Login /auth/login (com DB Mockado) ---
   describe("Teste de Login /auth/login", () => {
     it("Deve fazer login com sucesso e retornar um token", async () => {
-      const passwordPlain = "senha123";
+      const passwordPlain = "senha123456";
       const passwordHash = bcrypt.hashSync(passwordPlain, 10);
 
       prismaMock.user.findUnique.mockResolvedValue({
         id: 1,
         email: "user@example.com",
         name: "Teste",
-        passwordHash, // campo esperado pelo endpoint
+        passwordHash,
         profileType: "jogador",
       } as any);
 
       const res = await request(app)
-        .post("/auth/login")
+        .post("/login")
         .send({ email: "user@example.com", password: passwordPlain });
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("token");
       // opcional: validar token decodificado
       const token = res.body.token as string;
-      const payload: any = verify(token, process.env.JWT_SECRET as string);
+      const payload: any = verify(token, config.JWT_SECRET as string);
       expect(payload).toHaveProperty("id", 1);
     });
 

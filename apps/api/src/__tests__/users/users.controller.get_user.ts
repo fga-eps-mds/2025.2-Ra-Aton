@@ -1,6 +1,6 @@
 // tests/user.controller.test.ts
 import request from "supertest";
-import { prisma } from "../../prisma";
+import { prisma } from "../../database/prisma.client";
 import app from "../../app"; // seu app Express principal
 
 jest.setTimeout(20000);

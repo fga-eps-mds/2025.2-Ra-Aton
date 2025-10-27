@@ -1,14 +1,15 @@
 import request from "supertest";
-import { prisma } from "../../prisma";
+import { prisma } from "../../database/prisma.client";
 import app from "../../app";
 
-jest.mock("../../prisma", () => {
+jest.mock("../../database/prisma.client", () => {
   return {
     prisma: {
       user: {
         findUnique: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        deleteMany: jest.fn(),
       },
     },
   };
@@ -25,6 +26,9 @@ describe("users controller - updateUser & deleteUser", () => {
     jest.clearAllMocks();
   });
 
+  beforeEach(async () => {
+    await prisma.user.deleteMany({});
+  });
   // passa o header Authorization esperado pelo app: "Bearer user:<id>"
   function authHeader(user: any) {
     return { Authorization: `Bearer user:${user.id}` };
