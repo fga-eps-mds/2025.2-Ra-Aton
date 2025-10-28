@@ -13,6 +13,7 @@ const formatUserResponse = (user: User) => {
     name: user.name,
     email: user.email,
     userName: user.userName,
+    profileType: user.profileType,
   };
 };
 
