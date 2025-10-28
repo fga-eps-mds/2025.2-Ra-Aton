@@ -1,10 +1,14 @@
 import request from "supertest";
-import { prisma } from "../../prisma";
+import { prisma } from "../../database/prisma.client";
 import app from "../../app";
 
 jest.setTimeout(20000);
 
 describe("User Controller - listUsers", () => {
+  beforeAll(async () => {
+    await prisma.$connect();
+    await prisma.user.deleteMany({});
+  });
   beforeEach(async () => {
     await prisma.user.deleteMany({});
   });

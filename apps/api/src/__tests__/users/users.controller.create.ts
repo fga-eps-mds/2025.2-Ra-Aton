@@ -1,16 +1,15 @@
 import request from "supertest";
-import { prisma } from "../../prisma";
+import { prisma } from "../../database/prisma.client";
 import app from "../../app"; // caminho do app Express principal
 
 describe("User Controller", () => {
-  let createdUser: any;
-
   beforeEach(async () => {
     // limpa o banco
     await prisma.user.deleteMany({});
   });
 
   afterAll(async () => {
+    await prisma.user.deleteMany({});
     await prisma.$disconnect();
   });
 
@@ -23,7 +22,7 @@ describe("User Controller", () => {
       name: "Carlos Teste",
       userName: "carlos.teste",
       email: "carlos.teste.simples@example.com",
-      password: "pass",
+      password: "pass1234",
     };
 
     // 1. Act: Fazer a chamada POST
