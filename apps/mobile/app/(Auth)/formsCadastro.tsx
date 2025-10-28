@@ -34,6 +34,13 @@ async function getStoredUser() {  // Pega o userData
   const data = await SecureStore.getItemAsync("userData");
   return data ? JSON.parse(data) : null;
 }
+export async function getToken() {
+  if (Platform.OS === "web") {
+    return localStorage.getItem("userToken");
+  } else {
+    return await SecureStore.getItemAsync("userToken");
+  }
+}
 interface StoredUser {
   userName: string;
   email: string;
@@ -82,7 +89,9 @@ const SendType = async (profileType: string) => { // pega a string vinda do bot√
       }
 
       // Atualiza no backend
-      const result = await updateProfileType({ userName: user.userName, profileType, token: user.token });
+      // console.log("perfil: ", { userName: user.userName })
+      const token = await getToken();
+      const result = await updateProfileType({ userName: user.userName, profileType, token: token });
       if (result.error) throw new Error(result.error);
 
       // Atualiza localmente
