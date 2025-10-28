@@ -8,7 +8,8 @@ interface updateProfileParams {
 
 export async function updateProfileType({ userName, profileType, token }: updateProfileParams) {
   try {
-    const response = await axios.put(`http://localhost:4000/users/${userName}`, 
+    // console.log("Seu Token --> ", token); // testando pq estava recebendo undefined
+    const response = await axios.patch(`http://localhost:4000/users/${userName}`, 
       {userName, profileType},
     {
       headers: {
