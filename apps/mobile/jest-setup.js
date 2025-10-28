@@ -25,3 +25,18 @@ try {
 }
 
 module.exports = {};
+// Evita erro "TurboModuleRegistry.getEnforcing('SourceCode')"
+jest.mock('react-native/Libraries/TurboModule/TurboModuleRegistry', () => {
+  return {
+    getEnforcing: (name) => {
+      if (name === 'SourceCode') {
+        return { scriptURL: 'http://localhost' };
+      }
+      // Retorne um objeto vazio para quaisquer outros módulos nativos
+      return {};
+    },
+  };
+});
+
+// Evita que o Image/asset invoque código nativo ao resolver imagens
+jest.mock('react-native/Libraries/Image/resolveAssetSource', () => (source) => source);
