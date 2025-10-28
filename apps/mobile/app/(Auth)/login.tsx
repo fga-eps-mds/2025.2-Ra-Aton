@@ -9,6 +9,7 @@ import {
   // Button, // Removido (usando Button1Comp)
   ScrollView,
   TouchableOpacity,
+  Platform,
   Alert, // CA4: Alternativa para exibir erro
 } from "react-native";
 import React, { useState, useMemo } from "react";
@@ -22,8 +23,40 @@ import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import InputComp from "@/components/InputComp";
 import * as SecureStore from "expo-secure-store";
-import { handleLogin } from "../libs/handleLogin"; // Função de login importada
-//import LoginScreen from "../../app/(Auth)/teste"; // Removido (lógica integrada)
+import { handleLogin } from "../../libs/login/handleLogin"; // Função de login importada
+
+// Função para salvar o token
+const saveToken = async (token: string) => {
+  if (Platform.OS === "web") {
+    // No 'web', SecureStore não é suportado. Usamos localStorage.
+    try {
+      localStorage.setItem("userToken", token);
+    } catch (e) {
+      console.warn(
+        "LocalStorage indisponível. Não foi possível salvar o token.",
+      );
+    }
+  } else {
+    // Em 'native' (iOS/Android), usamos SecureStore.
+    await SecureStore.setItemAsync("userToken", token);
+  }
+};
+
+// Função para salvar os dados do usuário
+const saveUserData = async (user: object) => {
+  const userData = JSON.stringify(user);
+  if (Platform.OS === "web") {
+    try {
+      localStorage.setItem("userData", userData);
+    } catch (e) {
+      console.warn(
+        "LocalStorage indisponível. Não foi possível salvar os dados do usuário.",
+      );
+    }
+  } else {
+    await SecureStore.setItemAsync("userData", userData);
+  }
+};
 
 const Home: React.FC = () => {
   return <HomeInner />;
@@ -65,25 +98,61 @@ const HomeInner: React.FC = () => {
     return isLoading || !isEmailValid || !isPasswordValid;
   }, [email, password, isLoading, isEmailValid, isPasswordValid]);
 
-  const sendLogin = async () =>{
-    console.log("Enviando dados do login...")
-    try{
+  // --- Início da Lógica de Login ---
+  const sendLogin = async () => {
+    console.log("Enviando dados do login...");
+    try {
       setIsLoading(true);
+      setError(null); // Limpa erros anteriores
       const data = await handleLogin(email, password);
-      console.log("Data => ", data);
-    }
-    catch(error:any){
+      console.log("Resposta do servirdor. Data => ", data);
+
+      //salva o token no SecureStore:
+      if (data && data.token) {
+        await saveToken(data.token);
+
+        //salvar os dados básicos do usuário
+        if (data.user) {
+          await saveUserData(data.user);
+        }
+        // usar o REPLACE para retirar a página de login do histórico de navegação (remove da pilha)
+
+        // --- INÍCIO DA NOVA LÓGICA DE REDIRECIONAMENTO ---
+        // 2. Verificar se o perfil do usuário está completo
+        // (Baseado no seu comentário: if (user.profileType == null))
+        if (
+          data.user &&
+          (data.user.profileType === null ||
+            typeof data.user.profileType === "undefined")
+        ) {
+          // CASO 1: Usuário logado, MAS perfil incompleto
+          // Redireciona para a página de "Completar Cadastro"
+
+          // !! IMPORTANTE !!
+          // Altere a rota abaixo para a rota correta do seu formulário de "novo usuário"
+          router.replace("/formsCadastro");
+        } else {
+          // CASO 2: Usuário logado E perfil completo
+          // Redireciona para a Home do Dashboard (como antes)
+          router.replace("/Home");
+        }
+        // --- FIM DA NOVA LÓGICA ---
+      } else {
+        throw new Error(
+          "Resposta inválida do servidor / Token não encontrado / Erro ao efetuar login",
+        );
+      }
+      setIsLoading(false);
+    } catch (error: any) {
       setIsLoading(false);
       console.log("Erro no envio do formulário: ", error.message);
       Alert.alert("Erro de conexão", error.message);
+      // CA4: Usar o estado de erro (melhor UX que o Alert)
+      setError(error.message || "Erro desconhecido ao tentar login.");
+      return;
     }
-  }
+  };
   // --- Fim da Lógica de Login ---
-
-  // >>> Inicio da logica de recuperar a senha <<<
-
-  // >>> Fim da logica de recuperar a senha <<<
-
   return (
     <ScrollView
       contentContainerStyle={{
@@ -136,9 +205,7 @@ const HomeInner: React.FC = () => {
           /* TODO: Adicionar navegação para fluxo de recuperação */
         >
           <Spacer height={20} />
-          <Text style={styles.forgotPasswordText}>
-            Esqueci minha senha
-          </Text>
+          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
         </TouchableOpacity>
 
         {/* CA4: Exibição de Erro */}
