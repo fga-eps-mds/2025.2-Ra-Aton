@@ -3,14 +3,13 @@ import { prisma } from "../../database/prisma.client";
 import app from "../../app"; // caminho do app Express principal
 
 describe("User Controller", () => {
-  let createdUser: any;
-
   beforeEach(async () => {
     // limpa o banco
     await prisma.user.deleteMany({});
   });
 
   afterAll(async () => {
+    await prisma.user.deleteMany({});
     await prisma.$disconnect();
   });
 

@@ -9,14 +9,10 @@ const allowedProfileType = ["JOGADOR", "TORCEDOR", "ATLETICA"] as const;
 export const createUserSchema = z.object({
   body: z.object({
     name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres"),
-
     userName: z.string().min(1, "Username é obrigatório").trim(),
-
     email: z
-      .string()
       .email("Formato de email inválido")
       .transform((val) => val.toLowerCase().trim()),
-
     password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   }),
 });

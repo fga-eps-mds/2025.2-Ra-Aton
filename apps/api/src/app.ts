@@ -3,12 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import { globalErrorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
-import userRoutes from "./modules/user/user.routes"; // <-- Importe as novas rotas
+import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
-// NÃO IMPORTE MAIS:
-// import oldUserRoutes from './routes/users';
-// import { ... } from './controllers/userController';
-
+import HttpStatus from "http-status";
 const app: Express = express();
 
 // Middlewares Globais
@@ -19,7 +16,7 @@ app.use(helmet());
 
 // Rota de Health Check
 app.get("/", (_req: Request, res: Response) => {
-  res.status(200).send({ status: "ok", service: "api" });
+  res.status(HttpStatus.OK).send({ status: "ok", service: "api" });
 });
 
 // --- MONTAGEM DAS ROTAS ---
@@ -31,7 +28,7 @@ app.use("/login", authRoutes);
 // --- TRATAMENTO DE ERROS ---
 // Middleware para rotas não encontradas (404)
 app.use((req, res, next) => {
-  next(new ApiError(404, "Rota não encontrada"));
+  next(new ApiError(HttpStatus.NOT_FOUND, "Rota não encontrada"));
 });
 
 // Middleware Global de Erros (DEVE SER O ÚLTIMO)

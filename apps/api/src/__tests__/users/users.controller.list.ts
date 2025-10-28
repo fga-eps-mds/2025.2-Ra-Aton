@@ -5,6 +5,10 @@ import app from "../../app";
 jest.setTimeout(20000);
 
 describe("User Controller - listUsers", () => {
+  beforeAll(async () => {
+    await prisma.$connect();
+    await prisma.user.deleteMany({});
+  });
   beforeEach(async () => {
     await prisma.user.deleteMany({});
   });

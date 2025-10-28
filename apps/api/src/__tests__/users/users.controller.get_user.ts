@@ -7,6 +7,7 @@ jest.setTimeout(20000);
 
 describe("User Controller - getUser", () => {
   beforeAll(async () => {
+    await prisma.$connect();
     await prisma.user.deleteMany({});
   });
 
