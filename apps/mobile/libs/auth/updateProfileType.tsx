@@ -3,13 +3,17 @@ import axios from "axios";
 interface updateProfileParams {
   userName: string;
   profileType: string;
+  token: string;
 }
 
-export async function updateProfileType({ userName, profileType }: updateProfileParams) {
+export async function updateProfileType({ userName, profileType, token }: updateProfileParams) {
   try {
-    const response = await axios.put(`http://localhost:4000/users/${userName}`, {
-      userName,
-      profileType,
+    const response = await axios.put(`http://localhost:4000/users/${userName}`, 
+      {userName, profileType},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     return response.data;

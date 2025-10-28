@@ -82,7 +82,7 @@ const SendType = async (profileType: string) => { // pega a string vinda do bot√
       }
 
       // Atualiza no backend
-      const result = await updateProfileType({ userName: user.userName, profileType });
+      const result = await updateProfileType({ userName: user.userName, profileType, token: user.token });
       if (result.error) throw new Error(result.error);
 
       // Atualiza localmente
