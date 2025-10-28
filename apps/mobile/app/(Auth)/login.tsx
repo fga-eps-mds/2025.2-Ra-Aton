@@ -1,99 +1,248 @@
 /* home page */
-import { StyleSheet, Text, View, Image } from "react-native";
-import React from "react";
-import NamedLogo from "@/assets/img/Logo_1_Atom.png";
-import Button1Comp from "@/components/PrimaryButton";
-import Button2Comp from "@/components/SecondaryButton";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ActivityIndicator, // CA5: Adicionado
+  // TextInput, // Removido (usando InputComp)
+  // Button, // Removido (usando Button1Comp)
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+  Alert, // CA4: Alternativa para exibir erro
+} from "react-native";
+import React, { useState, useMemo } from "react";
+import NamedLogo from "../../assets/img/Logo_1_Atom.png";
+import ThemedView from "../../components/BackGroundComp";
+import PrimaryButton from "../../components/PrimaryButton";
+import SecondaryButton from "../../components/SecondaryButton";
 import { useRouter } from "expo-router";
-import Spacer from "@/components/SpacerComp";
-import { useTheme } from "@/constants/Theme";
-import { Colors } from "@/constants/Colors";
-import BackGroundComp from "@/components/BackGroundComp";
+import Spacer from "../../components/SpacerComp";
+import { useTheme } from "../../constants/Theme";
+import { Colors } from "../../constants/Colors";
+import InputComp from "@/components/InputComp";
+import * as SecureStore from "expo-secure-store";
+import { handleLogin } from "../../libs/login/handleLogin"; // Função de login importada
+
+// Função para salvar o token
+const saveToken = async (token: string) => {
+  if (Platform.OS === "web") {
+    // No 'web', SecureStore não é suportado. Usamos localStorage.
+    try {
+      localStorage.setItem("userToken", token);
+    } catch (e) {
+      console.warn(
+        "LocalStorage indisponível. Não foi possível salvar o token.",
+      );
+    }
+  } else {
+    // Em 'native' (iOS/Android), usamos SecureStore.
+    await SecureStore.setItemAsync("userToken", token);
+  }
+};
+
+// Função para salvar os dados do usuário
+const saveUserData = async (user: object) => {
+  const userData = JSON.stringify(user);
+  if (Platform.OS === "web") {
+    try {
+      localStorage.setItem("userData", userData);
+    } catch (e) {
+      console.warn(
+        "LocalStorage indisponível. Não foi possível salvar os dados do usuário.",
+      );
+    }
+  } else {
+    await SecureStore.setItemAsync("userData", userData);
+  }
+};
 
 const Home: React.FC = () => {
   return <HomeInner />;
 };
 
 const HomeInner: React.FC = () => {
-  //  Para usar o DarkMode
+  // Configurações de Tema e Rota (mantidas)
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-
-  //  Para usar DarkMode nos styles
   const styles = makeStyles(theme);
-
-  //  Para usar o Link no Botao
   const router = useRouter();
+  const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
 
+  // --- Início da Lógica de Login (integrada) ---
+
+  // CA1: Estados para e-mail e senha
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // CA5: Estado de Loading
+  const [isLoading, setIsLoading] = useState(false);
+
+  // CA4: Estado de Mensagem de erro
+  const [error, setError] = useState<string | null>(null);
+
+  // CA2: Validação de formato de e-mail
+  const validateEmail = (text: string) => {
+    // Regex simples para validação de e-mail
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(text);
+  };
+
+  const isEmailValid = useMemo(() => validateEmail(email), [email]);
+  const isPasswordValid = useMemo(() => password.length > 0, [password]); // CA1: Obrigatório
+
+  // CA3: Botão desativado
+  const isButtonDisabled = useMemo(() => {
+    // Desativado se estiver carregando ou se os campos forem inválidos
+    return isLoading || !isEmailValid || !isPasswordValid;
+  }, [email, password, isLoading, isEmailValid, isPasswordValid]);
+
+  // --- Início da Lógica de Login ---
+  const sendLogin = async () => {
+    console.log("Enviando dados do login...");
+    try {
+      setIsLoading(true);
+      setError(null); // Limpa erros anteriores
+      const data = await handleLogin(email, password);
+      console.log("Resposta do servirdor. Data => ", data);
+
+      //salva o token no SecureStore:
+      if (data && data.token) {
+        await saveToken(data.token);
+
+        //salvar os dados básicos do usuário
+        if (data.user) {
+          await saveUserData(data.user);
+        }
+        // usar o REPLACE para retirar a página de login do histórico de navegação (remove da pilha)
+
+        // --- INÍCIO DA NOVA LÓGICA DE REDIRECIONAMENTO ---
+        // 2. Verificar se o perfil do usuário está completo
+        // (Baseado no seu comentário: if (user.profileType == null))
+        if (
+          data.user &&
+          (data.user.profileType === null ||
+            typeof data.user.profileType === "undefined")
+        ) {
+          // CASO 1: Usuário logado, MAS perfil incompleto
+          // Redireciona para a página de "Completar Cadastro"
+
+          // !! IMPORTANTE !!
+          // Altere a rota abaixo para a rota correta do seu formulário de "novo usuário"
+          router.replace("/formsCadastro");
+        } else {
+          // CASO 2: Usuário logado E perfil completo
+          // Redireciona para a Home do Dashboard (como antes)
+          router.replace("/Home");
+        }
+        // --- FIM DA NOVA LÓGICA ---
+      } else {
+        throw new Error(
+          "Resposta inválida do servidor / Token não encontrado / Erro ao efetuar login",
+        );
+      }
+      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false);
+      console.log("Erro no envio do formulário: ", error.message);
+      Alert.alert("Erro de conexão", error.message);
+      // CA4: Usar o estado de erro (melhor UX que o Alert)
+      setError(error.message || "Erro desconhecido ao tentar login.");
+      return;
+    }
+  };
+  // --- Fim da Lógica de Login ---
   return (
-    <BackGroundComp style={styles.container}>
-      {/* Dark/Light mode */}
-      <Button1Comp
-        onPress={toggleDarkMode}
-        style={{
-          width: 40,
-          height: 40,
-          padding: 0,
-          margin: 0,
-          alignSelf: "flex-end",
-          alignContent: "center",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
-        <Text
-          style={[
-            {
-              fontWeight: "700",
-              fontSize: 30,
-              alignContent: "center",
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
+    <ScrollView
+      contentContainerStyle={{
+        padding: 20,
+        paddingBottom: 80,
+        backgroundColor: theme.background,
+      }}
+      keyboardShouldPersistTaps="handled" // Ajuda a fechar o teclado ao tocar fora
+    >
+      <ThemedView style={styles.container}>
+        {/* Dark/Light mode (PlaceHolder)*/}
+        <PrimaryButton
+          iconName={iconTheme}
+          onPress={toggleDarkMode}
+          style={styles.toggleButton} // Estilo extraído
         >
-          *
-        </Text>
-      </Button1Comp>
+          {/* Removido o <Text> vazio de dentro do botão de tema */}
+        </PrimaryButton>
+        {/* Dark/Light mode */}
+        <Image source={NamedLogo} style={styles.img} />
 
-      <Image source={NamedLogo} style={styles.img} />
+        <View style={styles.container_input}>
+          {/* CA1: Campo de E-mail */}
+          <InputComp
+            label="E-mail" // Label corrigido
+            iconName="person" // Recomendo usar 'mail-outline' ou 'at' se disponível
+            value={email}
+            onChangeText={setEmail}
+            placeholder="usuario@exemplo.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <Spacer height={45} />
 
-      <View style={[styles.inputDiv]}>
-        <View style={styles.inputLabel}>
-          <Text style={styles.txt}>Nome de usuário</Text>
+          {/* CA1: Campo de Senha */}
+          <InputComp
+            placeholder="Digite a senha"
+            label="Senha"
+            iconName="key"
+            secureTextEntry={true}
+            value={password}
+            onChangeText={setPassword}
+          />
         </View>
-        <View style={styles.inputBox}></View>
-      </View>
 
-      <Spacer height={40}></Spacer>
+        {/* CA8: Link "Esqueci minha senha" */}
+        <TouchableOpacity
+          style={styles.forgotPasswordButton}
 
-      <View style={styles.inputDiv}>
-        <View style={styles.inputLabel}>
-          <Text style={styles.txt}>Senha</Text>
-        </View>
-        <View style={styles.inputBox}></View>
-      </View>
+          /* TODO: Adicionar navegação para fluxo de recuperação */
+        >
+          <Spacer height={20} />
+          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+        </TouchableOpacity>
 
-      <Button1Comp onPress={() => router.push("/Home")} style={{ top: 60 }}>
-        <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
-          Login
-        </Text>
-      </Button1Comp>
+        {/* CA4: Exibição de Erro */}
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
-      <Spacer height={80} />
+        {/* CA5: Indicador de Loading */}
+        {isLoading ? (
+          <ActivityIndicator
+            size="large"
+            color={theme.orange}
+            style={{ marginTop: 60 }}
+          />
+        ) : (
+          /* CA3: Botão Entrar com estado 'disabled' */
+          <PrimaryButton
+            onPress={sendLogin}
+            style={{ top: 60 }}
+            disabled={isButtonDisabled}
+            testID="botaoLogin"
+          >
+            <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
+              Login
+            </Text>
+          </PrimaryButton>
+        )}
 
-      <Text style={styles.txt}>ou</Text>
+        <Spacer height={80} />
+        <Text style={styles.txt}>ou</Text>
+        <Spacer height={20} />
 
-      <Spacer height={20} />
-
-      <Button2Comp onPress={() => router.push("/cadastro")}>
-        <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
-          Cadastre-se
-        </Text>
-      </Button2Comp>
-      {/* <TextInput style={{backgroundColor: 'red'}}></TextInput> */}
-    </BackGroundComp>
+        <SecondaryButton onPress={() => router.push("/cadastro")}>
+          <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
+            Cadastre-se
+          </Text>
+        </SecondaryButton>
+      </ThemedView>
+    </ScrollView>
   );
 };
 
@@ -101,6 +250,13 @@ export default Home;
 
 const makeStyles = (theme: any) =>
   StyleSheet.create({
+    container_input: {
+      flexDirection: "column",
+      alignItems: "center",
+      marginTop: -20,
+      height: "auto",
+      width: "100%",
+    },
     container: {
       flex: 1,
       alignItems: "center",
@@ -114,7 +270,42 @@ const makeStyles = (theme: any) =>
       color: theme.text,
       fontWeight: "500",
     },
+    // Estilos do botão de tema (extraídos)
+    toggleButton: {
+      width: 40,
+      height: 40,
+      padding: 0,
+      margin: 0,
+      alignSelf: "flex-end",
+      alignContent: "center",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    // CA4: Estilo da Mensagem de Erro
+    errorText: {
+      color: "red", // TODO: Usar cor de erro do Design System
+      marginTop: 10,
+      marginBottom: -40, // Compensa o 'top: 60' do botão
+      textAlign: "center",
+      fontSize: 14,
+      fontWeight: "500",
+    },
+    // CA8: Estilos do "Esqueci minha senha"
+    forgotPasswordButton: {
+      alignSelf: "flex-end",
+      marginTop: 10,
+      marginRight: 10, // Ajuste conforme seu InputComp
+    },
+    forgotPasswordText: {
+      color: theme.orange, // TODO: Usar cor de link do Design System
+      fontSize: 14,
+      fontWeight: "500",
+    },
+
+    // (Estilos inputDiv, inputLabel, inputBox não parecem estar sendo usados, mantidos)
     inputDiv: {
+      backgroundColor: "blue",
       width: "85%",
       justifyContent: "flex-start",
       alignItems: "center",

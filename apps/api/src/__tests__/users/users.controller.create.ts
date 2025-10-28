@@ -14,6 +14,9 @@ describe("User Controller", () => {
     await prisma.$disconnect();
   });
 
+  afterEach( async () => await prisma.user.deleteMany({}));
+
+
   // CA1-Simples - Teste de criação bem-sucedida
   it("deve criar um novo usuário e retornar status 201 (Teste Simples)", async () => {
     const newUser = {
