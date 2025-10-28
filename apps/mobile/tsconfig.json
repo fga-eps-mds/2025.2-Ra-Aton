@@ -10,7 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "ignoreDeprecations": "6.0",
     "jsx": "react-jsx",
-    "moduleResolution": "bundler", // ✅ ou "node" se preferir
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@/*": [
