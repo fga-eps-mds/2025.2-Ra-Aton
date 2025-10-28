@@ -3,12 +3,10 @@ import { Text, View } from "react-native";
 import { Tabs } from "expo-router";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../constants/Theme";
-import {Fonts} from "../../constants/Fonts"
-import {useFonts} from "expo-font"
-import { error } from "console";
+import { Fonts } from "../../constants/Fonts";
+import { useFonts } from "expo-font";
 
 const DashboardLayout = () => {
-  
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
                                                             
@@ -34,11 +32,7 @@ const DashboardLayout = () => {
         },
       }}
     />
-      
-     
   );
 };
-
-
 
 export default DashboardLayout;
