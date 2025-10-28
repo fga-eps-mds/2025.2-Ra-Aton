@@ -1,6 +1,6 @@
 export async function handleLogin(email: string, password: string) {
   try {
-    const response = await fetch("http://localhost:4000/auth/login", {
+    const response = await fetch("http://localhost:4000/login", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ email, password }),
