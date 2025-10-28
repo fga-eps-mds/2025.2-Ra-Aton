@@ -61,6 +61,8 @@ jobs:
           echo "DATABASE_URL=${{ env.DATABASE_URL }}" > apps/api/prisma/.env
           echo "DATABASE_URL=${{ env.DATABASE_URL }}" > apps/api/.env
           echo "JWT_SECRET='your_jwt_secret_key'" >> apps/api/.env
+          echo "JWT_EXPIRES_IN=1h" >> apps/api/.env
+          echo "NODE_ENV='test'" >> apps/api/.env
 
       - name: Run workspace tests
         working-directory: .
