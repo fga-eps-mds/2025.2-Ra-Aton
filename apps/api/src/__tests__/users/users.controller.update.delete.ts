@@ -9,6 +9,7 @@ jest.mock("../../prisma", () => {
         findUnique: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        deleteMany: jest.fn()
       },
     },
   };
@@ -21,9 +22,12 @@ const mockedPrisma = prisma as any as {
   };
 };
 describe("users controller - updateUser & deleteUser", () => {
-  beforeEach(() => {
+  beforeEach( async () => {
     jest.clearAllMocks();
+    await prisma.user.deleteMany({});
   });
+
+  afterEach( async () => await prisma.user.deleteMany({}));
 
   // passa o header Authorization esperado pelo app: "Bearer user:<id>"
   function authHeader(user: any) {

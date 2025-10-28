@@ -13,6 +13,8 @@ describe("User Controller - getUser", () => {
   afterAll(async () => {
     await prisma.$disconnect();
   });
+  afterEach( async () => await prisma.user.deleteMany({}));
+
 
   it("deve retornar um usuário existente pelo userName", async () => {
     // Arrange: cria um usuário
