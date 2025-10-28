@@ -1,6 +1,6 @@
-# Autenticação — Endpoint /auth/login
+# Autenticação — Endpoint /login
 
-POST /auth/login
+POST /login
 
 Request body (application/json):
 

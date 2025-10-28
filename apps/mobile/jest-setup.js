@@ -1,3 +1,5 @@
+// jest-setup.js
+
 // Minimal jest setup for mobile tests
 // Place any global mocks or configuration here (e.g. native modules)
 
@@ -5,8 +7,8 @@
 // jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
 // define __DEV__ used by react-native
+require('@testing-library/jest-native/extend-expect');
 global.__DEV__ = true;
-
 // define __fbBatchedBridgeConfig so react-native native modules initialization is bypassed in tests
 global.__fbBatchedBridgeConfig = {};
 

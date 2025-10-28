@@ -1,18 +1,21 @@
 // tests/user.controller.test.ts
 import request from "supertest";
-import { prisma } from "../../prisma";
+import { prisma } from "../../database/prisma.client";
 import app from "../../app"; // seu app Express principal
 
 jest.setTimeout(20000);
 
 describe("User Controller - getUser", () => {
   beforeAll(async () => {
+    await prisma.$connect();
     await prisma.user.deleteMany({});
   });
 
   afterAll(async () => {
     await prisma.$disconnect();
   });
+  afterEach( async () => await prisma.user.deleteMany({}));
+
 
   it("deve retornar um usuário existente pelo userName", async () => {
     // Arrange: cria um usuário
