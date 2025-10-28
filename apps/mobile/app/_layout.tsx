@@ -21,7 +21,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      {/* <UserProvider>  // Pra eu usar o context depois  */}  
+        <Stack screenOptions={{ headerShown: false }} />
+      {/* </UserProvider> */}
     </ThemeProvider>
   );
 }
