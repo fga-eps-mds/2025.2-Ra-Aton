@@ -12,5 +12,8 @@
     "typescript",
     "typescriptreact"
   ],
-  "prettier.enableDebug": false
+  "prettier.enableDebug": false,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
 }
