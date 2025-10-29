@@ -1,13 +1,15 @@
+// TODO: resolver testes com mocks do jeito certo
+
 import request from "supertest";
 // Importamos o 'app' real, que usará o 'prisma' mockado
-import app from "../../app";
+import app from "../../../app";
 // Importamos o 'prisma' para ter uma referência ao mock e controlar seu comportamento
-import { prisma } from "../../database/prisma.client";
+import { prisma } from "../../../database/prisma.client";
 import bcrypt from "bcrypt";
 import { verify } from "jsonwebtoken";
-import { config } from "../../config/env";
+import { config } from "../../../config/env";
 import HttpStatus from "http-status";
-import { ApiError } from "../../utils/ApiError";
+import { ApiError } from "../../../utils/ApiError";
 
 jest.mock("../../database/prisma.client", () => ({
   prisma: {

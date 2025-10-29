@@ -1,6 +1,8 @@
+// TODO: resolver testes com mocks do jeito certo
+
 import request from "supertest";
-import { prisma } from "../../database/prisma.client";
-import app from "../../app";
+import { prisma } from "../../../database/prisma.client";
+import app from "../../../app";
 
 jest.setTimeout(20000);
 
@@ -33,14 +35,12 @@ describe("User Controller - listUsers", () => {
     };
 
     await request(app).post("/users").send(user1);
-    
+
     await request(app).post("/users").send(user2);
-    
 
     // Act: chama GET /users
     const res = await request(app).get("/users");
-    
-    
+
     // Assert
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);

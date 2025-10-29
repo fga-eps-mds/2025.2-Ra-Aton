@@ -1,7 +1,8 @@
-// tests/user.controller.test.ts
+// TODO: resolver testes com mocks do jeito certo
+
 import request from "supertest";
-import { prisma } from "../../database/prisma.client";
-import app from "../../app"; // seu app Express principal
+import { prisma } from "../../../database/prisma.client";
+import app from "../../../app"; // seu app Express principal
 
 jest.setTimeout(20000);
 
@@ -14,8 +15,7 @@ describe("User Controller - getUser", () => {
   afterAll(async () => {
     await prisma.$disconnect();
   });
-  afterEach( async () => await prisma.user.deleteMany({}));
-
+  afterEach(async () => await prisma.user.deleteMany({}));
 
   it("deve retornar um usuário existente pelo userName", async () => {
     // Arrange: cria um usuário

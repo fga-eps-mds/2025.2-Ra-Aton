@@ -1,6 +1,8 @@
+// TODO: resolver testes com mocks do jeito certo
+
 import request from "supertest";
-import { prisma } from "../../database/prisma.client";
-import app from "../../app"; // caminho do app Express principal
+import { prisma } from "../../../database/prisma.client";
+import app from "../../../app"; // caminho do app Express principal
 
 describe("User Controller", () => {
   beforeEach(async () => {
@@ -13,8 +15,7 @@ describe("User Controller", () => {
     await prisma.$disconnect();
   });
 
-  afterEach( async () => await prisma.user.deleteMany({}));
-
+  afterEach(async () => await prisma.user.deleteMany({}));
 
   // CA1-Simples - Teste de criação bem-sucedida
   it("deve criar um novo usuário e retornar status 201 (Teste Simples)", async () => {
