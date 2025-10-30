@@ -79,10 +79,14 @@ const CadastroInner: React.FC = () => {
   const verifyNickname = (userName: string) => {
     setErrorNickname("");
 
-    if (userName.length > 45)
-      return "O nome de usuario não pode ultrapassar 45 caracteres";
+    if(userName.includes(" ")){
+      return "Seu nome de usuário não pode ter espaços";
+    }
 
-    if (userName.length < 4) return "Digite um nome de usuario válido";
+    if (userName.length > 45)
+      return "Seu nome de usuário não pode ultrapassar 45 caracteres";
+
+    if (userName.length < 4) return "Seu nome de usuário deve ter pelo menos 4 caracteres";
     else return "";
   };
 
@@ -324,7 +328,7 @@ const makeStyles = (theme: any) =>
     },
 
     img: {
-      marginVertical: 60,
+      marginVertical: 20,
       marginTop: 0,
       maxWidth: "100%",
       alignSelf: "center",
