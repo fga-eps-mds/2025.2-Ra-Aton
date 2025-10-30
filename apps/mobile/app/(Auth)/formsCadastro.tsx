@@ -130,7 +130,7 @@ const SendType = async (profileType: string) => { // pega a string vinda do botÃ
           flexGrow: 1,
         }}
       >
-        <PrimaryButton
+        {/* <PrimaryButton
           iconName={iconTheme}
           onPress={toggleDarkMode}
           style={{
@@ -156,7 +156,7 @@ const SendType = async (profileType: string) => { // pega a string vinda do botÃ
               },
             ]}
           ></Text>
-        </PrimaryButton>
+        </PrimaryButton> */}
         <Image source={Logo} style={styles.img} accessibilityLabel="LogoAton" />
         <View style={styles.container}>
           <View style={styles.txtInfo}>

@@ -328,7 +328,7 @@ const makeStyles = (theme: any) =>
     },
 
     img: {
-      marginVertical: 60,
+      marginVertical: 20,
       marginTop: 0,
       maxWidth: "100%",
       alignSelf: "center",
