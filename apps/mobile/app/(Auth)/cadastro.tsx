@@ -34,11 +34,9 @@ const Cadastro: React.FC = () => {
 const CadastroInner: React.FC = () => {
   const router = useRouter();
 
-  //  Para usar o DarkMode
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
-  // const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -50,14 +48,13 @@ const CadastroInner: React.FC = () => {
   const [errorNickname, setErrorNickname] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
   const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
-  // const [hidePassword,setHidePassword] = useState(true);
-  //--------------------------------------------------------------------------- separando...
+
   const verifyName = (name: string) => {
     setErrorName("");
 
     if (name.length > 256) return "O Nome não pode ultrapassar 256 caracteres";
 
-    const verifyName = name.trim().split(" ").length >= 2; // vericação se o usuário preencher pelo menos nome e sobrenome
+    const verifyName = name.trim().split(" ").length >= 2; 
     if (!verifyName) return "Preencha nome e sobrenome";
     else return "";
   };
@@ -97,13 +94,12 @@ const CadastroInner: React.FC = () => {
     if (password.length > 50)
       return "A senha não pode ultrapassar 50 caracteres";
 
-    const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // (rodrigo) - regex que verifica : numero e letra
+    const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; 
     if (password.length < 8) {
-      return "Sua senha deve possuir no mínimo 8 caracteres"; // Fazer uma estilização no input
-      // * Talvez um check
+      return "Sua senha deve possuir no mínimo 8 caracteres";
     }
     if (validPassword.test(password) == false) {
-      return "Sua senha deve conter letras e números"; // Fazer uma estilização no input
+      return "Sua senha deve conter letras e números"; 
     } else {
       return "";
     }
@@ -145,7 +141,7 @@ const CadastroInner: React.FC = () => {
     !userName ||
     !(password === confirmPassword)
       ? true
-      : false; // talvez verificar os regex 1°?
+      : false; 
 
   const statusBtnCadastro = () => {
     const errName = verifyName(name);
@@ -162,10 +158,6 @@ const CadastroInner: React.FC = () => {
     setErrorConfirmPassword(errConfirmrPassword);
     setErrorNickname(errNickname);
 
-    //  Para usar DarkMode nos styles
-
-    //  Para usar o Link no Botao
-
     if (
       !errName &&
       !errNickname &&
@@ -173,7 +165,6 @@ const CadastroInner: React.FC = () => {
       !errPassword &&
       !errConfirmrPassword
     ) {
-      // router.push("/(Auth)/formsCadastro")
       console.log("Credenciais Validas");
       handleRegister();
     }
@@ -218,15 +209,7 @@ const CadastroInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Dark/Light mode (PlaceHolder)*/}
-          {/* <Button1Comp iconName={iconTheme} onPress={toggleDarkMode} style={{ width: 40, height: 40, padding: 0, margin:0, alignSelf:'flex-end', alignContent:'center', justifyContent:'center', alignItems:'center', marginBottom: 20 }}>
-              <Text style={[{ fontWeight: "700", fontSize: 30, alignContent:'center', justifyContent:'center', alignItems:'center' }]}>
-
-              </Text>
-            </Button1Comp> */}
-
-          {/* */}
-
+      
           <Image source={NamedLogo} style={styles.img} />
 
           <View style={styles.containerInfos}>
@@ -321,7 +304,6 @@ const makeStyles = (theme: any) =>
     container: {
       alignItems: "center",
       flex: 1,
-      // backgroundColor: 'red',
     },
     containerInfos: {
       width: "100%",

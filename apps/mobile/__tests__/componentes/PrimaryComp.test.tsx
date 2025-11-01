@@ -1,4 +1,4 @@
-import "@/test/testMocks";
+import "../test_mocks/testMocks";
 import { render } from "@testing-library/react-native";
 import Button1Comp from "@/components/PrimaryButton";
 

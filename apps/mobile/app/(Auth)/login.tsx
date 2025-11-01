@@ -38,7 +38,6 @@ const saveToken = async (token: string) => {
       );
     }
   } else {
-    // Em 'native' (iOS/Android), usamos SecureStore.
     await SecureStore.setItemAsync("userToken", token);
   }
 };
@@ -64,59 +63,44 @@ const Home: React.FC = () => {
 };
 
 const HomeInner: React.FC = () => {
-  // Configurações de Tema e Rota (mantidas)
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
   const router = useRouter();
   const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
 
-  // --- Início da Lógica de Login (integrada) ---
-
-  // CA1: Estados para e-mail e senha
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // CA5: Estado de Loading
   const [isLoading, setIsLoading] = useState(false);
-
-  // CA4: Estado de Mensagem de erro
   const [error, setError] = useState<string | null>(null);
-
-  // CA2: Validação de formato de e-mail
   const validateEmail = (text: string) => {
-    // Regex simples para validação de e-mail
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(text);
   };
 
   const isEmailValid = useMemo(() => validateEmail(email), [email]);
-  const isPasswordValid = useMemo(() => password.length > 0, [password]); // CA1: Obrigatório
 
-  // CA3: Botão desativado
+  const isPasswordValid = useMemo(() => password.length > 0, [password]);
+
   const isButtonDisabled = useMemo(() => {
     // Desativado se estiver carregando ou se os campos forem inválidos
     return isLoading || !isEmailValid || !isPasswordValid;
   }, [email, password, isLoading, isEmailValid, isPasswordValid]);
 
-  // --- Início da Lógica de Login ---
   const sendLogin = async () => {
     console.log("Enviando dados do login...");
     try {
       setIsLoading(true);
-      setError(null); // Limpa erros anteriores
+      setError(null); 
       const data = await handleLogin(email, password);
       console.log("Resposta do servirdor. Data => ", data);
 
-      //salva o token no SecureStore:
       if (data && data.token) {
         await saveToken(data.token);
 
-        //salvar os dados básicos do usuário
         if (data.user) {
           await saveUserData(data.user);
         }
-        // usar o REPLACE para retirar a página de login do histórico de navegação (remove da pilha)
 
         // --- INÍCIO DA NOVA LÓGICA DE REDIRECIONAMENTO ---
         // 2. Verificar se o perfil do usuário está completo
@@ -126,8 +110,7 @@ const HomeInner: React.FC = () => {
           (data.user.profileType === null ||
             typeof data.user.profileType === "undefined")
         ) {
-          // CASO 1: Usuário logado, MAS perfil incompleto
-          // Redireciona para a página de "Completar Cadastro"
+        
 
           // !! IMPORTANTE !!
           // Altere a rota abaixo para a rota correta do seu formulário de "novo usuário"
@@ -148,7 +131,6 @@ const HomeInner: React.FC = () => {
       setIsLoading(false);
       console.log("Erro no envio do formulário: ", error.message);
       Alert.alert("Erro de conexão", error.message);
-      // CA4: Usar o estado de erro (melhor UX que o Alert)
       setError(error.message || "Erro desconhecido ao tentar login.");
       return;
     }
@@ -169,22 +151,14 @@ const HomeInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled" // Ajuda a fechar o teclado ao tocar fora
         >
-          {/* Dark/Light mode (PlaceHolder)
-        <PrimaryButton
-          iconName={iconTheme}
-          onPress={toggleDarkMode}
-          style={styles.toggleButton} // Estilo extraído
-        >
-         Removido o <Text> vazio de dentro do botão de tema 
-        </PrimaryButton>
-        Dark/Light mode */}
+      
           <Image source={NamedLogo} style={styles.img} />
           <View style={styles.container_input}>
             {/* CA1: Campo de E-mail */}
             <InputComp
-              label="E-mail" // Label corrigido
+              label="E-mail"
               iconName="person" // Recomendo usar 'mail-outline' ou 'at' se disponível
-              value={email}
+              value={email} 
               onChangeText={setEmail}
               placeholder="usuario@exemplo.com"
               keyboardType="email-address"
