@@ -11,7 +11,7 @@ export const userService = {
   createUser: async (data: any): Promise<UserResponse> => {
     const existingUser = await userRepository.findByEmail(data.email);
     if (existingUser) {
-      throw new ApiError(httpStatus.BAD_REQUEST, "Email já cadastrado");
+      throw new ApiError(httpStatus.CONFLICT, "Email já cadastrado");
     }
     const existingUserName = await userRepository.findByUserName(data.userName);
     if (existingUserName) {
