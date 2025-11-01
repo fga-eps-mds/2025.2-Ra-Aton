@@ -27,6 +27,8 @@ import InputComp from "@/components/InputComp";
 
 import { registerUser } from "@/libs/auth/handleRegister";
 
+import { verifyName, verifyNickname, verifyEmail, verifyPassword, verifyConfirmPassword } from "@/libs/validation/registerValidation";
+
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
 };
@@ -43,85 +45,20 @@ const CadastroInner: React.FC = () => {
   const [userName, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [errorName, setErrorName] = useState("");
   const [errorEmail, setErrorEmail] = useState("");
   const [errorNickname, setErrorNickname] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
   const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
-
-  const verifyName = (name: string) => {
-    setErrorName("");
-
-    if (name.length > 256) return "O Nome não pode ultrapassar 256 caracteres";
-
-    const verifyName = name.trim().split(" ").length >= 2; 
-    if (!verifyName) return "Preencha nome e sobrenome";
-    else return "";
-  };
-
-  const verifyEmail = (email: string) => {
-    setErrorEmail("");
-
-    if (email.length > 256)
-      return "O email não pode ultrapassar 256 caracteres";
-
-    const validEmail = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    if (validEmail.test(email) == false) {
-      return "Insira um email válido";
-    } else {
-      return "";
-    }
-  };
-
-  const verifyNickname = (userName: string) => {
-    setErrorNickname("");
-
-    if(userName.includes(" ")){
-      return "Seu nome de usuário não pode ter espaços";
-    }
-
-    if (userName.length > 45)
-      return "Seu nome de usuário não pode ultrapassar 45 caracteres";
-
-    if (userName.length < 4) return "Seu nome de usuário deve ter pelo menos 4 caracteres";
-    else return "";
-  };
-
-  const verifyPassword = (password: string) => {
-    setErrorPassword("");
-    setErrorConfirmPassword("");
-
-    if (password.length > 50)
-      return "A senha não pode ultrapassar 50 caracteres";
-
-    const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; 
-    if (password.length < 8) {
-      return "Sua senha deve possuir no mínimo 8 caracteres";
-    }
-    if (validPassword.test(password) == false) {
-      return "Sua senha deve conter letras e números"; 
-    } else {
-      return "";
-    }
-  };
-
-  const verifyConfirmPassword = (password: string, confirmPassword: string) => {
-    if (confirmPassword.length > 50)
-      return "A senha não pode ultrapassar 50 caracteres";
-
-    if (password != confirmPassword) {
-      return "As senhas não coincidem";
-    } else {
-      return "";
-    }
-  };
+  const [backendErrorEmail, setBackendErrorEmail] = useState("");
+  const [backendErrorNickname, setBackendErrorNickname] = useState("");
 
   React.useEffect(() => {
     if (name) setErrorName(verifyName(name));
     if (email) setErrorEmail(verifyEmail(email));
     if (password) setErrorPassword(verifyPassword(password));
-    if (confirmPassword)
-      setErrorConfirmPassword(verifyConfirmPassword(password, confirmPassword));
+    if (confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password, confirmPassword));
     if (userName) setErrorNickname(verifyNickname(userName));
   }, [name, email, password, confirmPassword, userName]);
 
@@ -133,24 +70,12 @@ const CadastroInner: React.FC = () => {
     if (userName) setBackendErrorNickname("");
   }, [userName]);
 
-  const isDisabled =
-    !email ||
-    !password ||
-    !confirmPassword ||
-    !name ||
-    !userName ||
-    !(password === confirmPassword)
-      ? true
-      : false; 
-
-  const statusBtnCadastro = () => {
+  const isDisabled = !(email && !verifyPassword(password) && name && userName && !verifyConfirmPassword(password, confirmPassword));
+  const statusBtnCadastro = async () => {
     const errName = verifyName(name);
     const errEmail = verifyEmail(email);
     const errPassword = verifyPassword(password);
-    const errConfirmrPassword = verifyConfirmPassword(
-      password,
-      confirmPassword,
-    );
+    const errConfirmrPassword = verifyConfirmPassword(password, confirmPassword);
     const errNickname = verifyNickname(userName);
     setErrorName(errName);
     setErrorEmail(errEmail);
@@ -166,12 +91,10 @@ const CadastroInner: React.FC = () => {
       !errConfirmrPassword
     ) {
       console.log("Credenciais Validas");
-      handleRegister();
+      await handleRegister();
     }
   };
-  // Função para mandar os dados do registro para o BackEnd
-  const [backendErrorEmail, setBackendErrorEmail] = useState("");
-  const [backendErrorNickname, setBackendErrorNickname] = useState("");
+
   const handleRegister = async () => {
     try {
       const data = await registerUser({ name, userName, email, password });
