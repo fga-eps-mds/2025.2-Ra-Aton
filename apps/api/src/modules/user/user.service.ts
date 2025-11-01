@@ -13,6 +13,10 @@ export const userService = {
     if (existingUser) {
       throw new ApiError(httpStatus.BAD_REQUEST, "Email já cadastrado");
     }
+    const existingUserName = await userRepository.findByUserName(data.userName);
+    if (existingUserName) {
+      throw new ApiError(httpStatus.CONFLICT, "Nome de usuário já cadastrado");
+    }
 
     if (!data.password || typeof data.password !== "string") {
       throw new ApiError(
