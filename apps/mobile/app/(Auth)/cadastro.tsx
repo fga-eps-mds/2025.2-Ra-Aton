@@ -101,9 +101,9 @@ const CadastroInner: React.FC = () => {
 
       if (data.error) {
         console.log(data.error);
-        if (data.error === "Email já cadastrado") {
+        if (data.error.includes("Email")) {
           setBackendErrorEmail(data.error);
-        } else if (data.error === "Username já cadastrado") {
+        } else if (data.error.includes("Nome de usúario") | data.error.includes("Username")) {
           setBackendErrorNickname(data.error);
         }
         return;
