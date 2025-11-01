@@ -37,11 +37,11 @@ export const postService = {
     authUserId: string,
     data: any,
   ): Promise<Post> => {
-    const postFound = await postRepository.findPostById(data.id);
+    const postFound = await postRepository.findPostById(id);
     if (!postFound) {
       throw new ApiError(HttpStatus.NOT_FOUND, "Postagem não encontrada");
     }
-
+    console.log(">>> post author: " + postFound.authorId);
     if (postFound.authorId !== authUserId) {
       throw new ApiError(
         HttpStatus.FORBIDDEN,

@@ -11,8 +11,8 @@ class PostController {
   }
 
   async createPost(req: Request, res: Response) {
-    const authUserId = (req as any).user!.any;
-    const author = await userService.getUserById(authUserId);
+    const authUserId = (req as any).user;
+    const author = await userService.getUserById(authUserId.id);
     if (!author) {
       return res
         .status(HttpStatus.NOT_FOUND)
@@ -36,10 +36,10 @@ class PostController {
         .json({ message: "O id é necessesário para atualizar a postagem" });
     }
 
-    const authUserId = (req as any).user!.any;
+    const authUserId = (req as any).user;
 
     try {
-      const post = await postService.updatePost(id, authUserId, req.body);
+      const post = await postService.updatePost(id, authUserId.id, req.body);
       return res.status(HttpStatus.OK).json(post);
     } catch (error) {
       if (error instanceof ApiError) {
@@ -59,10 +59,10 @@ class PostController {
         .json({ message: "O id é necessesário para excluir a postagem" });
     }
 
-    const authUserId = (req as any).user!.id;
+    const authUserId = (req as any).user;
 
     try {
-      await postService.deletePost(id, authUserId);
+      await postService.deletePost(id, authUserId.id);
       return res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
       if (error instanceof ApiError) {

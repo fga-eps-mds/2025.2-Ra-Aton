@@ -20,6 +20,7 @@ router.get("/", catchAsync(postController.listPosts));
 
 router.post(
   "/",
+  auth,
   // validateRequest(createPostSchema),
   catchAsync(postController.createPost),
 );
