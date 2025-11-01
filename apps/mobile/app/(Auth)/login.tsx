@@ -15,48 +15,20 @@ import {
 } from "react-native";
 import React, { useState, useMemo } from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
-import ThemedView from "../../components/BackGroundComp";
+import BackGroundComp from "../../components/BackGroundComp";
 import PrimaryButton from "../../components/PrimaryButton";
 import SecondaryButton from "../../components/SecondaryButton";
-import { useRouter } from "expo-router";
 import Spacer from "../../components/SpacerComp";
+import InputComp from "@/components/InputComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
-import InputComp from "@/components/InputComp";
+import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+
 import { handleLogin } from "../../libs/login/handleLogin"; // Função de login importada
-
-// Função para salvar o token
-const saveToken = async (token: string) => {
-  if (Platform.OS === "web") {
-    // No 'web', SecureStore não é suportado. Usamos localStorage.
-    try {
-      localStorage.setItem("userToken", token);
-    } catch (e) {
-      console.warn(
-        "LocalStorage indisponível. Não foi possível salvar o token.",
-      );
-    }
-  } else {
-    await SecureStore.setItemAsync("userToken", token);
-  }
-};
-
-// Função para salvar os dados do usuário
-const saveUserData = async (user: object) => {
-  const userData = JSON.stringify(user);
-  if (Platform.OS === "web") {
-    try {
-      localStorage.setItem("userData", userData);
-    } catch (e) {
-      console.warn(
-        "LocalStorage indisponível. Não foi possível salvar os dados do usuário.",
-      );
-    }
-  } else {
-    await SecureStore.setItemAsync("userData", userData);
-  }
-};
+import { verifyEmail } from "@/libs/validation/userDataValidation"
+import { saveToken } from "@/libs/storage/saveToken";
+import { saveUserData } from "@/libs/storage/saveUserData";
 
 const Home: React.FC = () => {
   return <HomeInner />;
@@ -73,12 +45,8 @@ const HomeInner: React.FC = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const validateEmail = (text: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(text);
-  };
 
-  const isEmailValid = useMemo(() => validateEmail(email), [email]);
+  const isEmailValid = useMemo(() => !verifyEmail(email), [email]);
 
   const isPasswordValid = useMemo(() => password.length > 0, [password]);
 
@@ -91,7 +59,7 @@ const HomeInner: React.FC = () => {
     console.log("Enviando dados do login...");
     try {
       setIsLoading(true);
-      setError(null); 
+      setError(null);
       const data = await handleLogin(email, password);
       console.log("Resposta do servirdor. Data => ", data);
 
@@ -110,7 +78,7 @@ const HomeInner: React.FC = () => {
           (data.user.profileType === null ||
             typeof data.user.profileType === "undefined")
         ) {
-        
+
 
           // !! IMPORTANTE !!
           // Altere a rota abaixo para a rota correta do seu formulário de "novo usuário"
@@ -137,7 +105,7 @@ const HomeInner: React.FC = () => {
   };
   // --- Fim da Lógica de Login ---
   return (
-    <ThemedView>
+    <BackGroundComp>
       <KeyboardAvoidingView
         style={[{ flex: 1 }]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -151,14 +119,14 @@ const HomeInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled" // Ajuda a fechar o teclado ao tocar fora
         >
-      
+
           <Image source={NamedLogo} style={styles.img} />
           <View style={styles.container_input}>
             {/* CA1: Campo de E-mail */}
             <InputComp
               label="E-mail"
               iconName="person" // Recomendo usar 'mail-outline' ou 'at' se disponível
-              value={email} 
+              value={email}
               onChangeText={setEmail}
               placeholder="usuario@exemplo.com"
               keyboardType="email-address"
@@ -189,40 +157,40 @@ const HomeInner: React.FC = () => {
           {error && <Text style={styles.errorText}>{error}</Text>}
           <View style={styles.centeredView}>
 
-          {/* CA5: Indicador de Loading */}
-          {isLoading ? (
-            <ActivityIndicator
-              size="large"
-              color={theme.orange}
-              style={{ marginTop: 60 }}
-            />
-          ) : (
-            /* CA3: Botão Entrar com estado 'disabled' */
-            <PrimaryButton
-              onPress={sendLogin}
-              style={{ top: 60 }}
-              disabled={isButtonDisabled}
-              testID="botaoLogin"
-            >
-              <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
-                Login
+            {/* CA5: Indicador de Loading */}
+            {isLoading ? (
+              <ActivityIndicator
+                size="large"
+                color={theme.orange}
+                style={{ marginTop: 60 }}
+              />
+            ) : (
+              /* CA3: Botão Entrar com estado 'disabled' */
+              <PrimaryButton
+                onPress={sendLogin}
+                style={{ top: 60 }}
+                disabled={isButtonDisabled}
+                testID="botaoLogin"
+              >
+                <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
+                  Login
+                </Text>
+              </PrimaryButton>
+            )}
+
+            <Spacer height={80} />
+            <Text style={styles.txt}>ou</Text>
+            <Spacer height={20} />
+
+            <SecondaryButton onPress={() => router.push("/cadastro")}>
+              <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
+                Cadastre-se
               </Text>
-            </PrimaryButton>
-          )}
-
-          <Spacer height={80} />
-          <Text style={styles.txt}>ou</Text>
-          <Spacer height={20} />
-
-          <SecondaryButton onPress={() => router.push("/cadastro")}>
-            <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
-              Cadastre-se
-            </Text>
-          </SecondaryButton>
+            </SecondaryButton>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </ThemedView>
+    </BackGroundComp>
   );
 };
 

@@ -27,7 +27,7 @@ import InputComp from "@/components/InputComp";
 
 import { registerUser } from "@/libs/auth/handleRegister";
 
-import { verifyName, verifyNickname, verifyEmail, verifyPassword, verifyConfirmPassword } from "@/libs/validation/registerValidation";
+import { verifyName, verifyNickname, verifyEmail, verifyPassword, verifyConfirmPassword } from "@/libs/validation/userDataValidation";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
@@ -132,7 +132,7 @@ const CadastroInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled"
         >
-      
+
           <Image source={NamedLogo} style={styles.img} />
 
           <View style={styles.containerInfos}>

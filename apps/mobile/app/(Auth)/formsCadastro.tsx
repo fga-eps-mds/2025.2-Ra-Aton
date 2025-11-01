@@ -22,25 +22,12 @@ import BackGroundComp from "@/components/BackGroundComp";
 import { updateProfileType } from "@/libs/auth/updateProfileType";
 
 // import { useUser } from "@/libs/auth/userContext"; devo adicionar o context depois
-
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-async function getStoredUser() {  // Pega o userData
-  if (Platform.OS === "web") {
-    const data = localStorage.getItem("userData");
-    return data ? JSON.parse(data) : null;
-  }
-  const data = await SecureStore.getItemAsync("userData");
-  return data ? JSON.parse(data) : null;
-}
-export async function getToken() {
-  if (Platform.OS === "web") {
-    return localStorage.getItem("userToken");
-  } else {
-    return await SecureStore.getItemAsync("userToken");
-  }
-}
+import { getUserData } from "@/libs/storage/getUserData";
+import { getToken } from "@/libs/storage/getToken";
+
 interface StoredUser {
   userName: string;
   email: string;
@@ -48,9 +35,9 @@ interface StoredUser {
   profileType?: string | null;
 }
 async function updateStoredUser(newData: Partial<StoredUser>) {
-  const currentUser = await getStoredUser();
+  const currentUser = await getUserData();
   if (!currentUser){
-    console.log("Erro [getStoredUser], dados do usuário não encontrados...");
+    console.log("Erro [getUserData], dados do usuário não encontrados...");
     return;
   } 
   const updatedUser = { ...currentUser, ...newData };
@@ -80,7 +67,7 @@ const FormsCadastroInner: React.FC = () => {
 const SendType = async (profileType: string) => { // pega a string vinda do botão
     try {
       setLoading(true);
-      const user = await getStoredUser();
+      const user = await getUserData();
 
       if (!user) {
         Alert.alert("Erro", "Usuário não encontrado, faça login novamente.");
