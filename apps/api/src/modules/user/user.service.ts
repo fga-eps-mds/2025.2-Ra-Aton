@@ -20,6 +20,17 @@ export const userService = {
         "Senha é obrigatória e deve ser uma string",
       );
     }
+    const existingUserName = await userRepository.findByUserName(data.userName);
+    if (existingUserName) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Username já cadastrado");
+    }
+
+    if (!data.password || typeof data.password !== "string") {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Senha é obrigatória e deve ser uma string",
+      );
+    }
     // Hash da senha
     const hashedPassword = await bcrypt.hash(data.password, 10);
 

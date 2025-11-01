@@ -27,7 +27,7 @@ import InputComp from "@/components/InputComp";
 
 import { registerUser } from "@/libs/auth/handleRegister";
 
-import { verifyName, verifyNickname, verifyEmail, verifyPassword, verifyConfirmPassword } from "@/libs/validation/registerValidation";
+import { verifyName, verifyNickname, verifyEmail, verifyPassword, verifyConfirmPassword } from "@/libs/validation/userDataValidation";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
@@ -101,9 +101,9 @@ const CadastroInner: React.FC = () => {
 
       if (data.error) {
         console.log(data.error);
-        if (data.error === "Email já registrado") {
+        if (data.error === "Email já cadastrado") {
           setBackendErrorEmail(data.error);
-        } else if (data.error === "Username já registrado") {
+        } else if (data.error === "Username já cadastrado") {
           setBackendErrorNickname(data.error);
         }
         return;
@@ -132,7 +132,7 @@ const CadastroInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled"
         >
-      
+
           <Image source={NamedLogo} style={styles.img} />
 
           <View style={styles.containerInfos}>
