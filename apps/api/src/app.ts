@@ -5,6 +5,8 @@ import { globalErrorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
 import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
+import postRoutes  from "./modules/post/post.routes";
+import commentRoutes from "./modules/comment/comment.routes"
 import HttpStatus from "http-status";
 const app: Express = express();
 
@@ -20,9 +22,10 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // --- MONTAGEM DAS ROTAS ---
-// Use as novas rotas modulares
 app.use("/users", userRoutes);
 app.use("/login", authRoutes);
+app.use("/post", postRoutes);
+app.use("/comment", commentRoutes)
 // (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
 
 // --- TRATAMENTO DE ERROS ---
