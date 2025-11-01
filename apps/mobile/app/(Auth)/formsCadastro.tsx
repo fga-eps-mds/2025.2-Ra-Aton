@@ -130,33 +130,6 @@ const SendType = async (profileType: string) => { // pega a string vinda do botÃ
           flexGrow: 1,
         }}
       >
-        {/* <PrimaryButton
-          iconName={iconTheme}
-          onPress={toggleDarkMode}
-          style={{
-            width: 40,
-            height: 40,
-            padding: 0,
-            margin: 0,
-            alignSelf: "flex-end",
-            alignContent: "center",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 20,
-          }}
-        >
-          <Text
-            style={[
-              {
-                fontWeight: "700",
-                fontSize: 30,
-                alignContent: "center",
-                justifyContent: "center",
-                alignItems: "center",
-              },
-            ]}
-          ></Text>
-        </PrimaryButton> */}
         <Image source={Logo} style={styles.img} accessibilityLabel="LogoAton" />
         <View style={styles.container}>
           <View style={styles.txtInfo}>
@@ -235,27 +208,23 @@ const makeStyles = (theme: any) =>
       flexDirection: "column",
       alignItems: "center",
       flex: 1,
-      // backgroundColor: 'blue',
     },
     txtInfo: {
       marginTop: 15,
       height: 100,
-      width: "100%",
-      // backgroundColor:'green'
-    },
+      width: "100%",         },
     txt: {
       alignSelf: "center",
       textAlign: "center",
       width: "100%",
       color: theme.text,
-      fontFamily: Fonts.primaryFont.dongleRegular,
+      fontFamily: Fonts.mainFont.dongleRegular,
       fontWeight: "500",
       fontSize: 35,
       lineHeight: 24,
     },
     containerBtns: {
       marginTop: 20,
-      // backgroundColor:'red',
       flexDirection: "column",
       alignItems: "center",
       width: "100%",
@@ -267,8 +236,6 @@ const makeStyles = (theme: any) =>
     },
     BtnSkip: {
       backgroundColor: "transparent",
-      // textDecorationLine:'underline',
-      // textDecorationColor: theme.txt,
     },
   });
 export default FormsCadastro;

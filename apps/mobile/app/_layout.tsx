@@ -9,9 +9,9 @@ export default function RootLayout() {
   /* eslint-disable @typescript-eslint/no-require-imports */
 
  const [fontsLoaded, fontsError] = useFonts({
-      [Fonts.primaryFont.dongleLight]: require('@/assets/fonts/Dongle-Light.ttf'),
-      [Fonts.primaryFont.dongleBold]: require('@/assets/fonts/Dongle-Bold.ttf'),
-      [Fonts.primaryFont.dongleRegular]: require('@/assets/fonts/Dongle-Regular.ttf')
+      [Fonts.mainFont.dongleRegular]: require('@/assets/fonts/Dongle-Regular.ttf'),
+      [Fonts.otherFonts.dongleBold]: require('@/assets/fonts/Dongle-Bold.ttf'),
+      [Fonts.otherFonts.dongleLight]: require('@/assets/fonts/Dongle-Light.ttf')
     })
     /* eslint-enable @typescript-eslint/no-require-imports */
 

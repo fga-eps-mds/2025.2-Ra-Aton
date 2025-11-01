@@ -59,7 +59,7 @@ const InputComp = ({
           <Ionicons
             name={iconName}
             size={20}
-            color="orange"
+            color={Colors.input.iconColor}
             style={styles.inputIcon}
           />
         )}
@@ -118,7 +118,7 @@ const makeStyles = (theme: any) =>
 
       paddingHorizontal: 20,
       textAlignVertical: "center",
-      fontFamily: Fonts.primaryFont.dongleRegular,
+      fontFamily: Fonts.mainFont.dongleRegular,
       color: theme.text,
       fontSize: 20,
     },
@@ -131,7 +131,7 @@ const makeStyles = (theme: any) =>
       color: theme.text,
       fontWeight: "300",
       fontSize: 25,
-      fontFamily: Fonts.primaryFont.dongleRegular,
+      fontFamily: Fonts.mainFont.dongleRegular,
     },
 
     inputCompContainer: {
@@ -143,10 +143,10 @@ const makeStyles = (theme: any) =>
       position: "absolute",
       left: 15,
       zIndex: 1,
-      color: Colors.text.iconColors,
+      color: Colors.input.iconColor,
     },
     passwordIcon: {
-      color: Colors.text.iconColors,
+      color: Colors.input.iconColor,
     },
     textStatusMessage: {
       marginLeft: 17,

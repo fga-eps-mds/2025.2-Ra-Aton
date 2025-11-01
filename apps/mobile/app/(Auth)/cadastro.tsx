@@ -316,7 +316,7 @@ const makeStyles = (theme: any) =>
       alignSelf: "center",
     },
     txt: {
-      fontFamily: Fonts.primaryFont.dongleBold,
+      fontFamily: Fonts.otherFonts.dongleBold,
       color: theme.text,
       fontWeight: "500",
       fontSize: 18,
