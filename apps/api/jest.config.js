@@ -1,13 +1,7 @@
 // ./apps/api/jest.config.js
 
-// Importa a configuração base da raiz
-const baseConfig = require("../../jest.config.js");
-
 /** @type {import('jest').Config} */
 const config = {
-  // Estende a configuração base
-  ...baseConfig,
-
   // Preset específico para TypeScript com Node.js
   preset: "ts-jest",
 
@@ -28,6 +22,14 @@ const config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+
+  // Cobertura focada apenas neste pacote
+  collectCoverageFrom: [
+    "<rootDir>/src/**/*.{ts,tsx,js,jsx}",
+    "!<rootDir>/src/**/index.{ts,tsx,js,jsx}",
+    "!<rootDir>/src/**/*.config.{ts,js}",
+  ],
+  coverageDirectory: "<rootDir>/coverage",
 };
 
 module.exports = config;

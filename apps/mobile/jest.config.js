@@ -1,13 +1,7 @@
 // ./apps/expo-app/jest.config.js
 
-// Importa a configuração base da raiz
-const baseConfig = require("../../jest.config.js");
-
 /** @type {import('jest').Config} */
 const config = {
-  // Estende a configuração base
-  ...baseConfig,
-
   // O 'preset' do jest-expo é MÁGICO.
   // Ele configura automaticamente o 'babel-jest', o ambiente do React Native,
   // e o mais importante: 'transformIgnorePatterns' para compilar
@@ -17,6 +11,9 @@ const config = {
   // O jest-expo já define o ambiente de teste, mas 'node' é o correto
   // (testes de RN rodam em um ambiente Node, não JSDOM)
   testEnvironment: "node",
+
+  // Setup básico para RN/Expo
+  setupFiles: ["<rootDir>/jest-setup.js"],
 
   // Padrão para encontrar arquivos de teste
   testMatch: ["<rootDir>/**/*.test.(js|jsx|ts|tsx)"],

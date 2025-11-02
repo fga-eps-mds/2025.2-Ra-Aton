@@ -7,7 +7,7 @@ import { prismaMock } from "./src/__tests__/prisma-mock";
 // Substitua './src/lib/prisma' pelo caminho real onde você exporta sua instância do cliente Prisma.
 // Este é um padrão comum (ex: export const prisma = new PrismaClient())
 jest.mock("./src/database/prisma.client", () => ({
-  // __esModule: true, // Descomente se estiver usando export default
+  __esModule: true,
   prisma: prismaMock, // Mapeia a exportação 'prisma' para o mock
 }));
 
