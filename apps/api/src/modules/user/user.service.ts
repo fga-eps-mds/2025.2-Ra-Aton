@@ -91,8 +91,10 @@ export const userService = {
     }
 
     // 3. Se houver atualização de senha, faz o hash
-    if (data.passwordHash) {
-      data.passwordHash = await bcrypt.hash(data.passwordHash as string, 10);
+    const plainPassword = (data as { password?: unknown }).password;
+    if (typeof plainPassword === "string" && plainPassword.length > 8) {
+      data.passwordHash = await bcrypt.hash(plainPassword, 10);
+      delete (data as Record<string, unknown>).password;
     }
 
     // 4. Atualiza o usuário
