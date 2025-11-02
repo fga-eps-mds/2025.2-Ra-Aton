@@ -13,15 +13,13 @@ import HttpStatus from "http-status";
 import { ApiError } from "../../utils/ApiError";
 import { User } from "@prisma/client";
 
-const prisma: DeepMockPrisma = prismaMock;
-
 describe("API Testes", () => {
   // Limpa o estado dos mocks antes de cada teste
   // Isso garante que um teste não interfira no outro
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    await prisma.user.deleteMany({});
+    //await prisma.user.deleteMany({});
   });
 
   it("teste de API funcionando", async () => {
@@ -35,6 +33,7 @@ describe("API Testes", () => {
     it("Deve fazer login com sucesso e retornar um token", async () => {
       const passwordPlain = "senha123456";
       const passwordHash = bcrypt.hashSync(passwordPlain, 10);
+      const prisma = prismaMock;
 
       const userInput = {
         name: "Test User",

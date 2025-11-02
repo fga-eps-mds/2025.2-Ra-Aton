@@ -1,6 +1,4 @@
 {
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.workingDirectories": [
     {
       "mode": "auto"
@@ -12,5 +10,6 @@
     "typescript",
     "typescriptreact"
   ],
+  "jest.rootPath": ".",
   "prettier.enableDebug": false
 }

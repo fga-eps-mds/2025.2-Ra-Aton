@@ -14,7 +14,8 @@ export async function handleLogin(email: string, password: string) {
     }
     console.log("Login successful:", data);
     return data;
-  } catch (error) {  // De preferencia deveria trocar esse 'any', provavelmente pra string
+  } catch (error) {
+    // De preferencia deveria trocar esse 'any', provavelmente pra string
     console.error("Erro ao registrar usuário: ", error);
     throw new Error("Não foi possivel conectar ao servidor");
   }

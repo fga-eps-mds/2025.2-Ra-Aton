@@ -9,7 +9,7 @@ import { useFonts } from "expo-font";
 const DashboardLayout = () => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-                                                            
+
   return (
     <Tabs
       screenOptions={{
