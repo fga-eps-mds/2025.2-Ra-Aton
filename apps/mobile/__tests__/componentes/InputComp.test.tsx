@@ -1,4 +1,4 @@
-import "../test_mocks/testMocks";
+import "../../__mocks__/testMocks";
 import { render, screen } from "@testing-library/react-native";
 import InputComp from "@/components/InputComp";
 
