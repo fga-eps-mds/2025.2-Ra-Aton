@@ -15,6 +15,11 @@ enum ProfileType {
   ATLETICA
 }
 
+enum TeamSide {
+  A
+  B
+}
+
 enum GroupRole {
   ADMIN
   MEMBER
@@ -42,6 +47,12 @@ enum JoinRequestStatus {
   REJECTED
 }
 
+enum MatchStatus {
+  EM_BREVE
+  EM_ANDAMENTO
+  FINALIZADO
+}
+
 // Models
 model User {
   id           String       @id @default(uuid())
@@ -54,6 +65,7 @@ model User {
   passwordHash String
 
   // Relationships
+  subscription PlayerSubscription[]
   posts           Post[]
   matchs          Match[]
   Attendance      Attendance[]
@@ -61,7 +73,6 @@ model User {
   PostLike        PostLike[]
   Comment         Comment[]
   GroupMembership GroupMembership[]
-  TeamMembership  TeamMembership[]
 }
 
 model Post {
@@ -164,8 +175,6 @@ model Group {
 
   // relationsships
   posts       Post[]
-  matchs      Match[]
-  teams       Team[]
   memberships GroupMembership[]
   // follows Follow[]
   // joinRequests GroupJoinRequest[]
@@ -212,36 +221,27 @@ model GroupMembership {
 model Match {
   id              String   @id @default(uuid())
   title           String
-  content         String?
+  description     String?  // descrição (opcional)
+  teamNameA       String?   @default("TIME_A")             // nome do time A
+  teamNameB       String?   @default("TIME_B")             // nome do time B
   author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId        String
-  group           Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId         String?
-  teams           Team[]
+  maxPlayers      Int      // numero max de jogadores
+  players         PlayerSubscription[] // jogadores inscritos
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  eventDate       DateTime
-  eventFinishDate DateTime
+  MatchDate       DateTime
+  MatchStatus     MatchStatus
   location        String
 }
 
-model Team {
-  id      String           @id @default(uuid())
-  name    String
-  members TeamMembership[]
-  group   Group?            @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId String?
-  matchs  Match[]
-}
-
-model TeamMembership {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  teamId    String
-  role      String?
+model PlayerSubscription {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matchId String
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team TeamSide
   createdAt DateTime @default(now())
-
-  @@unique([userId, teamId])
+  @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
