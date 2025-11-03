@@ -8,15 +8,16 @@ import {
   updateMatchSchema,
   deleteMatchSchema,
   getMatchSchema,
+  listMatchesSchema
 } from "./match.validation";
 
 const router: RouterType = Router();
 
-// ===================================
-// Rotas Públicas (Não exigem token)
-// ===================================
-
-router.get("/", catchAsync(matchController.listAllMatchs));
+router.get(
+  "/",
+  validateRequest(listMatchesSchema),
+  catchAsync(matchController.listMatches),
+);
 
 router.get(
   "/:id",
@@ -31,10 +32,6 @@ router.post(
   catchAsync(matchController.createMatch),
 );
 
-// ===================================
-// Rotas Protegidas (Exigem token JWT)
-// ===================================
-
 router.patch(
   "/:id",
   auth,
@@ -47,6 +44,27 @@ router.delete(
   auth,
   validateRequest(deleteMatchSchema),
   catchAsync(matchController.deleteMatch),
+);
+
+router.post(
+  "/:id/subscribe",
+  auth,
+  validateRequest(getMatchSchema),
+  catchAsync(matchController.subscribeToMatch),
+);
+
+router.delete(
+  "/:id/unsubscribe",
+  auth,
+  validateRequest(getMatchSchema),
+  catchAsync(matchController.unsubscribeFromMatch),
+);
+
+router.post(
+  "/:id/switch",
+  auth,
+  validateRequest(getMatchSchema),
+  catchAsync(matchController.switchTeam),
 );
 
 export default router;

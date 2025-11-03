@@ -10,7 +10,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
-  Alert, // CA4: Alternativa para exibir erro
+  Alert,
+  KeyboardAvoidingView, // CA4: Alternativa para exibir erro
 } from "react-native";
 import React, { useState, useMemo } from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
@@ -154,95 +155,100 @@ const HomeInner: React.FC = () => {
   };
   // --- Fim da Lógica de Login ---
   return (
-    <ScrollView
-      contentContainerStyle={{
-        padding: 20,
-        paddingBottom: 80,
-        backgroundColor: theme.background,
-      }}
-      keyboardShouldPersistTaps="handled" // Ajuda a fechar o teclado ao tocar fora
-    >
-      <ThemedView style={styles.container}>
-        {/* Dark/Light mode (PlaceHolder)*/}
+    <ThemedView>
+      <KeyboardAvoidingView
+        style={[{ flex: 1 }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={{
+            padding: 20,
+            paddingBottom: 80,
+            backgroundColor: theme.background,
+            flexGrow: 1,
+          }}
+          keyboardShouldPersistTaps="handled" // Ajuda a fechar o teclado ao tocar fora
+        >
+          {/* Dark/Light mode (PlaceHolder)
         <PrimaryButton
           iconName={iconTheme}
           onPress={toggleDarkMode}
           style={styles.toggleButton} // Estilo extraído
         >
-          {/* Removido o <Text> vazio de dentro do botão de tema */}
+         Removido o <Text> vazio de dentro do botão de tema 
         </PrimaryButton>
-        {/* Dark/Light mode */}
-        <Image source={NamedLogo} style={styles.img} />
+        Dark/Light mode */}
+          <Image source={NamedLogo} style={styles.img} />
+          <View style={styles.container_input}>
+            {/* CA1: Campo de E-mail */}
+            <InputComp
+              label="E-mail" // Label corrigido
+              iconName="person" // Recomendo usar 'mail-outline' ou 'at' se disponível
+              value={email}
+              onChangeText={setEmail}
+              placeholder="usuario@exemplo.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-        <View style={styles.container_input}>
-          {/* CA1: Campo de E-mail */}
-          <InputComp
-            label="E-mail" // Label corrigido
-            iconName="person" // Recomendo usar 'mail-outline' ou 'at' se disponível
-            value={email}
-            onChangeText={setEmail}
-            placeholder="usuario@exemplo.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <Spacer height={45} />
+            {/* CA1: Campo de Senha */}
+            <InputComp
+              placeholder="Digite a senha"
+              label="Senha"
+              iconName="key"
+              secureTextEntry={true}
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
 
-          {/* CA1: Campo de Senha */}
-          <InputComp
-            placeholder="Digite a senha"
-            label="Senha"
-            iconName="key"
-            secureTextEntry={true}
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-
-        {/* CA8: Link "Esqueci minha senha" */}
-        <TouchableOpacity
-          style={styles.forgotPasswordButton}
+          {/* CA8: Link "Esqueci minha senha" */}
+          <TouchableOpacity
+            style={styles.forgotPasswordButton}
 
           /* TODO: Adicionar navegação para fluxo de recuperação */
-        >
-          <Spacer height={20} />
-          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
-        </TouchableOpacity>
-
-        {/* CA4: Exibição de Erro */}
-        {error && <Text style={styles.errorText}>{error}</Text>}
-
-        {/* CA5: Indicador de Loading */}
-        {isLoading ? (
-          <ActivityIndicator
-            size="large"
-            color={theme.orange}
-            style={{ marginTop: 60 }}
-          />
-        ) : (
-          /* CA3: Botão Entrar com estado 'disabled' */
-          <PrimaryButton
-            onPress={sendLogin}
-            style={{ top: 60 }}
-            disabled={isButtonDisabled}
-            testID="botaoLogin"
           >
-            <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
-              Login
+            <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+          </TouchableOpacity>
+
+          {/* CA4: Exibição de Erro */}
+          {error && <Text style={styles.errorText}>{error}</Text>}
+          <View style={styles.centeredView}>
+
+          {/* CA5: Indicador de Loading */}
+          {isLoading ? (
+            <ActivityIndicator
+              size="large"
+              color={theme.orange}
+              style={{ marginTop: 60 }}
+            />
+          ) : (
+            /* CA3: Botão Entrar com estado 'disabled' */
+            <PrimaryButton
+              onPress={sendLogin}
+              style={{ top: 60 }}
+              disabled={isButtonDisabled}
+              testID="botaoLogin"
+            >
+              <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
+                Login
+              </Text>
+            </PrimaryButton>
+          )}
+
+          <Spacer height={80} />
+          <Text style={styles.txt}>ou</Text>
+          <Spacer height={20} />
+
+          <SecondaryButton onPress={() => router.push("/cadastro")}>
+            <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
+              Cadastre-se
             </Text>
-          </PrimaryButton>
-        )}
-
-        <Spacer height={80} />
-        <Text style={styles.txt}>ou</Text>
-        <Spacer height={20} />
-
-        <SecondaryButton onPress={() => router.push("/cadastro")}>
-          <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
-            Cadastre-se
-          </Text>
-        </SecondaryButton>
-      </ThemedView>
-    </ScrollView>
+          </SecondaryButton>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ThemedView>
   );
 };
 
@@ -264,7 +270,9 @@ const makeStyles = (theme: any) =>
     },
     img: {
       marginVertical: 90,
-      marginTop: "10%",
+      marginTop: 0,
+      maxWidth: "100%",
+      alignSelf: "center",
     },
     txt: {
       color: theme.text,
@@ -326,4 +334,9 @@ const makeStyles = (theme: any) =>
       justifyContent: "center",
       paddingHorizontal: 34,
     },
+    centeredView: {
+      flexDirection: "column",
+      alignItems: "center",
+      width: "100%",
+    }
   });
