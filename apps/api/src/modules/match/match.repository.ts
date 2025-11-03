@@ -17,22 +17,41 @@ export type MatchWithPlayers = Prisma.MatchGetPayload<{
   };
 }>;
 
-/**
- *  Busca todas as partidas.
- *  Inclui a contagem de jogadores inscritos.
- */
+type MatchWithCount = Match & { _count: { players: number } };
+export type FindAllMatchesResponse = {
+  matches: MatchWithCount[];
+  totalCount: number;
+};
+
 class MatchRepository {
-  async findAll(): Promise<(Match & { _count: { players: number } })[]> {
-    return prisma.match.findMany({
-      orderBy: {
-        date: "asc",
-      },
-      include: {
-        _count: {
-          select: { players: true },
+  /**
+   * Busca todas as partidas com paginação baseada em cursor.
+   * @param limit - quantos itens deseja buscar
+   * @param cursor - o ID (UUID) do último item visto (para começar depois dele)
+   */
+  async findAll(
+    limit: number,
+    offset: number,
+  ): Promise<FindAllMatchesResponse> {
+    const [matches, totalCount] = await prisma.$transaction([
+      prisma.match.findMany({
+        take: limit,
+        skip: offset,
+        orderBy: {
+          MatchDate: "desc",
         },
-      },
-    });
+        include: {
+          _count: {
+            select: { players: true },
+          },
+        },
+      }),
+      prisma.match.count(),
+    ]);
+    return {
+      matches,
+      totalCount,
+    };
   }
 
   /**

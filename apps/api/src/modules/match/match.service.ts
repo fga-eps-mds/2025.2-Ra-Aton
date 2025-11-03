@@ -1,7 +1,12 @@
 import matchRepository from "./match.repository";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
-import { Match, PlayerSubscription, TeamSide } from "@prisma/client";
+import {
+  Match,
+  MatchStatus,
+  PlayerSubscription,
+  TeamSide,
+} from "@prisma/client";
 import { MatchWithPlayers } from "./match.repository"; // O tipo que já criamos
 
 /*
@@ -9,10 +14,36 @@ Vou comentar esse arquivo inteiro para explicar as mudanças feitas para impleme
 */
 
 /**
+ * Calcula o status dinâmico da partida com base na data atual.
+ * @param matchDate Data da partida.
+ * @param databaseStatus o status salvo no banco de dados.
+ */
+const getComputedMatchStatus = (
+  matchDate: Date,
+  databaseStatus: MatchStatus,
+) => {
+  const now = new Date();
+
+  if (databaseStatus === "FINALIZADO") {
+    return "FINALIZADO";
+  }
+
+  if (now >= matchDate) {
+    return "EM_ANDAMENTO";
+  }
+
+  return databaseStatus; // EM_BREVE
+};
+
+/**
  * Função auxiliar para formatar a resposta de detalhe de partida.
  * inclui a divisão em times A e B, com detalhes de vagas.
  */
 const formatMatchDetailResponse = (match: MatchWithPlayers) => {
+  const computedStatus = getComputedMatchStatus(
+    match.MatchDate,
+    match.MatchStatus,
+  );
   // Calcula o tamanho máximo de cada time
   const teamMaxSize = Math.floor(match.maxPlayers / 2);
 
@@ -30,6 +61,7 @@ const formatMatchDetailResponse = (match: MatchWithPlayers) => {
 
   return {
     ...restOfMatch,
+    MatchStatus: computedStatus,
     isSubscriptionOpen: teamA_isOpen || teamB_isOpen,
     spots: {
       totalMax: match.maxPlayers,
@@ -58,6 +90,10 @@ const formatMatchDetailResponse = (match: MatchWithPlayers) => {
 const formatMatchListResponse = (
   match: Match & { _count: { players: number } },
 ) => {
+  const computedStatus = getComputedMatchStatus(
+    match.MatchDate,
+    match.MatchStatus,
+  );
   const filledSpots = match._count.players;
   const openSpots = match.maxPlayers - filledSpots;
   const isSubscriptionOpen = openSpots > 0;
@@ -66,11 +102,12 @@ const formatMatchListResponse = (
 
   return {
     ...restOfMatch,
+    MatchStatus: computedStatus,
+    isSubscriptionOpen: isSubscriptionOpen,
     spots: {
       filled: filledSpots,
       open: openSpots,
     },
-    isSubscriptionOpen: isSubscriptionOpen,
   };
 };
 
@@ -79,9 +116,29 @@ class MatchService {
    * Busca todas as partidas.
    * Usa o formatador de lista simples.
    */
-  async getAllMatches() {
-    const matches = await matchRepository.findAll();
-    return matches.map(formatMatchListResponse);
+  async getAllMatches(limit: number, page: number) {
+    const offset = (page - 1) * limit;
+
+    const { matches, totalCount } = await matchRepository.findAll(
+      limit,
+      offset,
+    );
+
+    const formattedMatches = matches.map(formatMatchListResponse);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      data: formattedMatches,
+      meta: {
+        page: page,
+        limit: limit,
+        totalCount: totalCount,
+        totalPages: totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    };
   }
 
   /**

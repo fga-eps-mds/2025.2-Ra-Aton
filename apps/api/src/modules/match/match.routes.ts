@@ -3,11 +3,16 @@ import matchController from "./match.controller";
 import validateRequest from "../../middlewares/validateRequest";
 import { catchAsync } from "../../utils/catchAsync";
 import { getMatchSchema } from "./match.validation";
+import { listMatchesSchema } from "./match.validation";
 import { auth } from "../../middlewares/auth";
 
 const router: Router = Router();
 
-router.get("/", catchAsync(matchController.listMatches));
+router.get(
+  "/",
+  validateRequest(listMatchesSchema),
+  catchAsync(matchController.listMatches),
+);
 
 router.get(
   "/:id",
