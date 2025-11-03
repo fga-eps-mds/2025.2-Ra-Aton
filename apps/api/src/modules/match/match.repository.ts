@@ -1,5 +1,5 @@
 import { prisma } from "../../database/prisma.client";
-import { Prisma, Match, PlayerSubscription, TeamSide } from "@prisma/client";
+import { Prisma, Match, User, TeamSide } from "@prisma/client";
 
 export type MatchWithPlayers = Prisma.MatchGetPayload<{
   include: {
@@ -23,7 +23,59 @@ export type FindAllMatchesResponse = {
   totalCount: number;
 };
 
-class MatchRepository {
+class matchRepository {
+  async createMatch(
+    data: Prisma.MatchCreateInput,
+    author: User,
+  ): Promise<Match> {
+    return prisma.$transaction(async (tx) => {
+      const newMatch = await tx.match.create({
+        data: {
+          title: data.title,
+          description: data.description,
+          MatchDate: data.MatchDate,
+          teamNameA: data.teamNameA,
+          teamNameB: data.teamNameB,
+          location: data.location,
+          author: {
+            connect: {
+              id: author.id,
+            },
+          },
+          maxPlayers: data.maxPlayers,
+          players: {
+            connect: data.players ? data.players.connect : [],
+          },
+          MatchStatus: "EM_BREVE",
+        },
+      });
+      await tx.playerSubscription.create({
+        data: {
+          userId: author.id,
+          matchId: newMatch.id,
+          team: "A", // Autor sempre vai para o Time A
+        },
+      });
+      return newMatch;
+    });
+  }
+
+  async updateMatch(
+    matchId: string,
+    data: Prisma.MatchUpdateInput,
+  ): Promise<Match> {
+    return prisma.match.update({
+      where: { id: matchId },
+      data,
+    });
+  }
+
+  async deleteMatch(matchId: string): Promise<void> {
+    await prisma.match.delete({
+      where: { id: matchId },
+    });
+  }
+  
   /**
    * Busca todas as partidas com paginação baseada em cursor.
    * @param limit - quantos itens deseja buscar

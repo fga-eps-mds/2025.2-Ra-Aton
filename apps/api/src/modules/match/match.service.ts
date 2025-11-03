@@ -1,17 +1,14 @@
-import matchRepository from "./match.repository";
-import { ApiError } from "../../utils/ApiError";
-import httpStatus from "http-status";
 import {
   Match,
   MatchStatus,
   PlayerSubscription,
   TeamSide,
 } from "@prisma/client";
+import { ApiError } from "../../utils/ApiError";
 import { MatchWithPlayers } from "./match.repository"; // O tipo que já criamos
-
-/*
-Vou comentar esse arquivo inteiro para explicar as mudanças feitas para implementar a lógica de times e o balanceamento Round Robin.
-*/
+import HttpStatus from "http-status";
+import matchRepository from "./match.repository";
+import { group } from "console";
 
 /**
  * Calcula o status dinâmico da partida com base na data atual.
@@ -111,7 +108,56 @@ const formatMatchListResponse = (
   };
 };
 
-class MatchService {
+export const matchService = {
+  createMatch: async (data: any): Promise<Match> => {
+    if (!data.author || !data.author.id) {
+      throw new ApiError(
+        HttpStatus.NOT_FOUND,
+        "Autor da partida não encontrado",
+      );
+    }
+
+    const newMatch = await matchRepository.createMatch(data, data.author);
+    return newMatch;
+  },
+
+  updateMatch: async (
+    matchId: string,
+    authUserId: string,
+    data: any,
+  ): Promise<Match> => {
+    const matchFound = await matchRepository.findMatchById(matchId);
+    if (!matchFound) {
+      throw new ApiError(HttpStatus.NOT_FOUND, "Partida não encontrada");
+    }
+
+    if (matchFound.authorId !== authUserId) {
+      throw new ApiError(
+        HttpStatus.FORBIDDEN,
+        "Usuário não possui permisão para editar partida",
+      );
+    }
+
+    const updatedMatch = await matchRepository.updateMatch(matchFound.id, data);
+    return updatedMatch;
+  },
+
+  deleteMatch: async (matchId: string, authUserId: string): Promise<void> => {
+    const matchFound = await matchRepository.findMatchById(matchId);
+    if (!matchFound) {
+      throw new ApiError(HttpStatus.NOT_FOUND, "Partida não encontrada");
+    }
+
+    if (matchFound.authorId !== authUserId) {
+      throw new ApiError(
+        HttpStatus.FORBIDDEN,
+        "Usuário não possui permisão para excluir partida",
+      );
+    }
+
+    await matchRepository.deleteMatch(matchFound.id);
+  },
+    
   /**
    * Busca todas as partidas.
    * Usa o formatador de lista simples.

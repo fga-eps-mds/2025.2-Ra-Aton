@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enumerates
+
 enum ProfileType {
   JOGADOR
   TORCEDOR
@@ -18,39 +20,219 @@ enum TeamSide {
   B
 }
 
+enum GroupRole {
+  ADMIN
+  MEMBER
+}
+
+enum PostType {
+  GENERAL
+  EVENT
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}
+
+enum GroupType {
+  ATHLETIC
+  AMATEUR
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum MatchStatus {
   EM_BREVE
   EM_ANDAMENTO
   FINALIZADO
 }
+
+// Models
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  userName  String   @unique
-  profileType ProfileType?
-  subscription PlayerSubscription[]
-  matchs Match[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  userName     String       @unique
+  profileType  ProfileType?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   passwordHash String
+
+  // Relationships
+  subscription PlayerSubscription[]
+  posts           Post[]
+  matchs          Match[]
+  Attendance      Attendance[]
+  Report          Report[]
+  PostLike        PostLike[]
+  Comment         Comment[]
+  GroupMembership GroupMembership[]
 }
 
-model Match {
-  id String @id @default(uuid())
-  title String // título (obrigatório)
-  description String? // descrição (opcional)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId String 
-  MatchDate DateTime // data e hora da partida
-  MatchStatus MatchStatus @default(EM_BREVE)
-  location String // local
-  maxPlayers Int // numero max de jogadores
-  teamNameA String @default("Time A")
-  teamNameB String @default("Time B")
-  players PlayerSubscription[] // jogadores inscritos
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?
+  type      PostType @default(GENERAL)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  group     Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Event-specific fields (nullable for non-event posts)
+  eventDate       DateTime? // data/hora do evento
+  eventFinishDate DateTime? // opcional no frontend
+  location        String? // local do evento
+
+  // denormalized counters (optional, useful for real-time UI)
+  likesCount       Int @default(0)
+  commentsCount    Int @default(0)
+  attendancesCount Int @default(0)
+
+  // relations
+  //attachments PostAttachment[]
+  comments    Comment[]
+  likes       PostLike[]
+  reports     Report[]
+  attendances Attendance[]
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+// model PostAttachment {
+//   id       String  @id @default(uuid())
+//   post     Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+//   postId   String
+//   url      String
+//   mimeType String?
+//   order    Int     @default(0)
+// }
+
+model Report {
+  id         String       @id @default(uuid())
+  reporter   User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId String
+  // report can reference either a post or a comment
+  post       Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     String?
+  comment    Comment?     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId  String?
+  reason     String
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reports   Report[]
+
+  @@index([postId, createdAt])
+}
+
+model Group {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  groupType   GroupType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationsships
+  posts       Post[]
+  memberships GroupMembership[]
+  // follows Follow[]
+  // joinRequests GroupJoinRequest[]
+}
+
+model GroupMembership {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  role      GroupRole @default(MEMBER)
+  isCreator Boolean   @default(false) // quem cria automaticamente ganha isCreator=true
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, groupId])
+}
+
+// model Follow {
+//   id        String   @id @default(uuid())
+//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   userId    String
+//   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+//   groupId   String
+//   createdAt DateTime @default(now())
+
+//   @@unique([userId, groupId])
+// }
+
+// model GroupJoinRequest {
+//   id          String            @id @default(uuid())
+//   requester   User              @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+//   requesterId String
+//   group       Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+//   groupId     String
+//   status      JoinRequestStatus @default(PENDING)
+//   message     String?
+//   createdAt   DateTime          @default(now())
+//   updatedAt   DateTime          @updatedAt
+
+//   @@unique([requesterId, groupId])
+// }
+
+model Match {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?  // descrição (opcional)
+  teamNameA       String?   @default("TIME_A")             // nome do time A
+  teamNameB       String?   @default("TIME_B")             // nome do time B
+  author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId        String
+  maxPlayers      Int      // numero max de jogadores
+  players         PlayerSubscription[] // jogadores inscritos
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  MatchDate       DateTime
+  MatchStatus     MatchStatus
+  location        String
 }
 
 model PlayerSubscription {
@@ -63,4 +245,3 @@ model PlayerSubscription {
   createdAt DateTime @default(now())
   @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
-

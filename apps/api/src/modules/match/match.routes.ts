@@ -1,12 +1,17 @@
-import { Router } from "express";
+import { Router, type Router as RouterType } from "express";
 import matchController from "./match.controller";
 import validateRequest from "../../middlewares/validateRequest";
 import { catchAsync } from "../../utils/catchAsync";
-import { getMatchSchema } from "./match.validation";
-import { listMatchesSchema } from "./match.validation";
 import { auth } from "../../middlewares/auth";
+import {
+  createMatchSchema,
+  updateMatchSchema,
+  deleteMatchSchema,
+  getMatchSchema,
+  listMatchesSchema
+} from "./match.validation";
 
-const router: Router = Router();
+const router: RouterType = Router();
 
 router.get(
   "/",
@@ -18,6 +23,27 @@ router.get(
   "/:id",
   validateRequest(getMatchSchema),
   catchAsync(matchController.getMatch),
+);
+
+router.post(
+  "/",
+  auth,
+  validateRequest(createMatchSchema),
+  catchAsync(matchController.createMatch),
+);
+
+router.patch(
+  "/:id",
+  auth,
+  validateRequest(updateMatchSchema),
+  catchAsync(matchController.updateMatch),
+);
+
+router.delete(
+  "/:id",
+  auth,
+  validateRequest(deleteMatchSchema),
+  catchAsync(matchController.deleteMatch),
 );
 
 router.post(
