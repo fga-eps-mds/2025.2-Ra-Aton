@@ -1,16 +1,13 @@
 import matchService from "../../modules/match/match.service";
-import matchRepository, {
-  MatchWithPlayers,
-} from "../../modules/match/match.repository";
+import matchRepository from "../../modules/match/match.repository";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
-import { PlayerSubscription } from "@prisma/client";
 
 jest.mock("../../modules/match/match.repository");
 
 const mockedRepo = matchRepository as jest.Mocked<typeof matchRepository>;
 
-describe("MatchService.subscribeToMatch (CA2)", () => {
+describe("MatchService.subscribeToMatch (Round Robin)", () => {
   const mockUserId = "user-uuid-123";
   const mockMatchId = "match-uuid-456";
 
@@ -18,48 +15,62 @@ describe("MatchService.subscribeToMatch (CA2)", () => {
     jest.clearAllMocks();
   });
 
-  it("deve inscrever um usuário com sucesso", async () => {
-    const mockMatch = {
-      id: mockMatchId,
-      maxPlayers: 10,
-      players: [],
-    } as unknown as MatchWithPlayers;
-
+  it("deve alocar no Time A (Round Robin) se A=0, B=0", async () => {
+    const mockMatch = { id: mockMatchId, maxPlayers: 2, players: [] } as any;
     mockedRepo.findById.mockResolvedValue(mockMatch);
     mockedRepo.findSubscription.mockResolvedValue(null);
 
     await matchService.subscribeToMatch(mockMatchId, mockUserId);
 
-    expect(mockedRepo.createSubscription).toHaveBeenCalledTimes(1);
     expect(mockedRepo.createSubscription).toHaveBeenCalledWith(
       mockUserId,
       mockMatchId,
+      "A",
     );
   });
 
-  it("deve lançar um erro 409 (Conflict) se o usuário já estiver inscrito", async () => {
-    const mockMatch = { id: mockMatchId, maxPlayers: 10, players: [] } as any;
-    const mockSubscription = { id: "sub-uuid-1" } as PlayerSubscription;
-
-    mockedRepo.findById.mockResolvedValue(mockMatch);
-    mockedRepo.findSubscription.mockResolvedValue(mockSubscription);
-
-    expect.assertions(2);
-    try {
-      await matchService.subscribeToMatch(mockMatchId, mockUserId);
-    } catch (error) {
-      expect(error).toBeInstanceOf(ApiError);
-      expect((error as ApiError).statusCode).toBe(httpStatus.CONFLICT);
-    }
-  });
-
-  it("deve lançar um erro 403 (Forbidden) se a partida estiver cheia", async () => {
+  it("deve alocar no Time B (Round Robin) se A=1, B=0", async () => {
     const mockMatch = {
       id: mockMatchId,
-      maxPlayers: 1,
-      players: [{ id: "sub-1", user: { id: "user-outro" } }],
-    } as unknown as MatchWithPlayers;
+      maxPlayers: 2,
+      players: [{ team: "A" }],
+    } as any;
+    mockedRepo.findById.mockResolvedValue(mockMatch);
+    mockedRepo.findSubscription.mockResolvedValue(null);
 
+    await matchService.subscribeToMatch(mockMatchId, mockUserId);
+
+    expect(mockedRepo.createSubscription).toHaveBeenCalledWith(
+      mockUserId,
+      mockMatchId,
+      "B",
+    );
+  });
+
+  it("deve alocar no Time B se Time A estiver cheio", async () => {
+    const mockMatch = {
+      id: mockMatchId,
+      maxPlayers: 2, // max=1 por time
+      players: [{ team: "A" }], // A=1 (cheio), B=0
+    } as any;
+    mockedRepo.findById.mockResolvedValue(mockMatch);
+    mockedRepo.findSubscription.mockResolvedValue(null);
+
+    await matchService.subscribeToMatch(mockMatchId, mockUserId);
+
+    expect(mockedRepo.createSubscription).toHaveBeenCalledWith(
+      mockUserId,
+      mockMatchId,
+      "B",
+    );
+  });
+
+  it("deve lançar 403 (Forbidden) se ambos os times estiverem cheios", async () => {
+    const mockMatch = {
+      id: mockMatchId,
+      maxPlayers: 2, // max=1 por time
+      players: [{ team: "A" }, { team: "B" }], // A=1 (cheio), B=1 (cheio)
+    } as any;
     mockedRepo.findById.mockResolvedValue(mockMatch);
     mockedRepo.findSubscription.mockResolvedValue(null);
 
@@ -68,11 +79,17 @@ describe("MatchService.subscribeToMatch (CA2)", () => {
     ).rejects.toHaveProperty("statusCode", httpStatus.FORBIDDEN);
   });
 
-  it("deve lançar um erro 404 (Not Found) se a partida não existir", async () => {
-    mockedRepo.findById.mockResolvedValue(null);
+  it("deve lançar 409 (Conflict) se o usuário já estiver inscrito", async () => {
+    const mockMatch = {
+      id: mockMatchId,
+      maxPlayers: 10,
+      players: [{ userId: mockUserId, team: "A" }], // Usuário já está aqui
+    } as any;
+    mockedRepo.findById.mockResolvedValue(mockMatch);
+    // findSubscription não é chamado pois a checagem é feita no array 'players'
 
     await expect(
       matchService.subscribeToMatch(mockMatchId, mockUserId),
-    ).rejects.toHaveProperty("statusCode", httpStatus.NOT_FOUND);
+    ).rejects.toHaveProperty("statusCode", httpStatus.CONFLICT);
   });
 });

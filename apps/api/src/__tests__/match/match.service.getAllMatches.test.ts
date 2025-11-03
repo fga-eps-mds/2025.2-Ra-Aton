@@ -5,12 +5,12 @@ jest.mock("../../modules/match/match.repository");
 
 const mockedRepo = matchRepository as jest.Mocked<typeof matchRepository>;
 
-describe("MatchService.getAllMatches (CA1)", () => {
+describe("MatchService.getAllMatches", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("deve retornar todas as partidas com os campos de spots calculados", async () => {
+  it("deve retornar partidas com vagas calculadas e isSubscriptionOpen", async () => {
     const mockMatches = [
       { id: "uuid-1", maxPlayers: 10, _count: { players: 5 } },
       { id: "uuid-2", maxPlayers: 2, _count: { players: 2 } },
