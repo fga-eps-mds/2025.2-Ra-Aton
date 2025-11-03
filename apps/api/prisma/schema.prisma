@@ -13,6 +13,10 @@ enum ProfileType {
   ATLETICA
 }
 
+enum TeamSide {
+  A
+  B
+}
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -32,6 +36,8 @@ model Match {
   date DateTime // data e hora da partida
   location String // local
   maxPlayers Int // numero max de jogadores
+  teamNameA String @default("Time A")
+  teamNameB String @default("Time B")
   players PlayerSubscription[] // jogadores inscritos
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -43,7 +49,7 @@ model PlayerSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   matchId String
   match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-
+  team TeamSide
   createdAt DateTime @default(now())
   @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
