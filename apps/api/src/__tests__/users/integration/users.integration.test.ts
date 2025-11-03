@@ -110,18 +110,18 @@ describe("User Integration Tests", () => {
 
     expect(res.body).toHaveLength(2);
     expect(res.body[0]).toMatchObject({
-      id: users[0].id,
-      userName: users[0].userName,
-      email: users[0].email,
-      name: users[0].name,
-      profileType: users[0].profileType,
+      id: users[0]!.id,
+      userName: users[0]!.userName,
+      email: users[0]!.email,
+      name: users[0]!.name,
+      profileType: users[0]!.profileType,
     });
     expect(res.body[1]).toMatchObject({
-      id: users[1].id,
-      userName: users[1].userName,
-      email: users[1].email,
-      name: users[1].name,
-      profileType: users[1].profileType,
+      id: users[1]!.id,
+      userName: users[1]!.userName,
+      email: users[1]!.email,
+      name: users[1]!.name,
+      profileType: users[1]!.profileType,
     });
   });
 
