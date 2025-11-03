@@ -29,4 +29,11 @@ router.delete(
   catchAsync(matchController.unsubscribeFromMatch),
 );
 
+router.post(
+  "/:id/switch",
+  auth,
+  validateRequest(getMatchSchema),
+  catchAsync(matchController.switchTeam),
+);
+
 export default router;

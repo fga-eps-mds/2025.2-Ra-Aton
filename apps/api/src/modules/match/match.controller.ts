@@ -34,6 +34,16 @@ class MatchController {
       .status(httpStatus.OK)
       .json({ message: "Inscrição cancelada com sucesso" });
   }
+
+  async switchTeam(req: Request, res: Response) {
+    const { id: matchId } = req.params;
+    const { id: userId } = (req as any).user!;
+
+    await matchService.switchTeam(matchId!, userId);
+    res
+      .status(httpStatus.OK)
+      .json({ message: "Troca de time realizada com sucesso" });
+  }
 }
 
 export default new MatchController();

@@ -1,5 +1,5 @@
 import { prisma } from "../../database/prisma.client";
-import { Prisma, Match, PlayerSubscription } from "@prisma/client";
+import { Prisma, Match, PlayerSubscription, TeamSide } from "@prisma/client";
 
 export type MatchWithPlayers = Prisma.MatchGetPayload<{
   include: {
@@ -86,12 +86,24 @@ class MatchRepository {
   async createSubscription(
     userId: string,
     matchId: string,
+    team: TeamSide,
   ): Promise<PlayerSubscription> {
     return prisma.playerSubscription.create({
       data: {
         userId,
         matchId,
+        team: team,
       },
+    });
+  }
+
+  async updateSubscriptionTeam(
+    subscriptionId: string,
+    newTeam: TeamSide,
+  ): Promise<PlayerSubscription> {
+    return prisma.playerSubscription.update({
+      where: { id: subscriptionId },
+      data: { team: newTeam },
     });
   }
 
