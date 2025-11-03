@@ -8,7 +8,6 @@ import { ApiError } from "../../utils/ApiError";
 import { MatchWithPlayers } from "./match.repository"; // O tipo que já criamos
 import HttpStatus from "http-status";
 import matchRepository from "./match.repository";
-import { group } from "console";
 
 /**
  * Calcula o status dinâmico da partida com base na data atual.
@@ -108,8 +107,8 @@ const formatMatchListResponse = (
   };
 };
 
-export const matchService = {
-  createMatch: async (data: any): Promise<Match> => {
+class matchService {
+  createMatch = async (data: any): Promise<Match> => {
     if (!data.author || !data.author.id) {
       throw new ApiError(
         HttpStatus.NOT_FOUND,
@@ -119,14 +118,14 @@ export const matchService = {
 
     const newMatch = await matchRepository.createMatch(data, data.author);
     return newMatch;
-  },
+  };
 
-  updateMatch: async (
+  updateMatch = async (
     matchId: string,
     authUserId: string,
     data: any,
   ): Promise<Match> => {
-    const matchFound = await matchRepository.findMatchById(matchId);
+    const matchFound = await matchRepository.findById(matchId);
     if (!matchFound) {
       throw new ApiError(HttpStatus.NOT_FOUND, "Partida não encontrada");
     }
@@ -140,10 +139,10 @@ export const matchService = {
 
     const updatedMatch = await matchRepository.updateMatch(matchFound.id, data);
     return updatedMatch;
-  },
+  };
 
-  deleteMatch: async (matchId: string, authUserId: string): Promise<void> => {
-    const matchFound = await matchRepository.findMatchById(matchId);
+  deleteMatch = async (matchId: string, authUserId: string): Promise<void> => {
+    const matchFound = await matchRepository.findById(matchId);
     if (!matchFound) {
       throw new ApiError(HttpStatus.NOT_FOUND, "Partida não encontrada");
     }
@@ -156,8 +155,8 @@ export const matchService = {
     }
 
     await matchRepository.deleteMatch(matchFound.id);
-  },
-    
+  };
+
   /**
    * Busca todas as partidas.
    * Usa o formatador de lista simples.
@@ -194,7 +193,7 @@ export const matchService = {
   async getMatchById(matchId: string) {
     const match = await matchRepository.findById(matchId);
     if (!match) {
-      throw new ApiError(httpStatus.NOT_FOUND, "Partida não encontrada");
+      throw new ApiError(HttpStatus.NOT_FOUND, "Partida não encontrada");
     }
     return formatMatchDetailResponse(match);
   }
@@ -206,14 +205,14 @@ export const matchService = {
     // Pega a partida e todos os jogadores inscritos
     const match = await matchRepository.findById(matchId);
     if (!match) {
-      throw new ApiError(httpStatus.NOT_FOUND, "Partida não encontrada");
+      throw new ApiError(HttpStatus.NOT_FOUND, "Partida não encontrada");
     }
 
     // Checa se o usuário já está inscrito
     const isAlreadySubscribed = match.players.some((p) => p.userId === userId);
     if (isAlreadySubscribed) {
       throw new ApiError(
-        httpStatus.CONFLICT,
+        HttpStatus.CONFLICT,
         "Você já está inscrito nesta partida",
       );
     }
@@ -235,7 +234,7 @@ export const matchService = {
         targetTeam = "B";
       } else {
         throw new ApiError(
-          httpStatus.FORBIDDEN,
+          HttpStatus.FORBIDDEN,
           "Partida cheia. Não há vagas em nenhum time.",
         );
       }
@@ -248,7 +247,7 @@ export const matchService = {
         targetTeam = "A";
       } else {
         throw new ApiError(
-          httpStatus.FORBIDDEN,
+          HttpStatus.FORBIDDEN,
           "Partida cheia. Não há vagas em nenhum time.",
         );
       }
@@ -269,7 +268,7 @@ export const matchService = {
     );
     if (!subscription) {
       throw new ApiError(
-        httpStatus.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
         "Você não está inscrito nesta partida",
       );
     }
@@ -281,14 +280,14 @@ export const matchService = {
     //  Checar se o NOVO time está cheio
     const match = await matchRepository.findById(matchId);
     if (!match)
-      throw new ApiError(httpStatus.NOT_FOUND, "Partida não encontrada");
+      throw new ApiError(HttpStatus.NOT_FOUND, "Partida não encontrada");
 
     const teamMaxSize = Math.floor(match.maxPlayers / 2);
     const countNewTeam = match.players.filter((p) => p.team === newTeam).length;
 
     if (countNewTeam >= teamMaxSize) {
       throw new ApiError(
-        httpStatus.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
         `O Time ${newTeam} está cheio. Não é possível trocar.`,
       );
     }
@@ -303,7 +302,7 @@ export const matchService = {
     );
     if (!existingSubscription) {
       throw new ApiError(
-        httpStatus.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
         "Você não está inscrito nesta partida",
       );
     }
@@ -311,4 +310,4 @@ export const matchService = {
   }
 }
 
-export default new MatchService();
+export default new matchService();

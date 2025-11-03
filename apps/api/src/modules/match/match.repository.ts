@@ -1,5 +1,11 @@
 import { prisma } from "../../database/prisma.client";
-import { Prisma, Match, User, TeamSide } from "@prisma/client";
+import {
+  Prisma,
+  Match,
+  User,
+  PlayerSubscription,
+  TeamSide,
+} from "@prisma/client";
 
 export type MatchWithPlayers = Prisma.MatchGetPayload<{
   include: {
@@ -75,7 +81,7 @@ class matchRepository {
       where: { id: matchId },
     });
   }
-  
+
   /**
    * Busca todas as partidas com paginação baseada em cursor.
    * @param limit - quantos itens deseja buscar
@@ -189,4 +195,4 @@ class matchRepository {
   }
 }
 
-export default new MatchRepository();
+export default new matchRepository();

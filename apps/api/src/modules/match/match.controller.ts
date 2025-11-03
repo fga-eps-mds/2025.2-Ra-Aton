@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { ApiError } from "../../utils/ApiError";
-import { matchService } from "./match.service";
+import matchService from "./match.service";
 import { userService } from "../user/user.service";
 import HttpStatus from "http-status";
 
@@ -93,7 +93,7 @@ class matchController {
         .json({ message: "Erro ao deletar partida" });
     }
   }
-  
+
   async listMatches(req: Request, res: Response) {
     const DEFAULT_PAGE_LIMIT = 10;
     const DEFAULT_PAGE = 1;
@@ -105,7 +105,7 @@ class matchController {
     const safePage = isNaN(page) ? DEFAULT_PAGE : page;
     if (safeLimit > 50) {
       throw new ApiError(
-        httpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST,
         "O limite não pode ser maior que 50",
       );
     }
@@ -113,14 +113,14 @@ class matchController {
       safeLimit,
       safePage,
     );
-    res.status(httpStatus.OK).json(paginatedResult);
+    res.status(HttpStatus.OK).json(paginatedResult);
   }
 
   async getMatch(req: Request, res: Response) {
     const { id } = req.params;
 
     const match = await matchService.getMatchById(id!);
-    res.status(httpStatus.OK).json(match);
+    res.status(HttpStatus.OK).json(match);
   }
 
   async subscribeToMatch(req: Request, res: Response) {
@@ -129,7 +129,7 @@ class matchController {
 
     await matchService.subscribeToMatch(matchId!, userId);
     res
-      .status(httpStatus.CREATED)
+      .status(HttpStatus.CREATED)
       .json({ message: "Inscrição realizada com sucesso" });
   }
 
@@ -139,7 +139,7 @@ class matchController {
 
     await matchService.unsubscribeFromMatch(matchId!, userId);
     res
-      .status(httpStatus.OK)
+      .status(HttpStatus.OK)
       .json({ message: "Inscrição cancelada com sucesso" });
   }
 
@@ -149,9 +149,9 @@ class matchController {
 
     await matchService.switchTeam(matchId!, userId);
     res
-      .status(httpStatus.OK)
+      .status(HttpStatus.OK)
       .json({ message: "Troca de time realizada com sucesso" });
   }
 }
 
-export default new MatchController();
+export default new matchController();
