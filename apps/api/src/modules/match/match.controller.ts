@@ -22,14 +22,14 @@ class matchController {
   }
 
   async createMatch(req: Request, res: Response) {
-    const authUser = (req as any).user;
-    if (!authUser || authUser.id) {
+    const authUser = (req as any).body.userId;
+    if (!authUser) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: "Não foi possivel autorizar o usuário" });
     }
 
-    const author = await userService.getUserById(authUser.id);
+    const author = await userService.getUserById(authUser);
     if (!author) {
       return res
         .status(HttpStatus.NOT_FOUND)
@@ -40,11 +40,11 @@ class matchController {
       ...req.body,
       author: author,
     };
-    
+
     const newMatch = await matchService.createMatch(data);
     if (!newMatch) {
       return res
-        .status(HttpStatus.NOT_FOUND)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Erro ao criar partida." });
     }
 

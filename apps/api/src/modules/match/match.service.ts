@@ -21,22 +21,14 @@ export const matchService = {
   },
 
   createMatch: async (data: any): Promise<Match> => {
-    if (!data.author || data.author.id) {
+    if (!data.author || !data.author.id) {
       throw new ApiError(
         HttpStatus.NOT_FOUND,
         "Autor da partida não encontrado",
       );
     }
 
-    if (!data.group || !data.group.id) {
-      data.group.id = undefined;
-    }
-
-    const newMatch = await matchRepository.createMatch(
-      data,
-      data.author.id,
-      data.group.id,
-    );
+    const newMatch = await matchRepository.createMatch(data, data.author);
     return newMatch;
   },
 

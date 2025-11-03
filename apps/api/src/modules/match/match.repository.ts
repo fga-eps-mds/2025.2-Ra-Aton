@@ -1,5 +1,5 @@
 import { prisma } from "../../database/prisma.client";
-import { Prisma, Match } from "@prisma/client";
+import { Prisma, Match, User } from "@prisma/client";
 
 class matchRepository {
   async findAllMatchs(): Promise<Match[]> {
@@ -12,45 +12,37 @@ class matchRepository {
 
   async createMatch(
     data: Prisma.MatchCreateInput,
-    authorId: string,
-    groupId: string | undefined,
+    author: User,
   ): Promise<Match> {
-    if (data.group) {
-      return prisma.match.create({
-      data: {
-        title: data.title,
-        content: data.content,
-        eventDate: data.eventDate,
-        eventFinishDate: data.eventFinishDate,
-        location: data.location,
-        author: {
-          connect: {
-            id: authorId,
+    return prisma.$transaction(async (tx) => {
+      const newMatch = await tx.match.create({
+        data: {
+          title: data.title,
+          description: data.description,
+          MatchDate: data.MatchDate,
+          teamNameA: data.teamNameA,
+          teamNameB: data.teamNameB,
+          location: data.location,
+          author: {
+            connect: {
+              id: author.id,
+            },
           },
-        },
-        group: {
-          connect: {
-            id: groupId
-          }
-        },
-        teams: data.teams,
-      },
-    });
-    }
-    return prisma.match.create({
-      data: {
-        title: data.title,
-        content: data.content,
-        eventDate: data.eventDate,
-        eventFinishDate: data.eventFinishDate,
-        location: data.location,
-        author: {
-          connect: {
-            id: authorId,
+          maxPlayers: data.maxPlayers,
+          players: {
+            connect: data.players ? data.players.connect : [],
           },
+          MatchStatus: "EM_BREVE",
         },
-        teams: data.teams,
-      },
+      });
+      await tx.playerSubscription.create({
+        data: {
+          userId: author.id,
+          matchId: newMatch.id,
+          team: "A", // Autor sempre vai para o Time A
+        },
+      });
+      return newMatch;
     });
   }
 
