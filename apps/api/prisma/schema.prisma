@@ -17,6 +17,12 @@ enum TeamSide {
   A
   B
 }
+
+enum MatchStatus {
+  EM_BREVE
+  EM_ANDAMENTO
+  FINALIZADO
+}
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -24,6 +30,7 @@ model User {
   userName  String   @unique
   profileType ProfileType?
   subscription PlayerSubscription[]
+  matchs Match[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   passwordHash String
@@ -33,7 +40,10 @@ model Match {
   id String @id @default(uuid())
   title String // título (obrigatório)
   description String? // descrição (opcional)
-  date DateTime // data e hora da partida
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String 
+  MatchDate DateTime // data e hora da partida
+  MatchStatus MatchStatus @default(EM_BREVE)
   location String // local
   maxPlayers Int // numero max de jogadores
   teamNameA String @default("Time A")
