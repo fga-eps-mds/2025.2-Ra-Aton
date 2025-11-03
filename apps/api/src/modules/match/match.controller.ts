@@ -37,7 +37,7 @@ class matchController {
 
   async updateMatch(req: Request, res: Response) {
     const authUser = (req as any).user;
-    if (!authUser || authUser.id) {
+    if (!authUser || !authUser.id) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: "Não foi possivel autorizar o usuário" });
@@ -69,7 +69,7 @@ class matchController {
 
   async deleteMatch(req: Request, res: Response) {
     const authUser = (req as any).user;
-    if (!authUser || authUser.id) {
+    if (!authUser || !authUser.id) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: "Não foi possivel autorizar o usuário" });
