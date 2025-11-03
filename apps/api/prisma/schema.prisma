@@ -42,6 +42,7 @@ enum JoinRequestStatus {
   REJECTED
 }
 
+// Models
 model User {
   id           String       @id @default(uuid())
   name         String
@@ -54,11 +55,13 @@ model User {
 
   // Relationships
   posts           Post[]
+  matchs          Match[]
   Attendance      Attendance[]
   Report          Report[]
   PostLike        PostLike[]
   Comment         Comment[]
   GroupMembership GroupMembership[]
+  TeamMembership  TeamMembership[]
 }
 
 model Post {
@@ -161,6 +164,8 @@ model Group {
 
   // relationsships
   posts       Post[]
+  matchs      Match[]
+  teams       Team[]
   memberships GroupMembership[]
   // follows Follow[]
   // joinRequests GroupJoinRequest[]
@@ -203,3 +208,40 @@ model GroupMembership {
 
 //   @@unique([requesterId, groupId])
 // }
+
+model Match {
+  id              String   @id @default(uuid())
+  title           String
+  content         String?
+  author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId        String
+  group           Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId         String?
+  teams           Team[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  eventDate       DateTime
+  eventFinishDate DateTime
+  location        String
+}
+
+model Team {
+  id      String           @id @default(uuid())
+  name    String
+  members TeamMembership[]
+  group   Group?            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String?
+  matchs  Match[]
+}
+
+model TeamMembership {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  role      String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, teamId])
+}

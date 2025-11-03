@@ -8,6 +8,7 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import postRoutes  from "./modules/post/post.routes";
 import commentRoutes from "./modules/comment/comment.routes"
 import HttpStatus from "http-status";
+import matchRoutes from "./modules/match/match.routes";
 const app: Express = express();
 
 // Middlewares Globais
@@ -26,6 +27,8 @@ app.use("/users", userRoutes);
 app.use("/login", authRoutes);
 app.use("/post", postRoutes);
 app.use("/comment", commentRoutes)
+app.use("/match", matchRoutes)
+
 // (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
 
 // --- TRATAMENTO DE ERROS ---
