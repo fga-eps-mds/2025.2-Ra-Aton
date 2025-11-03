@@ -19,7 +19,32 @@ model User {
   email     String   @unique
   userName  String   @unique
   profileType ProfileType?
+  subscription PlayerSubscription[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   passwordHash String
 }
+
+model Match {
+  id String @id @default(uuid())
+  title String // título (obrigatório)
+  description String? // descrição (opcional)
+  date DateTime // data e hora da partida
+  location String // local
+  maxPlayers Int // numero max de jogadores
+  players PlayerSubscription[] // jogadores inscritos
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PlayerSubscription {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matchId String
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
+}
+
