@@ -8,6 +8,9 @@ const config = {
   // Ambiente de teste deve ser 'node' para backend
   testEnvironment: "node",
 
+  // Carrega mocks de ambiente ANTES de carregar os testes/módulos
+  setupFiles: ["<rootDir>/src/__tests__/env-mock.ts"],
+
   // Arquivo de setup para executar antes de cada suíte de teste
   // Usaremos isso para mockar o Prisma Client
   setupFilesAfterEnv: ["./jest.setup.ts"],
