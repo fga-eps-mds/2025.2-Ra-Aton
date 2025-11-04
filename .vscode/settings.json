@@ -11,5 +11,8 @@
     "typescriptreact"
   ],
   "jest.rootPath": ".",
-  "prettier.enableDebug": false
+  "prettier.enableDebug": false,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }
