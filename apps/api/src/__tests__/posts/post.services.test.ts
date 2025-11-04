@@ -17,6 +17,8 @@ jest.mock("../../modules/post/post.repository", () => ({
 // Definição de dados mockados para reuso
 const MOCK_AUTHOR_ID = "author-uuid-123";
 const MOCK_POST_ID = "post-uuid-456";
+const GROUP_ID = "group-id";
+const mockGroup = { id: GROUP_ID, name: "Pesadelo" };
 
 const mockPost = {
   id: MOCK_POST_ID,
@@ -24,6 +26,8 @@ const mockPost = {
   content: "Conteúdo do post",
   type: "GENERAL",
   authorId: MOCK_AUTHOR_ID,
+  group: mockGroup,
+  groupId: GROUP_ID,
   createdAt: new Date(),
   updatedAt: new Date(),
   eventDate: null,
@@ -35,6 +39,7 @@ const mockEventPostData = {
   title: "Evento Teste",
   content: "Detalhes do evento",
   type: "EVENT",
+  group: mockGroup,
   eventDate: new Date().toISOString(),
   eventFinishDate: new Date().toISOString(),
   location: "Auditório Principal",
@@ -72,6 +77,7 @@ describe("PostService", () => {
         content: "Conteúdo",
         type: "GENERAL",
         author: { id: MOCK_AUTHOR_ID },
+        group: mockGroup,
       };
       // Simula a criação bem-sucedida
       (postRepository.create as jest.Mock).mockResolvedValue(mockPost);
@@ -79,10 +85,7 @@ describe("PostService", () => {
       const result = await postService.createPost(data);
 
       expect(result).toEqual(mockPost);
-      expect(postRepository.create).toHaveBeenCalledWith(
-        data,
-        MOCK_AUTHOR_ID,
-      );
+      expect(postRepository.create).toHaveBeenCalledWith(data, MOCK_AUTHOR_ID);
     });
 
     it("deve criar um post EVENTO com sucesso quando todos os campos obrigatórios estão presentes", async () => {
@@ -101,10 +104,7 @@ describe("PostService", () => {
       // Teste 1: Author está faltando
       const data1 = { title: "a", content: "b", type: "GENERAL" };
       await expect(postService.createPost(data1)).rejects.toThrow(
-        new ApiError(
-          HttpStatus.NOT_FOUND,
-          "Author da postagem não encontrado",
-        ),
+        new ApiError(HttpStatus.NOT_FOUND, "Author da postagem não encontrado"),
       );
       // Teste 2: Author existe mas o id está faltando
       const data2 = {
@@ -114,10 +114,7 @@ describe("PostService", () => {
         author: {},
       };
       await expect(postService.createPost(data2)).rejects.toThrow(
-        new ApiError(
-          HttpStatus.NOT_FOUND,
-          "Author da postagem não encontrado",
-        ),
+        new ApiError(HttpStatus.NOT_FOUND, "Author da postagem não encontrado"),
       );
       expect(postRepository.create).not.toHaveBeenCalled();
     });
@@ -140,7 +137,7 @@ describe("PostService", () => {
           "Data de inicio, Data de terminó e Localização do evento são obrigatórios em postagens do tipo evento",
         ),
       );
-      
+
       expect(postRepository.create).not.toHaveBeenCalled();
     });
   });

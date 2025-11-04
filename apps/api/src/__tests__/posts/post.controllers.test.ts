@@ -4,6 +4,7 @@ import { postService } from '../../modules/post/post.service'; // Ajuste o camin
 import { userService } from '../../modules/user/user.service'; // Ajuste o caminho
 import HttpStatus from 'http-status';
 import { ApiError } from '../../utils/ApiError'; // Ajuste o caminho
+import { group } from 'console';
 
 // ===================================
 // 1. Mocks de Dependência
@@ -45,13 +46,17 @@ jest.mock('../../middlewares/validateRequest', () => (schema: any) =>
 // ===================================
 
 const AUTH_USER_ID = 'auth-user-id';
+const GROUP_ID = 'group-id'
 const POST_ID = '0e0a5198-a379-4d6d-8b30-c9a96e1919d8'; 
 const mockUser = { id: AUTH_USER_ID, name: 'Test User' };
+const mockGroup = { id: GROUP_ID, name: 'Pesadelo'}
 const mockPost = {
   id: POST_ID,
   title: 'Test Post',
   content: 'Content',
   authorId: AUTH_USER_ID,
+  group: mockGroup,
+  groupId: GROUP_ID,
   type: 'GENERAL',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
