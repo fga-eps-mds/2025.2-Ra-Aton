@@ -15,18 +15,15 @@
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/native": "^7.1.8",
     "axios": "^1.13.0",
-    "expo": "~54.0.20",
+    "expo": "~54.0.22",
     "expo-constants": "~18.0.10",
     "expo-font": "~14.0.9",
     "expo-linking": "~8.0.8",
-    "expo-router": "~6.0.13",
-<<<<<<< HEAD
+    "expo-router": "~6.0.14",
     "expo-secure-store": "~15.0.7",
-=======
->>>>>>> a981c56 (test: Adiciona e Exlui funções de mocks para funcioamente do teste de integração antigo do formsCadastro)
     "expo-splash-screen": "~31.0.10",
     "expo-status-bar": "~3.0.8",
-    "expo-web-browser": "~15.0.8",
+    "expo-web-browser": "~15.0.9",
     "hyphenate-style-name": "^1.1.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
