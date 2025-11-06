@@ -28,6 +28,8 @@ out/
 build
 dist
 
+#expo
+.expo
 
 # Debug
 npm-debug.log*

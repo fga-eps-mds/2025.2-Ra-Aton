@@ -131,7 +131,8 @@ const HomeInner: React.FC = () => {
 
           // !! IMPORTANTE !!
           // Altere a rota abaixo para a rota correta do seu formulário de "novo usuário"
-          router.replace("/formsCadastro");
+          //router.replace("/formsCadastro"); -----> esse aqui é o original
+          router.replace("/(DashBoard)/(tabs)/Home"); //-----> esse aqui é de teste (apagar depois)
         } else {
           // CASO 2: Usuário logado E perfil completo
           // Redireciona para a Home do Dashboard (como antes)
