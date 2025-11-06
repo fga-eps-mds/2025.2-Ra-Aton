@@ -6,7 +6,11 @@ module.exports = {
   // precisa pra Babel entender Expo/React Native
   preset: 'jest-expo',
 
-  testEnvironment: 'jsdom',
+  // Isso ajuda o Jest a encontrar os pacotes symlinkados pelo pnpm
+  resolver: '@rnx-kit/jest-resolver',
+
+  
+  testEnvironment: 'node',
 
   ...base,
 

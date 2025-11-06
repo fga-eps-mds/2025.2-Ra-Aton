@@ -54,7 +54,8 @@
     "jest-expo": "~54.0.13",
     "jest-util": "29.7.0",
     "metro-config": "^0.76.0",
-    "react-test-renderer": "19.1.0"
+    "react-test-renderer": "19.1.0",
+    "@react-native-community/cli": "20.0.2"
   },
   "private": true
 }
