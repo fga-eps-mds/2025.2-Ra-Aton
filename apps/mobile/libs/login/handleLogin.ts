@@ -1,39 +1,40 @@
-export async function handleLogin(email: string, password: string) {
-  try {
-    const response = await fetch("http://localhost:4000/login", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+import axios from "axios";
+import { api_route } from "../auth/api";
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.log("Mensagem de erro: " + data.message);
-      throw new Error(data.message || "Login failed");
-    }
-    console.log("Login successful:", data);
-    return data;
-  } catch (error) {  // De preferencia deveria trocar esse 'any', provavelmente pra string
-    console.error("Erro ao registrar usuário: ", error);
-    throw new Error("Não foi possivel conectar ao servidor");
-  }
+interface LoginParams {
+  email: string;
+  password: string;
 }
 
-// Caso de certo o BackEnd vai responder:
-// if (user.profileType == null) {
-//       warns.push("Configuração de perfil pendente.");
-//     }
+export async function handleLogin(email: string, password: string) {
+  try {
+    const response = await api_route.post<LoginParams>("/login", { email, password });
 
-//     return res.json({
-//       token,
-//       user: {
-//         id: user.id,
-//         name: user.name,
-//         email: user.email,
-//       },
-//       warns: warns,
-//     });
-// }
+    const data = response.data ?? {};
+    console.log("Login efetuado com sucesso");
+    return data;
+  } catch (err: any) {
+    if (err.response) {
+      let rawData = err.response.data;
+      let data: any = {};
 
-// (Encontrado em C:\MDS\clone3\2025.2-Ra-Aton\apps\api\src\routes\auth.routes.ts)
+      if (typeof rawData === "string") {
+        try {
+          data = JSON.parse(rawData);
+        } catch {
+          data = { message: rawData };
+        }
+      } else {
+        data = rawData || {};
+      }
+
+      const serverMessage =
+        data?.message || data?.error || "Erro ao realizar login";
+
+      console.log("Mensagem de erro do servidor:", serverMessage);
+      throw new Error(serverMessage);
+    }
+
+    throw new Error("Não foi possível conectar ao servidor");
+  }
+}
