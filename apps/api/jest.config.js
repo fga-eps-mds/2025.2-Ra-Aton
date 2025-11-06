@@ -1,18 +1,15 @@
 // ./apps/api/jest.config.js
 
-// Importa a configuração base da raiz
-const baseConfig = require("../../jest.config.js");
-
 /** @type {import('jest').Config} */
 const config = {
-  // Estende a configuração base
-  ...baseConfig,
-
   // Preset específico para TypeScript com Node.js
   preset: "ts-jest",
 
   // Ambiente de teste deve ser 'node' para backend
   testEnvironment: "node",
+
+  // Carrega mocks de ambiente ANTES de carregar os testes/módulos
+  setupFiles: ["<rootDir>/src/__tests__/env-mock.ts"],
 
   // Arquivo de setup para executar antes de cada suíte de teste
   // Usaremos isso para mockar o Prisma Client
@@ -28,6 +25,14 @@ const config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+
+  // Cobertura focada apenas neste pacote
+  collectCoverageFrom: [
+    "<rootDir>/src/**/*.{ts,tsx,js,jsx}",
+    "!<rootDir>/src/**/index.{ts,tsx,js,jsx}",
+    "!<rootDir>/src/**/*.config.{ts,js}",
+  ],
+  coverageDirectory: "<rootDir>/coverage",
 };
 
 module.exports = config;

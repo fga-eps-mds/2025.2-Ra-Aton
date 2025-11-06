@@ -1,6 +1,4 @@
 {
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.workingDirectories": [
     {
       "mode": "auto"
@@ -15,5 +13,9 @@
   "prettier.enableDebug": false,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "jest.rootPath": ".",
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }

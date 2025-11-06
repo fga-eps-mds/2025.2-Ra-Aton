@@ -35,6 +35,9 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@jest/core": "29.7.0",
+    "@jest/environment": "29.7.0",
+    "@jest/globals": "29.7.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/jest-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",

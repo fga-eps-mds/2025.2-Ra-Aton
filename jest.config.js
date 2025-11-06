@@ -5,16 +5,8 @@ const config = {
   // Define o provedor de cobertura como 'babel' para melhor suporte a TS/JS transpilação
   coverageProvider: "babel",
 
-  // Diretório onde os relatórios de cobertura serão salvos
+  // Diretório onde os relatórios de cobertura agregados serão salvos quando executar na raiz
   coverageDirectory: "<rootDir>/coverage",
-
-  // Padrões para coletar cobertura. Inclui src, exclui index, configs, etc.
-  collectCoverageFrom: [
-    "<rootDir>/apps/*/src/**/*.{js,jsx,ts,tsx}",
-    "!<rootDir>/**/index.{js,jsx,ts,tsx}",
-    "!<rootDir>/**/*.config.{js,ts}",
-    "!<rootDir>/**/.*rc.{js,ts}",
-  ],
 
   // Módulos que os testes podem assistir
   watchPlugins: [
@@ -22,6 +14,13 @@ const config = {
     "jest-watch-typeahead/testname",
   ],
 
+  // Importante para monorepo: declare os projetos para que o Jest (e a extensão do VS Code)
+  // consiga resolver o preset/transform corretos por pasta. Ao declarar diretórios,
+  // o Jest irá usar automaticamente o "jest.config.js" de cada app.
+  projects: [
+    "<rootDir>/apps/api",
+    "<rootDir>/apps/mobile",
+  ],
   // NÃO defina 'preset', 'testEnvironment' ou 'transform' aqui.
   // Isso será feito em cada configuração de workspace.
 };
