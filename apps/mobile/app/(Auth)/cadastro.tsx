@@ -99,21 +99,43 @@ const CadastroInner: React.FC = () => {
     try {
       const data = await registerUser({ name, userName, email, password });
 
-      if (data.error) {
-        console.log(data.error);
-        if (data.error.includes("Email")) {
-          setBackendErrorEmail(data.error);
-        } else if (data.error.includes("Nome de usúario") | data.error.includes("Username")) {
-          setBackendErrorNickname(data.error);
+      const returnedMessage = (data && (data.error || data.message)) || null;
+      if (returnedMessage) {
+        const statusMessage = String(returnedMessage);
+        const lower = statusMessage.toLowerCase();
+
+        if (lower.includes("email")) {
+          setBackendErrorEmail(statusMessage);
+        } else if (
+          lower.includes("nome de usuário") ||
+          lower.includes("username") ||
+          lower.includes("nome de usuario") ||
+          lower.includes("usuario")
+        ) {
+          setBackendErrorNickname(statusMessage);
         }
+
         return;
       }
 
       console.log("Cadastro realizado com sucesso!");
       router.push("/(Auth)/login");
     } catch (error) {
-      console.error("Erro:", error);
-      console.log("Não foi possível conectar ao servidor.");
+      console.error("Erro ao cadastrar:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      const lower = message.toLowerCase();
+
+      if (lower.includes("email")) {
+        setBackendErrorEmail(message);
+      } else if (
+        lower.includes("usuário") ||
+        lower.includes("username") ||
+        lower.includes("usuario")
+      ) {
+        setBackendErrorNickname(message);
+      } else {
+        console.log("Não foi possível conectar ao servidor.");
+      }
     }
   };
 
