@@ -17,8 +17,7 @@ import Spacer from "@/components/SpacerComp";
 import { useTheme } from "@/constants/Theme";
 import BackGroundComp from "@/components/BackGroundComp";
 import { useFormsCadastro } from "@/libs/hooks/useFormsCadastro";
-
-
+import AppText from "@/components/AppText";
 
 const FormsCadastro: React.FC = () => {
   return <FormsCadastroInner />;
@@ -31,8 +30,6 @@ const FormsCadastroInner: React.FC = () => {
   const styles = makeStyles(theme);
 
   const { loading, sendType, comebackPage } = useFormsCadastro();
-
-  
 
   return (
     <BackGroundComp>
@@ -47,13 +44,13 @@ const FormsCadastroInner: React.FC = () => {
         <Image source={Logo} style={styles.img} accessibilityLabel="LogoAton" />
         <View style={styles.container}>
           <View style={styles.txtInfo}>
-            <Text style={styles.txt}>
+            <AppText style={styles.txt}>
               Para finalizar o seu cadastro, responda este formulário e
               participe ativamente da sua comunidade!
-            </Text>
+            </AppText>
           </View>
           <View style={styles.containerBtns}>
-            <Text style={styles.txt}>Selecione seu perfil</Text>
+            <AppText style={styles.txt}>Selecione seu perfil</AppText>
             <Spacer height={30} />
             {loading ? (
               <ActivityIndicator
@@ -62,7 +59,9 @@ const FormsCadastroInner: React.FC = () => {
                 style={{ marginTop: 60 }}
               />
             ) : (
-              <PrimaryButton onPress={() => sendType("ATLETICA")}>Atlética</PrimaryButton>
+              <PrimaryButton onPress={() => sendType("ATLETICA")}>
+                Atlética
+              </PrimaryButton>
             )}
             <Spacer height={40} />
             {loading ? (
@@ -72,7 +71,9 @@ const FormsCadastroInner: React.FC = () => {
                 style={{ marginTop: 60 }}
               />
             ) : (
-              <PrimaryButton onPress={() => sendType("JOGADOR")}>Jogador</PrimaryButton>
+              <PrimaryButton onPress={() => sendType("JOGADOR")}>
+                Jogador
+              </PrimaryButton>
             )}
             <Spacer height={40} />
             {loading ? (
@@ -82,7 +83,9 @@ const FormsCadastroInner: React.FC = () => {
                 style={{ marginTop: 60 }}
               />
             ) : (
-              <PrimaryButton onPress={() => sendType("TORCEDOR")}>Torcedor</PrimaryButton>
+              <PrimaryButton onPress={() => sendType("TORCEDOR")}>
+                Torcedor
+              </PrimaryButton>
             )}
             <Spacer height={40} />
           </View>
@@ -94,7 +97,8 @@ const FormsCadastroInner: React.FC = () => {
               style={{ marginTop: 60 }}
             />
           ) : (
-            <SecondaryButton onPress={() => router.replace("/(DashBoard)/Home")}
+            <SecondaryButton
+              onPress={() => router.replace("/(DashBoard)/Home")}
               style={styles.BtnSkip}
               decoration={{
                 textDecorationLine: "underline",

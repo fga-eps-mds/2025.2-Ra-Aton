@@ -25,6 +25,7 @@ import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import { RegisterForm } from "@/components/RegisterForm";
 import { useRegisterForm } from "@/libs/hooks/useRegisterForm";
+import AppText from "@/components/AppText";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
@@ -35,14 +36,9 @@ const CadastroInner: React.FC = () => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
-  
-  const {
-    formData,
-    errors,
-    isDisabled,
-    setFormData,
-    handleSubmit
-  } = useRegisterForm();
+
+  const { formData, errors, isDisabled, setFormData, handleSubmit } =
+    useRegisterForm();
 
   return (
     <BackGroundComp>
@@ -59,7 +55,6 @@ const CadastroInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled"
         >
-
           <Image source={NamedLogo} style={styles.img} />
 
           <View style={styles.containerInfos}>
@@ -77,7 +72,7 @@ const CadastroInner: React.FC = () => {
                 Criar conta
               </PrimaryButton>
               <Spacer height={30} />
-              <Text style={styles.txt}>Ja possui uma conta?</Text>
+              <AppText style={styles.txt}>Ja possui uma conta?</AppText>
               <Spacer height={10} />
               <SecondaryButton onPress={() => router.push("/(Auth)/login")}>
                 Login

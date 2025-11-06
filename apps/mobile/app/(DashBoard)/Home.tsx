@@ -9,6 +9,7 @@ import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import BackGroundComp from "@/components/BackGroundComp";
 import { useUser } from "@/libs/storage/UserContext";
+import AppText from "@/components/AppText";
 
 const Home = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -33,7 +34,7 @@ const Home = () => {
           marginBottom: 20,
         }}
       >
-        <Text
+        <AppText
           style={[
             {
               fontWeight: "700",
@@ -45,10 +46,10 @@ const Home = () => {
           ]}
         >
           *
-        </Text>
+        </AppText>
       </Button1Comp>
       
-      <Text style={[styles.txt, { textAlign: "center" }]}>Bem vindo a Home {user?.name}</Text> 
+      <AppText style={[styles.txt, { textAlign: "center" }]}>Bem vindo a Home {user?.name}</AppText> 
       {/* Deixei o ? por enquanto pra nao causar erro ja que nao tem verificação se a pessoa esta logada ainda */}
       <Button1Comp onPress={logout}>Sair</Button1Comp>  
     </BackGroundComp>                                                   

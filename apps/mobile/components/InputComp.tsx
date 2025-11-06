@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
+import AppText from "./AppText";
 
 type InputCompProps = TextInputProps & {
   width?: DimensionValue;
@@ -51,7 +52,7 @@ const InputComp = ({
   return (
     <View style={{ width, alignItems: "center" }}>
       <View style={styles.inpuxLabel}>
-        <Text style={styles.txt}>{label}</Text>
+        <AppText style={styles.txt}>{label}</AppText>
       </View>
 
       <View style={styles.inputCompContainer}>
@@ -97,10 +98,10 @@ const InputComp = ({
         )}
       </View>
 
-      <Text style={[styles.textStatusMessage, { color: statusBorderColor }]}>
+      <AppText style={[styles.textStatusMessage, { color: statusBorderColor }]}>
         {statusText || " "}{" "}
         {/* Se trocar por "" o tamanho ja fica esperando a mensagem no lugar de aparece condicionalmente*/}
-      </Text>
+      </AppText>
     </View>
   );
 };

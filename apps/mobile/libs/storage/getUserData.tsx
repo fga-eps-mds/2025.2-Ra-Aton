@@ -1,7 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-export async function getUserData() {  // Pega o userData
+export async function getUserData() {
   if (Platform.OS === "web") {
     const data = localStorage.getItem("userData");
     return data ? JSON.parse(data) : null;

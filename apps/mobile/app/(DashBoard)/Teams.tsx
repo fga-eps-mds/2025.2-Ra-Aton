@@ -7,6 +7,8 @@ import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import BackGroundComp from "@/components/BackGroundComp";
+import AppText from "@/components/AppText";
+
 const Teams = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
@@ -29,7 +31,7 @@ const Teams = () => {
           marginBottom: 20,
         }}
       >
-        <Text
+        <AppText
           style={[
             {
               fontWeight: "700",
@@ -41,10 +43,10 @@ const Teams = () => {
           ]}
         >
           *
-        </Text>
+        </AppText>
       </Button1Comp>
 
-      <Text style={[styles.txt, { textAlign: "center" }]}>Teams</Text>
+      <AppText style={[styles.txt, { textAlign: "center" }]}>Teams</AppText>
     </BackGroundComp>
   );
 };

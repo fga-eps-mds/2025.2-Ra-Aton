@@ -1,10 +1,9 @@
-import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useUser } from '@/libs/storage/UserContext';
-import { useRouter } from 'expo-router';
-import { updateProfileType } from '@/libs/auth/updateProfileType';
+import { useState } from "react";
+import { Alert } from "react-native";
+import { useUser } from "@/libs/storage/UserContext";
+import { useRouter } from "expo-router";
+import { updateProfileType } from "@/libs/auth/updateProfileType";
 
-// Hook to manage the profile-type selection flow used on the "formsCadastro" page
 export const useFormsCadastro = () => {
   const router = useRouter();
   const { user, setUser } = useUser();
@@ -14,8 +13,8 @@ export const useFormsCadastro = () => {
     try {
       setLoading(true);
       if (!user) {
-        Alert.alert('Erro', 'Usuário não encontrado, faça login novamente.');
-        router.replace('/(Auth)/login');
+        Alert.alert("Erro", "Usuário não encontrado, faça login novamente.");
+        router.replace("/(Auth)/login");
         return;
       }
 
@@ -32,15 +31,15 @@ export const useFormsCadastro = () => {
       console.log(`profileType atualizado para: ${profileType}`);
 
       // Redireciona conforme tipo
-      if (profileType === 'JOGADOR' || profileType === 'TORCEDOR') {
-        router.replace('/(DashBoard)/Home');
-      } else if (profileType === 'ATLETICA') {
-        router.replace('/(DashBoard)/Teams');
+      if (profileType === "JOGADOR" || profileType === "TORCEDOR") {
+        router.replace("/(DashBoard)/Home");
+      } else if (profileType === "ATLETICA") {
+        router.replace("/(DashBoard)/Teams");
       } else {
-        router.replace('/(DashBoard)/Home');
+        router.replace("/(DashBoard)/Home");
       }
     } catch (err: any) {
-      Alert.alert('Erro ao atualizar', err?.message || String(err));
+      Alert.alert("Erro ao atualizar", err?.message || String(err));
       console.error(err);
     } finally {
       setLoading(false);
@@ -48,7 +47,7 @@ export const useFormsCadastro = () => {
   };
 
   const comebackPage = () => {
-    router.push('/(Auth)/cadastro');
+    router.push("/(Auth)/cadastro");
   };
 
   return {

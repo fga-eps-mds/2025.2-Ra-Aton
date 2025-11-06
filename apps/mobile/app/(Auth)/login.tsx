@@ -4,12 +4,12 @@ import {
   Text,
   View,
   Image,
-  ActivityIndicator, 
+  ActivityIndicator,
   ScrollView,
   TouchableOpacity,
   Platform,
   Alert,
-  KeyboardAvoidingView, 
+  KeyboardAvoidingView,
 } from "react-native";
 import React from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
@@ -23,6 +23,7 @@ import { Colors } from "../../constants/Colors";
 import { useRouter } from "expo-router";
 import { Fonts } from "@/constants/Fonts";
 import { useLoginForm } from "@/libs/hooks/useLoginForm";
+import AppText from "@/components/AppText";
 
 const Home: React.FC = () => {
   return <HomeInner />;
@@ -40,7 +41,7 @@ const HomeInner: React.FC = () => {
     isLoading,
     error,
     isButtonDisabled,
-    handleSubmit
+    handleSubmit,
   } = useLoginForm();
 
   return (
@@ -58,15 +59,16 @@ const HomeInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled" // Ajuda a fechar o teclado ao tocar fora
         >
-
           <Image source={NamedLogo} style={styles.img} />
           <View style={styles.container_input}>
             {/* CA1: Campo de E-mail */}
             <InputComp
               label="E-mail"
-              iconName="person" 
+              iconName="person"
               value={formData.email}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, email: text }))
+              }
               placeholder="usuario@exemplo.com"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -79,7 +81,9 @@ const HomeInner: React.FC = () => {
               iconName="key"
               secureTextEntry={true}
               value={formData.password}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, password: text }))
+              }
               autoCapitalize="none"
             />
           </View>
@@ -88,15 +92,14 @@ const HomeInner: React.FC = () => {
           <TouchableOpacity
             style={styles.forgotPasswordButton}
 
-          /* TODO: Adicionar navegação para fluxo de recuperação */
+            /* TODO: Adicionar navegação para fluxo de recuperação */
           >
-            <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+            <AppText style={styles.forgotPasswordText}>Esqueci minha senha</AppText>
           </TouchableOpacity>
 
           {/* CA4: Exibição de Erro */}
-          {error && <Text style={styles.errorText}>{error}</Text>}
+          {error && <AppText style={styles.errorText}>{error}</AppText>}
           <View style={styles.centeredView}>
-
             {/* CA5: Indicador de Loading */}
             {isLoading ? (
               <ActivityIndicator
@@ -112,16 +115,16 @@ const HomeInner: React.FC = () => {
                 disabled={isButtonDisabled}
                 testID="botaoLogin"
               >
-                  Login
+                Login
               </PrimaryButton>
             )}
 
             <Spacer height={80} />
-            <Text style={styles.txt}>ou</Text>
+            <AppText style={styles.txt}>ou</AppText>
             <Spacer height={20} />
 
             <SecondaryButton onPress={() => router.push("/cadastro")}>
-                Cadastre-se
+              Cadastre-se
             </SecondaryButton>
           </View>
         </ScrollView>
@@ -213,5 +216,5 @@ const makeStyles = (theme: any) =>
       flexDirection: "column",
       alignItems: "center",
       width: "100%",
-    }
+    },
   });
