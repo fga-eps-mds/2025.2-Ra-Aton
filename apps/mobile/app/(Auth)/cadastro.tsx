@@ -1,6 +1,6 @@
 /* cadastro page */
 
-import React, { useState } from "react";
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -21,13 +21,10 @@ import NamedLogo from "@/assets/img/Logo_1_Atom.png";
 // Componentes
 import BackGroundComp from "@/components/BackGroundComp";
 import Spacer from "@/components/SpacerComp";
-import Button1Comp from "@/components/PrimaryButton";
-import Button2Comp from "@/components/SecondaryButton";
-import InputComp from "@/components/InputComp";
-
-import { registerUser } from "@/libs/auth/handleRegister";
-
-import { verifyName, verifyNickname, verifyEmail, verifyPassword, verifyConfirmPassword } from "@/libs/validation/userDataValidation";
+import PrimaryButton from "@/components/PrimaryButton";
+import SecondaryButton from "@/components/SecondaryButton";
+import { RegisterForm } from "@/components/RegisterForm";
+import { useRegisterForm } from "@/libs/hooks/useRegisterForm";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
@@ -35,109 +32,17 @@ const Cadastro: React.FC = () => {
 
 const CadastroInner: React.FC = () => {
   const router = useRouter();
-
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [userName, setNickname] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [errorName, setErrorName] = useState("");
-  const [errorEmail, setErrorEmail] = useState("");
-  const [errorNickname, setErrorNickname] = useState("");
-  const [errorPassword, setErrorPassword] = useState("");
-  const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
-  const [backendErrorEmail, setBackendErrorEmail] = useState("");
-  const [backendErrorNickname, setBackendErrorNickname] = useState("");
-
-  React.useEffect(() => {
-    if (name) setErrorName(verifyName(name));
-    if (email) setErrorEmail(verifyEmail(email));
-    if (password) setErrorPassword(verifyPassword(password));
-    if (confirmPassword) setErrorConfirmPassword(verifyConfirmPassword(password, confirmPassword));
-    if (userName) setErrorNickname(verifyNickname(userName));
-  }, [name, email, password, confirmPassword, userName]);
-
-  React.useEffect(() => {
-    if (email) setBackendErrorEmail("");
-  }, [email]);
-
-  React.useEffect(() => {
-    if (userName) setBackendErrorNickname("");
-  }, [userName]);
-
-  const isDisabled = !(email && !verifyPassword(password) && name && userName && !verifyConfirmPassword(password, confirmPassword));
-  const statusBtnCadastro = async () => {
-    const errName = verifyName(name);
-    const errEmail = verifyEmail(email);
-    const errPassword = verifyPassword(password);
-    const errConfirmrPassword = verifyConfirmPassword(password, confirmPassword);
-    const errNickname = verifyNickname(userName);
-    setErrorName(errName);
-    setErrorEmail(errEmail);
-    setErrorPassword(errPassword);
-    setErrorConfirmPassword(errConfirmrPassword);
-    setErrorNickname(errNickname);
-
-    if (
-      !errName &&
-      !errNickname &&
-      !errEmail &&
-      !errPassword &&
-      !errConfirmrPassword
-    ) {
-      console.log("Credenciais Validas");
-      await handleRegister();
-    }
-  };
-
-  const handleRegister = async () => {
-    try {
-      const data = await registerUser({ name, userName, email, password });
-
-      const returnedMessage = (data && (data.error || data.message)) || null;
-      if (returnedMessage) {
-        const statusMessage = String(returnedMessage);
-        const lower = statusMessage.toLowerCase();
-
-        if (lower.includes("email")) {
-          setBackendErrorEmail(statusMessage);
-        } else if (
-          lower.includes("nome de usuário") ||
-          lower.includes("username") ||
-          lower.includes("nome de usuario") ||
-          lower.includes("usuario")
-        ) {
-          setBackendErrorNickname(statusMessage);
-        }
-
-        return;
-      }
-
-      console.log("Cadastro realizado com sucesso!");
-      router.push("/(Auth)/login");
-    } catch (error) {
-      console.error("Erro ao cadastrar:", error);
-      const message = error instanceof Error ? error.message : String(error);
-      const lower = message.toLowerCase();
-
-      if (lower.includes("email")) {
-        setBackendErrorEmail(message);
-      } else if (
-        lower.includes("usuário") ||
-        lower.includes("username") ||
-        lower.includes("usuario")
-      ) {
-        setBackendErrorNickname(message);
-      } else {
-        console.log("Não foi possível conectar ao servidor.");
-      }
-    }
-  };
+  
+  const {
+    formData,
+    errors,
+    isDisabled,
+    setFormData,
+    handleSubmit
+  } = useRegisterForm();
 
   return (
     <BackGroundComp>
@@ -159,72 +64,24 @@ const CadastroInner: React.FC = () => {
 
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
-              <InputComp
-                label="Nome completo"
-                iconName="person-sharp"
-                value={name}
-                onChangeText={setName}
-                status={!!errorName}
-                statusText={errorName}
-              ></InputComp>
-
-              <InputComp
-                label="Nome de usuário"
-                iconName="pricetag-outline"
-                value={userName}
-                onChangeText={setNickname}
-                status={!!errorNickname || !!backendErrorNickname}
-                statusText={errorNickname || backendErrorNickname}
-              ></InputComp>
-
-              <InputComp
-                label="E-mail"
-                iconName="at"
-                keyboardType="email-address"
-                autoComplete="email"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-                status={!!errorEmail || !!backendErrorEmail}
-                statusText={errorEmail || backendErrorEmail}
-              ></InputComp>
-
-              <InputComp
-                label="Senha"
-                iconName="key"
-                secureTextEntry={true}
-                textContentType="password"
-                autoCapitalize="none"
-                value={password}
-                onChangeText={setPassword}
-                status={!!errorPassword}
-                statusText={errorPassword}
-              ></InputComp>
-
-              <InputComp
-                label="Confirme sua senha"
-                iconName="key"
-                secureTextEntry={true}
-                textContentType="password"
-                autoCapitalize="none"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                status={!!errorConfirmPassword}
-                statusText={errorConfirmPassword}
-              ></InputComp>
+              <RegisterForm
+                formData={formData}
+                errors={errors}
+                setFormData={setFormData}
+              />
             </View>
 
             <Spacer height={40} />
             <View style={styles.redirectInfos}>
-              <Button1Comp disabled={isDisabled} onPress={statusBtnCadastro}>
+              <PrimaryButton disabled={isDisabled} onPress={handleSubmit}>
                 Criar conta
-              </Button1Comp>
+              </PrimaryButton>
               <Spacer height={30} />
               <Text style={styles.txt}>Ja possui uma conta?</Text>
               <Spacer height={10} />
-              <Button2Comp onPress={() => router.push("/(Auth)/login")}>
+              <SecondaryButton onPress={() => router.push("/(Auth)/login")}>
                 Login
-              </Button2Comp>
+              </SecondaryButton>
             </View>
           </View>
         </ScrollView>
@@ -237,23 +94,6 @@ export default Cadastro;
 
 const makeStyles = (theme: any) =>
   StyleSheet.create({
-    bg: {
-      flex: 1,
-      backgroundColor: theme.background,
-    },
-    scrollContainer: {
-      flexGrow: 1,
-      justifyContent: "center",
-      padding: 16,
-    },
-    container: {
-      alignItems: "center",
-      flex: 1,
-    },
-    containerInfos: {
-      width: "100%",
-    },
-
     img: {
       marginVertical: 20,
       marginTop: 0,
@@ -266,7 +106,9 @@ const makeStyles = (theme: any) =>
       fontWeight: "500",
       fontSize: 18,
     },
-
+    containerInfos: {
+      width: "100%",
+    },
     inputContainer: {
       flexDirection: "column",
       alignItems: "center",

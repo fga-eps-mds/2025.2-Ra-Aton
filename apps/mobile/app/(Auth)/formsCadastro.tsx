@@ -163,6 +163,16 @@ const makeStyles = (theme: any) =>
       maxWidth: "100%",
       alignSelf: "center",
     },
+    txt: {
+      alignSelf: "center",
+      textAlign: "center",
+      width: "100%",
+      color: theme.text,
+      fontFamily: Fonts.otherFonts.dongleBold,
+      fontWeight: "500",
+      fontSize: 30,
+      lineHeight: 24,
+    },
     container: {
       flexDirection: "column",
       alignItems: "center",
@@ -173,26 +183,11 @@ const makeStyles = (theme: any) =>
       height: 100,
       width: "100%",
     },
-    txt: {
-      alignSelf: "center",
-      textAlign: "center",
-      width: "100%",
-      color: theme.text,
-      fontFamily: Fonts.mainFont.dongleRegular,
-      fontWeight: "500",
-      fontSize: 35,
-      lineHeight: 24,
-    },
     containerBtns: {
       marginTop: 20,
       flexDirection: "column",
       alignItems: "center",
       width: "100%",
-    },
-
-    txtSkipRegister: {
-      color: Colors.light.gray,
-      textDecorationLine: "underline",
     },
     BtnSkip: {
       backgroundColor: "transparent",

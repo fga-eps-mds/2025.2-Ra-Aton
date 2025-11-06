@@ -50,7 +50,7 @@ const Button1Comp: React.FC<Button1CompProps> = ({
             color: themeColors.text,
             textAlign: "center",
             fontWeight: "700",
-            fontSize: 18,
+            fontSize: 22,
           }}
         >
           {children}

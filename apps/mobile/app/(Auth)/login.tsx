@@ -23,6 +23,8 @@ import InputComp from "@/components/InputComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import { useRouter } from "expo-router";
+import { Fonts } from "@/constants/Fonts";
+
 // import * as SecureStore from "expo-secure-store";
 
 import { handleLogin } from "../../libs/login/handleLogin"; // Função de login importada
@@ -136,6 +138,7 @@ const HomeInner: React.FC = () => {
               secureTextEntry={true}
               value={password}
               onChangeText={setPassword}
+              autoCapitalize="none"
             />
           </View>
 
@@ -167,9 +170,7 @@ const HomeInner: React.FC = () => {
                 disabled={isButtonDisabled}
                 testID="botaoLogin"
               >
-                <Text style={[styles.txt, { fontWeight: "700", fontSize: 24 }]}>
                   Login
-                </Text>
               </PrimaryButton>
             )}
 
@@ -178,9 +179,7 @@ const HomeInner: React.FC = () => {
             <Spacer height={20} />
 
             <SecondaryButton onPress={() => router.push("/cadastro")}>
-              <Text style={[styles.txt, { fontWeight: "600", fontSize: 16 }]}>
                 Cadastre-se
-              </Text>
             </SecondaryButton>
           </View>
         </ScrollView>
@@ -193,18 +192,6 @@ export default Home;
 
 const makeStyles = (theme: any) =>
   StyleSheet.create({
-    container_input: {
-      flexDirection: "column",
-      alignItems: "center",
-      marginTop: -20,
-      height: "auto",
-      width: "100%",
-    },
-    container: {
-      flex: 1,
-      alignItems: "center",
-      padding: 16,
-    },
     img: {
       marginVertical: 90,
       marginTop: 0,
@@ -212,8 +199,17 @@ const makeStyles = (theme: any) =>
       alignSelf: "center",
     },
     txt: {
+      fontFamily: Fonts.otherFonts.dongleBold,
       color: theme.text,
       fontWeight: "500",
+      fontSize: 18,
+    },
+    container_input: {
+      flexDirection: "column",
+      alignItems: "center",
+      marginTop: -20,
+      height: "auto",
+      width: "100%",
     },
     // Estilos do botão de tema (extraídos)
     toggleButton: {
