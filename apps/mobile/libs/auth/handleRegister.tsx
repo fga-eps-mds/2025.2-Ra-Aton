@@ -33,4 +33,3 @@ export async function registerUser({
     throw new Error("Não foi possível conectar ao servidor.");
   }
 }
-

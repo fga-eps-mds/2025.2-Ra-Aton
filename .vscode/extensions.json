@@ -7,6 +7,8 @@
         "rangav.vscode-thunder-client", // Thunder Client for API testing
         "ms-vscode.vscode-typescript-next", // Latest TypeScript features
         "eamodio.gitlens", // GitLens for enhanced Git capabilities
-        "mikestead.dotenv" // .env file support
+        "mikestead.dotenv", // .env file support
+        "wayou.vscode-todo-highlight", // Highlight TODO comments
+        "ms-vsliveshare.vsliveshare", // Live Share para pair programming
     ]
 }

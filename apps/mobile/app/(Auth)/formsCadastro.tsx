@@ -135,7 +135,7 @@ const FormsCadastroInner: React.FC = () => {
           flexGrow: 1,
         }}
       >
-        {/* <PrimaryButton
+        <PrimaryButton
           iconName={iconTheme}
           onPress={toggleDarkMode}
           style={{
@@ -161,7 +161,7 @@ const FormsCadastroInner: React.FC = () => {
               },
             ]}
           ></Text>
-        </PrimaryButton> */}
+        </PrimaryButton>
         <Image source={Logo} style={styles.img} accessibilityLabel="LogoAton" />
         <View style={styles.container}>
           <View style={styles.txtInfo}>

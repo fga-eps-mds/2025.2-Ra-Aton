@@ -18,7 +18,6 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontsError) {
     return null;
   }
-  
 
   return (
     <ThemeProvider>
