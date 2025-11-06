@@ -8,12 +8,14 @@ import Spacer from "../../components/SpacerComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import BackGroundComp from "@/components/BackGroundComp";
+import { useUser } from "@/libs/storage/UserContext";
 
 const Home = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
   const router = useRouter();
+  const { user, logout } = useUser();
 
   return (
     <BackGroundComp style={styles.container}>
@@ -45,10 +47,12 @@ const Home = () => {
           *
         </Text>
       </Button1Comp>
-
-      <Text style={[styles.txt, { textAlign: "center" }]}>Home</Text>
-    </BackGroundComp>
-  );
+      
+      <Text style={[styles.txt, { textAlign: "center" }]}>Bem vindo a Home {user?.name}</Text> 
+      {/* Deixei o ? por enquanto pra nao causar erro ja que nao tem verificação se a pessoa esta logada ainda */}
+      <Button1Comp onPress={logout}>Sair</Button1Comp>  
+    </BackGroundComp>                                                   
+);
 };
 
 export default Home;

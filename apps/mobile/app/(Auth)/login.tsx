@@ -23,12 +23,11 @@ import InputComp from "@/components/InputComp";
 import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
+// import * as SecureStore from "expo-secure-store";
 
 import { handleLogin } from "../../libs/login/handleLogin"; // Função de login importada
 import { verifyEmail } from "@/libs/validation/userDataValidation"
-import { saveToken } from "@/libs/storage/saveToken";
-import { saveUserData } from "@/libs/storage/saveUserData";
+import { useUser } from "@/libs/storage/UserContext";
 
 const Home: React.FC = () => {
   return <HomeInner />;
@@ -45,6 +44,8 @@ const HomeInner: React.FC = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { setUser } = useUser();
 
   const isEmailValid = useMemo(() => !verifyEmail(email), [email]);
 
@@ -63,23 +64,17 @@ const HomeInner: React.FC = () => {
       const data = await handleLogin(email, password);
       console.log("Resposta do servirdor. Data => ", data);
 
-      if (data && data.token) {
-        await saveToken(data.token);
-
-        if (data.user) {
-          await saveUserData(data.user);
-        }
-
+      if (data && data.token && data.user) {
+        // Salva no contexto
+        setUser({
+          name: data.user.name,
+          userName: data.user.userName,
+          email: data.user.email,
+          token: data.token,
+          profileType: data.user.profileType ?? null,
+        });
         // --- INÍCIO DA NOVA LÓGICA DE REDIRECIONAMENTO ---
-        // 2. Verificar se o perfil do usuário está completo
-        // (Baseado no seu comentário: if (user.profileType == null))
-        if (
-          data.user &&
-          (data.user.profileType === null ||
-            typeof data.user.profileType === "undefined")
-        ) {
-
-
+        if (data.user.profileType === null || typeof data.user.profileType === "undefined") {
           // !! IMPORTANTE !!
           // Altere a rota abaixo para a rota correta do seu formulário de "novo usuário"
           router.replace("/formsCadastro");
@@ -91,7 +86,7 @@ const HomeInner: React.FC = () => {
         // --- FIM DA NOVA LÓGICA ---
       } else {
         throw new Error(
-          "Resposta inválida do servidor / Token não encontrado / Erro ao efetuar login",
+          "Resposta inválida do servidor / Token não encontrado / Erro ao efetuar login"
         );
       }
       setIsLoading(false);
@@ -125,7 +120,7 @@ const HomeInner: React.FC = () => {
             {/* CA1: Campo de E-mail */}
             <InputComp
               label="E-mail"
-              iconName="person" // Recomendo usar 'mail-outline' ou 'at' se disponível
+              iconName="person" 
               value={email}
               onChangeText={setEmail}
               placeholder="usuario@exemplo.com"

@@ -1,46 +1,36 @@
 import { useEffect, useState } from "react";
+import { UserProvider } from "@/libs/storage/UserContext";
 import { Redirect, useRouter } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { getToken } from "@/libs/storage/getToken";
 import { getUserData } from "@/libs/storage/getUserData";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/constants/Theme";
+import { useUser } from "@/libs/storage/UserContext";
 
-export default function Index() {
+function IndexInner() {
   const [isLoading, setIsLoading] = useState(true);
-const [tela, setTela] = useState<string | null>(null);
+  const [tela, setTela] = useState<string | null>(null);
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
+  const { user } = useUser();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = await getToken();
-        if (token) {
-          const userData = await getUserData();
-        
-          switch (userData.profileType) {
-            case "JOGADOR":
-            case "TORCEDOR":
-            case "ATLETICA":
-              setTela("Teams");
-              break;
-            default:
-              setTela("Home");
-          }
-        } else {
-          setTela("login");
-        }
-      } catch (error) {
-        console.log("Erro ao verificar token:", error);
-        setTela("cadastro");
-      } finally {
-        setIsLoading(false);
+    if (user) {
+      switch (user.profileType) {
+        case "JOGADOR":
+        case "TORCEDOR":
+        case "ATLETICA":
+          setTela("Teams");
+          break;
+        default:
+          setTela("Home");
       }
-    };
-
-    checkAuth();
-  }, []);   // [] é pra rodar só 1x
+    } else {
+      setTela("login");
+    }
+    setIsLoading(false);
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -57,10 +47,16 @@ const [tela, setTela] = useState<string | null>(null);
     );
   }
 
-  // Só faz o redirecionamento quando o estado estiver definido
   if (tela) {
     return <Redirect href={`http://localhost:8081/${tela}`} />;
   }
-
   return null;
+}
+
+export default function Index() {
+  return (
+    <UserProvider>
+      <IndexInner />
+    </UserProvider>
+  );
 }

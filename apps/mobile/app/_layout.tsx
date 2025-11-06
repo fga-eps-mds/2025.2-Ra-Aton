@@ -3,7 +3,7 @@ import { ThemeProvider } from "@/constants/Theme";
 import { Stack } from "expo-router";
 import {Fonts} from "@/constants/Fonts"
 import {useFonts} from "expo-font"
-// import { UserProvider } from "@/libs/auth/userContext";
+import { UserProvider } from "@/libs/storage/UserContext";
 
 export default function RootLayout() {
   /* eslint-disable @typescript-eslint/no-require-imports */
@@ -21,9 +21,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      {/* <UserProvider>  // Pra eu usar o context depois  */}  
+      <UserProvider>     
         <Stack screenOptions={{ headerShown: false }} />
-      {/* </UserProvider> */}
+      </UserProvider>
     </ThemeProvider>
   );
 }
