@@ -15,18 +15,18 @@ export async function handleLogin(email: string, password: string) {
     return data;
   } catch (err: any) {
     if (err.response) {
-      let rawData = err.response.data;
+      let type_message = err.response.data;
       let data: any = {};
 
-      if (typeof rawData === "string") {
+      if (typeof type_message === "string") {
         try {
-          data = JSON.parse(rawData);
+          data = JSON.parse(type_message);
         } catch {
-          data = { message: rawData };
+          data = { message: type_message };
         }
       } else {
-        data = rawData || {};
-      }
+        data = type_message || {};
+      } 
 
       const serverMessage =
         data?.message || data?.error || "Erro ao realizar login";
