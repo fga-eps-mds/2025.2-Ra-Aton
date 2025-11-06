@@ -13,7 +13,11 @@ const OptionsButtonComp: React.FC<OptionsButtonProps> = ({ onPress }) => {
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
   return (
-    <TouchableOpacity onPress={onPress} style={styles.container}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={styles.container}
+      testID="options-button"
+    >
       <Ionicons
         name="ellipsis-vertical"
         size={28}

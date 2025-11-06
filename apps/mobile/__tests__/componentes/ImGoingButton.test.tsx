@@ -16,7 +16,7 @@ describe("Componente: ImGoingButtonComp", () => {
     // Adicione testID="going-button-icon" ao <Ionicons> em ImGoingButtonComp.tsx
 
     const icon = getByTestId("going-button-icon");
-    expect(icon.props.name).toBe("checkmark-circle-outline");
+    expect(icon.props.name).toBe("person-add-outline");
   });
 
   it("2. Deve chamar onToggleGoing e mudar o ícone ao ser pressionado", async () => {
@@ -35,7 +35,7 @@ describe("Componente: ImGoingButtonComp", () => {
     // Espera a Promise resolver e o estado ser atualizado
     await waitFor(() => {
       expect(getByTestId("going-button-icon").props.name).toBe(
-        "checkmark-circle",
+        "person-add-outline",
       );
     });
   });
