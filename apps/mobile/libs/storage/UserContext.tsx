@@ -15,12 +15,14 @@ interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   logout: () => void;
+  loading: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -31,6 +33,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         data = await SecureStore.getItemAsync("userData");
       }
       if (data) setUserState(JSON.parse(data));
+      setLoading(false);
+
     };
     loadUser();
   }, []);
@@ -45,6 +49,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (userData) SecureStore.setItemAsync("userData", userData);
       else SecureStore.deleteItemAsync("userData");
     }
+    setLoading(false);
   };
 
   const logout = async () => {
@@ -56,10 +61,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         console.log("Apagando os dados do [secureStorage]")
   }
   setUserState(null);
+  setLoading(false);
   router.replace("/(Auth)/login");
 };
   return (
-    <UserContext.Provider value={{ user, setUser, logout }}>
+    <UserContext.Provider value={{ user, setUser, logout, loading}}>
       {children}
     </UserContext.Provider>
   );
