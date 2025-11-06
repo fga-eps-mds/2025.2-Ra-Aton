@@ -1,16 +1,32 @@
 import axios from "axios";
-import { api_route } from "../auth/api";
+import { api_route } from "./api";
 
 interface LoginParams {
   email: string;
   password: string;
 }
 
-export async function handleLogin(email: string, password: string) {
-  try {
-    const response = await api_route.post<LoginParams>("/login", { email, password });
+interface LoginResponse {
+  token: string;
+  user: {
+    name: string;
+    userName: string;
+    email: string;
+    profileType: string | null;
+  };
+}
 
-    const data = response.data ?? {};
+export async function handleLogin(
+  email: string,
+  password: string,
+): Promise<LoginResponse> {
+  try {
+    const response = await api_route.post<LoginResponse>("/login", {
+      email,
+      password,
+    });
+
+    const data = response.data;
     console.log("Login efetuado com sucesso");
     return data;
   } catch (err: any) {
@@ -26,7 +42,7 @@ export async function handleLogin(email: string, password: string) {
         }
       } else {
         data = type_message || {};
-      } 
+      }
 
       const serverMessage =
         data?.message || data?.error || "Erro ao realizar login";

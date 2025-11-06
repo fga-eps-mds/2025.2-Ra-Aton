@@ -13,7 +13,7 @@ import {
   Alert,
   KeyboardAvoidingView, // CA4: Alternativa para exibir erro
 } from "react-native";
-import React, { useState, useMemo } from "react";
+import React from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";
 import BackGroundComp from "../../components/BackGroundComp";
 import PrimaryButton from "../../components/PrimaryButton";
@@ -24,83 +24,27 @@ import { useTheme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import { useRouter } from "expo-router";
 import { Fonts } from "@/constants/Fonts";
-
-// import * as SecureStore from "expo-secure-store";
-
-import { handleLogin } from "../../libs/login/handleLogin"; // Função de login importada
-import { verifyEmail } from "@/libs/validation/userDataValidation"
-import { useUser } from "@/libs/storage/UserContext";
+import { useLoginForm } from "@/libs/hooks/useLoginForm";
 
 const Home: React.FC = () => {
   return <HomeInner />;
 };
 
 const HomeInner: React.FC = () => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
   const router = useRouter();
-  const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    formData,
+    setFormData,
+    isLoading,
+    error,
+    isButtonDisabled,
+    handleSubmit
+  } = useLoginForm();
 
-  const { setUser } = useUser();
-
-  const isEmailValid = useMemo(() => !verifyEmail(email), [email]);
-
-  const isPasswordValid = useMemo(() => password.length > 0, [password]);
-
-  const isButtonDisabled = useMemo(() => {
-    // Desativado se estiver carregando ou se os campos forem inválidos
-    return isLoading || !isEmailValid || !isPasswordValid;
-  }, [email, password, isLoading, isEmailValid, isPasswordValid]);
-
-  const sendLogin = async () => {
-    console.log("Enviando dados do login...");
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await handleLogin(email, password);
-      console.log("Resposta do servirdor. Data => ", data);
-
-      if (data && data.token && data.user) {
-        // Salva no contexto
-        setUser({
-          name: data.user.name,
-          userName: data.user.userName,
-          email: data.user.email,
-          token: data.token,
-          profileType: data.user.profileType ?? null,
-        });
-        // --- INÍCIO DA NOVA LÓGICA DE REDIRECIONAMENTO ---
-        if (data.user.profileType === null || typeof data.user.profileType === "undefined") {
-          // !! IMPORTANTE !!
-          // Altere a rota abaixo para a rota correta do seu formulário de "novo usuário"
-          router.replace("/formsCadastro");
-        } else {
-          // CASO 2: Usuário logado E perfil completo
-          // Redireciona para a Home do Dashboard (como antes)
-          router.replace("/Home");
-        }
-        // --- FIM DA NOVA LÓGICA ---
-      } else {
-        throw new Error(
-          "Resposta inválida do servidor / Token não encontrado / Erro ao efetuar login"
-        );
-      }
-      setIsLoading(false);
-    } catch (error: any) {
-      setIsLoading(false);
-      console.log("Erro no envio do formulário: ", error.message);
-      Alert.alert("Erro de conexão", error.message);
-      setError(error.message || "Erro desconhecido ao tentar login.");
-      return;
-    }
-  };
-  // --- Fim da Lógica de Login ---
   return (
     <BackGroundComp>
       <KeyboardAvoidingView
@@ -123,8 +67,8 @@ const HomeInner: React.FC = () => {
             <InputComp
               label="E-mail"
               iconName="person" 
-              value={email}
-              onChangeText={setEmail}
+              value={formData.email}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
               placeholder="usuario@exemplo.com"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -136,8 +80,8 @@ const HomeInner: React.FC = () => {
               label="Senha"
               iconName="key"
               secureTextEntry={true}
-              value={password}
-              onChangeText={setPassword}
+              value={formData.password}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
               autoCapitalize="none"
             />
           </View>
@@ -165,7 +109,7 @@ const HomeInner: React.FC = () => {
             ) : (
               /* CA3: Botão Entrar com estado 'disabled' */
               <PrimaryButton
-                onPress={sendLogin}
+                onPress={handleSubmit}
                 style={{ top: 60 }}
                 disabled={isButtonDisabled}
                 testID="botaoLogin"
