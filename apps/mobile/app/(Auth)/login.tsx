@@ -4,14 +4,12 @@ import {
   Text,
   View,
   Image,
-  ActivityIndicator, // CA5: Adicionado
-  // TextInput, // Removido (usando InputComp)
-  // Button, // Removido (usando Button1Comp)
+  ActivityIndicator, 
   ScrollView,
   TouchableOpacity,
   Platform,
   Alert,
-  KeyboardAvoidingView, // CA4: Alternativa para exibir erro
+  KeyboardAvoidingView, 
 } from "react-native";
 import React from "react";
 import NamedLogo from "../../assets/img/Logo_1_Atom.png";

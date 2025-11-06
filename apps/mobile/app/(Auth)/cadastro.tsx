@@ -112,7 +112,6 @@ const makeStyles = (theme: any) =>
     inputContainer: {
       flexDirection: "column",
       alignItems: "center",
-      // marginTop:-40,
       width: "100%",
     },
     redirectInfos: {
