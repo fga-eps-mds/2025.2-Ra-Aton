@@ -15,9 +15,9 @@ export default function RootLayout() {
     })
     /* eslint-enable @typescript-eslint/no-require-imports */
 
-    if(!fontsLoaded && !fontsError){
-      return null;
-    }
+  if (!fontsLoaded && !fontsError) {
+    return null;
+  }
 
   return (
     <ThemeProvider>

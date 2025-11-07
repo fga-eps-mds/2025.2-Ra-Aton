@@ -19,6 +19,11 @@ import BackGroundComp from "@/components/BackGroundComp";
 import { useFormsCadastro } from "@/libs/hooks/useFormsCadastro";
 import AppText from "@/components/AppText";
 
+//function redirecionar() {
+//  console.log("Redirecionar chamado");
+//  router.push("../(DashBoard)/(tabs)/FeedScreen");
+//}
+
 const FormsCadastro: React.FC = () => {
   return <FormsCadastroInner />;
 };
