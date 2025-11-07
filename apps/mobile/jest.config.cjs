@@ -1,23 +1,27 @@
-const { preset } = require('../api/jest.config.cjs');
-
-const base = require('@repo/jest-config');
+const base = require("@repo/jest-config");
 
 module.exports = {
-  displayName: 'mobile',
-  testEnvironment: 'jsdom',
-  // preset:'jest-expo',
-  // merge shared settings (paths mapping, clearMocks, etc.)
+  displayName: "mobile",
+
+  // precisa pra Babel entender Expo/React Native
+  preset: "jest-expo",
+
+  testEnvironment: "node",
+
   ...base,
-  // ignore tests that live inside the Expo `app/` directory (expo-router special folder)
-  testPathIgnorePatterns: ['<rootDir>/app/'],
-  // rely on jest-expo's transforms (Babel) for ts/tsx/jsx
-  transformIgnorePatterns: [
-    "node_modules/(?!(?:.pnpm/)?((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg))"
-  ],
-  // keep mobile specific setup from package.json if needed
-  setupFiles: ['<rootDir>/jest-setup.js'],
-  setupFilesAfterEnv: ['@testing-library/jest-native'],
+
+  // não rodar testes dentro de app/ pq expo-router trata essa pasta como rotas reais
+  testPathIgnorePatterns: ["<rootDir>/app/"],
+
+  // importantíssimo pra pnpm + Windows
+  transformIgnorePatterns: [],
+
+  // mapeia imports com "@/" e assets tipo .png
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/$1",
+    "\\.(png|jpg|jpeg|gif|svg)$": "<rootDir>/__mocks__/fileMock.js",
+  },
+
+  setupFiles: ["<rootDir>/jest-setup.js"],
+  setupFilesAfterEnv: ["@testing-library/jest-native/extend-expect"],
 };
-
-
-//funcao para somar dois numeros 

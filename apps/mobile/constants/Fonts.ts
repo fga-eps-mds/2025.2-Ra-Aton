@@ -1,9 +1,10 @@
 export const Fonts = {
-  primaryFont: {
+  mainFont: {
+    dongleRegular: "Dongle-Regular" // fonte principal do software
+  },
+  otherFonts:{
     dongleLight: "Dongle-Light",
-    dongleRegular: "Dongle-Regular",
     dongleBold: "Dongle-Bold",
   },
-
-  size: {},
+  size: {} // Avaliar se é realmente necessário criar um objeto para os tamanhos das fontes
 };

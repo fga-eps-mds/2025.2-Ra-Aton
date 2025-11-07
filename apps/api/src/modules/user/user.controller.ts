@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import { userService } from "./user.service";
-// A importação do ApiError não é mais necessária aqui,
-// pois a checagem de auth foi removida.
 import { ApiError } from "../../utils/ApiError";
 import HttpStatus from "http-status";
 
