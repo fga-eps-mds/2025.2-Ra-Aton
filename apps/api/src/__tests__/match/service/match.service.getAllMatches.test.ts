@@ -1,8 +1,8 @@
-import matchService from "../../modules/match/match.service";
-import matchRepository from "../../modules/match/match.repository";
+import matchService from "../../../modules/match/match.service";
+import matchRepository from "../../../modules/match/match.repository";
 import { MatchStatus } from "@prisma/client";
 
-jest.mock("../../modules/match/match.repository");
+jest.mock("../../../modules/match/match.repository");
 
 const mockedRepo = matchRepository as jest.Mocked<typeof matchRepository>;
 

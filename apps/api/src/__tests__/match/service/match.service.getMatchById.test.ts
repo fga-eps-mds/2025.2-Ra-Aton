@@ -1,12 +1,12 @@
-import matchService from "../../modules/match/match.service";
+import matchService from "../../../modules/match/match.service";
 import matchRepository, {
   MatchWithPlayers,
-} from "../../modules/match/match.repository";
-import { ApiError } from "../../utils/ApiError";
+} from "../../../modules/match/match.repository";
+import { ApiError } from "../../../utils/ApiError";
 import httpStatus from "http-status";
 import { MatchStatus } from "@prisma/client";
 
-jest.mock("../../modules/match/match.repository");
+jest.mock("../../../modules/match/match.repository");
 
 const mockedRepo = matchRepository as jest.Mocked<typeof matchRepository>;
 
