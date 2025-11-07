@@ -1,11 +1,30 @@
 import { Request, Response } from "express";
 import { postService } from "./post.service";
 import httpStatus from "http-status";
+import { ApiError } from "../../utils/ApiError";
 
 class PostController {
   async listPosts(req: Request, res: Response) {
-    const posts = await postService.listPosts();
-    res.status(httpStatus.OK).json(posts);
+    const DEFAULT_PAGE_LIMIT = 10;
+    const DEFAULT_PAGE = 1;
+
+    const limit = parseInt(req.query.limit as string, 10);
+    const page = parseInt(req.query.page as string, 10);
+
+    const safeLimit = isNaN(limit) ? DEFAULT_PAGE_LIMIT : limit;
+    const safePage = isNaN(page) ? DEFAULT_PAGE : page;
+    
+    if (safeLimit > 50) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "O limite não pode ser maior que 50",
+      );
+    }
+    const paginatedResult = await postService.listPosts(
+      safeLimit,
+      safePage,
+    );
+    res.status(httpStatus.OK).json(paginatedResult);
   }
 
   async createPost(req: Request, res: Response) {

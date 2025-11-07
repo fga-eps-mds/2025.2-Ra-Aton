@@ -4,8 +4,27 @@ import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 
 export const postService = {
-  listPosts: async (): Promise<Post[]> => {
-    return await postRepository.findAll();
+  listPosts: async (limit: number, page: number) => {
+    const offset = limit && page ? (page - 1) * limit : 0;
+
+    const { posts, totalCount } = await postRepository.findAll(
+      limit,
+      offset,
+    );
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      data: posts,
+      meta: {
+        page: page,
+        limit: limit,
+        totalCount: totalCount,
+        totalPages: totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    };
   },
 
   createPost: async (data: Prisma.PostCreateInput): Promise<Post> => {

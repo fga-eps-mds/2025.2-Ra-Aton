@@ -1,9 +1,22 @@
 import { prisma } from "../../database/prisma.client";
-import { Prisma } from "@prisma/client";
+import { Post, Prisma } from "@prisma/client";
 
 export const postRepository = {
-  findAll: async () => {
-    return await prisma.post.findMany();
+  findAll: async (limit: number, offset: number): Promise<{ posts: Post[]; totalCount: number }> => {
+    const [posts, totalCount] = await prisma.$transaction([
+      prisma.post.findMany({
+        take: limit,
+        skip: offset,
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      prisma.post.count(),
+    ]);
+    return {
+      posts,
+      totalCount,
+    };
   },
 
   findById: async (id: string) => {

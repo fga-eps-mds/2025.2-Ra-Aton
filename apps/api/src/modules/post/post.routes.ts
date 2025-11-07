@@ -7,12 +7,15 @@ import {
   updatePostSchema,
   deletePostSchema,
   postIdParamSchema,
+  listPostsSchema,
 } from "./post.validation";
 import { auth } from "../../middlewares/auth";
 
 const router: Router = Router();
 
-router.get("/", auth, catchAsync(postController.listPosts));
+router.get("/", auth,
+  validateRequest(listPostsSchema),
+  catchAsync(postController.listPosts));
 
 router.post(
   "/",
