@@ -72,7 +72,19 @@ export const useLoginForm = () => {
         ) {
           router.replace("/formsCadastro");
         } else {
-          router.replace("/Home");
+          switch (data.user.profileType) {
+          case "JOGADOR":
+            router.replace("/(DashBoard)/(tabs)/Partidas");
+            break;
+          case "TORCEDOR":
+            router.replace("/(DashBoard)/(tabs)/Home");
+            break;
+          case "ATLETICA":
+            router.replace("/(DashBoard)/(tabs)/Teams");
+            break;
+          default:
+            router.replace("/(DashBoard)/(tabs)/Home");
+        }
         }
       } else {
         throw new Error(

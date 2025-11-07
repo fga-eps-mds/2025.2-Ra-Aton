@@ -16,14 +16,19 @@ const { user, loading } = useUser();
   useEffect(() => {
     if (!loading) {
       if (user) {
+        console.warn(user.profileType);
         switch (user.profileType) {
           case "JOGADOR":
+            setTela("/(DashBoard)/(tabs)/Partidas");
+            break;
           case "TORCEDOR":
+            setTela("/(DashBoard)/(tabs)/Home");
+            break;
           case "ATLETICA":
-            setTela("Teams");
+            setTela("/(DashBoard)/(tabs)/Teams");
             break;
           default:
-            setTela("Home");
+            setTela("/(DashBoard)/(tabs)/Home");
         }
       } else {
         setTela("login");
@@ -34,7 +39,8 @@ const { user, loading } = useUser();
 
  useEffect(() => {
     if (!isLoading && tela) {
-      router.replace(`/${tela}` as unknown as `/`);
+      console.log("Navegando para:", tela);
+      router.replace(tela as any);
     }
   }, [isLoading, tela]);
 
