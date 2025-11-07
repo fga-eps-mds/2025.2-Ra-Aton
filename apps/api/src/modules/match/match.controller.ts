@@ -43,7 +43,14 @@ class matchController {
         .json({ message: "Não foi possivel autorizar o usuário" });
     }
 
+    if (!req.params || !req.params.id) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        message: "Id da partida é obrigatorio para continuar",
+      });
+    }
+
     const matchId = req.params.id;
+    
     if (!matchId) {
       return res.status(HttpStatus.NOT_FOUND).json({
         message: "Id da partida é obrigatorio para continuar",
@@ -75,6 +82,11 @@ class matchController {
         .json({ message: "Não foi possivel autorizar o usuário" });
     }
 
+    if (!req.params || !req.params.id) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        message: "Id da partida é obrigatorio para continuar",
+      });
+    }
     const matchId = req.params.id;
     if (!matchId) {
       return res.status(HttpStatus.NOT_FOUND).json({
