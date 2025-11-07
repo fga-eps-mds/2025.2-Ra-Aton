@@ -101,9 +101,3 @@ export const deletePostSchema = z.object({
     id: z.uuid(),
   }),
 });
-
-export const deleteCommentSchema = z.object({
-  params: z.object({
-    id: z.uuid(),
-  }),
-});

@@ -7,7 +7,6 @@ import {
   createPostSchema,
   updatePostSchema,
   deletePostSchema,
-  deleteCommentSchema,
 } from "./post.validation";
 
 const router: RouterType = Router();
@@ -21,7 +20,7 @@ router.get("/", catchAsync(postController.listPosts));
 router.post(
   "/",
   auth,
-  // validateRequest(createPostSchema),
+  validateRequest(createPostSchema),
   catchAsync(postController.createPost),
 );
 

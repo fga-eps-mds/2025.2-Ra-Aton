@@ -10,7 +10,7 @@ class PostRepository {
     return prisma.post.findUnique({ where: { id } });
   }
 
-  async create(data: Prisma.PostCreateInput, authorId: string): Promise<Post> {
+  async create(data: Prisma.PostCreateInput, authorId: string, groupId: string): Promise<Post> {
     return prisma.post.create({
       data: {
         title: data.title,
@@ -24,9 +24,15 @@ class PostRepository {
             id: authorId,
           },
         },
+        group: {
+          connect: {
+            id: groupId,
+          },
+        },
       },
       include: {
         author: true,
+        group: true,
       },
     });
   }
