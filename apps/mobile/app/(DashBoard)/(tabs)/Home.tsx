@@ -9,6 +9,7 @@ import PostCardComp from "@/components/PostCardComp";
 import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
 import CommentsModalComp from "@/components/CommentsModalComp";
 import { IPost } from "@/src/interfaces/Ipost"; // Verifique se este path está correto
+import InputComp from "@/components/InputComp";
 
 export default function HomeScreen() {
   // Estado para controlar os modais (CA4)
@@ -18,6 +19,8 @@ export default function HomeScreen() {
 
   // --- Mock de Dados do Feed ---
   // (Usando a interface IPost)
+
+  //! ISSO SÃO SÓ DADOS DE POSTAGENS MOCKADOS. USANDO ELES APENAS PARA SIMULAR ALGUMAS POSTAGENS DO FEED ENQUANTO O BACKEND FINALIZA
   const FEED_DATA: IPost[] = [
     {
       id: "1",
@@ -57,91 +60,84 @@ export default function HomeScreen() {
 
   // --- Handlers de Ação ---
 
-  const handleProfilePress = () => {
-    // TODO: Implementar navegação para o perfil
-    // router.push('/(DashBoard)/perfil');
-    console.log("Navegar para o perfil...");
-  };
+  // const handleProfilePress = () => {
+  //   // TODO: Implementar navegação para o perfil
+  //   // router.push('/(DashBoard)/perfil');
+  //   console.log("Navegar para o perfil...");
+  // };
 
-  const handleSearch = (query: string) => {
-    // TODO: Implementar lógica de busca (CA5)
-    console.log("Pesquisando por:", query);
-  };
+  // const handleSearch = (query: string) => {
+  //   // TODO: Implementar lógica de busca (CA5)
+  //   console.log("Pesquisando por:", query);
+  // };
 
-  // Funções para abrir/fechar modais
-  const handleOpenComments = (postId: string) => {
-    setSelectedPostId(postId);
-    setIsCommentsVisible(true);
-  };
+  // // Funções para abrir/fechar modais
+  // const handleOpenComments = (postId: string) => {
+  //   setSelectedPostId(postId);
+  //   setIsCommentsVisible(true);
+  // };
 
-  const handleOpenOptions = (postId: string) => {
-    setSelectedPostId(postId);
-    setIsOptionsVisible(true);
-  };
+  // const handleOpenOptions = (postId: string) => {
+  //   setSelectedPostId(postId);
+  //   setIsOptionsVisible(true);
+  // };
 
-  const handleReport = () => {
-    // TODO: Criar requisição na pasta libs/reports (CA5)
-    console.log(`Reportando post ${selectedPostId}`);
-  };
+  // const handleReport = () => {
+  //   // TODO: Criar requisição na pasta libs/reports (CA5)
+  //   console.log(`Reportando post ${selectedPostId}`);
+  // };
 
   return (
     <BackGroundComp>
-      {/* Header da Home (Pesquisa e Perfil) */}
-      <View style={styles.headerContainer}>
-        <View style={styles.searchWrapper}>
-          <SearchInputComp onSearch={handleSearch} />
+    <FlatList
+    data={FEED_DATA}  
+    keyExtractor={(item) => item.id}
+    renderItem={({item})=>(
+      <PostCardComp 
+      post={item}
+      onPressComment={()=>{}}
+      onPressOptions={()=>{}}
+      />
+    )}
+    ListHeaderComponent={
+      <View style={styles.containerHeader}>
+          <ProfileThumbnailComp size={40}/>
+
+        <View style={styles.boxSearchComp}>
+          <InputComp
+          iconName="search"
+          placeholder="Busque partidas"
+          width={'100%'}
+          />
         </View>
-        <SpacerComp width={10} />
-        <ProfileThumbnailComp size={50} onPress={handleProfilePress} />
       </View>
 
-      <SpacerComp height={10} />
 
-      {/* Feed de Posts */}
-      <FlatList
-        data={FEED_DATA}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <PostCardComp
-            post={item} // Passa o objeto 'item' (que é um IPost)
-            onPressComment={handleOpenComments}
-            onPressOptions={handleOpenOptions}
-          />
-        )}
-        contentContainerStyle={styles.listContainer}
-      />
+    }
+    
 
-      {/* Modais (Renderizados fora da lista) */}
-      <MoreOptionsModalComp
-        isVisible={isOptionsVisible}
-        onClose={() => setIsOptionsVisible(false)}
-        onReport={handleReport}
-        // Exemplo de como passar a função de deletar:
-        // onDelete={() => console.log('Deletar post')}
-      />
 
-      <CommentsModalComp
-        isVisible={isCommentsVisible}
-        onClose={() => setIsCommentsVisible(false)}
-        postId={selectedPostId}
-      />
+
+
+
+
+    
+    />
     </BackGroundComp>
   );
 }
-
+// styles
 const styles = StyleSheet.create({
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 15,
-    // O paddingTop é gerenciado pelo Header do _layout das Tabs
+  containerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,  
+    paddingTop: 8,
+    paddingBottom: 8,
+    columnGap: 10,          
   },
-  searchWrapper: {
-    flex: 1,
-  },
-  listContainer: {
-    // Espaço no final para não ser coberto pela Navbar
-    paddingBottom: 80,
+  boxSearchComp: {
+    flex: 1,                
   },
 });
+
