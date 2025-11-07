@@ -1,12 +1,8 @@
-//? Minhas funções avulsas, testes unitários:
-
-// nome(1)
 const verifyName = (name: string) => {
   const verifyName = name.trim().split(" ").length >= 2;
   if (!verifyName) return "Preencha nome e sobrenome";
   else return "";
 };
-//email(2)
 const verifyEmail = (email: string) => {
   const validEmail = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
@@ -16,13 +12,11 @@ const verifyEmail = (email: string) => {
     return "";
   }
 };
-//apelido(3)
 const verifyNickname = (userName: string) => {
   if (userName.length < 4) return "Digite um apelido válido";
   else return "";
 };
 
-//senha(4)
 const verifyPassword = (password: string) => {
   const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
   if (password.length < 8) {
@@ -35,7 +29,6 @@ const verifyPassword = (password: string) => {
   }
 };
 
-//confirmaSenha(5)
 const verifyConfirmPassword = (password: string, confirmPassword: string) => {
   if (password != confirmPassword) {
     return "As senhas não coincidem";

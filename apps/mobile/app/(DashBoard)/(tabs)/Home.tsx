@@ -8,7 +8,7 @@ import SpacerComp from "@/components/SpacerComp";
 import PostCardComp from "@/components/PostCardComp";
 import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
 import CommentsModalComp from "@/components/CommentsModalComp";
-import { IPost } from "@src/interfaces/IPost"; // Verifique se este path está correto
+import { IPost } from "@/src/interfaces/Ipost"; // Verifique se este path está correto
 
 export default function HomeScreen() {
   // Estado para controlar os modais (CA4)

@@ -9,6 +9,6 @@ if (!config.JWT_SECRET) {
 
 const PORT = config.PORT ? Number(config.PORT) : 4000;
 
-const server = app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`);
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`API listening on http://0.0.0.0:${PORT}`);
 });
