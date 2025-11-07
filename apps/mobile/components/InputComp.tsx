@@ -51,10 +51,12 @@ const InputComp = ({
 
   return (
     <View style={{ width, alignItems: "center" }}>
-      <View style={styles.inpuxLabel}>
-        <AppText style={styles.txt}>{label}</AppText>
-      </View>
-
+      {label ? (
+        <View style={styles.inpuxLabel}>
+          <AppText style={styles.txt}>{label}</AppText>
+        </View>
+      ): null}
+    
       <View style={styles.inputCompContainer}>
         {iconName && (
           <Ionicons
@@ -98,10 +100,11 @@ const InputComp = ({
         )}
       </View>
 
-      <AppText style={[styles.textStatusMessage, { color: statusBorderColor }]}>
-        {statusText || " "}{" "}
-        {/* Se trocar por "" o tamanho ja fica esperando a mensagem no lugar de aparece condicionalmente*/}
-      </AppText>
+      {label && statusText ? (
+        <AppText style={[styles.textStatusMessage, { color: statusBorderColor }]}>
+          {statusText}
+        </AppText>
+      ): null}
     </View>
   );
 };
