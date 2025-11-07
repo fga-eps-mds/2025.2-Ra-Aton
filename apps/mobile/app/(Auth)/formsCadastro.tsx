@@ -49,10 +49,10 @@ interface StoredUser {
 }
 async function updateStoredUser(newData: Partial<StoredUser>) {
   const currentUser = await getStoredUser();
-  if (!currentUser){
+  if (!currentUser) {
     console.log("Erro [getStoredUser], dados do usuário não encontrados...");
     return;
-  } 
+  }
   const updatedUser = { ...currentUser, ...newData };
   await setStoredUser(updatedUser);
 }
@@ -64,20 +64,25 @@ async function setStoredUser(user: StoredUser) {  // altera o userData
   }
 }
 
+//function redirecionar() {
+//  console.log("Redirecionar chamado");
+//  router.push("../(DashBoard)/(tabs)/FeedScreen");
+//}
+
 const FormsCadastro: React.FC = () => {
   return <FormsCadastroInner />;
 };
 
 const FormsCadastroInner: React.FC = () => {
   const router = useRouter();
-  
+
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const iconTheme = isDarkMode ? "sunny-outline" : "moon-outline";
   const styles = makeStyles(theme);
   const [loading, setLoading] = useState(false);
-  
-const SendType = async (profileType: string) => { // pega a string vinda do botão
+
+  const SendType = async (profileType: string) => { // pega a string vinda do botão
     try {
       setLoading(true);
       const user = await getStoredUser();
@@ -130,7 +135,7 @@ const SendType = async (profileType: string) => { // pega a string vinda do bot�
           flexGrow: 1,
         }}
       >
-        {/* <PrimaryButton
+        <PrimaryButton
           iconName={iconTheme}
           onPress={toggleDarkMode}
           style={{
@@ -156,7 +161,7 @@ const SendType = async (profileType: string) => { // pega a string vinda do bot�
               },
             ]}
           ></Text>
-        </PrimaryButton> */}
+        </PrimaryButton>
         <Image source={Logo} style={styles.img} accessibilityLabel="LogoAton" />
         <View style={styles.container}>
           <View style={styles.txtInfo}>
@@ -169,54 +174,54 @@ const SendType = async (profileType: string) => { // pega a string vinda do bot�
             <Text style={styles.txt}>Selecione seu perfil</Text>
             <Spacer height={30} />
             {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={theme.orange}
-            style={{ marginTop: 60 }}
-          />
-        ) : (
-            <PrimaryButton onPress={() => SendType("ATLETICA")}>Atlética</PrimaryButton>
-        )}
+              <ActivityIndicator
+                size="large"
+                color={theme.orange}
+                style={{ marginTop: 60 }}
+              />
+            ) : (
+              <PrimaryButton onPress={() => SendType("ATLETICA")}>Atlética</PrimaryButton>
+            )}
             <Spacer height={40} />
             {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={theme.orange}
-            style={{ marginTop: 60 }}
-          />
-        ) : (
-            <PrimaryButton onPress={() => SendType("JOGADOR")}>Jogador</PrimaryButton>
-        )}
+              <ActivityIndicator
+                size="large"
+                color={theme.orange}
+                style={{ marginTop: 60 }}
+              />
+            ) : (
+              <PrimaryButton onPress={() => SendType("JOGADOR")}>Jogador</PrimaryButton>
+            )}
             <Spacer height={40} />
             {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={theme.orange}
-            style={{ marginTop: 60 }}
-          />
-        ) : (
-            <PrimaryButton onPress={() => SendType("TORCEDOR")}>Torcedor</PrimaryButton>
-        )}
+              <ActivityIndicator
+                size="large"
+                color={theme.orange}
+                style={{ marginTop: 60 }}
+              />
+            ) : (
+              <PrimaryButton onPress={() => SendType("TORCEDOR")}>Torcedor</PrimaryButton>
+            )}
             <Spacer height={40} />
           </View>
           <Spacer height={20} />
           {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={theme.orange}
-            style={{ marginTop: 60 }}
-          />
-        ) : (
-          <SecondaryButton onPress={() => router.replace("/(DashBoard)/Home")}
-            style={styles.BtnSkip}
-            decoration={{
-              textDecorationLine: "underline",
-              textDecorationColor: theme.text,
-            }}
-          >
-            Pular esta etapa
-          </SecondaryButton>
-        )}
+            <ActivityIndicator
+              size="large"
+              color={theme.orange}
+              style={{ marginTop: 60 }}
+            />
+          ) : (
+            <SecondaryButton onPress={() => router.replace("/(DashBoard)/Home")}
+              style={styles.BtnSkip}
+              decoration={{
+                textDecorationLine: "underline",
+                textDecorationColor: theme.text,
+              }}
+            >
+              Pular esta etapa
+            </SecondaryButton>
+          )}
         </View>
       </ScrollView>
     </BackGroundComp>

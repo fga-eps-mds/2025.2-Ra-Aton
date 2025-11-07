@@ -82,6 +82,12 @@ pnpm format
 
 ```
 
+# SEMPRE RODE o install antes de enviar para o CI workflow
+```bash
+pnpm install
+```
+
+
 Quando estiver pronto para salvar seu progresso, use commits que sigam o nosso padrão.
 
 ```bash

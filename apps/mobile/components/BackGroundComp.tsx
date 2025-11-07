@@ -9,11 +9,13 @@ type BackGroundCompProps = {
 
 const BackGroundComp: React.FC<BackGroundCompProps> = ({ style, ...props }) => {
   const { isDarkMode } = useTheme();
-  const backgroundColor = isDarkMode ? Colors.dark.background : Colors.light.background;
+  const backgroundColor = isDarkMode
+    ? Colors.dark.background
+    : Colors.light.background;
   const theme = { background: backgroundColor };
   return (
     <SafeAreaView
-      style={[{ backgroundColor: theme.background, flex:1}, style]}
+      style={[{ backgroundColor: theme.background, flex: 1 }, style]}
       {...props}
     />
   );
