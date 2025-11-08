@@ -40,6 +40,7 @@ const mockEventPostData = {
   content: "Detalhes do evento",
   type: "EVENT",
   group: mockGroup,
+  groupId: GROUP_ID,
   eventDate: new Date().toISOString(),
   eventFinishDate: new Date().toISOString(),
   location: "Auditório Principal",
@@ -78,6 +79,7 @@ describe("PostService", () => {
         type: "GENERAL",
         author: { id: MOCK_AUTHOR_ID },
         group: mockGroup,
+        groupId: GROUP_ID,
       };
       // Simula a criação bem-sucedida
       (postRepository.create as jest.Mock).mockResolvedValue(mockPost);
@@ -85,7 +87,7 @@ describe("PostService", () => {
       const result = await postService.createPost(data);
 
       expect(result).toEqual(mockPost);
-      expect(postRepository.create).toHaveBeenCalledWith(data, MOCK_AUTHOR_ID);
+      expect(postRepository.create).toHaveBeenCalledWith(data, MOCK_AUTHOR_ID, GROUP_ID);
     });
 
     it("deve criar um post EVENTO com sucesso quando todos os campos obrigatórios estão presentes", async () => {
