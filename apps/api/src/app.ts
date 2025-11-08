@@ -5,6 +5,7 @@ import { globalErrorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
 import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
+import groupRoutes from "./modules/group/group.routes"
 import HttpStatus from "http-status";
 const app: Express = express();
 
@@ -23,6 +24,7 @@ app.get("/", (_req: Request, res: Response) => {
 // Use as novas rotas modulares
 app.use("/users", userRoutes);
 app.use("/login", authRoutes);
+app.use("/group", groupRoutes);
 // (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
 
 // --- TRATAMENTO DE ERROS ---
