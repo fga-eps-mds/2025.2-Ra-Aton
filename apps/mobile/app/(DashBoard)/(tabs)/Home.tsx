@@ -105,7 +105,7 @@ export default function HomeScreen() {
 
         <View style={styles.boxSearchComp}>
           <InputComp
-          iconName="search"
+          iconName="filter"
           placeholder="Busque partidas"
           width={'100%'}
           />
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   containerHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,  
+    paddingHorizontal: 15,  
     paddingTop: 8,
     paddingBottom: 8,
     columnGap: 10,          
