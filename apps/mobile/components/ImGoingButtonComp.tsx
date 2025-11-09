@@ -22,7 +22,7 @@ const ImGoingButtonComp: React.FC<ImGoingButtonProps> = ({
   const  [count,SetCount] = useState(0);
 
   const countEuVou = async () =>{
-    SetCount(count+1);
+    SetCount(count + 1);
   }
 
   const handlePress = async () => {

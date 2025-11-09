@@ -17,7 +17,7 @@ const CommentButtonComp: React.FC<CommentButtonProps> = ({ onPress }) => {
       <Ionicons
         name="chatbubble-outline"
         size={28}
-        color={theme.text}
+        color={theme.orange}
         style={styles.icon}
         testID="comment-button"
       />

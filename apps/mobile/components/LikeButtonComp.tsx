@@ -53,7 +53,7 @@ const LikeButtonComp: React.FC<LikeButtonProps> = ({
       <Ionicons
         name={isLiked ? "heart" : "heart-outline"}
         size={28}
-        color={isLiked ? theme.orange : theme.text} // TODO: Usar cor "Like" do Figma
+        color={isLiked ? theme.orange : theme.orange} // TODO: Usar cor "Like" do Figma
         style={styles.icon}
         testID="like-button-icon"
       />
