@@ -6,7 +6,6 @@ import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
 
 interface ImGoingButtonProps {
-  TouchableOpacityProps?,
   initialGoing?: boolean;
   onToggleGoing: (isGoing: boolean) => Promise<void>;
 }
