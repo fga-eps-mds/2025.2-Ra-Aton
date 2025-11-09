@@ -26,8 +26,8 @@ class GroupService {
       throw new ApiError(httpStatus.CONFLICT, "Nome do grupo já está em uso");
     }
 
-    if (data.validateRequest) {
-      data.validateStatus = "PENDING";
+    if (data.verificationRequest) {
+      data.verificationStatus = "PENDING";
     }
 
     const newGroup = await GroupRepository.createGroup(data, author);
@@ -62,9 +62,11 @@ class GroupService {
       );
     }
 
-    const existingGroup = await GroupRepository.findGroupByName(data.name);
-    if (existingGroup) {
-      throw new ApiError(httpStatus.CONFLICT, "Nome do grupo já está em uso");
+    if (data.name) {
+      const existingGroup = await GroupRepository.findGroupByName(data.name);
+      if (existingGroup) {
+        throw new ApiError(httpStatus.CONFLICT, "Nome do grupo já está em uso");
+      }
     }
 
     const updatedGroup = await GroupRepository.updateGroup(data, groupFound.id);

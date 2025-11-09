@@ -175,7 +175,7 @@ model Group {
   name        String    @unique
   description String?
   sports      String[]
-  groupType   GroupType
+  groupType   GroupType @default(AMATEUR)
 
   verificationRequest Boolean             @default(false)
   verificationStatus  VerificationStatus?
