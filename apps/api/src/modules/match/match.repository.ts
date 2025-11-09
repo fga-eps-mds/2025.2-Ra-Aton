@@ -29,12 +29,11 @@ export type FindAllMatchesResponse = {
   totalCount: number;
 };
 
-class matchRepository {
-  async createMatch(
-    data: Prisma.MatchCreateInput,
-    author: User,
-  ): Promise<Match> {
-    return prisma.$transaction(async (tx) => {
+export class MatchRepository {
+  constructor(private prismaClient = prisma) {}
+
+  async createMatch(data: any, author: User): Promise<Match> {
+    return this.prismaClient.$transaction(async (tx) => {
       const newMatch = await tx.match.create({
         data: {
           title: data.title,
@@ -70,14 +69,14 @@ class matchRepository {
     matchId: string,
     data: Prisma.MatchUpdateInput,
   ): Promise<Match> {
-    return prisma.match.update({
+    return this.prismaClient.match.update({
       where: { id: matchId },
       data,
     });
   }
 
   async deleteMatch(matchId: string): Promise<void> {
-    await prisma.match.delete({
+    await this.prismaClient.match.delete({
       where: { id: matchId },
     });
   }
@@ -91,8 +90,8 @@ class matchRepository {
     limit: number,
     offset: number,
   ): Promise<FindAllMatchesResponse> {
-    const [matches, totalCount] = await prisma.$transaction([
-      prisma.match.findMany({
+    const [matches, totalCount] = await this.prismaClient.$transaction([
+      this.prismaClient.match.findMany({
         take: limit,
         skip: offset,
         orderBy: {
@@ -104,7 +103,7 @@ class matchRepository {
           },
         },
       }),
-      prisma.match.count(),
+      this.prismaClient.match.count(),
     ]);
     return {
       matches,
@@ -118,7 +117,7 @@ class matchRepository {
    *  @param matchId ID da partida (uuid).
    */
   async findById(matchId: string): Promise<MatchWithPlayers | null> {
-    return prisma.match.findUnique({
+    return this.prismaClient.match.findUnique({
       where: { id: matchId },
       include: {
         players: {
@@ -146,7 +145,7 @@ class matchRepository {
     userId: string,
     matchId: string,
   ): Promise<PlayerSubscription | null> {
-    return prisma.playerSubscription.findUnique({
+    return this.prismaClient.playerSubscription.findUnique({
       where: {
         userId_matchId: {
           userId: userId,
@@ -165,7 +164,7 @@ class matchRepository {
     matchId: string,
     team: TeamSide,
   ): Promise<PlayerSubscription> {
-    return prisma.playerSubscription.create({
+    return this.prismaClient.playerSubscription.create({
       data: {
         userId,
         matchId,
@@ -178,7 +177,7 @@ class matchRepository {
     subscriptionId: string,
     newTeam: TeamSide,
   ): Promise<PlayerSubscription> {
-    return prisma.playerSubscription.update({
+    return this.prismaClient.playerSubscription.update({
       where: { id: subscriptionId },
       data: { team: newTeam },
     });
@@ -189,10 +188,12 @@ class matchRepository {
    * @param subscriptionId ID da inscrição.
    */
   async deleteSubscription(subscriptionId: string): Promise<void> {
-    await prisma.playerSubscription.delete({
+    await this.prismaClient.playerSubscription.delete({
       where: { id: subscriptionId },
     });
   }
 }
 
-export default new matchRepository();
+// Default export kept for backward compatibility
+const defaultExport = new MatchRepository();
+export default defaultExport;

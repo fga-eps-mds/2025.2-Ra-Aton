@@ -24,14 +24,11 @@ export const createMatchSchema = z.object({
       .string()
       .min(2, "Nome do time B precisa ter no mínimo 2 caracteres")
       .optional(),
-
-    // Adicionar validação de times para criar e atualizar
-
     maxPlayers: z
       .number()
-      .min(2, "Quantidade de jogadores precisa ser maior que 1")
-      .optional(),
-
+      .min(2, "Quantidade de jogadores precisa ser maior que 1"),
+      
+    // Adicionar validação de times para criar e atualizar
     MatchDate: z.preprocess(
       (val) => {
         if (typeof val === "string" || typeof val === "number") {
