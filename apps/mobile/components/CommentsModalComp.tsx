@@ -27,7 +27,7 @@ interface Comment {
 interface CommentsModalProps {
   isVisible: boolean;
   onClose: () => void;
-  postId: string | null;
+  postId?: string | null;
 }
 
 // Dados Falsos (Mock)
