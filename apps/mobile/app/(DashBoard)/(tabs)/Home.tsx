@@ -10,13 +10,14 @@
   import CommentsModalComp from "@/components/CommentsModalComp";
   import { IPost } from "@/src/interfaces/Ipost"; // Verifique se este path está correto
   import InputComp from "@/components/InputComp";
+import { EventInfoModalComp } from "@/components/EventInfoModal";
 
   export default function HomeScreen() {
     // Estado para controlar os modais (CA4)
     const [isOptionsVisible, setIsOptionsVisible] = useState(false);
     const [isCommentsVisible, setIsCommentsVisible] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-
+    const [showModal, setShowModal] = useState(false);
     // --- Mock de Dados do Feed ---
     // (Usando a interface IPost)
 
@@ -105,6 +106,16 @@
       console.log(`Reportando post ${selectedPostId}`);
     };  
 
+    const openModalInfos = () =>{
+       setIsOptionsVisible(false);
+       setShowModal(true);
+    }
+    const closeModalInfos = () => {
+      setShowModal(false);
+      setIsOptionsVisible(true);
+    }
+
+
     return (
       <BackGroundComp>
       <FlatList
@@ -137,15 +148,18 @@
       isVisible={isOptionsVisible}
       onClose={handleCloseOptions}
       onReport={handleReport}
+      onInfos={openModalInfos}    
       />  
       <CommentsModalComp 
       isVisible={isCommentsVisible}
       onClose={handleCloseComments}
     
-
       />
-      
-      
+      <EventInfoModalComp
+      visible={showModal}
+      onClose={closeModalInfos}
+      />
+
         </BackGroundComp>
     );
   }
