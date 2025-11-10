@@ -42,7 +42,7 @@ export const createPostSchema = z.object({
       )
       .optional(),
     location: z.string().min(1, "Endereço precisa ter no mínimo 1 caractere")
-      .optional,
+      .optional(),
   }),
 });
 
