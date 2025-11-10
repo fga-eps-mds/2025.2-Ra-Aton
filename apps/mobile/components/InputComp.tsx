@@ -29,7 +29,7 @@ type InputCompProps = TextInputProps & {
 
 const InputComp = ({
   width = "100%",
-  // height = 67,
+  height,
   justView = false,
   bgColor,
   label,
@@ -50,10 +50,10 @@ const InputComp = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const styles = makeStyles(themeColors);
-  // const typeInput = editOrView = "view";
-
+  
+  
   return (
-    <View style={{ width, alignItems: "center" }}>
+    <View style={{ width,height ,alignItems: "center" }}>
       {label ? (
         <View style={styles.inpuxLabel}>
           <AppText style={styles.txt}>{label}</AppText>
@@ -119,7 +119,7 @@ const makeStyles = (theme: any) =>
   StyleSheet.create({
     inputBox: {
       // width: "100%",
-      flex: 1,
+      // flex: 1,
       height: 45,
       borderRadius: 34,
       backgroundColor: theme.input,
