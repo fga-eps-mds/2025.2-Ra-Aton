@@ -80,13 +80,12 @@ const PostCardComp: React.FC<PostCardProps> = ({
         <LikeButtonComp onLike={handleLike} initialLiked={post.isLiked} />
         <SpacerComp width={15} />
         <CommentButtonComp onPress={() => onPressComment(post.id)} />
-        <SpacerComp width={15} />
+        <SpacerComp width={100} />
         {/* // TODO: Mostrar "Eu Vou" apenas se for um evento (ex: post.type === 'event') */}
         <ImGoingButtonComp
           onToggleGoing={handleGoing}
           initialGoing={post.isGoing}
         >
-          eu vou
         </ImGoingButtonComp>
       </View>
     </View>
