@@ -16,6 +16,7 @@ import { Fonts } from "@/constants/Fonts";
 import AppText from "./AppText";
 
 type InputCompProps = TextInputProps & {
+  justView?:boolean,
   width?: DimensionValue;
   height?: DimensionValue;
   label?: string;
@@ -29,6 +30,7 @@ type InputCompProps = TextInputProps & {
 const InputComp = ({
   width = "100%",
   // height = 67,
+  justView = false,
   bgColor,
   label,
   iconName,
@@ -48,6 +50,7 @@ const InputComp = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const styles = makeStyles(themeColors);
+  // const typeInput = editOrView = "view";
 
   return (
     <View style={{ width, alignItems: "center" }}>
@@ -58,6 +61,7 @@ const InputComp = ({
       ): null}
     
       <View style={styles.inputCompContainer}>
+        
         {iconName && (
           <Ionicons
             name={iconName}
@@ -75,6 +79,8 @@ const InputComp = ({
               paddingRight: inputPaddingRight,
             },
           ]}
+          editable={!justView}
+          selectTextOnFocus={false}
           secureTextEntry={secureTextEntry && !showPassword}
           placeholder={placeholder}
           placeholderTextColor={themeColors.text + "99"} // semi-transparente
