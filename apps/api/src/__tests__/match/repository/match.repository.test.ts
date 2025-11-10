@@ -16,12 +16,14 @@ const prismaStub = {
     findUnique: prismaMock.match.findUnique,
     delete: prismaMock.match.delete,
     count: prismaMock.match.count,
+    deleteMany: prismaMock.match.deleteMany,
   },
   playerSubscription: {
     create: prismaMock.playerSubscription.create,
     findUnique: prismaMock.playerSubscription.findUnique,
     update: prismaMock.playerSubscription.update,
     delete: prismaMock.playerSubscription.delete,
+    deleteMany: prismaMock.playerSubscription.deleteMany,
   },
   // Support both forms of $transaction used by the repository:
   // - function callback: prisma.$transaction(async (tx) => { ... })
@@ -179,8 +181,6 @@ describe("MatchRepository", () => {
       prismaMock.match.update.mockResolvedValue(updatedMatch);
 
       // Act
-      // prisma_client_1.prisma.match.update is not a function ??? Why?
-
       const result = await matchRepository.updateMatch(matchId, matchData);
 
 
@@ -215,6 +215,58 @@ describe("MatchRepository", () => {
       expect(prismaMock.match.update).toHaveBeenCalledWith({
         where: { id: matchId },
         data: matchData,
+      });
+    });
+  });
+
+  describe("Delete Match", () => {
+    it("should delete an existing match", async () => {
+      // Arrange
+      const matchId = "match-id-to-delete";
+
+      const deletedMatch = {
+        id: matchId,
+        authorId: "author-id",
+        title: "Deleted Match",
+        description: "This match has been deleted",
+        MatchDate: new Date(),
+        teamNameA: "Team A",
+        teamNameB: "Team B",
+        location: "Stadium A",
+        maxPlayers: 22,
+        MatchStatus: MatchStatus.FINALIZADO,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      prismaMock.match.delete.mockResolvedValue(deletedMatch);
+
+      // Act
+      const result = await matchRepository.deleteMatch(matchId);
+
+      // Assert
+      expect(prismaMock.match.delete).toHaveBeenCalledWith({
+        where: { id: matchId },
+      });
+      expect(prismaMock.playerSubscription.deleteMany).toHaveBeenCalledWith({
+        where: { matchId: matchId },
+      });
+      expect(result).toEqual(deletedMatch);
+    });
+
+    it("should throw an error if match deletion fails", async () => {
+      // Arrange
+      const matchId = "non-existent-match-id";
+
+      prismaMock.match.delete.mockRejectedValue(new Error("Database error") as any);
+
+      // Act & Assert
+      await expect(
+        matchRepository.deleteMatch(matchId),
+      ).rejects.toThrow("Database error");
+
+      expect(prismaMock.match.delete).toHaveBeenCalledWith({
+        where: { id: matchId },
       });
     });
   });

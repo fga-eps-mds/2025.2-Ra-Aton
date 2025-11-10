@@ -75,10 +75,19 @@ export class MatchRepository {
     });
   }
 
-  async deleteMatch(matchId: string): Promise<void> {
-    await this.prismaClient.match.delete({
+  async deleteMatch(matchId: string): Promise<Match> {
+    const match = await this.prismaClient.match.delete({
       where: { id: matchId },
     });
+
+    if (!match) {
+      throw new Error("Match not found");
+    }
+
+    await this.prismaClient.playerSubscription.deleteMany({
+      where: { matchId: matchId },
+    });
+    return match;
   }
 
   /**
