@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useState } from "react";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
-import { EventInfoModalComp } from "@/components/EventInfoModal";
 
 export default function Partidas() {
   const { isDarkMode } = useTheme();
@@ -24,7 +24,6 @@ export default function Partidas() {
           fontSize: 18,
         }}
       >
-       <EventInfoModalComp visible={true} ></EventInfoModalComp>
       </Text>
     </View>
   );
