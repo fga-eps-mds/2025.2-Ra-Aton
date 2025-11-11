@@ -10,8 +10,11 @@
     "typescript",
     "typescriptreact"
   ],
-  "jest.rootPath": ".",
   "prettier.enableDebug": false,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "jest.rootPath": ".",
   "[typescriptreact]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   }
