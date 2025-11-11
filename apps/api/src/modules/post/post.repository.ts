@@ -2,8 +2,20 @@ import { prisma } from "../../database/prisma.client";
 import { Post, Prisma } from "@prisma/client";
 
 export const postRepository = {
-  findAll: async (limit: number, offset: number): Promise<{ posts: Post[]; totalCount: number }> => {
-    const [posts, totalCount] = await prisma.$transaction([
+
+  checkIfUserLikedPost: async (userId: string, postId: string) => {
+    return await prisma.postLike.findFirst({
+      where: { userId, postId },
+    });
+  },
+
+  findAll: async (
+    limit: number,
+    offset: number,
+    userId: string,
+  ): Promise<{ posts: (Post & { userLiked: boolean })[]; totalCount: number }> => {
+    // Busca a página de posts e o total em uma única transação
+    const [posts, totalCount]: [Post[], number] = await prisma.$transaction([
       prisma.post.findMany({
         take: limit,
         skip: offset,
@@ -13,8 +25,44 @@ export const postRepository = {
       }),
       prisma.post.count(),
     ]);
+
+    // Se não houver posts, retorna cedo
+    if (!posts || posts.length === 0) {
+      return { posts: [], totalCount };
+    }
+
+    // Verifica quais posts foram curtidos pelo usuário em uma única consulta
+    const postIds = posts.map((p) => p.id);
+    const likes = await prisma.postLike.findMany({
+      where: {
+        userId,
+        postId: { in: postIds },
+      },
+      select: { postId: true },
+    });
+
+    const likedSet = new Set(likes.map((l) => l.postId));
+
+    
+    // Verifica quais posts foram marcados com "Eu vou" pelo usuário em uma única consulta
+    const attendances = await prisma.attendance.findMany({
+      where: {
+        userId,
+        postId: { in: postIds },
+      },
+      select: { postId: true },
+    });
+
+    const attendanceSet = new Set(attendances.map((a) => a.postId));
+
+    const postsWithLike = posts.map((post) => ({
+      ...post,
+      userLiked: likedSet.has(post.id),
+      userGoing: attendanceSet.has(post.id),
+    }));
+    
     return {
-      posts,
+      posts: postsWithLike,
       totalCount,
     };
   },

@@ -5,6 +5,10 @@ import { ApiError } from "../../utils/ApiError";
 
 class PostController {
   async listPosts(req: Request, res: Response) {
+    if(!req.body.userId){
+      throw new ApiError(httpStatus.BAD_REQUEST, "UserId é obrigatório no corpo da requisição");
+    }
+
     const DEFAULT_PAGE_LIMIT = 10;
     const DEFAULT_PAGE = 1;
 
@@ -13,7 +17,7 @@ class PostController {
 
     const safeLimit = isNaN(limit) ? DEFAULT_PAGE_LIMIT : limit;
     const safePage = isNaN(page) ? DEFAULT_PAGE : page;
-    
+
     if (safeLimit > 50) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -23,6 +27,7 @@ class PostController {
     const paginatedResult = await postService.listPosts(
       safeLimit,
       safePage,
+      req.body.userId,
     );
     res.status(httpStatus.OK).json(paginatedResult);
   }

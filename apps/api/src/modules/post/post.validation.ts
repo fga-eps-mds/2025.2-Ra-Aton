@@ -14,6 +14,9 @@ export const listPostsSchema = z.object({
       .optional(),
     page: z.coerce.number().int().positive().default(PAGE).optional(),
   }),
+  body: z.object({
+    userId: z.uuid(),
+  }),
 });
 
 export const createPostSchema = z.object({
