@@ -17,6 +17,20 @@ export const postRepository = {
     // Busca a página de posts e o total em uma única transação
     const [posts, totalCount]: [Post[], number] = await prisma.$transaction([
       prisma.post.findMany({
+        include: {
+          author: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          group: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
         take: limit,
         skip: offset,
         orderBy: {
