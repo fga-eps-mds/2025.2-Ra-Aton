@@ -8,10 +8,12 @@
   import PostCardComp from "@/components/PostCardComp";
   import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
   import CommentsModalComp from "@/components/CommentsModalComp";
-  import { IPost } from "@/src/interfaces/Ipost"; // Verifique se este path está correto
+  import { IPost } from "@/libs/interfaces/Ipost";
   import InputComp from "@/components/InputComp";
-import { EventInfoModalComp } from "@/components/EventInfoModal";
+  import { EventInfoModalComp } from "@/components/EventInfoModal";
+  import { getFeed, FeedItem } from "@/libs/auth/handleFeed";
 
+  
   export default function HomeScreen() {
     // Estado para controlar os modais (CA4)
     const [isOptionsVisible, setIsOptionsVisible] = useState(false);
@@ -20,6 +22,16 @@ import { EventInfoModalComp } from "@/components/EventInfoModal";
     const [showModal, setShowModal] = useState(false);
     // --- Mock de Dados do Feed ---
     // (Usando a interface IPost)
+
+//--------------------------------------------------------------------------
+
+
+
+
+    
+
+
+
 
     //! ISSO SÃO SÓ DADOS DE POSTAGENS MOCKADOS. USANDO ELES APENAS PARA SIMULAR ALGUMAS POSTAGENS DO FEED ENQUANTO O BACKEND FINALIZA
     const FEED_DATA: IPost[] = [
@@ -57,16 +69,16 @@ import { EventInfoModalComp } from "@/components/EventInfoModal";
         isLiked: false,
         isGoing: false,
       }
-      // ,
-      //  {
-      //   id: "5",
-      //   postText: "Alguém sabe quando vai ser o próximo campeonato de Handball?",
-      //   userName: "Gabriela",
-      //   userId: "@gabi",
-      //   userProfileImageUrl: "https://picsum.photos/id/103/100/100", // Mock
-      //   isLiked: false,
-      //   isGoing: false,
-      // }  
+      ,
+       {
+        id: "5",
+        postText: "Alguém sabe quando vai ser o próximo campeonato de Handball?",
+        userName: "Gabriela",
+        userId: "@gabi",
+        userProfileImageUrl: "https://picsum.photos/id/103/100/100", // Mock
+        isLiked: false,
+        isGoing: false,
+      }  
     ];
 
     // --- Handlers de Ação ---

@@ -8,7 +8,7 @@ import LikeButtonComp from "./LikeButtonComp";
 import CommentButtonComp from "./CommentButtonComp";
 import ImGoingButtonComp from "./ImGoingButtonComp";
 import OptionsButtonComp from "./OptionsButtonComp";
-import { IPost } from "../../mobile/src/interfaces/Ipost"; // Você já tem esta importação
+import { IPost } from "@/libs/interfaces/Ipost"; // Você já tem esta importação
 
 // Props que o card receberá da Home
 interface PostCardProps {
@@ -31,7 +31,6 @@ const PostCardComp: React.FC<PostCardProps> = ({
     console.log(`API: Curtida ${isLiked} no post ${post.id}`);
   };
   const handleGoing = async (isGoing: boolean) => {
-    // TODO: Criar requisição na pasta libs/events (CA5)
     console.log(`API: Presença ${isGoing} no post ${post.id}`);
   };
 
@@ -39,12 +38,11 @@ const PostCardComp: React.FC<PostCardProps> = ({
     <View style={[styles.container, { backgroundColor: theme.input }]}>
       {/* Header do Post */}
       <View style={styles.header}>
-        {/* // TODO: Passar a URL da imagem do perfil do post */}
-        <ProfileThumbnailComp size={50} imageUrl={post.userProfileImageUrl} />
+        <ProfileThumbnailComp size={50} imageUrl={undefined} />
         <SpacerComp width={20} />
         <View>
-          <Text style={[styles.authorName, { color: theme.text }]}>
-            {post.userName}
+          <Text style={[styles.authorName, { color: theme.text }]}> 
+            {post.usez}
           </Text>
           <Text style={[styles.authorId, { color: theme.text }]}>
             {post.userId}
