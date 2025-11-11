@@ -37,7 +37,7 @@ const SearchInputComp: React.FC<SearchInputProps> = ({
       <TextInput
         style={[
           styles.input,
-          { color: theme.text, fontFamily: Fonts.primaryFont.dongleRegular },
+          { color: theme.text, fontFamily: Fonts.mainFont.dongleRegular },
         ]}
         placeholder="Pesquisar..."
         placeholderTextColor={theme.gray}

@@ -9,7 +9,8 @@
     "test": "turbo run test --parallel",
     "test:api": "pnpm --filter api -s test",
     "test:mobile": "pnpm --filter mobile -s test",
-    "test:watch": "turbo run test:watch",
+    "test:coverage": "turbo run test -- --coverage",
+    "test:watch": "turbo run test -- --watchAll",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"

@@ -5,6 +5,8 @@ import { globalErrorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
 import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
+import postRoutes  from "./modules/post/post.routes";
+import commentRoutes from "./modules/comment/comment.routes"
 import HttpStatus from "http-status";
 import { postRoutes } from "./modules/post/post.routes";
 import { commentRoutes } from "./modules/comment/comment.routes";
@@ -26,7 +28,6 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // --- MONTAGEM DAS ROTAS ---
-// Use as novas rotas modulares
 app.use("/users", userRoutes);
 app.use("/login", authRoutes);
 app.use("/posts", postRoutes);

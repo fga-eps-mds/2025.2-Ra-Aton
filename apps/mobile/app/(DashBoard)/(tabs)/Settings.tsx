@@ -2,9 +2,12 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
+import { useUser } from "@/libs/storage/UserContext";
+import PrimaryButton from "@/components/PrimaryButton";
 
 export default function FeedScreen() {
   const { isDarkMode } = useTheme();
+  const { user, logout } = useUser();
   const themeStyles = StyleSheet.create({
     container: {
       flex: 1,
@@ -25,6 +28,7 @@ export default function FeedScreen() {
       >
         TELA DE CONFIGURAÇÕES
       </Text>
+      <PrimaryButton onPress={logout}>Sair</PrimaryButton>  
     </View>
   );
 }
