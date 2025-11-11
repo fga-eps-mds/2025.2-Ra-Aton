@@ -8,8 +8,6 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import postRoutes  from "./modules/post/post.routes";
 import commentRoutes from "./modules/comment/comment.routes"
 import HttpStatus from "http-status";
-import { postRoutes } from "./modules/post/post.routes";
-import { commentRoutes } from "./modules/comment/comment.routes";
 import { postLikeRoutes } from "./modules/postLike/postlike.routes";
 import { reportRoutes } from "./modules/report/report.routes";
 import { attendanceRoutes } from "./modules/attendance/attendance.routes";
