@@ -1,4 +1,5 @@
 import { api_route } from "./api";
+import { IPost } from "../interfaces/Ipost";
 
 export type FeedItem = {
 
@@ -19,12 +20,12 @@ export type Meta = {
 }
 
 export type FeedResponse = {
-    itemsFeed:FeedItem,
+    data: IPost[];
     meta:Meta
 }
 
-export async function getFeed(params: {page:number, limit?:number, signal?: AbortSignal}) {
+export async function getFeed(params: {page:number, limit?:number, signal?: AbortSignal}):Promise<FeedResponse> {
     const {page,limit=10, signal} = params;
     const res = await api_route.get<FeedResponse>("/posts", {params:{page,limit},signal})
-    res.data;   
+    return res.data;   
 }
