@@ -5,10 +5,14 @@ import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../constants/Theme";
 import { Colors } from "../constants/Colors";
+import { useUser } from "@/libs/storage/UserContext";
+
 // import { NavigationProp } from '@react-navigation/native'; // <-- Não é mais necessário
 
 // O componente recebe 'props'
 export function CustomDrawerContent(props: any) {
+  const { user, logout } = useUser();
+
   // 2. PEGUE O 'navigation' DIRETAMENTE DAS PROPS
   const { navigation } = props;
 
@@ -83,6 +87,14 @@ export function CustomDrawerContent(props: any) {
           <Ionicons name="settings-outline" size={size} color={theme.orange} />
         )}
         onPress={() => navigateTo("Settings")} // 4. Manda só o nome da tela interna
+      />
+      <DrawerItem
+        label="Sair"
+        labelStyle={{ color: theme.text, fontSize: 16 }}
+        icon={({ color, size }) => (
+          <Ionicons name="exit-outline" size={size} color={theme.orange} />
+        )}
+        onPress={() => logout()} // 4. Manda só o nome da tela interna
       />
     </DrawerContentScrollView>
   );
