@@ -125,6 +125,14 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
+      
+      <Tabs.Screen
+        name="(create)/criarEvento" // Referencia (tabs)/Friends.tsx
+        options={{
+          title: "Buscar Atlética",
+          href: null,
+        }} // Esconde da Navbar
+      />
     </Tabs>
   );
 }

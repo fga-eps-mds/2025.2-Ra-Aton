@@ -1,9 +1,8 @@
-/* cadastro page */
+/* criar evento page */
 
 import React from "react";
 import {
   StyleSheet,
-  Text,
   View,
   Image,
   ScrollView,
@@ -23,10 +22,10 @@ import BackGroundComp from "@/components/BackGroundComp";
 import Spacer from "@/components/SpacerComp";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
-import { RegisterForm } from "@/components/RegisterForm";
 import AppText from "@/components/AppText";
+import { EventoFormComponent } from "@/components/EventoFormComponent";
 
-import { useRegisterForm } from "@/libs/hooks/useRegisterForm";
+import { eventoForms } from "@/libs/hooks/eventoForms";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
@@ -38,8 +37,7 @@ const CadastroInner: React.FC = () => {
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
 
-  const { formData, errors, isDisabled, setFormData, handleSubmit } =
-    useRegisterForm();
+  const { formsData, isDisabled, setFormData, handleSubmit, comebackPage } = eventoForms();
 
   return (
     <BackGroundComp>
@@ -56,13 +54,10 @@ const CadastroInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <Image source={NamedLogo} style={styles.img} />
-
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
-              <RegisterForm
-                formData={formData}
-                errors={errors}
+              <EventoFormComponent
+                formsData={formsData}
                 setFormData={setFormData}
               />
             </View>
@@ -70,13 +65,13 @@ const CadastroInner: React.FC = () => {
             <Spacer height={40} />
             <View style={styles.redirectInfos}>
               <PrimaryButton disabled={isDisabled} onPress={handleSubmit}>
-                Criar conta
+                Criar Evento
               </PrimaryButton>
               <Spacer height={30} />
-              <AppText style={styles.txt}>Ja possui uma conta?</AppText>
+              <AppText style={styles.txt}>Deseja cancelar?</AppText>
               <Spacer height={10} />
-              <SecondaryButton onPress={() => router.push("/(Auth)/login")}>
-                Login
+              <SecondaryButton onPress={comebackPage}>
+                Voltar
               </SecondaryButton>
             </View>
           </View>
