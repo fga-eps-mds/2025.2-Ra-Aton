@@ -47,6 +47,11 @@ enum VerificationStatus {
   REJECTED
 }
 
+enum MadeBy {
+  USER
+  GROUP
+}
+
 enum JoinRequestStatus {
   PENDING
   APPROVED
@@ -78,6 +83,7 @@ model User {
   Report          Report[]
   PostLike        PostLike[]
   Comment         Comment[]
+  joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
 }
 
@@ -184,10 +190,10 @@ model Group {
   updatedAt DateTime @updatedAt
 
   // relationsships
-  posts       Post[]
-  memberships GroupMembership[]
+  joinRequests GroupJoinRequest[]
+  posts        Post[]
+  memberships  GroupMembership[]
   // follows Follow[]
-  // joinRequests GroupJoinRequest[]
 }
 
 model GroupMembership {
@@ -214,19 +220,20 @@ model GroupMembership {
 //   @@unique([userId, groupId])
 // }
 
-// model GroupJoinRequest {
-//   id          String            @id @default(uuid())
-//   requester   User              @relation(fields: [requesterId], references: [id], onDelete: Cascade)
-//   requesterId String
-//   group       Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//   groupId     String
-//   status      JoinRequestStatus @default(PENDING)
-//   message     String?
-//   createdAt   DateTime          @default(now())
-//   updatedAt   DateTime          @updatedAt
+model GroupJoinRequest {
+  id        String            @id @default(uuid())
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  group     Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  madeBy    MadeBy
+  status    JoinRequestStatus @default(PENDING)
+  message   String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
-//   @@unique([requesterId, groupId])
-// }
+  @@unique([userId, groupId])
+}
 
 model Match {
   id          String               @id @default(uuid())
