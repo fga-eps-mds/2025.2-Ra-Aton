@@ -8,11 +8,10 @@ import LikeButtonComp from "./LikeButtonComp";
 import CommentButtonComp from "./CommentButtonComp";
 import ImGoingButtonComp from "./ImGoingButtonComp";
 import OptionsButtonComp from "./OptionsButtonComp";
-import { IPost } from "@/libs/interfaces/Ipost"; // Você já tem esta importação
+import { IPost } from "@/libs/interfaces/Ipost"; 
 
-// Props que o card receberá da Home
 interface PostCardProps {
-  post: IPost; // Recebe o objeto post inteiro
+  post: IPost; 
   onPressComment: (postId: string) => void;
   onPressOptions: (postId: string) => void;
 }
@@ -25,15 +24,6 @@ const PostCardComp: React.FC<PostCardProps> = ({
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
-  // Mock de funções de API
-  const handleLike = async (isLiked: boolean) => {
-    // TODO: Criar requisição na pasta libs/posts (CA5)
-    console.log(`API: Curtida ${isLiked} no post ${post.id}`);
-  };
-  const handleGoing = async (isGoing: boolean) => {
-    console.log(`API: Presença ${isGoing} no post ${post.id}`);
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: theme.input }]}>
       {/* Header do Post */}
@@ -42,12 +32,12 @@ const PostCardComp: React.FC<PostCardProps> = ({
         <SpacerComp width={20} />
         <View>
           <Text style={[styles.authorName, { color: theme.text }]}> 
-            {post.usez}
+            {post.username}
           </Text>
           <Text style={[styles.authorId, { color: theme.text }]}>
-            {post.userId}
+            {post.nickname}
           </Text>
-        </View>
+        </View>                        
         <View style={{ flex: 1 }} />
         <OptionsButtonComp onPress={() => onPressOptions(post.id)} />
       </View>
@@ -56,33 +46,22 @@ const PostCardComp: React.FC<PostCardProps> = ({
 
       {/* Conteúdo do Post */}
       <Text style={[styles.contentText, { color: theme.text }]}>
-        {post.postText}
+        {post.content ?? post.title ?? ""}
       </Text>
 
       {/* NOVO: Seção da Imagem (Renderização Condicional) */}
-      {post.imageUrl && (
-        <>
-          <SpacerComp height={15} />
-          <Image
-            source={{ uri: post.imageUrl }}
-            style={styles.postImage}
-            resizeMode="cover"
-          />
-        </>
-      )}
-
       <SpacerComp height={15} />
 
       {/* Barra de Ações */}
       <View style={styles.actionsBar}>
-        <LikeButtonComp onLike={handleLike} initialLiked={post.isLiked} />
+        <LikeButtonComp onLike={handleLike} initialLiked={post.userLiked ?? false} />
         <SpacerComp width={15} />
         <CommentButtonComp onPress={() => onPressComment(post.id)} />
         <SpacerComp width={100} />
         {/* // TODO: Mostrar "Eu Vou" apenas se for um evento (ex: post.type === 'event') */}
         <ImGoingButtonComp
           onToggleGoing={handleGoing}
-          initialGoing={post.isGoing}
+          initialGoing={post.userGoing ?? false}
         >
         </ImGoingButtonComp>
       </View>
