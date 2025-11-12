@@ -31,6 +31,7 @@ describe("PostController", () => {
   describe("listPosts", () => {
     it("deve retornar 400 se limit > 50", async () => {
       req = {
+        body: { userId: "1" },
         query: { limit: "100", page: "1" },
       };
 
@@ -50,11 +51,10 @@ describe("PostController", () => {
 
       (postService.listPosts as jest.Mock).mockResolvedValue(mockResult);
 
-      req = { query: { limit: "10", page: "1" } };
-
+      req = { body: { userId: "1" }, query: { limit: "10", page: "1" } };
       await postController.listPosts(req as Request, res as Response);
 
-      expect(postService.listPosts).toHaveBeenCalledWith(10, 1);
+      expect(postService.listPosts).toHaveBeenCalledWith(10, 1, "1");
       expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
       expect(res.json).toHaveBeenCalledWith(mockResult);
 
@@ -64,11 +64,11 @@ describe("PostController", () => {
       const mockResult = { page: 1, limit: 10, items: [] };
       (postService.listPosts as jest.Mock).mockResolvedValue(mockResult);
 
-      req = { query: { limit: "abc", page: "zzz" } };
+      req = { body: { userId: "1" }, query: { limit: "abc", page: "zzz" } };
 
       await postController.listPosts(req as Request, res as Response);
 
-      expect(postService.listPosts).toHaveBeenCalledWith(10, 1);
+      expect(postService.listPosts).toHaveBeenCalledWith(10, 1, "1");
       expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
     });
   });
