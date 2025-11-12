@@ -1,5 +1,6 @@
+// components/PostCardComp.tsx
 import React from "react";
-import { View, Text, StyleSheet, Platform, Image } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import ProfileThumbnailComp from "./ProfileThumbnailComp";
@@ -8,62 +9,79 @@ import LikeButtonComp from "./LikeButtonComp";
 import CommentButtonComp from "./CommentButtonComp";
 import ImGoingButtonComp from "./ImGoingButtonComp";
 import OptionsButtonComp from "./OptionsButtonComp";
-import { IPost } from "@/libs/interfaces/Ipost"; 
+import { IPost } from "@/libs/interfaces/Ipost";
 
 interface PostCardProps {
-  post: IPost; 
+  post: IPost;
   onPressComment: (postId: string) => void;
   onPressOptions: (postId: string) => void;
 }
 
-const PostCardComp: React.FC<PostCardProps> = ({
-  post,
-  onPressComment,
-  onPressOptions,
-}) => {
+const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOptions }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
+  const handleLike = async (isLiked: boolean) => {
+    console.log(`API: Curtida ${isLiked} no post ${post.id}`);
+  };
+  const handleGoing = async (isGoing: boolean) => {
+    console.log(`API: Presença ${isGoing} no post ${post.id}`);
+  };
+
+  const isEvent = post.type === "EVENT";
+
   return (
     <View style={[styles.container, { backgroundColor: theme.input }]}>
-      {/* Header do Post */}
+      {/* Header */}
       <View style={styles.header}>
-        <ProfileThumbnailComp size={50} imageUrl={undefined} />
-        <SpacerComp width={20} />
+        {/* Sem imagem de perfil na API: usa avatar placeholder */}
+        <ProfileThumbnailComp size={50} />
+        <SpacerComp width={12} />
         <View>
-          <Text style={[styles.authorName, { color: theme.text }]}> 
-            {post.username}
-          </Text>
-          <Text style={[styles.authorId, { color: theme.text }]}>
-            {post.nickname}
-          </Text>
-        </View>                        
+          <Text style={[styles.authorName, { color: theme.text }]}>{post.author ?? "Autor"}</Text>
+          <Text style={[styles.authorId, { color: theme.text }]}>{post.authorId ?? ""}</Text>
+        </View>
         <View style={{ flex: 1 }} />
-        <OptionsButtonComp onPress={() => onPressOptions(post.id)} />
+        <OptionsButtonComp onPress={() => onPressOptions(String(post.id))} />
       </View>
 
       <SpacerComp height={10} />
 
-      {/* Conteúdo do Post */}
-      <Text style={[styles.contentText, { color: theme.text }]}>
-        {post.content ?? post.title ?? ""}
-      </Text>
+      {/* Conteúdo */}
+      {post.title ? (
+        <>
+          <Text style={[styles.title, { color: theme.text }]}>{post.title}</Text>
+          <SpacerComp height={6} />
+        </>
+      ) : null}
 
-      {/* NOVO: Seção da Imagem (Renderização Condicional) */}
-      <SpacerComp height={15} />
+      <Text style={[styles.contentText, { color: theme.text }]}>{post.content ?? ""}</Text>
 
-      {/* Barra de Ações */}
+      {/* Informações de evento */}
+      {isEvent ? (
+        <>
+          <SpacerComp height={10} />
+          <Text style={[styles.eventInfo, { color: theme.text }]}>
+            {post.location ? `Local: ${post.location}` : ""}
+            {post.eventDate ? `  •  Início: ${new Date(post.eventDate).toLocaleString()}` : ""}
+            {post.eventFinishDate ? `  •  Fim: ${new Date(post.eventFinishDate).toLocaleString()}` : ""}
+          </Text>
+        </>
+      ) : null}
+
+      <SpacerComp height={12} />
+
+      {/* Barra de ações */}
       <View style={styles.actionsBar}>
         <LikeButtonComp onLike={handleLike} initialLiked={post.userLiked ?? false} />
-        <SpacerComp width={15} />
-        <CommentButtonComp onPress={() => onPressComment(post.id)} />
-        <SpacerComp width={100} />
-        {/* // TODO: Mostrar "Eu Vou" apenas se for um evento (ex: post.type === 'event') */}
-        <ImGoingButtonComp
-          onToggleGoing={handleGoing}
-          initialGoing={post.userGoing ?? false}
-        >
-        </ImGoingButtonComp>
+        <Text style={[styles.counter, { color: theme.text }]}> {post.likesCount ?? 0}</Text>
+        <SpacerComp width={12} />
+        <CommentButtonComp onPress={() => onPressComment(String(post.id))} />
+        <Text style={[styles.counter, { color: theme.text }]}> {post.commentsCount ?? 0}</Text>
+        <View style={{ flex: 1 }} />
+        {isEvent ? (
+          <ImGoingButtonComp onToggleGoing={handleGoing} initialGoing={post.userGoing ?? false} />
+        ) : null}
       </View>
     </View>
   );
@@ -90,28 +108,12 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  authorName: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  authorId: {
-    fontSize: 10,
-  },
-  contentText: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  // NOVO: Estilo para a imagem
-  postImage: {
-    width: "100%",
-    aspectRatio: 16 / 9, // Proporção comum
-    borderRadius: 10,
-    backgroundColor: Colors.light.gray, // Placeholder
-  },
+  header: { flexDirection: "row", alignItems: "center" },
+  authorName: { fontSize: 16, fontWeight: "600" },
+  authorId: { fontSize: 11, opacity: 0.7 },
+  title: { fontSize: 18, fontWeight: "700" },
+  contentText: { fontSize: 15, lineHeight: 22 },
+  eventInfo: { fontSize: 12, opacity: 0.8 },
   actionsBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -119,6 +121,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.light.gray,
   },
+  counter: { fontSize: 12, opacity: 0.8 },
 });
 
 export default PostCardComp;

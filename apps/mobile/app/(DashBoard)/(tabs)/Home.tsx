@@ -1,6 +1,5 @@
-import React, { use, useCallback, useRef, useState } from "react";
-import { StyleSheet, View, FlatList } from "react-native";
-import { router } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { StyleSheet, View, FlatList, ActivityIndicator } from "react-native";
 import BackGroundComp from "@/components/BackGroundComp";
 import SearchInputComp from "@/components/SearchInputComp";
 import ProfileThumbnailComp from "@/components/ProfileThumbnailComp";
@@ -12,6 +11,7 @@ import InputComp from "@/components/InputComp";
 import { EventInfoModalComp } from "@/components/EventInfoModal";
 import { IPost } from "@/libs/interfaces/Ipost";
 import { getFeed } from "@/libs/auth/handleFeed";
+import Spacer from "@/components/SpacerComp";
 
 
 export default function HomeScreen() {
@@ -20,56 +20,82 @@ export default function HomeScreen() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [posts, setPosts] = useState<IPost[]>([]);
-  const [page,setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [isLoading, setIsloading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
-  
+
   const abortRequestWeb = useRef<AbortController | null>(null); // o abort é realmente para cancelar minha requisição caso necessáirio
   const throttleRequest = useRef(0); // esse useRef é usado como um armazenador, vai ajudar na hora das renderizações
   const LIMIT = 10;
 
-  const loadPage  = useCallback(
-    async(targetPage:number,append:boolean) =>{
-      if(isLoading) return;
-      setIsloading(true);
+  const loadPage = useCallback(
+    async (targetPage: number, append: boolean) => {
+      if (isLoading) return;
 
+      // Aborta requisição anterior antes de iniciar a nova (evita estados intermediários)
       abortRequestWeb.current?.abort();
       abortRequestWeb.current = new AbortController();
-      
-      try{
+      setIsloading(true);
+
+      try {
         const res = await getFeed({
-          page:targetPage,
+          page: targetPage,
           limit: LIMIT,
-          signal: abortRequestWeb.current.signal,
-        })
+          signal: abortRequestWeb.current?.signal,
+        });
+        console.log("[FEED]", res.meta, "itens:", res.data.length);
         setHasNextPage(res.meta?.hasNextPage ?? (res.data.length === LIMIT))
-        setPage(res.meta?page ?? targetPage);
-        
+        setPage(res.meta?.page ?? targetPage);
+
         setPosts(prev => {
-          if(!append) return res.data;
-          
-          const map = new Map<String, IPost>();
+          if (!append) return res.data;
+
+          const map = new Map<string, IPost>();
           [...prev, ...res.data].forEach(p => map.set(String(p.id), p));
           return Array.from(map.values());
         });
       }
-      catch(err){
+      catch (err: any) {
+        // Ignore cancelamento de requisição (AbortController) — acontece ao iniciar uma nova página ou cancelar antiga
+        const isCanceled = err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED' || err?.message === 'canceled';
+        if (isCanceled) {
+          // não considera erro real
+          return;
+        }
+
         console.warn("Erro ao carregar o feed:", err);
-      }finally{
+      } finally {
         setIsloading(false);
       }
     },
-    [isLoading,getFeed]
+    [isLoading]
   );
 
+  useEffect(() => {
+    loadPage(1, false);
+    return () => abortRequestWeb.current?.abort();
+  }, [loadPage]);
+
+  // Pull-to-refresh
+  const onRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await loadPage(1, false);
+    setIsRefreshing(false);
+  }, [loadPage]);
+
+  // Infinite scroll com throttle
+  const onEndReached = useCallback(() => {
+    const now = Date.now();
+    if (now - throttleRequest.current < 800) return; // throttle simples
+    throttleRequest.current = now;
+
+    if (!isLoading && hasNextPage) {
+      loadPage(page + 1, true);
+    }
+  }, [isLoading, hasNextPage, page, loadPage]);
 
 
-
-
-
-
-  
   const handleOpenComments = (postId: string) => {
     setSelectedPostId(postId);
     setIsCommentsVisible(true);
@@ -89,7 +115,6 @@ export default function HomeScreen() {
   };
 
   const handleReport = () => {
-    // TODO: Criar requisição na pasta libs/reports (CA5)
     console.log(`Reportando post ${selectedPostId}`);
   };
 
@@ -106,8 +131,8 @@ export default function HomeScreen() {
   return (
     <BackGroundComp>
       <FlatList
-        data={FEED_DATA}
-        keyExtractor={(item) => item.id}
+        data={posts}
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <PostCardComp
             post={item}
@@ -128,6 +153,23 @@ export default function HomeScreen() {
             </View>
           </View>
         }
+        refreshing={isRefreshing}
+        onRefresh={onRefresh}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.2}
+
+        ListFooterComponent={
+          isLoading && hasNextPage ? (
+            <View style={{ paddingVertical: 16 }}>
+              <ActivityIndicator />
+            </View>
+          ) : null
+        }
+        initialNumToRender={5}
+        maxToRenderPerBatch={8}
+        windowSize={8}
+        removeClippedSubviews
+        ItemSeparatorComponent={() => <Spacer height={8} />}
       />
 
 
