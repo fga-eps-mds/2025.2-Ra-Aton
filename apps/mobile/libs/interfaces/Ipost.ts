@@ -1,8 +1,10 @@
 // apps/mobile/src/interfaces/IPost.ts
 export interface IPost {
   id: string,
-  authorId:string,
-    
+  authorId?:string,
+  username?:string,
+  nickname?:string,
+
   title:string,
   content:string,
   type?:string,
