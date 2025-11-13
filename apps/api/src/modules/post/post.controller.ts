@@ -38,7 +38,7 @@ class PostController {
     if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "O id é necessesário para buscar a postagem" });
+        .json({ message: "O id é necessário para buscar a postagem" });
     }
     const post = await postService.getPostById(id);
     res.status(HttpStatus.OK).json(post);
@@ -67,7 +67,7 @@ class PostController {
     if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "O id é necessesário para atualizar a postagem" });
+        .json({ message: "O id é necessário para atualizar a postagem" });
     }
 
     const authUserId = (req as any).user;
@@ -90,7 +90,7 @@ class PostController {
     if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "O id é necessesário para excluir a postagem" });
+        .json({ message: "O id é necessário para excluir a postagem" });
     }
 
     const authUserId = (req as any).user;
