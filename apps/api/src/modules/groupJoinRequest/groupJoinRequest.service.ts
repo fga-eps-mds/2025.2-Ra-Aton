@@ -2,6 +2,7 @@ import { GroupJoinRequest, MadeBy } from "@prisma/client";
 import GroupJoinRequestRepository from "./groupJoinRequest.repository";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
+import GroupMembershipRepository from "../groupMembership/groupMembership.repository";
 
 function parseMadeBy(value?: string): MadeBy | undefined {
   if (Object.values(MadeBy).includes(value as MadeBy)) {
@@ -56,6 +57,14 @@ class GroupJoinRequestService {
   };
 
   createInvite = async (data: any): Promise<GroupJoinRequest> => {
+    const alreadyMember = await GroupMembershipRepository.findMemberByUserIdAndGroupId(data.userId, data.groupId)
+    if (alreadyMember) {
+      throw new ApiError(
+        httpStatus.CONFLICT,
+        "Usuário já é membro do grupo"
+      )
+    }
+
     const existingInvite =
       await GroupJoinRequestRepository.findInviteByUserAndGroupId(
         data.userId,
@@ -67,7 +76,7 @@ class GroupJoinRequestService {
         "Usuário já foi convidado para equipe recentemente",
       );
     }
-    const newInvite = await GroupJoinRequestRepository.createInvite(data);
+    const newInvite = await GroupJoinRequestRepository.createInvite(data, data.userId, data.groupId);
     return newInvite;
   };
 
@@ -76,6 +85,21 @@ class GroupJoinRequestService {
       data,
       id,
     );
+
+    if (data.status == "APPROVED") {
+      await GroupMembershipRepository.createMembership({ 
+        user: {
+          connect: {
+            id: updatedInvite.userId
+          }
+        },
+        group: {
+          connect: {
+            id: updatedInvite.userId
+          }
+        }
+      })
+    }
     return updatedInvite;
   };
 

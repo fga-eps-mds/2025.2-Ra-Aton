@@ -47,8 +47,20 @@ class GroupJoinRequestRepository {
 
   async createInvite(
     data: Prisma.GroupJoinRequestCreateInput,
+    userId: string,
+    groupId: string,
   ): Promise<GroupJoinRequest> {
-    return prisma.groupJoinRequest.create({ data });
+    return prisma.groupJoinRequest.create({
+      data: {
+        ...data,
+        user: {
+          connect: { id: userId },
+        },
+        group: {
+          connect: { id: groupId },
+        },
+      },
+    });
   }
 
   async updateInvite(

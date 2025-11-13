@@ -44,19 +44,19 @@ class GroupJoinRequestController {
   }
 
   async findInviteById(req: Request, res: Response) {
-    const inviteId = req.params.id;
-    if (!inviteId) {
+    const id = req.params.id;
+    if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
         .json({ message: "ID do convite é obrigatario" });
     }
-    const inviteFound = await GroupJoinRequestService.findInviteById(inviteId);
+    const inviteFound = await GroupJoinRequestService.findInviteById(id);
     return res.status(HttpStatus.OK).json(inviteFound);
   }
 
   async createInvite(req: Request, res: Response) {
     const newInvite = await GroupJoinRequestService.createInvite(req.body);
-    res.status(HttpStatus.CREATED).json({ newInvite });
+    res.status(HttpStatus.CREATED).json( newInvite );
   }
 
   async updateInvite(req: Request, res: Response) {
