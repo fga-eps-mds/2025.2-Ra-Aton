@@ -32,17 +32,30 @@ const mockPosts = [mockPost];
 const updateData = { content: "Updated Content" };
 const createData = { title: "New Post", content: "Content", type: "GENERAL" };
 
+// Novo mock para resultado paginado
+const mockPaginatedResult = {
+    data: mockPosts,
+    meta: {
+      totalItems: 1,
+      currentPage: 1,
+      totalPages: 1,
+      limit: 10,
+    },
+};
+
 // Função auxiliar para criar mocks de Request e Response
 const getMockReqRes = (
   options: {
     body?: any;
     params?: any;
+    query?: any;
     user?: any; // Simula (req as any).user do middleware 'auth'
   } = {},
 ) => {
   const req = {
     body: options.body || {},
     params: options.params || {},
+    query: options.query || {}, // Adicionado query para testar paginação
     user: options.user || { id: AUTH_USER_ID }, // Default user ID para rotas protegidas
   } as unknown as Request;
 
@@ -69,27 +82,82 @@ describe("PostController", () => {
   // listPosts (GET /post)
   // -----------------------------------
   describe("listPosts", () => {
-    it("deve chamar getAllPosts e retornar todos os posts com status 200", async () => {
+    
+    it("deve chamar listPosts com parâmetros padrão e retornar posts paginados com status 200", async () => {
       // Arrange
-      const { req, res } = getMockReqRes();
-      (postService.getAllPosts as jest.Mock).mockResolvedValue(mockPosts);
+      // Simular o req.body.userId e req.query vazio (usará os defaults)
+      const { req, res } = getMockReqRes({ 
+            body: { userId: AUTH_USER_ID }, // userId é obrigatório no controller
+            user: { id: AUTH_USER_ID } 
+      }); 
+      (postService.listPosts as jest.Mock).mockResolvedValue(mockPaginatedResult);
 
       // Act
       await postController.listPosts(req, res);
 
       // Assert
-      expect(postService.getAllPosts).toHaveBeenCalledTimes(1);
+      expect(postService.listPosts).toHaveBeenCalledWith(10, 1, AUTH_USER_ID);
+      expect(postService.listPosts).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(res.json).toHaveBeenCalledWith(mockPosts);
+      expect(res.json).toHaveBeenCalledWith(mockPaginatedResult);
+    });
+
+    it("deve chamar listPosts com parâmetros de paginação e retornar 200", async () => {
+      // Arrange
+      const limit = 5;
+      const page = 2;
+      const { req, res } = getMockReqRes({ 
+            query: { limit: limit.toString(), page: page.toString() }, 
+            body: { userId: OTHER_USER_ID },
+            user: { id: AUTH_USER_ID }
+        });
+      (postService.listPosts as jest.Mock).mockResolvedValue(mockPaginatedResult);
+
+      // Act
+      await postController.listPosts(req, res);
+
+      // Assert
+      expect(postService.listPosts).toHaveBeenCalledWith(limit, page, OTHER_USER_ID);
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(mockPaginatedResult);
+    });
+    
+    it("deve retornar 400 se o limite for maior que 50", async () => {
+      // Arrange
+      const { req, res } = getMockReqRes({ 
+            query: { limit: "51", page: "1" }, 
+            body: { userId: AUTH_USER_ID },
+            user: { id: AUTH_USER_ID }
+        });
+      
+      // Act & Assert (o erro é lançado e deve ser tratado pelo catchAsync/global error handler)
+      await expect(postController.listPosts(req, res)).rejects.toThrow(
+        new ApiError(HttpStatus.BAD_REQUEST, "O limite não pode ser maior que 50"),
+      );
+      expect(postService.listPosts).not.toHaveBeenCalled();
+    });
+
+    it("deve retornar 400 se o userId estiver faltando no body", async () => {
+      // Arrange
+      const { req, res } = getMockReqRes({ 
+            body: { userId: undefined },
+            user: { id: AUTH_USER_ID }
+        });
+
+      // Act & Assert (o erro é lançado e deve ser tratado pelo catchAsync/global error handler)
+      await expect(postController.listPosts(req, res)).rejects.toThrow(
+        new ApiError(HttpStatus.BAD_REQUEST, "UserId é obrigatório no corpo da requisição"),
+      );
+      expect(postService.listPosts).not.toHaveBeenCalled();
     });
 
     it("deve propagar erros do service (e.g., erro de banco de dados)", async () => {
       // Arrange
-      const { req, res } = getMockReqRes();
+      const { req, res } = getMockReqRes({ body: { userId: AUTH_USER_ID } });
       const mockError = new Error("Database connection failed");
-      (postService.getAllPosts as jest.Mock).mockRejectedValue(mockError);
+      (postService.listPosts as jest.Mock).mockRejectedValue(mockError);
 
-      // Act & Assert (a propagação do erro é esperada, pois o controller não tem bloco try/catch)
+      // Act & Assert (a propagação do erro é esperada)
       await expect(postController.listPosts(req, res)).rejects.toThrow(
         mockError,
       );
@@ -193,7 +261,7 @@ describe("PostController", () => {
       expect(postService.updatePost).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith({
-        message: "O id é necessesário para atualizar a postagem",
+        message: "O id é necessário para atualizar a postagem",
       });
     });
 
@@ -285,7 +353,7 @@ describe("PostController", () => {
       expect(postService.deletePost).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith({
-        message: "O id é necessesário para excluir a postagem",
+        message: "O id é necessário para excluir a postagem",
       });
     });
 
