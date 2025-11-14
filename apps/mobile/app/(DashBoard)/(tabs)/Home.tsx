@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, View, FlatList, ActivityIndicator } from "react-native";
+import { StyleSheet, View, FlatList, ActivityIndicator, Text } from "react-native";
 import BackGroundComp from "@/components/BackGroundComp";
-import SearchInputComp from "@/components/SearchInputComp";
 import ProfileThumbnailComp from "@/components/ProfileThumbnailComp";
-import SpacerComp from "@/components/SpacerComp";
 import PostCardComp from "@/components/PostCardComp";
 import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
 import CommentsModalComp from "@/components/CommentsModalComp";
@@ -12,7 +10,6 @@ import { EventInfoModalComp } from "@/components/EventInfoModal";
 import { IPost } from "@/libs/interfaces/Ipost";
 import { getFeed } from "@/libs/auth/handleFeed";
 import Spacer from "@/components/SpacerComp";
-
 
 export default function HomeScreen() {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
@@ -25,60 +22,68 @@ export default function HomeScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
 
-  const abortRequestWeb = useRef<AbortController | null>(null); // o abort é realmente para cancelar minha requisição caso necessáirio
-  const throttleRequest = useRef(0); // esse useRef é usado como um armazenador, vai ajudar na hora das renderizações
-  const LIMIT = 10;
+  const abortRequestWeb = useRef<AbortController | null>(null);
+  const throttleRequest = useRef(0);
   const isLoadingRef = useRef(false);
-  const setLoading = (v:boolean) => {
+  const LIMIT = 10;
+
+  const setLoading = (v: boolean) => {
     isLoadingRef.current = v;
     setIsloading(v);
-  }
+  };
 
+  const loadPage = useCallback(async (targetPage: number, append: boolean) => {
+    if (isLoadingRef.current) return;
 
+    abortRequestWeb.current?.abort();
+    abortRequestWeb.current = new AbortController();
+    setLoading(true);
 
-  const loadPage = useCallback(
-    async (targetPage: number, append: boolean) => {
-      if (isLoadingRef.current) return;
+    try {
+      const res = await getFeed({
+        page: targetPage,
+        limit: LIMIT,
+        signal: abortRequestWeb.current?.signal,
+      });
 
-      // Aborta requisição anterior antes de iniciar a nova (evita estados intermediários)
-      abortRequestWeb.current?.abort();
-      abortRequestWeb.current = new AbortController();
-      setIsloading(true);
+      const backendHasNext = res?.meta?.hasNextPage;
+      let nextHasNextPage =
+        typeof backendHasNext === "boolean"
+          ? backendHasNext
+          : Array.isArray(res?.data) && res.data.length === LIMIT;
 
-      try {
-        const res = await getFeed({
-          page: targetPage,
-          limit: LIMIT,
-          signal: abortRequestWeb.current?.signal,
-        });
-
-        console.log("[FEED]", res.meta, "itens:", res.data.length);
-        const nextPage = res.meta?.hasNextPage ?? (res.data.length === LIMIT); 
-        setHasNextPage(nextPage);
-        setPage(res.meta?.page ?? targetPage);
-
-        setPosts(prev => {
-          if (!append) return res.data;
-
-          const map = new Map<string, IPost>();
-          [...prev, ...res.data].forEach(p => map.set(String(p.id), p));
-          return Array.from(map.values());
-        });
+      if (Array.isArray(res?.data) && res.data.length === 0 && targetPage > 1) {
+        nextHasNextPage = false;
       }
-      catch (err: any) {
-        // Ignore cancelamento de requisição (AbortController) — acontece ao iniciar uma nova página ou cancelar antiga
-        const isCanceled = err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED' || err?.message === 'canceled';
-        if (isCanceled) {
-          return;
-        }
 
-        console.warn("Erro ao carregar o feed:", err);
-      } finally {
-        setIsloading(false);
-      }
-    },
-    []
-  );
+      setHasNextPage(nextHasNextPage);
+      setPage(res?.meta?.page ?? targetPage);
+
+      setPosts((prev) => {
+        const newData: IPost[] = Array.isArray(res?.data) ? res.data : [];
+        if (!append) return newData;
+        const map = new Map<string, IPost>();
+        [...prev, ...newData].forEach((p) => map.set(String(p.id), p));
+        return Array.from(map.values());
+      });
+    } catch (err: any) {
+      const isCanceled =
+        err?.name === "CanceledError" ||
+        err?.code === "ERR_CANCELED" ||
+        err?.message === "canceled";
+      if (isCanceled) return;
+      console.log("[GET /posts] status:", err?.response?.status);
+      console.log("[GET /posts] data:", err?.response?.data);
+      console.log(
+        "[GET /posts] url:",
+        err?.config?.baseURL + err?.config?.url,
+        "params:",
+        err?.config?.params
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadPage(1, false);
@@ -86,24 +91,22 @@ export default function HomeScreen() {
   }, []);
 
   const onRefresh = useCallback(async () => {
+    throttleRequest.current = 0;
     setIsRefreshing(true);
     await loadPage(1, false);
     setIsRefreshing(false);
   }, [loadPage]);
 
   const onEndReached = useCallback(() => {
-    if(posts.length == 0) return;
-    if(isLoadingRef.current || !hasNextPage) return;
-
+    if (posts.length === 0) return;
+    if (isLoadingRef.current || !hasNextPage) return;
 
     const now = Date.now();
-    if (now - throttleRequest.current < 800) return; 
+    if (now - throttleRequest.current < 800) return;
     throttleRequest.current = now;
 
     loadPage(page + 1, true);
-
-    }, [hasNextPage, posts.length, page, loadPage]);
-
+  }, [hasNextPage, posts.length, page, loadPage]);
 
   const handleOpenComments = (postId: string) => {
     setSelectedPostId(postId);
@@ -117,25 +120,19 @@ export default function HomeScreen() {
     setIsOptionsVisible(false);
     setSelectedPostId(null);
   };
-
   const handleOpenOptions = (postId: string) => {
     setSelectedPostId(postId);
     setIsOptionsVisible(true);
   };
-
-  const handleReport = () => {
-    console.log(`Reportando post ${selectedPostId}`);
-  };
-
+  const handleReport = () => {};
   const openModalInfos = () => {
     setIsOptionsVisible(false);
     setShowModal(true);
-  }
+  };
   const closeModalInfos = () => {
     setShowModal(false);
     setIsOptionsVisible(true);
-  }
-
+  };
 
   return (
     <BackGroundComp>
@@ -152,24 +149,22 @@ export default function HomeScreen() {
         ListHeaderComponent={
           <View style={styles.containerHeader}>
             <ProfileThumbnailComp size={40} />
-
             <View style={styles.boxSearchComp}>
-              <InputComp
-                iconName="filter"
-                placeholder="Busque partidas"
-                width={'100%'}
-              />
+              <InputComp iconName="filter" placeholder="Busque partidas" width={"100%"} />
             </View>
           </View>
+        }
+        ListEmptyComponent={
+          !isLoading && !isRefreshing ? (
+            <View style={{ paddingVertical: 24, alignItems: "center" }}>
+              <Text style={{color:'white'}}>Nenhuma publicação por aqui ainda.</Text>
+            </View>
+          ) : null
         }
         refreshing={isRefreshing}
         onRefresh={onRefresh}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.2}
-        
-        // ListEmptyComponent={}
-
-
         ListFooterComponent={
           isLoading && hasNextPage ? (
             <View style={{ paddingVertical: 16 }}>
@@ -184,31 +179,22 @@ export default function HomeScreen() {
         ItemSeparatorComponent={() => <Spacer height={8} />}
       />
 
-
       <MoreOptionsModalComp
         isVisible={isOptionsVisible}
         onClose={handleCloseOptions}
         onReport={handleReport}
         onInfos={openModalInfos}
       />
-      <CommentsModalComp
-        isVisible={isCommentsVisible}
-        onClose={handleCloseComments}
-
-      />
-      <EventInfoModalComp
-        visible={showModal}
-        onClose={closeModalInfos}
-      />
-
+      <CommentsModalComp isVisible={isCommentsVisible} onClose={handleCloseComments} />
+      <EventInfoModalComp visible={showModal} onClose={closeModalInfos} />
     </BackGroundComp>
   );
 }
-// styles
+
 const styles = StyleSheet.create({
   containerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 15,
     paddingTop: 8,
     paddingBottom: 8,
@@ -218,4 +204,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

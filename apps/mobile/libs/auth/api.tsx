@@ -3,11 +3,11 @@ import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 import { getUserData } from "@/libs/storage/getUserData";
 
 export const api_route = axios.create({
-  baseURL: "http://192.168.1.11:4000",
-  timeout: 5000,
+  baseURL: "http://localhost:4000",
+  timeout: 5000,  
 });
 
-export const IP = "http://192.168.1.11:4000";
+export const IP = "http://";
 
 // REQUEST: injeta Authorization + loga
 api_route.interceptors.request.use(
@@ -20,7 +20,6 @@ api_route.interceptors.request.use(
 
       if (token) {
         headers.Authorization = `Bearer ${token}`;
-        // log só pra debug (primeiros 12 chars do token):
         console.log("[api_route] attaching token:", token.slice(0, 12) + "...");
       } else {
         console.warn("[api_route] sem token no storage");
