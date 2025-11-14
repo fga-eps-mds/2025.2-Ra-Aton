@@ -103,7 +103,7 @@ const FormsCadastroInner: React.FC = () => {
             />
           ) : (
             <SecondaryButton
-              onPress={() => router.replace("/(DashBoard)/Home")}
+              onPress={() => router.replace("../(DashBoard)/Home")}
               style={styles.BtnSkip}
               decoration={{
                 textDecorationLine: "underline",

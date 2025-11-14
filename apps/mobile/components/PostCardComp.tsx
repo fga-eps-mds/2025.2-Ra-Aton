@@ -1,114 +1,68 @@
-// ARQUIVO: apps/mobile/components/PostCardComp.tsx
-import React from 'react'
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import { useTheme } from '@/constants/Theme'
-import { Colors } from '@/constants/Colors'
-import { IPost } from '@/src/interfaces/Ipost'
+import React from "react";
+import { View, Text, StyleSheet, Platform, Image } from "react-native";
+import { useTheme } from "@/constants/Theme";
+import { Colors } from "@/constants/Colors";
+import ProfileThumbnailComp from "./ProfileThumbnailComp";
+import SpacerComp from "./SpacerComp";
+import LikeButtonComp from "./LikeButtonComp";
+import CommentButtonComp from "./CommentButtonComp";
+import ImGoingButtonComp from "./ImGoingButtonComp";
+import OptionsButtonComp from "./OptionsButtonComp";
+import { IPost } from "@/libs/interfaces/Ipost"; 
 
-// CORREÇÃO: Mudar para 'import default'
-import LikeButtonComp from '@/components/LikeButtonComp'
-import CommentButtonComp from '@/components/CommentButtonComp'
-import ImGoingButtonComp from '@/components/ImGoingButtonComp'
-import OptionsButtonComp from '@/components/OptionsButtonComp'
-import ProfileThumbnailComp from '@/components/ProfileThumbnailComp'
-
-type PostCardProps = {
-  post: IPost
-  onCommentPress: () => void
-  onDetailsPress: () => void
-  onReportPress: () => void
-  onLikeToggle: (postId: string, isLiked: boolean) => void
-  onAttendToggle: (postId: string, isAttending: boolean) => void
+interface PostCardProps {
+  post: IPost; 
+  onPressComment: (postId: string) => void;
+  onPressOptions: (postId: string) => void;
 }
 
-export function PostCardComp({
+const PostCardComp: React.FC<PostCardProps> = ({
   post,
-  onCommentPress,
-  onDetailsPress,
-  onReportPress,
-  onLikeToggle,
-  onAttendToggle,
-}: PostCardProps) {
-  const { isDarkMode } = useTheme()
-  const theme = isDarkMode ? Colors.dark : Colors.light
-
-  const eventDate = post.event?.date ? new Date(post.event.date) : null
-  const formattedDate = eventDate
-    ? eventDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-    : ''
-  const formattedTime = eventDate
-    ? eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    : ''
-  const authorName = post.author?.name || 'Grupo Desconhecido'
-  const authorImage = post.author?.profilePicture
+  onPressComment,
+  onPressOptions,
+}) => {
+  const { isDarkMode } = useTheme();
+  const theme = isDarkMode ? Colors.dark : Colors.light;
 
   return (
     <View style={[styles.card, { backgroundColor: theme.input }]}>
       <View style={styles.header}>
-        <ProfileThumbnailComp
-          imageUrl={authorImage}
-          style={styles.groupIcon}
-        />
-        <Text style={[styles.groupName, { color: theme.text }]}>
-          {authorName}
-        </Text>
-        <OptionsButtonComp onPress={onReportPress} />
+        <ProfileThumbnailComp size={50} imageUrl={undefined} />
+        <SpacerComp width={20} />
+        <View>
+          <Text style={[styles.authorName, { color: theme.text }]}> 
+            {post.username}
+          </Text>
+          <Text style={[styles.authorId, { color: theme.text }]}>
+            {post.nickname}
+          </Text>
+        </View>                        
+        <View style={{ flex: 1 }} />
+        <OptionsButtonComp onPress={() => onPressOptions(post.id)} />
       </View>
 
-      <View style={styles.body}>
-        <Text style={[styles.text, { color: theme.text }]}>{post.content}</Text>
-        {post.mediaUrl && (
-          <Image source={{ uri: post.mediaUrl }} style={styles.postImage} />
-        )}
-      </View>
+      <SpacerComp height={10} />
 
-      {post.type === 'EVENT' && post.event && (
-        <View style={[styles.eventBox, { borderTopColor: theme.gray }]}>
-          <View style={styles.eventRow}>
-            <Ionicons name="calendar-outline" size={20} color={theme.orange} />
-            <Text style={[styles.eventText, { color: theme.text }]}>
-              {formattedDate} às {formattedTime}
-            </Text>
-          </View>
-          <View style={styles.eventRow}>
-            <Ionicons name="location-outline" size={20} color={theme.orange} />
-            <Text style={[styles.eventText, { color: theme.text }]}>
-              {post.event.location}
-            </Text>
-          </View>
-        </View>
-      )}
+      {/* Conteúdo do Post */}
+      <Text style={[styles.contentText, { color: theme.text }]}>
+        {post.content ?? post.title ?? ""}
+      </Text>
 
-      <View style={[styles.footer, { borderTopColor: theme.gray }]}>
-        <View style={styles.socialActions}>
-          <LikeButtonComp
-            isLiked={post.isLiked}
-            count={post._count.likes}
-            onPress={() => onLikeToggle(post.id, post.isLiked)}
-          />
-          <CommentButtonComp
-            count={post._count.comments}
-            onPress={onCommentPress}
-          />
-        </View>
+      {/* NOVO: Seção da Imagem (Renderização Condicional) */}
+      <SpacerComp height={15} />
 
-        {post.type === 'EVENT' && (
-          <View style={styles.eventActions}>
-            <TouchableOpacity
-              onPress={onDetailsPress}
-              style={[styles.eventButton, { backgroundColor: theme.gray }]}
-            >
-              <Text style={[styles.eventButtonText, { color: theme.text }]}>
-                Detalhes
-              </Text>
-            </TouchableOpacity>
-            <ImGoingButtonComp
-              isAttending={post.isAttending}
-              onPress={() => onAttendToggle(post.id, post.isAttending)}
-            />
-          </View>
-        )}
+      {/* Barra de Ações */}
+      <View style={styles.actionsBar}>
+        <LikeButtonComp onLike={handleLike} initialLiked={post.userLiked ?? false} />
+        <SpacerComp width={15} />
+        <CommentButtonComp onPress={() => onPressComment(post.id)} />
+        <SpacerComp width={100} />
+        {/* // TODO: Mostrar "Eu Vou" apenas se for um evento (ex: post.type === 'event') */}
+        <ImGoingButtonComp
+          onToggleGoing={handleGoing}
+          initialGoing={post.userGoing ?? false}
+        >
+        </ImGoingButtonComp>
       </View>
     </View>
   )
