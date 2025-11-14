@@ -1,147 +1,201 @@
-import React from "react";
-import { View, Text, StyleSheet, Platform, Image } from "react-native";
-import { useTheme } from "@/constants/Theme";
-import { Colors } from "@/constants/Colors";
-import ProfileThumbnailComp from "./ProfileThumbnailComp";
-import SpacerComp from "./SpacerComp";
-import LikeButtonComp from "./LikeButtonComp";
-import CommentButtonComp from "./CommentButtonComp";
-import ImGoingButtonComp from "./ImGoingButtonComp";
-import OptionsButtonComp from "./OptionsButtonComp";
-import { IPost } from "../../mobile/src/interfaces/Ipost"; // Você já tem esta importação
+// ARQUIVO: apps/mobile/components/PostCardComp.tsx
+import React from 'react'
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { useTheme } from '@/constants/Theme'
+import { Colors } from '@/constants/Colors'
+import { IPost } from '@/src/interfaces/Ipost'
 
-// Props que o card receberá da Home
-interface PostCardProps {
-  post: IPost; // Recebe o objeto post inteiro
-  onPressComment: (postId: string) => void;
-  onPressOptions: (postId: string) => void;
+// CORREÇÃO: Mudar para 'import default'
+import LikeButtonComp from '@/components/LikeButtonComp'
+import CommentButtonComp from '@/components/CommentButtonComp'
+import ImGoingButtonComp from '@/components/ImGoingButtonComp'
+import OptionsButtonComp from '@/components/OptionsButtonComp'
+import ProfileThumbnailComp from '@/components/ProfileThumbnailComp'
+
+type PostCardProps = {
+  post: IPost
+  onCommentPress: () => void
+  onDetailsPress: () => void
+  onReportPress: () => void
+  onLikeToggle: (postId: string, isLiked: boolean) => void
+  onAttendToggle: (postId: string, isAttending: boolean) => void
 }
 
-const PostCardComp: React.FC<PostCardProps> = ({
+export function PostCardComp({
   post,
-  onPressComment,
-  onPressOptions,
-}) => {
-  const { isDarkMode } = useTheme();
-  const theme = isDarkMode ? Colors.dark : Colors.light;
+  onCommentPress,
+  onDetailsPress,
+  onReportPress,
+  onLikeToggle,
+  onAttendToggle,
+}: PostCardProps) {
+  const { isDarkMode } = useTheme()
+  const theme = isDarkMode ? Colors.dark : Colors.light
 
-  // Mock de funções de API
-  const handleLike = async (isLiked: boolean) => {
-    // TODO: Criar requisição na pasta libs/posts (CA5)
-    console.log(`API: Curtida ${isLiked} no post ${post.id}`);
-  };
-  const handleGoing = async (isGoing: boolean) => {
-    // TODO: Criar requisição na pasta libs/events (CA5)
-    console.log(`API: Presença ${isGoing} no post ${post.id}`);
-  };
+  const eventDate = post.event?.date ? new Date(post.event.date) : null
+  const formattedDate = eventDate
+    ? eventDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+    : ''
+  const formattedTime = eventDate
+    ? eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    : ''
+  const authorName = post.author?.name || 'Grupo Desconhecido'
+  const authorImage = post.author?.profilePicture
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.input }]}>
-      {/* Header do Post */}
+    <View style={[styles.card, { backgroundColor: theme.input }]}>
       <View style={styles.header}>
-        {/* // TODO: Passar a URL da imagem do perfil do post */}
-        <ProfileThumbnailComp size={50} imageUrl={post.userProfileImageUrl} />
-        <SpacerComp width={20} />
-        <View>
-          <Text style={[styles.authorName, { color: theme.text }]}>
-            {post.userName}
-          </Text>
-          <Text style={[styles.authorId, { color: theme.text }]}>
-            {post.userId}
-          </Text>
-        </View>
-        <View style={{ flex: 1 }} />
-        <OptionsButtonComp onPress={() => onPressOptions(post.id)} />
+        <ProfileThumbnailComp
+          imageUrl={authorImage}
+          style={styles.groupIcon}
+        />
+        <Text style={[styles.groupName, { color: theme.text }]}>
+          {authorName}
+        </Text>
+        <OptionsButtonComp onPress={onReportPress} />
       </View>
 
-      <SpacerComp height={10} />
+      <View style={styles.body}>
+        <Text style={[styles.text, { color: theme.text }]}>{post.content}</Text>
+        {post.mediaUrl && (
+          <Image source={{ uri: post.mediaUrl }} style={styles.postImage} />
+        )}
+      </View>
 
-      {/* Conteúdo do Post */}
-      <Text style={[styles.contentText, { color: theme.text }]}>
-        {post.postText}
-      </Text>
-
-      {/* NOVO: Seção da Imagem (Renderização Condicional) */}
-      {post.imageUrl && (
-        <>
-          <SpacerComp height={15} />
-          <Image
-            source={{ uri: post.imageUrl }}
-            style={styles.postImage}
-            resizeMode="cover"
-          />
-        </>
+      {post.type === 'EVENT' && post.event && (
+        <View style={[styles.eventBox, { borderTopColor: theme.gray }]}>
+          <View style={styles.eventRow}>
+            <Ionicons name="calendar-outline" size={20} color={theme.orange} />
+            <Text style={[styles.eventText, { color: theme.text }]}>
+              {formattedDate} às {formattedTime}
+            </Text>
+          </View>
+          <View style={styles.eventRow}>
+            <Ionicons name="location-outline" size={20} color={theme.orange} />
+            <Text style={[styles.eventText, { color: theme.text }]}>
+              {post.event.location}
+            </Text>
+          </View>
+        </View>
       )}
 
-      <SpacerComp height={15} />
+      <View style={[styles.footer, { borderTopColor: theme.gray }]}>
+        <View style={styles.socialActions}>
+          <LikeButtonComp
+            isLiked={post.isLiked}
+            count={post._count.likes}
+            onPress={() => onLikeToggle(post.id, post.isLiked)}
+          />
+          <CommentButtonComp
+            count={post._count.comments}
+            onPress={onCommentPress}
+          />
+        </View>
 
-      {/* Barra de Ações */}
-      <View style={styles.actionsBar}>
-        <LikeButtonComp onLike={handleLike} initialLiked={post.isLiked} />
-        <SpacerComp width={15} />
-        <CommentButtonComp onPress={() => onPressComment(post.id)} />
-        <SpacerComp width={100} />
-        {/* // TODO: Mostrar "Eu Vou" apenas se for um evento (ex: post.type === 'event') */}
-        <ImGoingButtonComp
-          onToggleGoing={handleGoing}
-          initialGoing={post.isGoing}
-        >
-        </ImGoingButtonComp>
+        {post.type === 'EVENT' && (
+          <View style={styles.eventActions}>
+            <TouchableOpacity
+              onPress={onDetailsPress}
+              style={[styles.eventButton, { backgroundColor: theme.gray }]}
+            >
+              <Text style={[styles.eventButtonText, { color: theme.text }]}>
+                Detalhes
+              </Text>
+            </TouchableOpacity>
+            <ImGoingButtonComp
+              isAttending={post.isAttending}
+              onPress={() => onAttendToggle(post.id, post.isAttending)}
+            />
+          </View>
+        )}
       </View>
     </View>
-  );
-};
+  )
+}
 
+// ... (Estilos permanecem os mesmos)
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 15,
-    padding: 15,
+  card: {
+    borderRadius: 12,
     marginVertical: 8,
-    marginHorizontal: 15,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-      web: {
-        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-      },
-    }),
+    marginHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
   },
-  authorName: {
-    fontSize: 18,
-    fontWeight: "bold",
+  groupIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
   },
-  authorId: {
-    fontSize: 10,
-  },
-  contentText: {
+  groupName: {
+    flex: 1,
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  body: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  text: {
+    fontSize: 15,
     lineHeight: 22,
+    marginBottom: 12,
   },
-  // NOVO: Estilo para a imagem
   postImage: {
-    width: "100%",
-    aspectRatio: 16 / 9, // Proporção comum
+    width: '100%',
+    height: 200,
     borderRadius: 10,
-    backgroundColor: Colors.light.gray, // Placeholder
+    marginTop: 4,
   },
-  actionsBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 10,
+  eventBox: {
     borderTopWidth: 1,
-    borderTopColor: Colors.light.gray,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
   },
-});
-
-export default PostCardComp;
+  eventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  eventText: {
+    fontSize: 14,
+    flex: 1,
+  },
+  footer: {
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  socialActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  eventActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  eventButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  eventButtonText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+})
