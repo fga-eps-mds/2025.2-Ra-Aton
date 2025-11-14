@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, View, FlatList, ActivityIndicator, Text } from "react-native";
+import { StyleSheet, View, FlatList, ActivityIndicator, Text, Alert } from "react-native";
 import BackGroundComp from "@/components/BackGroundComp";
 import ProfileThumbnailComp from "@/components/ProfileThumbnailComp";
 import PostCardComp from "@/components/PostCardComp";
@@ -10,10 +10,13 @@ import { EventInfoModalComp } from "@/components/EventInfoModal";
 import { IPost } from "@/libs/interfaces/Ipost";
 import { getFeed } from "@/libs/auth/handleFeed";
 import Spacer from "@/components/SpacerComp";
+import ReportReasonModal from '@/components/ReportReasonModal' // import do modal de Reportar Posts
+import { handleReport } from "@/libs/auth/handleReport"; // importando a função de Reportar Post (API)
 
 export default function HomeScreen() {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [posts, setPosts] = useState<IPost[]>([]);
@@ -124,14 +127,54 @@ export default function HomeScreen() {
     setSelectedPostId(postId);
     setIsOptionsVisible(true);
   };
-  const handleReport = () => {};
+  // Ajustei a função handleReport para handleStartSreportFlow e coloquei a função "handleReport" dentro dela
+  //pois agora ela precisa gerenciar dois modais
+  const handleStartReportFlow = () => {
+    if (!selectedPostId) return;
+    setIsOptionsVisible(false);
+    setIsReportModalVisible(true);
+  };
+
+  // 6. CRIE ESTA NOVA FUNÇÃO para finalizar a denúncia
+  // Ela é chamada pelo 'ReportReasonModal'
+  const handleSubmitReport = async (reason: string) => {
+    if (!selectedPostId) {
+      handleCloseModals();
+      return;
+    }
+
+    try {
+      // 7. CHAME A API (a função que você criou)
+      await handleReport({
+        postId: selectedPostId,
+        reason: reason,
+      });
+
+      Alert.alert("Denúncia Enviada", "Sua denúncia foi registrada e será analisada pela moderação.");
+
+    } catch (error: any) {
+      console.error("Falha ao reportar:", error.message);
+      Alert.alert("Erro", error.message || "Não foi possível enviar sua denúncia.");
+    } finally {
+      // Limpa tudo, independentemente de sucesso ou falha
+      handleCloseModals();
+    }
+  };
   const openModalInfos = () => {
     setIsOptionsVisible(false);
     setShowModal(true);
   };
   const closeModalInfos = () => {
     setShowModal(false);
-    setIsOptionsVisible(true);
+    // 8. CORRIJA AQUI: deve reabrir o modal de opções
+    // setIsOptionsVisible(true); // <--- O seu estava assim
+    handleCloseModals(); // <--- Substitua por esta
+  };
+  const handleCloseModals = () => {
+    setIsOptionsVisible(false);
+    setIsCommentsVisible(false);
+    setIsReportModalVisible(false); // Garante que o modal de denúncia feche
+    setSelectedPostId(null);
   };
 
   return (
@@ -157,7 +200,7 @@ export default function HomeScreen() {
         ListEmptyComponent={
           !isLoading && !isRefreshing ? (
             <View style={{ paddingVertical: 24, alignItems: "center" }}>
-              <Text style={{color:'white'}}>Nenhuma publicação por aqui ainda.</Text>
+              <Text style={{ color: 'white' }}>Nenhuma publicação por aqui ainda.</Text>
             </View>
           ) : null
         }
@@ -181,12 +224,18 @@ export default function HomeScreen() {
 
       <MoreOptionsModalComp
         isVisible={isOptionsVisible}
-        onClose={handleCloseOptions}
-        onReport={handleReport}
+        onClose={handleCloseModals} // Precisei alterar essa função
+        onReport={handleStartReportFlow} // alterei essa função para chamar o fluxo que gerencia os modais, e dentro dela tem a função "handleReport" da API
         onInfos={openModalInfos}
       />
-      <CommentsModalComp isVisible={isCommentsVisible} onClose={handleCloseComments} />
-      <EventInfoModalComp visible={showModal} onClose={closeModalInfos} />
+      <CommentsModalComp isVisible={isCommentsVisible} onClose={handleCloseModals} />
+      <EventInfoModalComp visible={showModal} onClose={handleCloseModals} /> {/* alterei a função aqui para garantir que todos os modais sejam fechados e limpos para evitar lixo*/}
+      {/*Criei esse novo modal com as opções já pre-definipas para o usuario clicar*/}
+      <ReportReasonModal
+        isVisible={isReportModalVisible}
+        onClose={handleCloseModals}
+        onSubmit={handleSubmitReport}
+      />
     </BackGroundComp>
   );
 }
