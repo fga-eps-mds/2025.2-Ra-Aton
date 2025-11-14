@@ -21,7 +21,7 @@ SplashScreen.preventAutoHideAsync()
 const queryClient = new QueryClient()
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts(Fonts)
+  const [fontsLoaded, fontError] = useFonts(Fonts.mainFont)
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
