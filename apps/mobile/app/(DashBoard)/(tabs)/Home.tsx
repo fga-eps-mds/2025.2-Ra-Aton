@@ -20,47 +20,47 @@ export default function HomeScreen() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [posts, setPosts] = useState<IPost[]>([]);
-  const [page,setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [isLoading, setIsloading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
-  
+
   const abortRequestWeb = useRef<AbortController | null>(null); // o abort é realmente para cancelar minha requisição caso necessáirio
   const throttleRequest = useRef(0); // esse useRef é usado como um armazenador, vai ajudar na hora das renderizações
   const LIMIT = 10;
 
-  const loadPage  = useCallback(
-    async(targetPage:number,append:boolean) =>{
-      if(isLoading) return;
+  const loadPage = useCallback(
+    async (targetPage: number, append: boolean) => {
+      if (isLoading) return;
       setIsloading(true);
 
       abortRequestWeb.current?.abort();
       abortRequestWeb.current = new AbortController();
-      
-      try{
+
+      try {
         const res = await getFeed({
-          page:targetPage,
+          page: targetPage,
           limit: LIMIT,
           signal: abortRequestWeb.current.signal,
         })
         setHasNextPage(res.meta?.hasNextPage ?? (res.data.length === LIMIT))
-        setPage(res.meta?page ?? targetPage);
-        
+        setPage(res.meta?.page ?? targetPage);
+
         setPosts(prev => {
-          if(!append) return res.data;
-          
+          if (!append) return res.data;
+
           const map = new Map<String, IPost>();
           [...prev, ...res.data].forEach(p => map.set(String(p.id), p));
           return Array.from(map.values());
         });
       }
-      catch(err){
+      catch (err) {
         console.warn("Erro ao carregar o feed:", err);
-      }finally{
+      } finally {
         setIsloading(false);
       }
     },
-    [isLoading,getFeed]
+    [isLoading, getFeed]
   );
 
 
@@ -69,7 +69,7 @@ export default function HomeScreen() {
 
 
 
-  
+
   const handleOpenComments = (postId: string) => {
     setSelectedPostId(postId);
     setIsCommentsVisible(true);
