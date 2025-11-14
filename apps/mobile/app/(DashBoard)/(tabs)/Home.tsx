@@ -28,10 +28,17 @@ export default function HomeScreen() {
   const abortRequestWeb = useRef<AbortController | null>(null); // o abort é realmente para cancelar minha requisição caso necessáirio
   const throttleRequest = useRef(0); // esse useRef é usado como um armazenador, vai ajudar na hora das renderizações
   const LIMIT = 10;
+  const isLoadingRef = useRef(false);
+  const setLoading = (v:boolean) => {
+    isLoadingRef.current = v;
+    setIsloading(v);
+  }
+
+
 
   const loadPage = useCallback(
     async (targetPage: number, append: boolean) => {
-      if (isLoading) return;
+      if (isLoadingRef.current) return;
 
       // Aborta requisição anterior antes de iniciar a nova (evita estados intermediários)
       abortRequestWeb.current?.abort();
@@ -44,8 +51,10 @@ export default function HomeScreen() {
           limit: LIMIT,
           signal: abortRequestWeb.current?.signal,
         });
+
         console.log("[FEED]", res.meta, "itens:", res.data.length);
-        setHasNextPage(res.meta?.hasNextPage ?? (res.data.length === LIMIT))
+        const nextPage = res.meta?.hasNextPage ?? (res.data.length === LIMIT); 
+        setHasNextPage(nextPage);
         setPage(res.meta?.page ?? targetPage);
 
         setPosts(prev => {
@@ -60,7 +69,6 @@ export default function HomeScreen() {
         // Ignore cancelamento de requisição (AbortController) — acontece ao iniciar uma nova página ou cancelar antiga
         const isCanceled = err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED' || err?.message === 'canceled';
         if (isCanceled) {
-          // não considera erro real
           return;
         }
 
@@ -69,31 +77,32 @@ export default function HomeScreen() {
         setIsloading(false);
       }
     },
-    [isLoading]
+    []
   );
 
   useEffect(() => {
     loadPage(1, false);
     return () => abortRequestWeb.current?.abort();
-  }, [loadPage]);
+  }, []);
 
-  // Pull-to-refresh
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true);
     await loadPage(1, false);
     setIsRefreshing(false);
   }, [loadPage]);
 
-  // Infinite scroll com throttle
   const onEndReached = useCallback(() => {
+    if(posts.length == 0) return;
+    if(isLoadingRef.current || !hasNextPage) return;
+
+
     const now = Date.now();
-    if (now - throttleRequest.current < 800) return; // throttle simples
+    if (now - throttleRequest.current < 800) return; 
     throttleRequest.current = now;
 
-    if (!isLoading && hasNextPage) {
-      loadPage(page + 1, true);
-    }
-  }, [isLoading, hasNextPage, page, loadPage]);
+    loadPage(page + 1, true);
+
+    }, [hasNextPage, posts.length, page, loadPage]);
 
 
   const handleOpenComments = (postId: string) => {
@@ -157,6 +166,9 @@ export default function HomeScreen() {
         onRefresh={onRefresh}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.2}
+        
+        // ListEmptyComponent={}
+
 
         ListFooterComponent={
           isLoading && hasNextPage ? (
