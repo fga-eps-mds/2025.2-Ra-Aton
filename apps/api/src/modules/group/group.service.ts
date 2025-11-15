@@ -44,7 +44,7 @@ class GroupService {
       throw new ApiError(httpStatus.NOT_FOUND, "Grupo não encontrado");
     }
 
-    const memberFound = await GroupMembershipRepository.findMember(
+    const memberFound = await GroupMembershipRepository.findMemberByUserIdAndGroupId(
       userId,
       groupFound.id,
     );
@@ -79,7 +79,7 @@ class GroupService {
       throw new ApiError(httpStatus.NOT_FOUND, "Grupo não encontrado");
     }
 
-    const memberFound = await GroupMembershipRepository.findMember(
+    const memberFound = await GroupMembershipRepository.findMemberByUserIdAndGroupId(
       userId,
       groupFound.id,
     );
