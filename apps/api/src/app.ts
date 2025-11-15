@@ -7,6 +7,7 @@ import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
 import groupRoutes from "./modules/group/group.routes";
 import inviteRoutes from "./modules/groupJoinRequest/groupJoinRequest.routes";
+import memberRoutes from "./modules/groupMembership/groupMembership.routes"
 import HttpStatus from "http-status";
 const app: Express = express();
 
@@ -26,7 +27,8 @@ app.get("/", (_req: Request, res: Response) => {
 app.use("/users", userRoutes);
 app.use("/login", authRoutes);
 app.use("/group", groupRoutes);
-app.use("/invite", inviteRoutes)
+app.use("/invite", inviteRoutes);
+app.use("/member", memberRoutes)
 // (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
 
 // --- TRATAMENTO DE ERROS ---
