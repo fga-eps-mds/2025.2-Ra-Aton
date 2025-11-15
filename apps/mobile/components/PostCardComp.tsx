@@ -32,9 +32,7 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
 
   return (
     <View style={[styles.container, { backgroundColor: theme.input }]}>
-      {/* Header */}
       <View style={styles.header}>
-        {/* Sem imagem de perfil na API: usa avatar placeholder */}
         <ProfileThumbnailComp size={50} />
         <SpacerComp width={12} />
         <View>
@@ -47,7 +45,6 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
 
       <SpacerComp height={10} />
 
-      {/* Conteúdo */}
       {post.title ? (
         <>
           <Text style={[styles.title, { color: theme.text }]}>{post.title}</Text>
@@ -57,7 +54,6 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
 
       <Text style={[styles.contentText, { color: theme.text }]}>{post.content ?? ""}</Text>
 
-      {/* Informações de evento */}
       {isEvent ? (
         <>
           <SpacerComp height={10} />
@@ -71,7 +67,6 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
 
       <SpacerComp height={12} />
 
-      {/* Barra de ações */}
       <View style={styles.actionsBar}>
         <LikeButtonComp onLike={handleLike} initialLiked={post.userLiked ?? false} />
         <Text style={[styles.counter, { color: theme.text }]}> {post.likesCount ?? 0}</Text>

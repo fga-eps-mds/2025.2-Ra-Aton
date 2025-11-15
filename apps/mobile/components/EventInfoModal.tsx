@@ -4,6 +4,7 @@ import InputComp from "./InputComp";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { IPost } from "@/libs/interfaces/Ipost";
 import { Fonts } from "@/constants/Fonts";
 import Spacer from "./SpacerComp";
 
@@ -14,11 +15,23 @@ interface  EventInfo{
     hour_finish:string
 }
 interface ModalInfoEventProps{
+    post: IPost | null,
     visible:boolean,
     onClose?: ()=>void
 }
 
-export const EventInfoModalComp: React.FC<ModalInfoEventProps> = ({visible,onClose}) =>{
+// {isEvent ? (
+//         <>
+//           <SpacerComp height={10} />
+//           <Text style={[styles.eventInfo, { color: theme.text }]}>
+//             {post.location ? `Local: ${post.location}` : ""}
+//             {post.eventDate ? `  •  Início: ${new Date(post.eventDate).toLocaleString()}` : ""}
+//             {post.eventFinishDate ? `  •  Fim: ${new Date(post.eventFinishDate).toLocaleString()}` : ""}
+//           </Text>
+//         </>
+//       ) : null}
+export const EventInfoModalComp: React.FC<ModalInfoEventProps> = ({post,visible,onClose}) =>{
+    if(!visible || !post) return null;
     return(
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} >
             <Pressable onPress={onClose} style={styles.overlayModal}>    
@@ -31,19 +44,20 @@ export const EventInfoModalComp: React.FC<ModalInfoEventProps> = ({visible,onClo
                             </View>
                             <View style={styles.boxInput}>
                                 <InputComp
-                                    value="Av.Não sei oque"
+                                    value={post?.location ?? ""}
                                     justView
-                                    iconName="location"
+                                    iconName="location"     
                                 ></InputComp>
-                                
-                                <InputComp 
-                                    value="20/03/2010"
+                                    <InputComp 
+                                    value={post?.eventDate}
+                                    formatter={(v) => (v ? new Date(v as any).toLocaleString("pt-BR"): "")}
                                     justView
                                     iconName="calendar"
                                 ></InputComp>
                                 
                                 <InputComp 
-                                value="20:00"
+                                value={post?.eventFinishDate}
+                                formatter={(v) => v ? new Date(v as any).toLocaleString("pt-BR", {hour:"2-digit", minute:"2-digit"}) : ""}
                                 justView
                                 iconName="time"
                                 ></InputComp>
