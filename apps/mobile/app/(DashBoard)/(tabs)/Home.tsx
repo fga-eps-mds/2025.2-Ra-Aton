@@ -21,8 +21,8 @@ export default function HomeScreen() {
   const [isLoading, setIsloading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
-
   const abortRequestWeb = useRef<AbortController | null>(null);
+
   const throttleRequest = useRef(0);
   const isLoadingRef = useRef(false);
   const LIMIT = 10;
@@ -133,6 +133,8 @@ export default function HomeScreen() {
     setShowModal(false);
     setIsOptionsVisible(true);
   };
+    
+  const postInfosModal = selectedPostId ? posts.find((p) => String(p.id) === selectedPostId) : null;
 
   return (
     <BackGroundComp>
@@ -186,7 +188,7 @@ export default function HomeScreen() {
         onInfos={openModalInfos}
       />
       <CommentsModalComp isVisible={isCommentsVisible} onClose={handleCloseComments} />
-      <EventInfoModalComp visible={showModal} onClose={closeModalInfos} />
+      <EventInfoModalComp post={postInfosModal} visible={showModal} onClose={closeModalInfos} />
     </BackGroundComp>
   );
 }
