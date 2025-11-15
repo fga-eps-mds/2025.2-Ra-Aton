@@ -28,6 +28,7 @@ export const postRepository = {
             select: {
               id: true,
               name: true,
+              groupType: true,
             },
           },
         },
