@@ -76,7 +76,9 @@ class GroupJoinRequestService {
         "Usuário já foi convidado para equipe recentemente",
       );
     }
-    const newInvite = await GroupJoinRequestRepository.createInvite(data, data.userId, data.groupId);
+
+    const { userId, groupId, ...correctData} = data
+    const newInvite = await GroupJoinRequestRepository.createInvite(correctData, userId, groupId);
     return newInvite;
   };
 
@@ -98,7 +100,7 @@ class GroupJoinRequestService {
             id: updatedInvite.userId
           }
         }
-      })
+      }, updatedInvite.userId, updatedInvite.groupId)
     }
     return updatedInvite;
   };

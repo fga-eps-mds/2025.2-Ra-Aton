@@ -3,11 +3,17 @@ import { Prisma, GroupJoinRequest, MadeBy } from "@prisma/client";
 
 class GroupJoinRequestRepository {
   async findAll(): Promise<GroupJoinRequest[]> {
-    return prisma.groupJoinRequest.findMany({ orderBy: { createdAt: "desc" } });
+    return prisma.groupJoinRequest.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { user: true, group: true },
+    });
   }
 
   async findInviteById(id: string): Promise<GroupJoinRequest | null> {
-    return prisma.groupJoinRequest.findUnique({ where: { id } });
+    return prisma.groupJoinRequest.findUnique({
+      where: { id },
+      include: { user: true, group: true },
+    });
   }
 
   async findInviteByUserId(
@@ -19,6 +25,7 @@ class GroupJoinRequestRepository {
         userId,
         ...(madeBy && { madeBy }),
       },
+      include: { user: true, group: true },
     });
   }
 
@@ -28,6 +35,7 @@ class GroupJoinRequestRepository {
   ): Promise<GroupJoinRequest[]> {
     return prisma.groupJoinRequest.findMany({
       where: { groupId, ...(madeBy && { madeBy }) },
+      include: { user: true, group: true },
     });
   }
 
@@ -42,6 +50,7 @@ class GroupJoinRequestRepository {
           groupId,
         },
       },
+      include: { user: true, group: true },
     });
   }
 
@@ -59,6 +68,10 @@ class GroupJoinRequestRepository {
         group: {
           connect: { id: groupId },
         },
+      },
+      include: {
+        user: true,
+        group: true,
       },
     });
   }

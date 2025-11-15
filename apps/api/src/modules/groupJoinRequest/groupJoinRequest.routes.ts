@@ -20,13 +20,13 @@ router.get(
 );
 
 router.get(
-  "/:sender/group-:id",
+  "/:sender/group/:id",
   validateRequest(findInviteSchema),
   catchAsync(GroupJoinRequestController.findAllByGroupId),
 );
 
 router.get(
-  "/:sender/user-:id",
+  "/:sender/user/:id",
   validateRequest(findInviteSchema),
   catchAsync(GroupJoinRequestController.findAllByUserId),
 );
