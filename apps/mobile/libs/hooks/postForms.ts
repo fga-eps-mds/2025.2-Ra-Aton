@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useUser } from '@/libs/storage/UserContext';
 import { useRouter } from 'expo-router';
-import { createEvent } from '@/libs/criar/createEvento';
+import { createPost } from '@/libs/criar/createPost';
 
-export const eventoForms = () => {
+export const postForms = () => {
   const router = useRouter();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
@@ -12,9 +12,7 @@ export const eventoForms = () => {
   const [formsData, setFormData] = useState({
     titulo: '',
     descricao: '',
-    dataInicio: '',
-    dataFim: '',
-    local: '',
+
   });
 
   const handleSubmit = async () => {
@@ -26,41 +24,37 @@ export const eventoForms = () => {
         return;
       }
 
-      // Campos obrigatórios
-      if (!formsData.titulo || !formsData.dataInicio || !formsData.local) {
-        Alert.alert('Erro', 'Preencha os campos obrigatórios: Título, Data Início e Local');
+      // Campos Obrigatórios
+      if (!formsData.titulo) {
+        Alert.alert('Erro', 'Preencha os campos obrigatórios: Título');
         return;
       }
 
       // Envia ao backend
-      const result = await createEvent({
+      const result = await createPost({
         title: formsData.titulo,
-        type: 'EVENT',
+        type: 'GENERAL',
         content: formsData.descricao,
-        eventDate: formsData.dataInicio,
-        eventFinishDate: formsData.dataFim,
-        location: formsData.local,
         token: user.token,
       });
 
-      if (result.error) throw new Error(result.error);
+      if (result.error){              // Quando a requisição vai errada por exemplo sem descrição ativa aq
+        throw new Error(result.error);
+      }  
 
-      Alert.alert('Sucesso', 'Evento criado com sucesso!');
-      console.log('Evento criado:', result);
+      Alert.alert('Sucesso', 'Post criado com sucesso!');
+      console.log('Post criado:', result);
       
       // Limpa formulário
       setFormData({
         titulo: '',
         descricao: '',
-        dataInicio: '',
-        dataFim: '',
-        local: '',
       });
       
       // Redireciona
       router.replace('/(DashBoard)/(tabs)/Home');
     } catch (error: any) {
-      Alert.alert('Erro ao criar evento', error?.message || 'Tente novamente');
+      Alert.alert('Erro ao criar post', error?.message || 'Tente novamente');
       console.error('Erro:', error);
     } finally {
       setLoading(false);
@@ -71,7 +65,7 @@ export const eventoForms = () => {
     router.push('/(DashBoard)/(tabs)/NovoPost');
   };
 
-  const isDisabled = loading || !formsData.titulo || !formsData.dataInicio || !formsData.local;
+  const isDisabled = loading || !formsData.titulo;
 
   return {
     formsData,

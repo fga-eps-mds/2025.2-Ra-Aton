@@ -41,7 +41,7 @@ export const EventoFormComponent: React.FC<EventFormProps> = ({
         iconName="calendar"
         value={formsData.dataInicio}
         onChangeText={(text) => setFormData(prev => ({ ...prev, dataInicio: text }))}
-        placeholder="18/12"
+        placeholder="31/12/2025 22:00"
       />
 
       <InputComp
@@ -49,7 +49,7 @@ export const EventoFormComponent: React.FC<EventFormProps> = ({
         iconName="calendar"
         value={formsData.dataFim}
         onChangeText={(text) => setFormData(prev => ({ ...prev, dataFim: text }))}
-        placeholder="21/12"
+        placeholder="01/01/2026 02:00"
       />
 
       <InputComp

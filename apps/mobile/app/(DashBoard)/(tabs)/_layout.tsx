@@ -127,12 +127,29 @@ export default function DashboardTabsLayout() {
       />
       
       <Tabs.Screen
-        name="(create)/criarEvento" // Referencia (tabs)/Friends.tsx
+        name="(create)/criarEvento" 
         options={{
           title: "Buscar Atlética",
           href: null,
         }} // Esconde da Navbar
       />
+
+      <Tabs.Screen
+        name="(create)/criarPost" 
+        options={{
+          title: "Buscar Atlética",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(create)/criarPartida" 
+        options={{
+          title: "Buscar Atlética",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
     </Tabs>
   );
 }

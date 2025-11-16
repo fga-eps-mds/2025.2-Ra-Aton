@@ -1,6 +1,18 @@
 import axios from "axios";
 import { IP } from "@/libs/auth/api";
 
+function convertToBackendDate(dateStr: string): string {
+  // recebe: "dd/mm/yyyy hh:mm"
+  const [datePart, timePart] = dateStr.split(" ");
+  const [day, month, year] = datePart.split("/");
+
+  // formatação do backend
+  const date = new Date(`${year}-${month}-${day}T${timePart}:00Z`);
+
+  return date.toISOString(); 
+}
+
+
 interface createEventParams {
   title: string;
   type: string;
@@ -8,9 +20,7 @@ interface createEventParams {
   eventDate: string;
   eventFinishDate: string;
   location: string;
-  userName: string;
   token: string;
-  group: string;
 }
 
 interface CreateEventResponse {
@@ -26,23 +36,22 @@ export async function createEvent({
   eventDate,
   eventFinishDate,
   location,
-  userName,
   token,
-  group,
 }: createEventParams): Promise<CreateEventResponse> {
-  console.log(`Title ==> ${title}\nDescricao ==> ${content}`);
+  const eventDateFormatted = convertToBackendDate(eventDate);
+  const eventFinishDateFormatted = convertToBackendDate(eventFinishDate);
+
+  console.log(`Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\nData ==>${eventDate} até ${eventFinishDate}\nLocalização ==> ${location}`);
   try {
     const response = await axios.post(
-      `${IP}/post/`,
+      `${IP}/posts/`,
       {
         title,
         type,
         content,
-        eventDate,
-        eventFinishDate,
+        eventDate: eventDateFormatted,
+        eventFinishDate: eventFinishDateFormatted,
         location,
-        userName,
-        group,
       },
       {
         headers: {

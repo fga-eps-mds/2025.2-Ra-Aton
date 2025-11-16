@@ -39,6 +39,11 @@ export default function NovoPost() {
           <PrimaryButton onPress={() => router.push("/criarPost")}>Criar Post</PrimaryButton>
 
           <Spacer height={40} />
+
+          <PrimaryButton onPress={() => router.push("/gerenciarPost")}>Gerenciar Posts</PrimaryButton>
+
+
+          <Spacer height={40} />
         </View>
         <Spacer height={20} />
       </ScrollView>
