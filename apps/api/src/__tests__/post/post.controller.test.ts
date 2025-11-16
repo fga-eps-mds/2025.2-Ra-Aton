@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
-import { postController } from "../../modules/post/post.controller";
+import postController  from "../../modules/post/post.controller";
 import { postService } from "../../modules/post/post.service";
 import { ApiError } from "../../utils/ApiError";
 
