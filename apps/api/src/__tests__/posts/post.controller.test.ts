@@ -34,13 +34,13 @@ const createData = { title: "New Post", content: "Content", type: "GENERAL" };
 
 // Novo mock para resultado paginado
 const mockPaginatedResult = {
-    data: mockPosts,
-    meta: {
-      totalItems: 1,
-      currentPage: 1,
-      totalPages: 1,
-      limit: 10,
-    },
+  data: mockPosts,
+  meta: {
+    totalItems: 1,
+    currentPage: 1,
+    totalPages: 1,
+    limit: 10,
+  },
 };
 
 // Função auxiliar para criar mocks de Request e Response
@@ -56,7 +56,7 @@ const getMockReqRes = (
     body: options.body || {},
     params: options.params || {},
     query: options.query || {}, // Adicionado query para testar paginação
-    user: options.user || { id: AUTH_USER_ID }, // Default user ID para rotas protegidas
+    user: options.user === undefined ? { id: AUTH_USER_ID } : options.user, 
   } as unknown as Request;
 
   const res = {
@@ -87,8 +87,8 @@ describe("PostController", () => {
       // Arrange
       // Simular o req.body.userId e req.query vazio (usará os defaults)
       const { req, res } = getMockReqRes({ 
-            body: { userId: AUTH_USER_ID }, // userId é obrigatório no controller
-            user: { id: AUTH_USER_ID } 
+          body: { userId: AUTH_USER_ID }, // userId é obrigatório no controller
+          user: { id: AUTH_USER_ID } 
       }); 
       (postService.listPosts as jest.Mock).mockResolvedValue(mockPaginatedResult);
 
@@ -107,9 +107,9 @@ describe("PostController", () => {
       const limit = 5;
       const page = 2;
       const { req, res } = getMockReqRes({ 
-            query: { limit: limit.toString(), page: page.toString() }, 
-            body: { userId: OTHER_USER_ID },
-            user: { id: AUTH_USER_ID }
+          query: { limit: limit.toString(), page: page.toString() }, 
+          body: { userId: OTHER_USER_ID },
+          user: { id: AUTH_USER_ID }
         });
       (postService.listPosts as jest.Mock).mockResolvedValue(mockPaginatedResult);
 
@@ -125,9 +125,9 @@ describe("PostController", () => {
     it("deve retornar 400 se o limite for maior que 50", async () => {
       // Arrange
       const { req, res } = getMockReqRes({ 
-            query: { limit: "51", page: "1" }, 
-            body: { userId: AUTH_USER_ID },
-            user: { id: AUTH_USER_ID }
+          query: { limit: "51", page: "1" }, 
+          body: { userId: AUTH_USER_ID },
+          user: { id: AUTH_USER_ID }
         });
       
       // Act & Assert (o erro é lançado e deve ser tratado pelo catchAsync/global error handler)
@@ -140,8 +140,10 @@ describe("PostController", () => {
     it("deve retornar 400 se o userId estiver faltando no body", async () => {
       // Arrange
       const { req, res } = getMockReqRes({ 
-            body: { userId: undefined },
-            user: { id: AUTH_USER_ID }
+          body: { userId: undefined },
+          // CORRIGIDO: Passar um user vazio ({}) garante que (req as any).user?.id seja undefined,
+          // forçando a validação do controller a falhar.
+          user: {}, 
         });
 
       // Act & Assert (o erro é lançado e deve ser tratado pelo catchAsync/global error handler)
