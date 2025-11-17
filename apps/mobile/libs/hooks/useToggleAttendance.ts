@@ -1,9 +1,9 @@
 // ARQUIVO: apps/mobile/libs/hooks/useToggleAttendance.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/libs/api/api";
+import { api_route } from "../auth/api";
 
 const toggleAttendance = async (postId: string) => {
-  return api.post(`/posts/${postId}/attendance`);
+  return api_route.post(`/posts/${postId}/attendance`);
 };
 
 export function useToggleAttendance() {

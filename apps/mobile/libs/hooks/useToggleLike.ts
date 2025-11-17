@@ -1,9 +1,8 @@
 // ARQUIVO: apps/mobile/libs/hooks/useToggleLike.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/libs/api/api";
-
+import { api_route } from "../auth/api";
 const toggleLike = async (postId: string) => {
-  return api.post(`/posts/${postId}/like`);
+  return api_route.post(`/posts/${postId}/like`);
 };
 
 export function useToggleLike() {
@@ -18,4 +17,4 @@ export function useToggleLike() {
       console.error("Falha ao dar like:", error);
     },
   });
-}
+} 
