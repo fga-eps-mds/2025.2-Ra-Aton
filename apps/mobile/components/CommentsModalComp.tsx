@@ -42,7 +42,6 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
   const handlePostComment = () => {
     const trimmed = newComment.trim();
     if(!trimmed) return;
-  
     onSendComment(trimmed);
     setNewComment("");
   };

@@ -1,5 +1,7 @@
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View, FlatList, ActivityIndicator, Text } from "react-native";
+import { useUser } from "@/libs/storage/UserContext";
 import BackGroundComp from "@/components/BackGroundComp";
 import ProfileThumbnailComp from "@/components/ProfileThumbnailComp";
 import PostCardComp from "@/components/PostCardComp";
@@ -8,7 +10,9 @@ import CommentsModalComp from "@/components/CommentsModalComp";
 import InputComp from "@/components/InputComp";
 import { EventInfoModalComp } from "@/components/EventInfoModal";
 import { IPost } from "@/libs/interfaces/Ipost";
+import { Icomment } from "@/libs/interfaces/Icomments";
 import { getFeed } from "@/libs/auth/handleFeed";
+import { getComments, postComment } from "@/libs/auth/handleComments";
 import Spacer from "@/components/SpacerComp";
 
 export default function HomeScreen() {
@@ -21,7 +25,10 @@ export default function HomeScreen() {
   const [isLoading, setIsloading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
+  const [comments, setComments] = useState<Icomment[]>([]);
+  const [isLoadingComments, setIsloadingComments] = useState(false);
   const abortRequestWeb = useRef<AbortController | null>(null);
+
 
   const throttleRequest = useRef(0);
   const isLoadingRef = useRef(false);
@@ -72,14 +79,6 @@ export default function HomeScreen() {
         err?.code === "ERR_CANCELED" ||
         err?.message === "canceled";
       if (isCanceled) return;
-      console.log("[GET /posts] status:", err?.response?.status);
-      console.log("[GET /posts] data:", err?.response?.data);
-      console.log(
-        "[GET /posts] url:",
-        err?.config?.baseURL + err?.config?.url,
-        "params:",
-        err?.config?.params
-      );
     } finally {
       setLoading(false);
     }
@@ -108,9 +107,28 @@ export default function HomeScreen() {
     loadPage(page + 1, true);
   }, [hasNextPage, posts.length, page, loadPage]);
 
+  const fetchComments = useCallback(
+    async (postId: string) => {
+      try {
+        setIsloadingComments(true);
+        const data = await getComments(postId);
+        setComments(Array.isArray(data) ? data : []);
+      }
+      catch (err) {
+        console.log("Erro ao carregar os comentários", err);
+        setComments([]);
+      }
+      finally {
+        setIsloadingComments(false);
+      }
+    },
+    [],
+  );
+
   const handleOpenComments = (postId: string) => {
     setSelectedPostId(postId);
     setIsCommentsVisible(true);
+    fetchComments(postId);
   };
   const handleCloseComments = () => {
     setIsCommentsVisible(false);
@@ -119,12 +137,13 @@ export default function HomeScreen() {
   const handleCloseOptions = () => {
     setIsOptionsVisible(false);
     setSelectedPostId(null);
+    setComments([]);
   };
   const handleOpenOptions = (postId: string) => {
     setSelectedPostId(postId);
     setIsOptionsVisible(true);
   };
-  const handleReport = () => {};
+  const handleReport = () => { };
   const openModalInfos = () => {
     setIsOptionsVisible(false);
     setShowModal(true);
@@ -133,7 +152,36 @@ export default function HomeScreen() {
     setShowModal(false);
     setIsOptionsVisible(true);
   };
-    
+
+
+  const { user } = useUser();
+
+  const handlePostComment = async (content: string) => {
+  if (!selectedPostId || !user?.id) return;
+
+  try {
+    const newComment = await postComment({
+      postId: selectedPostId,
+      authorId: user.id,
+      content,
+    });
+
+    setComments((prev) => [newComment, ...prev]);
+
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        String(post.id) === selectedPostId
+          ? { ...post, commentsCount: (post.commentsCount ?? 0) + 1 }
+          : post
+      )
+    );
+  } catch (err) {
+    console.log("Erro ao enviar comentário:", err);
+  }
+};
+
+
+
   const postInfosModal = selectedPostId ? posts.find((p) => String(p.id) === selectedPostId) : null;
 
   return (
@@ -159,7 +207,7 @@ export default function HomeScreen() {
         ListEmptyComponent={
           !isLoading && !isRefreshing ? (
             <View style={{ paddingVertical: 24, alignItems: "center" }}>
-              <Text style={{color:'white'}}>Nenhuma publicação por aqui ainda.</Text>
+              <Text style={{ color: 'white' }}>Nenhuma publicação por aqui ainda.</Text>
             </View>
           ) : null
         }
@@ -187,7 +235,10 @@ export default function HomeScreen() {
         onReport={handleReport}
         onInfos={openModalInfos}
       />
-      <CommentsModalComp isVisible={isCommentsVisible} onClose={handleCloseComments} />
+      
+      <CommentsModalComp isVisible={isCommentsVisible} onClose={handleCloseComments} 
+      comments={comments} isLoading={isLoadingComments} onSendComment={handlePostComment}/>
+      
       <EventInfoModalComp post={postInfosModal} visible={showModal} onClose={closeModalInfos} />
     </BackGroundComp>
   );

@@ -48,22 +48,11 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
       {post.title ? (
         <>
           <Text style={[styles.title, { color: theme.text }]}>{post.title}</Text>
-          <SpacerComp height={6} />
+          <SpacerComp height={16} />
         </>
       ) : null}
 
       <Text style={[styles.contentText, { color: theme.text }]}>{post.content ?? ""}</Text>
-
-      {isEvent ? (
-        <>
-          <SpacerComp height={10} />
-          <Text style={[styles.eventInfo, { color: theme.text }]}>
-            {post.location ? `Local: ${post.location}` : ""}
-            {post.eventDate ? `  •  Início: ${new Date(post.eventDate).toLocaleString()}` : ""}
-            {post.eventFinishDate ? `  •  Fim: ${new Date(post.eventFinishDate).toLocaleString()}` : ""}
-          </Text>
-        </>
-      ) : null}
 
       <SpacerComp height={12} />
 

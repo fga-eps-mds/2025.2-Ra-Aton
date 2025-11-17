@@ -57,7 +57,6 @@ const InputComp = ({
                                       : value == null
                                         ? "" 
                                           : String(value)
-  console.log("valor do inputComp ", stringValue);
   const styles = makeStyles(themeColors);
   
   
