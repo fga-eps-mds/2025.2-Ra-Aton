@@ -71,6 +71,7 @@ const ReportReasonModal: React.FC<ReportReasonModalProps> = ({
                 <SafeAreaView style={styles.safeArea}>
                     <Pressable
                         style={[styles.modalContainer, { backgroundColor: theme.input }]}
+                        testID="modal-overlay"
                     >
                         <View style={[styles.handle, { backgroundColor: theme.gray }]} />
 
