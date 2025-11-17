@@ -11,6 +11,9 @@ import ImGoingButtonComp from "./ImGoingButtonComp";
 import OptionsButtonComp from "./OptionsButtonComp";
 import { IPost } from "@/libs/interfaces/Ipost";
 import { getComments } from "@/libs/auth/handleComments";
+import { useUser } from "@/libs/storage/UserContext";
+import {useToggleLike } from "@/libs/hooks/useToggleLike";
+import { error } from "console";
 
 
 
@@ -18,15 +21,42 @@ interface PostCardProps {
   post: IPost;
   onPressComment: (postId: string) => void;
   onPressOptions: (postId: string) => void;
+  onReloadFeed?: () => void | Promise<void>;
 }
 
-const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOptions }) => {
+const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOptions,onReloadFeed }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
+  const {user} = useUser();
+  const {mutateAsync} = useToggleLike();
 
   const handleLike = async (isLiked: boolean) => {
-    console.log(`API: Curtida ${isLiked} no post ${post.id}`);
+      if(!post.id || !user?.id){
+        console.log("Sem postId ou userId");
+        return;
+      }
+
+      try{
+        const response = await mutateAsync({
+          postId: String(post.id),
+          authorId: user.id,
+        });
+        console.log("Sucesso ao dar o like", response?.data ?? response);
+        if(onReloadFeed){
+          await onReloadFeed();
+        }
+      }
+
+      catch (error: any) {
+        console.log("Erro ao tentar dar o like", error?.response?.data ?? error.message);
+        throw error;
+  }
+      
+    
+
   };
+
+
   const handleGoing = async (isGoing: boolean) => {
     console.log(`API: Presença ${isGoing} no post ${post.id}`);
   };
