@@ -16,58 +16,45 @@ import { Ionicons } from "@expo/vector-icons";
 import SpacerComp from "./SpacerComp";
 import PrimaryButton from "./PrimaryButton";
 import { Fonts } from "@/constants/Fonts";
+import { Icomment } from "@/libs/interfaces/Icomments";
 
-interface Comment {
-  id: string;
-  author: string;
-  text: string;
-  // TODO: Adicionar avatarUrl, timestamp
-}
+
 
 interface CommentsModalProps {
   isVisible: boolean;
   onClose: () => void;
-  postId?: string | null;
+  comments: Icomment[],
+  isLoading: boolean,
+  onSendComment: (content : string) => void;
 }
-
-// Dados Falsos (Mock)
-const MOCK_COMMENTS: Comment[] = [
-  { id: "1", author: "Usuário A", text: "Que legal!" },
-  { id: "2", author: "Usuário B", text: "Vamos participar!" },
-];
 
 const CommentsModalComp: React.FC<CommentsModalProps> = ({
   isVisible,
   onClose,
-  postId,
+  comments,
+  isLoading,
+  onSendComment
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const [newComment, setNewComment] = useState("");
 
-  // TODO: Criar requisição na pasta libs/comments (CA5)
-  // Substituir MOCK_COMMENTS por:
-  // const { data: comments, isLoading, error } = useComments(postId);
-  const isLoading = false;
-  const comments = MOCK_COMMENTS;
-
-  // TODO: Criar requisição (mutation) para postar comentário (CA5)
   const handlePostComment = () => {
-    if (!newComment.trim()) return;
-    console.log(`Postando comentário no Post ${postId}: ${newComment}`);
-    // await postCommentMutation(postId, newComment);
+    const trimmed = newComment.trim();
+    if(!trimmed) return;
+  
+    onSendComment(trimmed);
     setNewComment("");
   };
 
-  const renderComment = ({ item }: { item: Comment }) => (
+  const renderComment = ({ item }: { item: Icomment }) => (
     <View style={styles.commentContainer}>
-      {/* TODO: Adicionar ProfileThumbnailComp aqui */}
       <View style={styles.commentTextContainer}>
         <Text style={[styles.commentAuthor, { color: theme.text }]}>
-          {item.author}
+          {item.authorId}
         </Text>
         <Text style={[styles.commentText, { color: theme.text }]}>
-          {item.text}
+          {item.content}
         </Text>
       </View>
     </View>
@@ -77,12 +64,11 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
     <Modal
       visible={isVisible}
       transparent={true}
-      animationType="slide" // Sobe da base
+      animationType="slide" 
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
         <SafeAreaView style={styles.safeArea}>
-          {/* Previne que o clique no conteúdo feche o modal */}
           <Pressable
             style={[styles.modalContainer, { backgroundColor: theme.input }]}
           >
@@ -90,12 +76,11 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
               Comentários
             </Text>
 
-            {/* Seção de Leitura */}
             {isLoading ? (
               <ActivityIndicator size="large" color={theme.orange} />
             ) : (
               <FlatList
-                data={comments}
+                data={comments} 
                 renderItem={renderComment}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
