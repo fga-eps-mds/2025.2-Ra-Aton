@@ -1,58 +1,35 @@
-// ARQUIVO: apps/mobile/app/_layout.tsx
-import React, { useEffect } from 'react'
-import { Stack } from 'expo-router'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { useFonts } from 'expo-font'
-import * as SplashScreen from 'expo-splash-screen'
-import { StatusBar } from 'expo-status-bar'
+// app/_layout.tsx
+import { ThemeProvider } from "@/constants/Theme";
+import { Stack } from "expo-router";
+import { Fonts } from "@/constants/Fonts";
+import { useFonts } from "expo-font";
+import { UserProvider } from "@/libs/storage/UserContext";
 
-// 1. IMPORTAR O CLIENTE E O PROVEDOR
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+// ⬇️ importa o React Query
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// CORREÇÃO: Usando aliases de path
-import { UserProvider } from '@/libs/storage/UserContext'
-import { ThemeProvider } from '@/constants/Theme'
-import { Fonts } from '@/constants/Fonts'
-
-// Previne o auto-hide da splash screen
-SplashScreen.preventAutoHideAsync()
-
-// 2. CRIAR UMA INSTÂNCIA DO CLIENTE
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts(Fonts.mainFont)
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const [fontsLoaded, fontsError] = useFonts({
+    [Fonts.mainFont.dongleRegular]: require("@/assets/fonts/Dongle-Regular.ttf"),
+    [Fonts.otherFonts.dongleBold]: require("@/assets/fonts/Dongle-Bold.ttf"),
+    [Fonts.otherFonts.dongleLight]: require("@/assets/fonts/Dongle-Light.ttf"),
+  });
+  /* eslint-enable @typescript-eslint/no-require-imports */
 
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      // Esconde a splash screen quando as fontes estiverem prontas
-      SplashScreen.hideAsync()
-    }
-  }, [fontsLoaded, fontError])
-
-  if (!fontsLoaded && !fontError) {
-    return null // Retorna null enquanto as fontes carregam
+  if (!fontsLoaded && !fontsError) {
+    return null;
   }
 
   return (
-    // 3. ENVELOPAR TODO O APP COM O PROVEDOR
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <UserProvider>
-          <SafeAreaProvider>
-            <StatusBar style="auto" />
-            <Stack
-              screenOptions={{
-                headerShown: false, // Remove o header de todas as telas
-              }}
-            >
-              <Stack.Screen name="index" />
-              <Stack.Screen name="(Auth)" />
-              <Stack.Screen name="(DashBoard)" />
-            </Stack>
-          </SafeAreaProvider>
+          <Stack screenOptions={{ headerShown: false }} />
         </UserProvider>
       </ThemeProvider>
     </QueryClientProvider>
-  )
+  );
 }
