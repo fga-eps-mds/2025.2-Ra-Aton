@@ -68,29 +68,20 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
         ) : null}
       </View>
     </View>
-  );
-};
+  )
+}
 
+// ... (Estilos permanecem os mesmos)
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 15,
-    padding: 15,
+  card: {
+    borderRadius: 12,
     marginVertical: 8,
-    marginHorizontal: 15,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-      web: {
-        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-      },
-    }),
+    marginHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   header: { flexDirection: "row", alignItems: "center" },
   authorName: { fontSize: 16, fontWeight: "600" },
@@ -103,7 +94,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.gray,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  socialActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
   counter: { fontSize: 12, opacity: 0.8 },
 });
