@@ -4,12 +4,13 @@ import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 
 export const postService = {
-  listPosts: async (limit: number, page: number) => {
+  listPosts: async (limit: number, page: number, userId: string) => {
     const offset = limit && page ? (page - 1) * limit : 0;
 
     const { posts, totalCount } = await postRepository.findAll(
       limit,
       offset,
+      userId,
     );
 
     const totalPages = Math.ceil(totalCount / limit);
