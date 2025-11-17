@@ -7,13 +7,11 @@ export const api_route = axios.create({
   timeout: 5000,  
 });
 
-export const IP = "http://";
 
-// REQUEST: injeta Authorization + loga
 api_route.interceptors.request.use(
   async (config) => {
     try {
-      const user = await getUserData(); // deve retornar { token: "..." }
+      const user = await getUserData(); 
       const token: string | null = user?.token ?? null;
 
       const headers = { ...(config.headers || {}) } as AxiosRequestHeaders;
