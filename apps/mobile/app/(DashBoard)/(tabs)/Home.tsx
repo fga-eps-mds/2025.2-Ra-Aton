@@ -113,6 +113,13 @@ export default function HomeScreen() {
     setIsRefreshing(false);
   }, [loadPage]);
 
+  const reloadFeed = useCallback(async () => {
+
+    await loadPage(1,false);
+  },
+    [loadPage]
+  );
+
   const onEndReached = useCallback(() => {
     if (posts.length === 0) return;
     if (isLoadingRef.current || !hasNextPage) return;
@@ -244,6 +251,7 @@ export default function HomeScreen() {
             post={item}
             onPressComment={handleOpenComments}
             onPressOptions={handleOpenOptions}
+            onReloadFeed={reloadFeed}
           />
         )}
         ListHeaderComponent={
