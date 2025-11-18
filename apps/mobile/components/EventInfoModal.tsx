@@ -50,7 +50,7 @@ export const EventInfoModalComp: React.FC<ModalInfoEventProps> = ({post,visible,
                                 ></InputComp>
                                     <InputComp 
                                     value={post?.eventDate}
-                                    formatter={(v) => (v ? new Date(v as any).toLocaleString("pt-BR"): "")}
+                                    formatter={(v) => (v ? new Date(v as any).toLocaleString("pt-BR", {dateStyle:"short"}): "")}
                                     justView
                                     iconName="calendar"
                                 ></InputComp>
