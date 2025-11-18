@@ -36,7 +36,7 @@ commentRoutes.delete(
   "/:id",
   auth,
   validateRequest(deleteCommentSchema),
-  catchAsync(commentController.deleteComment),
+  catchAsync(commentController.deleteCommentAsPostAuthor),
 );
 
 // PATCH /posts/:postId/comments/:id

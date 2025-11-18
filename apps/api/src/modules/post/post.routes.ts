@@ -1,6 +1,6 @@
 import { Router } from "express";
 import validateRequest from "../../middlewares/validateRequest";
-import { postController } from "./post.controller";
+import postController from "./post.controller";
 import { catchAsync } from "../../utils/catchAsync";
 import {
   createPostSchema,

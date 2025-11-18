@@ -17,6 +17,21 @@ export const postRepository = {
     // Busca a página de posts e o total em uma única transação
     const [posts, totalCount]: [Post[], number] = await prisma.$transaction([
       prisma.post.findMany({
+        include: {
+          author: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          group: {
+            select: {
+              id: true,
+              name: true,
+              groupType: true,
+            },
+          },
+        },
         take: limit,
         skip: offset,
         orderBy: {
@@ -89,22 +104,45 @@ export const postRepository = {
     });
   },
 
-  create: async (data: Prisma.PostCreateInput) => {
-    return await prisma.post.create({
+   create: async (data: Prisma.PostCreateInput, authorId: string, groupId: string): Promise<Post> => {
+    return prisma.post.create({
+      data: {
+        title: data.title,
+        content: data.content,
+        type: data.type,
+        eventDate: data.eventDate ?? null,
+        eventFinishDate: data.eventFinishDate ?? null,
+        location: data.location ?? null,
+        author: {
+          connect: {
+            id: authorId,
+          },
+        },
+        group: {
+          connect: {
+            id: groupId,
+          },
+        },
+      },
+      include: {
+        author: true,
+        group: true,
+      },
+    });
+  },
+
+   update: async (id: string, data: Prisma.PostUpdateInput): Promise<Post> => {
+    return prisma.post.update({
+      where: { id },
       data,
     });
   },
 
-  delete: async (id: string) => {
-    return await prisma.post.delete({
-      where: { id },
-    });
+   deletePost: async (id: string): Promise<void> => {
+    await prisma.post.delete({ where: { id } });
   },
 
-  update: async (id: string, data: Prisma.PostUpdateInput) => {
-    return await prisma.post.update({
-      where: { id },
-      data,
-    });
+  deleteComment: async (id: string): Promise<void> => {
+    await prisma.comment.delete({ where: { id } });
   },
 };

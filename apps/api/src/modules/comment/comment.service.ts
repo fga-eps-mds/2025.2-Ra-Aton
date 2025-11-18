@@ -1,5 +1,7 @@
 import { commentRepository } from "./comment.repository";
-
+import { postRepository } from "../post/post.repository";
+import { ApiError } from "../../utils/ApiError";
+import HttpStatus from "http-status";
 export interface Comment {
   id: string;
   content: string;
@@ -20,8 +22,28 @@ export const CommentService = {
     return await commentRepository.findById(id);
   },
 
-  deleteComment: async (id: string): Promise<void> => {
-    await commentRepository.delete(id);
+deleteComment: async (id: string, authUserId: string): Promise<void> => {
+    const commentFound = await commentRepository.findById(id);
+    if (!commentFound) {
+      throw new ApiError(HttpStatus.NOT_FOUND, "Comentário não encontrada");
+    }
+
+    const postFound = await postRepository.findById(commentFound.postId);
+    if (!postFound) {
+      throw new ApiError(
+        HttpStatus.NOT_FOUND,
+        "Postagem relcionada não encontrada",
+      );
+    }
+
+    if (postFound.authorId !== authUserId) {
+      throw new ApiError(
+        HttpStatus.FORBIDDEN,
+        "Você não tem permissão para excluir os comentários desta postagem",
+      );
+    }
+
+    await commentRepository.delete(commentFound.id);
   },
 
   updateComment: async (id: string, data: any): Promise<Comment | null> => {
