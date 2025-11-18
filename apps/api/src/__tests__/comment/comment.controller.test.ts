@@ -126,11 +126,11 @@ describe("CommentController", () => {
     it("deve deletar e retornar 204", async () => {
       (commentService.deleteComment as jest.Mock).mockResolvedValue(undefined);
 
-      req = { params: { id: "c1" } };
+      req = { params: { id: "c1" }, user: { id: "u1" } } as any;
 
-      await commentController.deleteComment(req as Request, res as Response);
+      await commentController.deleteCommentAsPostAuthor(req as Request, res as Response);
 
-      expect(commentService.deleteComment).toHaveBeenCalledWith("c1");
+      expect(commentService.deleteComment).toHaveBeenCalledWith("c1", "u1");
       expect(res.status).toHaveBeenCalledWith(httpStatus.NO_CONTENT);
       expect(res.send).toHaveBeenCalled();
     });

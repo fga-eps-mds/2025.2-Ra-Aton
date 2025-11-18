@@ -60,7 +60,7 @@ class PostController {
     };
 
     const newPost = await postService.createPost(data);
-    res.status(HttpStatus.OK).json(newPost);
+    res.status(HttpStatus.CREATED).json(newPost);
   }
 
   async updatePost(req: Request, res: Response) {

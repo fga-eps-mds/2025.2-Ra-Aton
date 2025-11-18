@@ -1,5 +1,5 @@
 import { postRepository } from "../../modules/post/post.repository";
-import { PostType } from "@prisma/client";
+import  { PostType }  from "@prisma/client";
 import { prismaMock } from "../prisma-mock";
 
 // Dados mockados
