@@ -8,7 +8,13 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import groupRoutes from "./modules/group/group.routes";
 import inviteRoutes from "./modules/groupJoinRequest/groupJoinRequest.routes";
 import memberRoutes from "./modules/groupMembership/groupMembership.routes"
+import postRoutes  from "./modules/post/post.routes";
+import commentRoutes from "./modules/comment/comment.routes"
 import HttpStatus from "http-status";
+import { postLikeRoutes } from "./modules/postLike/postlike.routes";
+import { reportRoutes } from "./modules/report/report.routes";
+import { attendanceRoutes } from "./modules/attendance/attendance.routes";
+
 const app: Express = express();
 
 // Middlewares Globais
@@ -23,13 +29,16 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // --- MONTAGEM DAS ROTAS ---
-// Use as novas rotas modulares
 app.use("/users", userRoutes);
 app.use("/login", authRoutes);
 app.use("/group", groupRoutes);
 app.use("/invite", inviteRoutes);
 app.use("/member", memberRoutes)
-// (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
+app.use("/posts", postRoutes);
+app.use("/posts/:postId/comments", commentRoutes);
+app.use("/posts/:postId/like", postLikeRoutes);
+app.use("/posts/:postId/attendance", attendanceRoutes);
+app.use("/posts/:id/report", reportRoutes);
 
 // --- TRATAMENTO DE ERROS ---
 // Middleware para rotas não encontradas (404)

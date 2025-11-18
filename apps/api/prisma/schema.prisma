@@ -264,3 +264,4 @@ model PlayerSubscription {
 
   @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
+
