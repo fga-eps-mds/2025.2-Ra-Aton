@@ -5,10 +5,10 @@ import { api_route } from "../auth/api";
 type toggleLikeArgs = {
   postId: string;
   authorId: string;
-}
+};
 
-export const toggleLike = async ({postId, authorId}: toggleLikeArgs) => {
-  return api_route.post(`/posts/${postId}/like`, {authorId});
+export const toggleLike = async ({ postId, authorId }: toggleLikeArgs) => {
+  return api_route.post(`/posts/${postId}/like`, { authorId });
 };
 
 export function useToggleLike() {
@@ -23,4 +23,4 @@ export function useToggleLike() {
       console.error("Falha ao dar like:", error);
     },
   });
-} 
+}

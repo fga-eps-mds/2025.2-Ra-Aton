@@ -51,7 +51,9 @@ describe("PostLikeController", () => {
         authorId: "456",
       };
 
-      (postLikeService.togglePostLike as jest.Mock).mockResolvedValue(mockPostLike);
+      (postLikeService.togglePostLike as jest.Mock).mockResolvedValue(
+        mockPostLike,
+      );
 
       await postLikeController.togglePostLike(req as Request, res as Response);
 
@@ -66,14 +68,16 @@ describe("PostLikeController", () => {
         body: { authorId: "456" },
       };
 
-      (postLikeService.togglePostLike as jest.Mock).mockRejectedValue(new Error("Erro no banco"));
+      (postLikeService.togglePostLike as jest.Mock).mockRejectedValue(
+        new Error("Erro no banco"),
+      );
 
       await expect(
-        postLikeController.togglePostLike(req as Request, res as Response)
+        postLikeController.togglePostLike(req as Request, res as Response),
       ).rejects.toThrow(ApiError);
 
       await expect(
-        postLikeController.togglePostLike(req as Request, res as Response)
+        postLikeController.togglePostLike(req as Request, res as Response),
       ).rejects.toMatchObject({
         statusCode: httpStatus.INTERNAL_SERVER_ERROR,
       });

@@ -5,13 +5,12 @@ export interface IPost {
   content: string | null;
   type: "GENERAL" | "EVENT" | string;
 
-  author:{
-    userName:string,
-    id:string
-  } 
+  author: {
+    userName: string;
+    id: string;
+  };
   authorId: string | null;
-  
-  
+
   group?: string | null;
   groupId?: string | null;
 

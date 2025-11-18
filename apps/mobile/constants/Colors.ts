@@ -16,11 +16,10 @@ export const Colors = {
     orange: "#F84B07",
     gray: "#A2A2A2",
   },
-  input:{
-    iconColor: "#F84B07" // cor do icone dos inputs
-
+  input: {
+    iconColor: "#F84B07", // cor do icone dos inputs
   },
-  text:{
+  text: {
     inputErr: "#FF2C2C",
   },
 };

@@ -12,37 +12,56 @@ import {
 } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
 import SpacerComp from "./SpacerComp";
 import PrimaryButton from "./PrimaryButton";
 import { Fonts } from "@/constants/Fonts";
 import { Icomment } from "@/libs/interfaces/Icomments";
 
-
-
 interface CommentsModalProps {
   isVisible: boolean;
   onClose: () => void;
-  comments: Icomment[],
-  isLoading: boolean,
-  onSendComment: (content : string) => void;
+  postId?: string;
+  comments?: Icomment[];
+  isLoading?: boolean;
+  onSendComment?: (content: string) => void;
 }
 
 const CommentsModalComp: React.FC<CommentsModalProps> = ({
   isVisible,
   onClose,
   comments,
-  isLoading,
-  onSendComment
+  isLoading = false,
+  onSendComment,
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const [newComment, setNewComment] = useState("");
 
+  if (!isVisible) {
+    return null;
+  }
+
+  const displayComments: Icomment[] =
+    comments && comments.length > 0
+      ? comments
+      : [
+          {
+            id: "1",
+            authorId: "Usuário A",
+            content: "Que legal!",
+            postId: "1",
+            createdAt: new Date().toISOString(),
+          } as Icomment,
+        ];
+
   const handlePostComment = () => {
     const trimmed = newComment.trim();
-    if(!trimmed) return;
-    onSendComment(trimmed);
+    if (!trimmed) return;
+
+    if (onSendComment) {
+      onSendComment(trimmed);
+    }
+
     setNewComment("");
   };
 
@@ -63,7 +82,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
     <Modal
       visible={isVisible}
       transparent={true}
-      animationType="slide" 
+      animationType="slide"
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
@@ -79,7 +98,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
               <ActivityIndicator size="large" color={theme.orange} />
             ) : (
               <FlatList
-                data={comments} 
+                data={displayComments}
                 renderItem={renderComment}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
@@ -93,7 +112,6 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
 
             <SpacerComp height={10} />
 
-            {/* Seção de Escrita */}
             <View style={styles.writeContainer}>
               <TextInput
                 style={[
@@ -139,7 +157,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     width: "100%",
-    maxHeight: "85%", // O modal não ocupa a tela inteira
+    maxHeight: "85%",
   },
   modalContainer: {
     borderTopLeftRadius: 20,
@@ -160,7 +178,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.gray, // Cor sutil
+    borderBottomColor: Colors.light.gray,
   },
   commentTextContainer: {
     flex: 1,
@@ -191,8 +209,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 10,
-    fontSize: 24, // Ajuste para Dongle
-    maxHeight: 100, // Limite para multiline
+    fontSize: 24,
+    maxHeight: 100,
   },
 });
 

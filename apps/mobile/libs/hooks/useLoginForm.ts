@@ -8,7 +8,7 @@ import { Alert } from "react-native";
 interface LoginResponse {
   token: string;
   user: {
-    id:string,
+    id: string;
     name: string;
     userName: string;
     email: string;
@@ -75,18 +75,18 @@ export const useLoginForm = () => {
           router.replace("/formsCadastro");
         } else {
           switch (data.user.profileType) {
-          case "JOGADOR":
-            router.replace("/(DashBoard)/(tabs)/Partidas");
-            break;
-          case "TORCEDOR":
-            router.replace("/(DashBoard)/(tabs)/Home");
-            break;
-          case "ATLETICA":
-            router.replace("/(DashBoard)/(tabs)/Teams");
-            break;
-          default:
-            router.replace("/(DashBoard)/(tabs)/Home");
-        }
+            case "JOGADOR":
+              router.replace("/(DashBoard)/(tabs)/Partidas");
+              break;
+            case "TORCEDOR":
+              router.replace("/(DashBoard)/(tabs)/Home");
+              break;
+            case "ATLETICA":
+              router.replace("/(DashBoard)/(tabs)/Teams");
+              break;
+            default:
+              router.replace("/(DashBoard)/(tabs)/Home");
+          }
         }
       } else {
         throw new Error(

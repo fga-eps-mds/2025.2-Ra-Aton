@@ -15,9 +15,11 @@ export const listPostsSchema = z.object({
       .optional(),
     page: z.coerce.number().int().positive().default(PAGE).optional(),
   }),
-  body: z.object({
-    userId: z.uuid().optional(),
-  }).optional(),
+  body: z
+    .object({
+      userId: z.uuid().optional(),
+    })
+    .optional(),
 });
 
 export const createPostSchema = z.object({
@@ -59,7 +61,9 @@ export const createPostSchema = z.object({
         }),
       )
       .optional(),
-    location: z.string().min(1, "Endereço precisa ter no mínimo 1 caractere")
+    location: z
+      .string()
+      .min(1, "Endereço precisa ter no mínimo 1 caractere")
       .optional(),
   }),
 });
@@ -125,4 +129,3 @@ export const postIdParamSchema = z.object({
     id: z.uuid(),
   }),
 });
-

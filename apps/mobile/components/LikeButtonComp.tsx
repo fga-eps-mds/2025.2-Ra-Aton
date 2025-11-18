@@ -6,7 +6,7 @@ import { Colors } from "@/constants/Colors";
 
 interface LikeButtonProps {
   initialLiked?: boolean;
-  onLike: (isLiked: boolean) => Promise<void>; 
+  onLike: (isLiked: boolean) => Promise<void>;
 }
 
 const LikeButtonComp: React.FC<LikeButtonProps> = ({
@@ -20,13 +20,10 @@ const LikeButtonComp: React.FC<LikeButtonProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePress = async () => {
-
     if (isLoading) return;
 
     setIsLoading(true);
     const newLikedState = !isLiked;
-
-
 
     try {
       await onLike(newLikedState);
@@ -54,7 +51,7 @@ const LikeButtonComp: React.FC<LikeButtonProps> = ({
       <Ionicons
         name={isLiked ? "heart" : "heart-outline"}
         size={28}
-        color={isLiked ? theme.orange : theme.orange} 
+        color={isLiked ? theme.orange : theme.orange}
         style={styles.icon}
         testID="like-button-icon"
       />

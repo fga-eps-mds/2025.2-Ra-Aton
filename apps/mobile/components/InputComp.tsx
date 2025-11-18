@@ -15,10 +15,10 @@ import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
 import AppText from "./AppText";
 
-type InputCompProps = Omit<TextInputProps, "value">& {
-  value?: string | number | Date | null | undefined,
-  formatter?: (v: string | number | Date | null | undefined) => string,
-  justView?:boolean,
+type InputCompProps = Omit<TextInputProps, "value"> & {
+  value?: string | number | Date | null | undefined;
+  formatter?: (v: string | number | Date | null | undefined) => string;
+  justView?: boolean;
   width?: DimensionValue;
   height?: DimensionValue;
   label?: string;
@@ -51,25 +51,24 @@ const InputComp = ({
   const backgroundColor = bgColor || themeColors.input;
   const statusBorderColor = status ? Colors.warning : themeColors.orange;
   const [showPassword, setShowPassword] = useState(false);
-  const stringValue = formatter ? formatter(value) 
-                                  : value instanceof Date 
-                                    ? value.toLocaleString("pt-BR")  
-                                      : value == null
-                                        ? "" 
-                                          : String(value)
+  const stringValue = formatter
+    ? formatter(value)
+    : value instanceof Date
+      ? value.toLocaleString("pt-BR")
+      : value == null
+        ? ""
+        : String(value);
   const styles = makeStyles(themeColors);
-  
-  
+
   return (
-    <View style={{ width,height}}>
+    <View style={{ width, height }}>
       {label ? (
         <View style={styles.inpuxLabel}>
           <AppText style={styles.txt}>{label}</AppText>
         </View>
-      ): null}
-    
+      ) : null}
+
       <View style={styles.inputCompContainer}>
-        
         {iconName && (
           <Ionicons
             name={iconName}
@@ -78,7 +77,7 @@ const InputComp = ({
             style={styles.inputIcon}
           />
         )}
-        <TextInput  
+        <TextInput
           style={[
             styles.inputBox,
             {
@@ -116,10 +115,12 @@ const InputComp = ({
       </View>
 
       {label && statusText ? (
-        <AppText style={[styles.textStatusMessage, { color: statusBorderColor }]}>
+        <AppText
+          style={[styles.textStatusMessage, { color: statusBorderColor }]}
+        >
           {statusText}
         </AppText>
-      ): null}
+      ) : null}
     </View>
   );
 };
@@ -129,10 +130,10 @@ const makeStyles = (theme: any) =>
     inputBox: {
       // width: "100%",
       // flex: 1,
-      width:"100%",
+      width: "100%",
       height: 45,
       borderRadius: 34,
-      // backgroundColor:  theme.input, 
+      // backgroundColor:  theme.input,
       borderWidth: 1,
       borderColor: theme.orange,
 

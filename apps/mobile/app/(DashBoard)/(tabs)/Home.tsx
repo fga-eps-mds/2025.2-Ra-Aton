@@ -52,54 +52,51 @@ export default function HomeScreen() {
     setIsloading(value);
   };
 
-  const loadPage = useCallback(
-    async (targetPage: number, append: boolean) => {
-      if (isLoadingRef.current) return;
+  const loadPage = useCallback(async (targetPage: number, append: boolean) => {
+    if (isLoadingRef.current) return;
 
-      abortRequestWeb.current?.abort();
-      abortRequestWeb.current = new AbortController();
-      setLoading(true);
+    abortRequestWeb.current?.abort();
+    abortRequestWeb.current = new AbortController();
+    setLoading(true);
 
-      try {
-        const res = await getFeed({
-          page: targetPage,
-          limit: LIMIT,
-          signal: abortRequestWeb.current?.signal,
-        });
+    try {
+      const res = await getFeed({
+        page: targetPage,
+        limit: LIMIT,
+        signal: abortRequestWeb.current?.signal,
+      });
 
-        const backendHasNext = res?.meta?.hasNextPage;
-        let nextHasNextPage =
-          typeof backendHasNext === "boolean"
-            ? backendHasNext
-            : Array.isArray(res?.data) && res.data.length === LIMIT;
+      const backendHasNext = res?.meta?.hasNextPage;
+      let nextHasNextPage =
+        typeof backendHasNext === "boolean"
+          ? backendHasNext
+          : Array.isArray(res?.data) && res.data.length === LIMIT;
 
-        if (Array.isArray(res?.data) && res.data.length === 0 && targetPage > 1) {
-          nextHasNextPage = false;
-        }
-
-        setHasNextPage(nextHasNextPage);
-        setPage(res?.meta?.page ?? targetPage);
-
-        setPosts((prev) => {
-          const newData: IPost[] = Array.isArray(res?.data) ? res.data : [];
-          if (!append) return newData;
-
-          const map = new Map<string, IPost>();
-          [...prev, ...newData].forEach((p) => map.set(String(p.id), p));
-          return Array.from(map.values());
-        });
-      } catch (err: any) {
-        const isCanceled =
-          err?.name === "CanceledError" ||
-          err?.code === "ERR_CANCELED" ||
-          err?.message === "canceled";
-        if (isCanceled) return;
-      } finally {
-        setLoading(false);
+      if (Array.isArray(res?.data) && res.data.length === 0 && targetPage > 1) {
+        nextHasNextPage = false;
       }
-    },
-    []
-  );
+
+      setHasNextPage(nextHasNextPage);
+      setPage(res?.meta?.page ?? targetPage);
+
+      setPosts((prev) => {
+        const newData: IPost[] = Array.isArray(res?.data) ? res.data : [];
+        if (!append) return newData;
+
+        const map = new Map<string, IPost>();
+        [...prev, ...newData].forEach((p) => map.set(String(p.id), p));
+        return Array.from(map.values());
+      });
+    } catch (err: any) {
+      const isCanceled =
+        err?.name === "CanceledError" ||
+        err?.code === "ERR_CANCELED" ||
+        err?.message === "canceled";
+      if (isCanceled) return;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadPage(1, false);
@@ -114,11 +111,8 @@ export default function HomeScreen() {
   }, [loadPage]);
 
   const reloadFeed = useCallback(async () => {
-
-    await loadPage(1,false);
-  },
-    [loadPage]
-  );
+    await loadPage(1, false);
+  }, [loadPage]);
 
   const onEndReached = useCallback(() => {
     if (posts.length === 0) return;
@@ -168,7 +162,7 @@ export default function HomeScreen() {
 
   const handleCloseInfoModel = () => {
     setIsOptionsVisible(false);
-  }
+  };
 
   const handleStartReportFlow = () => {
     if (!selectedPostId) return;
@@ -192,18 +186,21 @@ export default function HomeScreen() {
     try {
       await handleReport({
         postId: selectedPostId,
-        reporterId:user.id,
+        reporterId: user.id,
         reason,
-        type:"post",
+        type: "post",
       });
 
       Alert.alert(
         "Denúncia Enviada",
-        "Sua denúncia foi registrada e será analisada pela moderação."
+        "Sua denúncia foi registrada e será analisada pela moderação.",
       );
     } catch (error: any) {
       console.error("Falha ao reportar:", error?.message);
-      Alert.alert("Erro", error?.message || "Não foi possível enviar sua denúncia.");
+      Alert.alert(
+        "Erro",
+        error?.message || "Não foi possível enviar sua denúncia.",
+      );
     } finally {
       handleCloseModals();
     }
@@ -235,8 +232,8 @@ export default function HomeScreen() {
         prevPosts.map((post) =>
           String(post.id) === selectedPostId
             ? { ...post, commentsCount: (post.commentsCount ?? 0) + 1 }
-            : post
-        )
+            : post,
+        ),
       );
     } catch (err) {
       console.log("Erro ao enviar comentário:", err);

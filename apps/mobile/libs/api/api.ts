@@ -1,6 +1,6 @@
 // // ARQUIVO: apps/mobile/libs/api/api.ts
 // import axios from "axios";
-// import AsyncStorage from "@react-native-async-storage/async-storage"; 
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // const API_URL = "http://10.0.2.2:4000";
 

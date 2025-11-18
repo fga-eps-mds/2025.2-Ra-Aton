@@ -38,6 +38,10 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier":"^5.5.4",
     "@babel/plugin-transform-flow-strip-types": "^7.27.1",
     "@jest/core": "29.7.0",
     "@jest/environment": "29.7.0",

@@ -23,8 +23,7 @@ export default function Partidas() {
           color: isDarkMode ? Colors.dark.text : Colors.light.text,
           fontSize: 18,
         }}
-      >
-      </Text>
+      ></Text>
     </View>
   );
 }

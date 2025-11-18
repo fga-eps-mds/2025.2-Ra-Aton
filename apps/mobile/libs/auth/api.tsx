@@ -4,14 +4,13 @@ import { getUserData } from "@/libs/storage/getUserData";
 
 export const api_route = axios.create({
   baseURL: "http://localhost:4000",
-  timeout: 5000,  
+  timeout: 5000,
 });
-
 
 api_route.interceptors.request.use(
   async (config) => {
     try {
-      const user = await getUserData(); 
+      const user = await getUserData();
       const token: string | null = user?.token ?? null;
 
       const headers = { ...(config.headers || {}) } as AxiosRequestHeaders;
@@ -38,7 +37,9 @@ api_route.interceptors.response.use(
   (err: AxiosError) => {
     const status = err.response?.status;
     if (status === 401) {
-      console.warn("[api_route] 401 Unauthorized (token ausente/expirado/inválido)");
+      console.warn(
+        "[api_route] 401 Unauthorized (token ausente/expirado/inválido)",
+      );
     }
     return Promise.reject(err);
   },

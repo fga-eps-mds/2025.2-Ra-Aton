@@ -12,10 +12,8 @@ import OptionsButtonComp from "./OptionsButtonComp";
 import { IPost } from "@/libs/interfaces/Ipost";
 import { getComments } from "@/libs/auth/handleComments";
 import { useUser } from "@/libs/storage/UserContext";
-import {useToggleLike } from "@/libs/hooks/useToggleLike";
+import { useToggleLike } from "@/libs/hooks/useToggleLike";
 import { useToggleAttendance } from "@/libs/hooks/useToggleAttendance";
-
-
 
 interface PostCardProps {
   post: IPost;
@@ -24,63 +22,66 @@ interface PostCardProps {
   onReloadFeed?: () => void | Promise<void>;
 }
 
-const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOptions,onReloadFeed }) => {
+const PostCardComp: React.FC<PostCardProps> = ({
+  post,
+  onPressComment,
+  onPressOptions,
+  onReloadFeed,
+}) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-  const {user} = useUser();
-  const {mutateAsync} = useToggleLike();
-  const {mutateAsync: mutateEuVouAsync} = useToggleAttendance();
-
+  const { user } = useUser();
+  const { mutateAsync } = useToggleLike();
+  const { mutateAsync: mutateEuVouAsync } = useToggleAttendance();
 
   const handleLike = async (isLiked: boolean) => {
-      if(!post.id || !user?.id){
-        console.log("Sem postId ou userId");
-        return;
-      }
+    if (!post.id || !user?.id) {
+      console.log("Sem postId ou userId");
+      return;
+    }
 
-      try{
-        const response = await mutateAsync({
-          postId: String(post.id),
-          authorId: user.id,
-        });
-        console.log("Sucesso ao dar o like", response?.data ?? response);
-        if(onReloadFeed){
-          await onReloadFeed();
-        }
-      }
-
-      catch (error: any) {
-        console.log("Erro ao tentar dar o like", error?.response?.data ?? error.message);
-        throw error;
-  }
-      
-  };
-
-
-  const handleGoing = async (isGoing: boolean) => {
-    console.log(`Cliquei no botão de eu vou, então EU VOU : ${isGoing} no post ${post.id}` )
-     if(!post.id || !user?.id){
-        console.log("Sem postId ou userId");
-        return;
-      }
-
-    try{
-      const response = await mutateEuVouAsync({
-        postId:String(post.id),
-        authorId:user.id
-        });
-      console.log("Presença registrada", response?.data ?? response);
-      if(onReloadFeed){
+    try {
+      const response = await mutateAsync({
+        postId: String(post.id),
+        authorId: user.id,
+      });
+      console.log("Sucesso ao dar o like", response?.data ?? response);
+      if (onReloadFeed) {
         await onReloadFeed();
       }
+    } catch (error: any) {
+      console.log(
+        "Erro ao tentar dar o like",
+        error?.response?.data ?? error.message,
+      );
+      throw error;
     }
-    catch(error:any){
-      console.log("Erro na hora de confirmar a presença",
-      error?.response?.data ?? error.message)
-    };
+  };
 
-    
+  const handleGoing = async (isGoing: boolean) => {
+    console.log(
+      `Cliquei no botão de eu vou, então EU VOU : ${isGoing} no post ${post.id}`,
+    );
+    if (!post.id || !user?.id) {
+      console.log("Sem postId ou userId");
+      return;
+    }
 
+    try {
+      const response = await mutateEuVouAsync({
+        postId: String(post.id),
+        authorId: user.id,
+      });
+      console.log("Presença registrada", response?.data ?? response);
+      if (onReloadFeed) {
+        await onReloadFeed();
+      }
+    } catch (error: any) {
+      console.log(
+        "Erro na hora de confirmar a presença",
+        error?.response?.data ?? error.message,
+      );
+    }
   };
 
   const isEvent = post.type === "EVENT";
@@ -91,7 +92,9 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
         <ProfileThumbnailComp size={50} />
         <SpacerComp width={12} />
         <View>
-          <Text style={[styles.authorName, { color: theme.text }]}>{post.author?.userName ?? "Autor"}</Text>
+          <Text style={[styles.authorName, { color: theme.text }]}>
+            {post.author?.userName ?? "Autor"}
+          </Text>
           {/* <Text style={[styles.authorId, { color: theme.text }]}>{post.authorId ?? ""}</Text> */}
         </View>
         <View style={{ flex: 1 }} />
@@ -102,25 +105,42 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
 
       {post.title ? (
         <>
-          <Text style={[styles.title, { color: theme.text }]}>{post.title}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>
+            {post.title}
+          </Text>
           <SpacerComp height={16} />
         </>
       ) : null}
 
-      <Text style={[styles.contentText, { color: theme.text }]}>{post.content ?? ""}</Text>
+      <Text style={[styles.contentText, { color: theme.text }]}>
+        {post.content ?? ""}
+      </Text>
 
       <SpacerComp height={12} />
 
       <View style={styles.actionsBar}>
-        <LikeButtonComp onLike={handleLike} initialLiked={post.userLiked ?? false} />
-        <Text style={[styles.counter, { color: theme.text }]}> {post.likesCount ?? 0}</Text>
+        <LikeButtonComp
+          onLike={handleLike}
+          initialLiked={post.userLiked ?? false}
+        />
+        <Text style={[styles.counter, { color: theme.text }]}>
+          {" "}
+          {post.likesCount ?? 0}
+        </Text>
         <SpacerComp width={12} />
         <CommentButtonComp onPress={() => onPressComment(String(post.id))} />
-        <Text style={[styles.counter, { color: theme.text }]}> {post.commentsCount ?? 0}</Text>
+        <Text style={[styles.counter, { color: theme.text }]}>
+          {" "}
+          {post.commentsCount ?? 0}
+        </Text>
         <View style={{ flex: 1 }} />
         {isEvent ? (
-          <ImGoingButtonComp onToggleGoing={handleGoing} initialGoing={post.userGoing ?? false} initialCount={post.attendancesCount ?? 0} />
-        ) : null} 
+          <ImGoingButtonComp
+            onToggleGoing={handleGoing}
+            initialGoing={post.userGoing ?? false}
+            initialCount={post.attendancesCount ?? 0}
+          />
+        ) : null}
       </View>
     </View>
   );
