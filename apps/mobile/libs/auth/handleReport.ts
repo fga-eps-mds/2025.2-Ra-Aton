@@ -9,16 +9,16 @@ interface ReportParams {
 }
 
 interface ReportResponse {
-    id: string;
-    postId: string | null;
-    reporterId: string;
-    reason: string;
-    commentId: string | null;
-    createdAt: string;
+  id: string;
+  postId: string | null;
+  reporterId: string;
+  reason: string;
+  commentId: string | null;
+  createdAt: string;
 }
 
 export async function handleReport(
-    params: ReportParams
+  params: ReportParams,
 ): Promise<ReportResponse> {
     const { postId, reason, reporterId } = params;
     try {
