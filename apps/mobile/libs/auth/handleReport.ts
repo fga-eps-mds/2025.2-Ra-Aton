@@ -4,6 +4,8 @@ import { IPost } from "@/libs/interfaces/Ipost";
 interface ReportParams {
     postId: string;
     reason: string;
+    reporterId: string;
+    type?: "post" | "comment";
 }
 
 interface ReportResponse {
@@ -18,11 +20,12 @@ interface ReportResponse {
 export async function handleReport(
     params: ReportParams
 ): Promise<ReportResponse> {
-    const { postId, reason } = params;
+    const { postId, reason, reporterId } = params;
     try {
         const url = `/posts/${postId}/report`;
         //const url = `/report/post/${postId}`;
         const body = {
+            reporterId: reporterId,
             reason: reason,
             type: "post",
         };
