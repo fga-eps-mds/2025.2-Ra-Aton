@@ -4,14 +4,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
-
 interface ImGoingButtonProps {
+  initialCount?:number,
   initialGoing?: boolean;
   onToggleGoing: (isGoing: boolean) => Promise<void>;
 }
 
 const ImGoingButtonComp: React.FC<ImGoingButtonProps> = ({
   initialGoing = false,
+  initialCount=0,
   onToggleGoing,
 }) => {
   const { isDarkMode } = useTheme();
@@ -19,24 +20,33 @@ const ImGoingButtonComp: React.FC<ImGoingButtonProps> = ({
 
   const [isGoing, setIsGoing] = useState(initialGoing);
   const [isLoading, setIsLoading] = useState(false);
-  const  [count,SetCount] = useState(0);
-
-  const countEuVou = async () =>{
-    SetCount(count + 1);
-  }
-
+  const  [count,setCount] = useState(0);
+  
+  
   const handlePress = async () => {
     if (isLoading) return;
-
     setIsLoading(true);
-    const newGoingState = !isGoing;
+    
+    const wasGoing = isGoing;
+    const newGoingState = !wasGoing;
+    setIsGoing(newGoingState);
 
-    // TODO: Criar requisição na pasta libs/events, importar, usar neste componente e testá-la. (CA5)
+    setCount((prev) =>{
+      if(!wasGoing){
+        return prev +1; 
+      }
+      else{
+        return prev > 0 ? prev -1 : 0;  
+      }
+
+    })
+      
     try {
       await onToggleGoing(newGoingState);
-      setIsGoing(newGoingState);
     } catch (error) {
       console.error("Erro ao atualizar presença:", error);
+
+      
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +62,7 @@ const ImGoingButtonComp: React.FC<ImGoingButtonProps> = ({
   }
 
   return (
-    <TouchableOpacity onPress={countEuVou} style={styles.containerEuVou}>
+    <TouchableOpacity onPress={handlePress} style={styles.containerEuVou}>
     <View style={styles.boxButtonEuVou}>
       <Text style={{fontFamily:Fonts.mainFont.dongleRegular, fontSize:25, marginTop:3}}>Eu vou!</Text>
       <View style={styles.euVouCount}>

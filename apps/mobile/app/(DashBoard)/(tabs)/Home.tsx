@@ -166,6 +166,10 @@ export default function HomeScreen() {
     setComments([]);
   };
 
+  const handleCloseInfoModel = () => {
+    setIsOptionsVisible(false);
+  }
+
   const handleStartReportFlow = () => {
     if (!selectedPostId) return;
     setIsOptionsVisible(false);
@@ -180,7 +184,7 @@ export default function HomeScreen() {
   };
 
   const handleSubmitReport = async (reason: string) => {
-    if (!selectedPostId) {
+    if (!selectedPostId || !user?.id) {
       handleCloseModals();
       return;
     }
@@ -188,7 +192,9 @@ export default function HomeScreen() {
     try {
       await handleReport({
         postId: selectedPostId,
+        reporterId:user.id,
         reason,
+        type:"post",
       });
 
       Alert.alert(
@@ -295,7 +301,7 @@ export default function HomeScreen() {
 
       <MoreOptionsModalComp
         isVisible={isOptionsVisible}
-        onClose={handleCloseModals}
+        onClose={handleCloseInfoModel}
         onReport={handleStartReportFlow}
         onInfos={openModalInfos}
       />

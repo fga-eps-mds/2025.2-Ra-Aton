@@ -2,8 +2,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api_route } from "../auth/api";
 
-const toggleAttendance = async (postId: string) => {
-  return api_route.post(`/posts/${postId}/attendance`);
+type toggleEuVouArgs = {
+  postId : string,
+  authorId: string
+}
+
+const toggleAttendance = async ({postId, authorId}: toggleEuVouArgs) => {
+  return api_route.post(`/posts/${postId}/attendance`, {authorId});
 };
 
 export function useToggleAttendance() {

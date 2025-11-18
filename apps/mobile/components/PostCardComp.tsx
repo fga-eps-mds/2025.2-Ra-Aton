@@ -13,7 +13,7 @@ import { IPost } from "@/libs/interfaces/Ipost";
 import { getComments } from "@/libs/auth/handleComments";
 import { useUser } from "@/libs/storage/UserContext";
 import {useToggleLike } from "@/libs/hooks/useToggleLike";
-import { error } from "console";
+import { useToggleAttendance } from "@/libs/hooks/useToggleAttendance";
 
 
 
@@ -29,6 +29,8 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const {user} = useUser();
   const {mutateAsync} = useToggleLike();
+  const {mutateAsync: mutateEuVouAsync} = useToggleAttendance();
+
 
   const handleLike = async (isLiked: boolean) => {
       if(!post.id || !user?.id){
@@ -52,13 +54,33 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
         throw error;
   }
       
-    
-
   };
 
 
   const handleGoing = async (isGoing: boolean) => {
-    console.log(`API: Presença ${isGoing} no post ${post.id}`);
+    console.log(`Cliquei no botão de eu vou, então EU VOU : ${isGoing} no post ${post.id}` )
+     if(!post.id || !user?.id){
+        console.log("Sem postId ou userId");
+        return;
+      }
+
+    try{
+      const response = await mutateEuVouAsync({
+        postId:String(post.id),
+        authorId:user.id
+        });
+      console.log("Presença registrada", response?.data ?? response);
+      if(onReloadFeed){
+        await onReloadFeed();
+      }
+    }
+    catch(error:any){
+      console.log("Erro na hora de confirmar a presença",
+      error?.response?.data ?? error.message)
+    };
+
+    
+
   };
 
   const isEvent = post.type === "EVENT";
@@ -97,8 +119,8 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
         <Text style={[styles.counter, { color: theme.text }]}> {post.commentsCount ?? 0}</Text>
         <View style={{ flex: 1 }} />
         {isEvent ? (
-          <ImGoingButtonComp onToggleGoing={handleGoing} initialGoing={post.userGoing ?? false} />
-        ) : null}
+          <ImGoingButtonComp onToggleGoing={handleGoing} initialGoing={post.userGoing ?? false} initialCount={post.attendancesCount ?? 0} />
+        ) : null} 
       </View>
     </View>
   );
