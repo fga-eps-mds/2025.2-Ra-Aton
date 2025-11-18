@@ -5,28 +5,37 @@ class GroupMembershipRepository {
   async findAllMembers(): Promise<GroupMembership[]> {
     return prisma.groupMembership.findMany({
       orderBy: { createdAt: "desc" },
-      include: { user: true, group: true },
+      include: { 
+        user: {
+          select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
   async findMemberById(id: string): Promise<GroupMembership | null> {
     return prisma.groupMembership.findUnique({
       where: { id },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
   async findMemberByUserId(userId: string): Promise<GroupMembership[]> {
     return prisma.groupMembership.findMany({
       where: { userId },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
   async findMemberByGroupId(groupId: string): Promise<GroupMembership[]> {
     return prisma.groupMembership.findMany({
       where: { groupId },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
@@ -36,7 +45,9 @@ class GroupMembershipRepository {
   ): Promise<GroupMembership | null> {
     return prisma.groupMembership.findUnique({
       where: { userId_groupId: { userId, groupId } },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
@@ -56,7 +67,9 @@ class GroupMembershipRepository {
         },
       },
       include: {
-        user: true,
+        user: {
+          select: { id: true, userName: true, email: true }
+        },
         group: true,
       },
     });

@@ -14,11 +14,49 @@ class GroupRepository {
   }
 
   async findGroupById(id: string): Promise<Group | null> {
-    return prisma.group.findUnique({ where: { id } });
+    return prisma.group.findUnique({ 
+      where: { id }, 
+      include: {
+        _count: {
+          select: { memberships: true },
+        },
+        memberships: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            user: {
+              select: {
+                id: true,
+                userName: true,
+                email: true,
+              },
+            },
+          },
+        }
+      }
+    });
   }
 
-  async findGroupByName(name: string): Promise<Group | null> {
-    return prisma.group.findUnique({ where: { name } });
+  async findGroupByName(name: string): Promise< Group | null> {
+    return prisma.group.findUnique({ 
+      where: { name },
+      include: {
+        _count: {
+          select: { memberships: true },
+        },
+        memberships: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            user: {
+              select: {
+                id: true,
+                userName: true,
+                email: true,
+              },
+            },
+          },
+        }
+      }
+    });
   }
 
   async createGroup(

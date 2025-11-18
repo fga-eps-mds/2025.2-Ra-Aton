@@ -5,14 +5,18 @@ class GroupJoinRequestRepository {
   async findAll(): Promise<GroupJoinRequest[]> {
     return prisma.groupJoinRequest.findMany({
       orderBy: { createdAt: "desc" },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
   async findInviteById(id: string): Promise<GroupJoinRequest | null> {
     return prisma.groupJoinRequest.findUnique({
       where: { id },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
@@ -22,10 +26,12 @@ class GroupJoinRequestRepository {
   ): Promise<GroupJoinRequest[]> {
     return prisma.groupJoinRequest.findMany({
       where: {
-        userId,
+        userId: userId,
         ...(madeBy && { madeBy }),
       },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
@@ -34,8 +40,10 @@ class GroupJoinRequestRepository {
     madeBy?: MadeBy,
   ): Promise<GroupJoinRequest[]> {
     return prisma.groupJoinRequest.findMany({
-      where: { groupId, ...(madeBy && { madeBy }) },
-      include: { user: true, group: true },
+      where: { groupId: groupId, ...(madeBy && { madeBy }) },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
@@ -50,7 +58,9 @@ class GroupJoinRequestRepository {
           groupId,
         },
       },
-      include: { user: true, group: true },
+      include: { user: {
+        select: { id: true, userName: true, email: true }
+      }, group: true },
     });
   }
 
@@ -70,7 +80,9 @@ class GroupJoinRequestRepository {
         },
       },
       include: {
-        user: true,
+        user: {
+          select: { id: true, userName: true, email: true }
+        },
         group: true,
       },
     });
