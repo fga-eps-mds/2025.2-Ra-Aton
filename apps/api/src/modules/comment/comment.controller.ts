@@ -3,6 +3,7 @@ import commentService from "./comment.service";
 import httpStatus from "http-status";
 import { ApiError } from "../../utils/ApiError";
 import type { CreateCommentInput } from "./comment.validation";
+import HttpStatus from "http-status";
 
 class CommentController {
   async listComments(req: Request, res: Response) {
@@ -22,6 +23,28 @@ class CommentController {
     }
   }
 
+  async deleteCommentAsPostAuthor(req: Request, res: Response) {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: "O id é necessesário para excluir os comentários da postagem",
+      });
+    }
+
+    const authUserId = (req as any).user!.id;
+
+    try {
+      await commentService.deleteComment(id, authUserId);
+      return res.status(HttpStatus.NO_CONTENT).send();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return res.status(error.statusCode).json({ message: error.message });
+      }
+        return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Erro ao excluir o comentário da postagem" });
+    }
+  }
   async createComment(req: Request, res: Response) {
     const { postId } = req.params;
     if (!postId) {
@@ -39,12 +62,6 @@ class CommentController {
     const commentId: string = req.params.id!;
     const comment = await commentService.getCommentById(commentId);
     res.status(httpStatus.OK).json(comment);
-  }
-
-  async deleteComment(req: Request, res: Response) {
-    const commentId: string = req.params.id!;
-    await commentService.deleteComment(commentId);
-    res.status(httpStatus.NO_CONTENT).send();
   }
 
   async updateComment(req: Request, res: Response) {
