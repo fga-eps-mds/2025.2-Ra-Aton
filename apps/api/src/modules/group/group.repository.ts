@@ -6,6 +6,13 @@ class GroupRepository {
     return prisma.group.findMany({ orderBy: { createdAt: "desc" } });
   }
 
+  async findAllOpenGroups(): Promise<Group[]> {
+    return prisma.group.findMany({
+      orderBy: { createdAt: "desc" },
+      where: { acceptingNewMembers: true },
+    });
+  }
+
   async findGroupById(id: string): Promise<Group | null> {
     return prisma.group.findUnique({ where: { id } });
   }
@@ -42,7 +49,7 @@ class GroupRepository {
   }
 
   async deleteGroup(id: string): Promise<void> {
-    await prisma.group.delete({ where: { id }})
+    await prisma.group.delete({ where: { id } });
   }
 }
 

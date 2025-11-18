@@ -10,6 +10,11 @@ class GroupController {
     return res.status(HttpStatus.OK).json(groups);
   }
 
+  async listOpenGroups(req: Request, res: Response) {
+    const groups = await GroupService.getAllOpenGroups();
+    return res.status(HttpStatus.OK).json(groups);
+  }
+
   async getGroupByName(req: Request, res: Response) {
     const groupName = req.params.name;
     if (!groupName) {

@@ -12,6 +12,13 @@ class GroupService {
     });
   };
 
+  getAllOpenGroups = async (): Promise<Group[]> => {
+    const groups = await GroupRepository.findAllOpenGroups();
+    return groups.map((group: Group) => {
+      return group;
+    });
+  }
+
   getGroupByName = async (name: string): Promise<Group> => {
     const groupFound = await GroupRepository.findGroupByName(name);
     if (!groupFound) {
