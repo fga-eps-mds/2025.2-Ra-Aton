@@ -15,6 +15,7 @@ expo-env.d.ts
 
 # Testing
 coverage
+.jest-localstorage
 
 # Turbo
 .turbo

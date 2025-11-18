@@ -7,8 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "cross-env NODE_OPTIONS=--localstorage-file=./.jest-localstorage jest",
+    "test:watch": "cross-env NODE_OPTIONS=--localstorage-file=./.jest-localstorage jest --watch",
     "lint": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
