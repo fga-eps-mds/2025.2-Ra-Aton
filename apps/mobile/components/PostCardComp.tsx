@@ -91,8 +91,8 @@ const PostCardComp: React.FC<PostCardProps> = ({ post, onPressComment, onPressOp
         <ProfileThumbnailComp size={50} />
         <SpacerComp width={12} />
         <View>
-          <Text style={[styles.authorName, { color: theme.text }]}>{post.author ?? "Autor"}</Text>
-          <Text style={[styles.authorId, { color: theme.text }]}>{post.authorId ?? ""}</Text>
+          <Text style={[styles.authorName, { color: theme.text }]}>{post.author?.userName ?? "Autor"}</Text>
+          {/* <Text style={[styles.authorId, { color: theme.text }]}>{post.authorId ?? ""}</Text> */}
         </View>
         <View style={{ flex: 1 }} />
         <OptionsButtonComp onPress={() => onPressOptions(String(post.id))} />
