@@ -6,8 +6,43 @@ import { userService } from "../user/user.service";
 
 class PostController {
   async listPosts(req: Request, res: Response) {
-    const posts = await postService.getAllPosts();
-    res.status(HttpStatus.OK).json(posts);
+    const userId = req.body?.userId ? req.body.userId : (req as any).user?.id;
+    if(!userId){
+      throw new ApiError(HttpStatus.BAD_REQUEST, "UserId é obrigatório no corpo da requisição");
+    }
+
+    const DEFAULT_PAGE_LIMIT = 10;
+    const DEFAULT_PAGE = 1;
+
+    const limit = parseInt(req.query.limit as string, 10);
+    const page = parseInt(req.query.page as string, 10);
+
+    const safeLimit = isNaN(limit) ? DEFAULT_PAGE_LIMIT : limit;
+    const safePage = isNaN(page) ? DEFAULT_PAGE : page;
+
+    if (safeLimit > 50) {
+      throw new ApiError(
+        HttpStatus.BAD_REQUEST,
+        "O limite não pode ser maior que 50",
+      );
+    }
+    const paginatedResult = await postService.listPosts(
+      safeLimit,
+      safePage,
+      userId,
+    );
+    res.status(HttpStatus.OK).json(paginatedResult);
+  }
+
+  async getPostById(req: Request, res: Response) {
+    const id = await req.params.id;
+    if (!id) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: "O id é necessário para buscar a postagem" });
+    }
+    const post = await postService.getPostById(id);
+    res.status(HttpStatus.OK).json(post);
   }
 
   async createPost(req: Request, res: Response) {
@@ -25,7 +60,7 @@ class PostController {
     };
 
     const newPost = await postService.createPost(data);
-    res.status(HttpStatus.OK).json(newPost);
+    res.status(HttpStatus.CREATED).json(newPost);
   }
 
   async updatePost(req: Request, res: Response) {
@@ -33,7 +68,7 @@ class PostController {
     if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "O id é necessesário para atualizar a postagem" });
+        .json({ message: "O id é necessário para atualizar a postagem" });
     }
 
     const authUserId = (req as any).user;
@@ -56,7 +91,7 @@ class PostController {
     if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "O id é necessesário para excluir a postagem" });
+        .json({ message: "O id é necessário para excluir a postagem" });
     }
 
     const authUserId = (req as any).user;

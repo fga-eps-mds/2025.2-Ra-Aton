@@ -9,6 +9,7 @@ import {
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import AppText from "./AppText";
 
 type Button1CompProps = {
   style?: StyleProp<ViewStyle>;
@@ -45,16 +46,16 @@ const Button1Comp: React.FC<Button1CompProps> = ({
       {iconName ? (
         <Ionicons name={iconName} size={24} color={themeColors.text} />
       ) : (
-        <Text
+        <AppText
           style={{
             color: themeColors.text,
             textAlign: "center",
             fontWeight: "700",
-            fontSize: 18,
+            fontSize: 22,
           }}
         >
           {children}
-        </Text>
+        </AppText>
       )}
     </TouchableOpacity>
   );

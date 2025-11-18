@@ -1,6 +1,24 @@
 import { z } from "zod";
 
+const DEFAULT_FEED_LIMIT = 10;
+const PAGE = 1;
 const allowedPostType = ["GENERAL", "EVENT"];
+
+export const listPostsSchema = z.object({
+  query: z.object({
+    limit: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(50)
+      .default(DEFAULT_FEED_LIMIT)
+      .optional(),
+    page: z.coerce.number().int().positive().default(PAGE).optional(),
+  }),
+  body: z.object({
+    userId: z.uuid().optional(),
+  }).optional(),
+});
 
 export const createPostSchema = z.object({
   body: z.object({
@@ -42,7 +60,7 @@ export const createPostSchema = z.object({
       )
       .optional(),
     location: z.string().min(1, "Endereço precisa ter no mínimo 1 caractere")
-      .optional,
+      .optional(),
   }),
 });
 
@@ -102,8 +120,9 @@ export const deletePostSchema = z.object({
   }),
 });
 
-export const deleteCommentSchema = z.object({
+export const postIdParamSchema = z.object({
   params: z.object({
     id: z.uuid(),
   }),
 });
+

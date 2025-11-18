@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
+import AppText from "./AppText";
 
 type InputCompProps = TextInputProps & {
   width?: DimensionValue;
@@ -51,7 +52,7 @@ const InputComp = ({
   return (
     <View style={{ width, alignItems: "center" }}>
       <View style={styles.inpuxLabel}>
-        <Text style={styles.txt}>{label}</Text>
+        <AppText style={styles.txt}>{label}</AppText>
       </View>
 
       <View style={styles.inputCompContainer}>
@@ -59,7 +60,7 @@ const InputComp = ({
           <Ionicons
             name={iconName}
             size={20}
-            color="orange"
+            color={Colors.input.iconColor}
             style={styles.inputIcon}
           />
         )}
@@ -97,10 +98,10 @@ const InputComp = ({
         )}
       </View>
 
-      <Text style={[styles.textStatusMessage, { color: statusBorderColor }]}>
+      <AppText style={[styles.textStatusMessage, { color: statusBorderColor }]}>
         {statusText || " "}{" "}
         {/* Se trocar por "" o tamanho ja fica esperando a mensagem no lugar de aparece condicionalmente*/}
-      </Text>
+      </AppText>
     </View>
   );
 };
@@ -118,7 +119,7 @@ const makeStyles = (theme: any) =>
 
       paddingHorizontal: 20,
       textAlignVertical: "center",
-      fontFamily: Fonts.primaryFont.dongleRegular,
+      fontFamily: Fonts.mainFont.dongleRegular,
       color: theme.text,
       fontSize: 20,
     },
@@ -131,7 +132,7 @@ const makeStyles = (theme: any) =>
       color: theme.text,
       fontWeight: "300",
       fontSize: 25,
-      fontFamily: Fonts.primaryFont.dongleRegular,
+      fontFamily: Fonts.mainFont.dongleRegular,
     },
 
     inputCompContainer: {
@@ -143,10 +144,10 @@ const makeStyles = (theme: any) =>
       position: "absolute",
       left: 15,
       zIndex: 1,
-      color: Colors.text.iconColors,
+      color: Colors.input.iconColor,
     },
     passwordIcon: {
-      color: Colors.text.iconColors,
+      color: Colors.input.iconColor,
     },
     textStatusMessage: {
       marginLeft: 17,

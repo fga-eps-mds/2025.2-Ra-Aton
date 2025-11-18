@@ -118,7 +118,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
                     backgroundColor: theme.background,
                     color: theme.text,
                     borderColor: theme.gray,
-                    fontFamily: Fonts.primaryFont.dongleRegular,
+                    fontFamily: Fonts.mainFont.dongleRegular,
                   },
                 ]}
                 placeholder="Escreva um comentário..."

@@ -1,39 +1,34 @@
-import { Router, type Router as RouterType } from "express";
-import postController from "./post.controller";
+import { Router } from "express";
 import validateRequest from "../../middlewares/validateRequest";
+import postController from "./post.controller";
 import { catchAsync } from "../../utils/catchAsync";
-import { auth } from "../../middlewares/auth";
 import {
   createPostSchema,
   updatePostSchema,
   deletePostSchema,
-  deleteCommentSchema,
+  postIdParamSchema,
+  listPostsSchema,
 } from "./post.validation";
+import { auth } from "../../middlewares/auth";
 
-const router: RouterType = Router();
+const router: Router = Router();
 
-// ===================================
-// Rotas Públicas (Não exigem token)
-// ===================================
-
-router.get("/", catchAsync(postController.listPosts));
+router.get("/", auth,
+  validateRequest(listPostsSchema),
+  catchAsync(postController.listPosts));
 
 router.post(
   "/",
   auth,
-  // validateRequest(createPostSchema),
+  validateRequest(createPostSchema),
   catchAsync(postController.createPost),
 );
 
-// ===================================
-// Rotas Protegidas (Exigem token JWT)
-// ===================================
-
-router.patch(
+router.get(
   "/:id",
   auth,
-  validateRequest(updatePostSchema),
-  catchAsync(postController.updatePost),
+  validateRequest(postIdParamSchema),
+  catchAsync(postController.getPostById),
 );
 
 router.delete(
@@ -43,4 +38,13 @@ router.delete(
   catchAsync(postController.deletePost),
 );
 
+router.patch(
+  "/:id",
+  auth,
+  validateRequest(updatePostSchema),
+  catchAsync(postController.updatePost),
+);
+
 export default router;
+
+export const postRoutes: Router = router;
