@@ -22,7 +22,7 @@ export const CommentService = {
     return await commentRepository.findById(id);
   },
 
-deleteComment: async (id: string, authUserId: string): Promise<void> => {
+  deleteComment: async (id: string, authUserId: string): Promise<void> => {
     const commentFound = await commentRepository.findById(id);
     if (!commentFound) {
       throw new ApiError(HttpStatus.NOT_FOUND, "Comentário não encontrada");

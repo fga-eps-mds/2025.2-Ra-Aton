@@ -70,9 +70,9 @@ describe("PostService", () => {
       const totalCount = 15;
       const offset = (page - 1) * limit;
       const totalPages = Math.ceil(totalCount / limit);
-      
+
       const mockResponse = {
-        posts: [mockPost], 
+        posts: [mockPost],
         totalCount: totalCount,
       };
 
@@ -147,7 +147,7 @@ describe("PostService", () => {
       await expect(postService.createPost(data1)).rejects.toThrow(
         expectedError,
       );
-      
+
       // Teste 2: Author existe mas o id está faltando
       const data2 = {
         title: "a",
@@ -159,24 +159,35 @@ describe("PostService", () => {
       await expect(postService.createPost(data2)).rejects.toThrow(
         expectedError,
       );
-      
+
       expect(mockCreate).not.toHaveBeenCalled();
     });
-    
+
     // Teste Adicionado para a nova validação
     it("deve lançar ApiError 404 se o objeto group ou groupId estiver faltando", async () => {
       const expectedError = new ApiError(
-          HttpStatus.NOT_FOUND,
-          "Grupo não encontrado, somente grupos podem fazer postagens"
+        HttpStatus.NOT_FOUND,
+        "Grupo não encontrado, somente grupos podem fazer postagens",
       );
 
-      const data1 = { title: "a", content: "b", type: "GENERAL", author: { id: MOCK_AUTHOR_ID } };
+      const data1 = {
+        title: "a",
+        content: "b",
+        type: "GENERAL",
+        author: { id: MOCK_AUTHOR_ID },
+      };
       await expect(postService.createPost(data1)).rejects.toThrow(
         expectedError,
       );
-      
+
       // Teste 2: Group existe, mas groupId está faltando
-      const data2 = { title: "a", content: "b", type: "GENERAL", author: { id: MOCK_AUTHOR_ID }, group: mockGroup };
+      const data2 = {
+        title: "a",
+        content: "b",
+        type: "GENERAL",
+        author: { id: MOCK_AUTHOR_ID },
+        group: mockGroup,
+      };
       await expect(postService.createPost(data2)).rejects.toThrow(
         expectedError,
       );
@@ -213,13 +224,12 @@ describe("PostService", () => {
       await expect(postService.createPost(invalidData2)).rejects.toThrow(
         expectedError,
       );
-      
+
       // Caso 3: eventFinishDate faltando
       const invalidData3 = { ...mockEventPostData, eventFinishDate: undefined };
       await expect(postService.createPost(invalidData3)).rejects.toThrow(
         expectedError,
       );
-
 
       expect(mockCreate).not.toHaveBeenCalled();
     });
@@ -234,7 +244,7 @@ describe("PostService", () => {
 
     it("deve atualizar o post com sucesso se o usuário for o autor", async () => {
       // CORREÇÃO: Usar mockFindById
-      mockFindById.mockResolvedValue(mockPost); 
+      mockFindById.mockResolvedValue(mockPost);
       const updatedPostMock = { ...mockPost, ...updateData };
       mockUpdate.mockResolvedValue(updatedPostMock);
 
@@ -245,10 +255,7 @@ describe("PostService", () => {
       );
 
       expect(result.content).toBe(updateData.content);
-      expect(mockUpdate).toHaveBeenCalledWith(
-        MOCK_POST_ID,
-        updateData,
-      );
+      expect(mockUpdate).toHaveBeenCalledWith(MOCK_POST_ID, updateData);
     });
 
     it("deve lançar ApiError 404 se a postagem não for encontrada", async () => {
@@ -287,7 +294,7 @@ describe("PostService", () => {
 
     it("deve deletar o post com sucesso se o usuário for o autor", async () => {
       // CORREÇÃO: Usar mockFindById
-      mockFindById.mockResolvedValue(mockPost); 
+      mockFindById.mockResolvedValue(mockPost);
       mockDeletePost.mockResolvedValue(undefined);
 
       await postService.deletePost(MOCK_POST_ID, MOCK_AUTHOR_ID);

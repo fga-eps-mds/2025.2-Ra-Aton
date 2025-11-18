@@ -1,5 +1,5 @@
 import { Router, type Router as RouterType } from "express";
-import GroupMembershipController from "./groupMembership.controller"
+import GroupMembershipController from "./groupMembership.controller";
 import validateRequest from "../../middlewares/validateRequest";
 import { catchAsync } from "../../utils/catchAsync";
 import {

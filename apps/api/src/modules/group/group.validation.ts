@@ -24,7 +24,7 @@ export const createGroupSchema = z.object({
       )
       .optional(),
     verificationRequest: z.boolean(),
-    acceptingNewMembers: z.boolean().optional()
+    acceptingNewMembers: z.boolean().optional(),
   }),
 });
 
@@ -54,7 +54,7 @@ export const updateGroupSchema = z.object({
         message: "Estatus de verificação inválido",
       })
       .optional(),
-    acceptingNewMembers: z.boolean().optional()
+    acceptingNewMembers: z.boolean().optional(),
   }),
 });
 

@@ -29,12 +29,13 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
   const { isDarkMode } = useTheme();
   // Use a safe Modal fallback for test environments where RN's Modal may be
   // unavailable or mocked differently. This avoids crashing during render.
-  const ModalComponent: React.ComponentType<any> = (Modal as any) || function ({
-    visible,
-    children,
-  }: any) {
-    return visible ? React.createElement(React.Fragment, null, children) : null;
-  };
+  const ModalComponent: React.ComponentType<any> =
+    (Modal as any) ||
+    function ({ visible, children }: any) {
+      return visible
+        ? React.createElement(React.Fragment, null, children)
+        : null;
+    };
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
   const modalOptions = [
@@ -47,13 +48,13 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
     // Adiciona a opção de deletar se a função foi passada
     ...(onDelete
       ? [
-        {
-          label: "Excluir Post",
-          icon: "trash-outline",
-          action: onDelete,
-          color: theme.danger || "#D93E3E",
-        },
-      ]
+          {
+            label: "Excluir Post",
+            icon: "trash-outline",
+            action: onDelete,
+            color: theme.danger || "#D93E3E",
+          },
+        ]
       : []),
   ];
 

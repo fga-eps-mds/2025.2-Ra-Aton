@@ -18,7 +18,7 @@ const router: RouterType = Router();
 
 router.get("/", catchAsync(GroupController.listGroups));
 
-router.get("/open", catchAsync(GroupController.listOpenGroups))
+router.get("/open", catchAsync(GroupController.listOpenGroups));
 
 router.get(
   "/:name",

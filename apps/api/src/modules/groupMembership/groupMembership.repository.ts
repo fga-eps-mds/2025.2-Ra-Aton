@@ -5,37 +5,48 @@ class GroupMembershipRepository {
   async findAllMembers(): Promise<GroupMembership[]> {
     return prisma.groupMembership.findMany({
       orderBy: { createdAt: "desc" },
-      include: { 
+      include: {
         user: {
-          select: { id: true, userName: true, email: true }
-      }, group: true },
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
   async findMemberById(id: string): Promise<GroupMembership | null> {
     return prisma.groupMembership.findUnique({
       where: { id },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
   async findMemberByUserId(userId: string): Promise<GroupMembership[]> {
     return prisma.groupMembership.findMany({
       where: { userId },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
   async findMemberByGroupId(groupId: string): Promise<GroupMembership[]> {
     return prisma.groupMembership.findMany({
       where: { groupId },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
@@ -45,9 +56,12 @@ class GroupMembershipRepository {
   ): Promise<GroupMembership | null> {
     return prisma.groupMembership.findUnique({
       where: { userId_groupId: { userId, groupId } },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
@@ -68,7 +82,7 @@ class GroupMembershipRepository {
       },
       include: {
         user: {
-          select: { id: true, userName: true, email: true }
+          select: { id: true, userName: true, email: true },
         },
         group: true,
       },

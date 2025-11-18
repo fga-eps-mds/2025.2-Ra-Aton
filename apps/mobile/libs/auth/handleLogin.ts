@@ -31,7 +31,7 @@ export async function handleLogin(
     return data;
   } catch (err: any) {
     if (err.response) {
-      let type_message = err.response.data;
+      const type_message = err.response.data;
       let data: any = {};
 
       if (typeof type_message === "string") {

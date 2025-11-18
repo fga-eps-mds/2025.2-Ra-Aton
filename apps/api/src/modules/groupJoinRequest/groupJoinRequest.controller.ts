@@ -56,7 +56,7 @@ class GroupJoinRequestController {
 
   async createInvite(req: Request, res: Response) {
     const newInvite = await GroupJoinRequestService.createInvite(req.body);
-    res.status(HttpStatus.CREATED).json( newInvite );
+    res.status(HttpStatus.CREATED).json(newInvite);
   }
 
   async updateInvite(req: Request, res: Response) {

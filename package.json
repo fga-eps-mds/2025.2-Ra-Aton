@@ -12,6 +12,8 @@
     "test:coverage": "turbo run test -- --coverage",
     "test:watch": "turbo run test -- --watchAll",
     "lint": "turbo run lint",
+    "lint:api": "turbo run lint --filter api",
+    "lint:mobile": "turbo run lint --filter mobile",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },

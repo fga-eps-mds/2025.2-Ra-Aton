@@ -14,8 +14,8 @@ class GroupRepository {
   }
 
   async findGroupById(id: string): Promise<Group | null> {
-    return prisma.group.findUnique({ 
-      where: { id }, 
+    return prisma.group.findUnique({
+      where: { id },
       include: {
         _count: {
           select: { memberships: true },
@@ -31,13 +31,13 @@ class GroupRepository {
               },
             },
           },
-        }
-      }
+        },
+      },
     });
   }
 
-  async findGroupByName(name: string): Promise< Group | null> {
-    return prisma.group.findUnique({ 
+  async findGroupByName(name: string): Promise<Group | null> {
+    return prisma.group.findUnique({
       where: { name },
       include: {
         _count: {
@@ -54,8 +54,8 @@ class GroupRepository {
               },
             },
           },
-        }
-      }
+        },
+      },
     });
   }
 

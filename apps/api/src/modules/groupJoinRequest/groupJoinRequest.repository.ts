@@ -5,18 +5,24 @@ class GroupJoinRequestRepository {
   async findAll(): Promise<GroupJoinRequest[]> {
     return prisma.groupJoinRequest.findMany({
       orderBy: { createdAt: "desc" },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
   async findInviteById(id: string): Promise<GroupJoinRequest | null> {
     return prisma.groupJoinRequest.findUnique({
       where: { id },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
@@ -29,9 +35,12 @@ class GroupJoinRequestRepository {
         userId: userId,
         ...(madeBy && { madeBy }),
       },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
@@ -41,9 +50,12 @@ class GroupJoinRequestRepository {
   ): Promise<GroupJoinRequest[]> {
     return prisma.groupJoinRequest.findMany({
       where: { groupId: groupId, ...(madeBy && { madeBy }) },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
@@ -58,9 +70,12 @@ class GroupJoinRequestRepository {
           groupId,
         },
       },
-      include: { user: {
-        select: { id: true, userName: true, email: true }
-      }, group: true },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true },
+        },
+        group: true,
+      },
     });
   }
 
@@ -81,7 +96,7 @@ class GroupJoinRequestRepository {
       },
       include: {
         user: {
-          select: { id: true, userName: true, email: true }
+          select: { id: true, userName: true, email: true },
         },
         group: true,
       },

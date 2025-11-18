@@ -17,7 +17,7 @@ class GroupService {
     return groups.map((group: Group) => {
       return group;
     });
-  }
+  };
 
   getGroupByName = async (name: string): Promise<Group> => {
     const groupFound = await GroupRepository.findGroupByName(name);
@@ -51,10 +51,11 @@ class GroupService {
       throw new ApiError(httpStatus.NOT_FOUND, "Grupo não encontrado");
     }
 
-    const memberFound = await GroupMembershipRepository.findMemberByUserIdAndGroupId(
-      userId,
-      groupFound.id,
-    );
+    const memberFound =
+      await GroupMembershipRepository.findMemberByUserIdAndGroupId(
+        userId,
+        groupFound.id,
+      );
     if (!memberFound) {
       throw new ApiError(
         httpStatus.NOT_FOUND,
@@ -86,10 +87,11 @@ class GroupService {
       throw new ApiError(httpStatus.NOT_FOUND, "Grupo não encontrado");
     }
 
-    const memberFound = await GroupMembershipRepository.findMemberByUserIdAndGroupId(
-      userId,
-      groupFound.id,
-    );
+    const memberFound =
+      await GroupMembershipRepository.findMemberByUserIdAndGroupId(
+        userId,
+        groupFound.id,
+      );
     if (!memberFound) {
       throw new ApiError(
         httpStatus.NOT_FOUND,

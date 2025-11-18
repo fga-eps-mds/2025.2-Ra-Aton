@@ -57,12 +57,13 @@ class GroupJoinRequestService {
   };
 
   createInvite = async (data: any): Promise<GroupJoinRequest> => {
-    const alreadyMember = await GroupMembershipRepository.findMemberByUserIdAndGroupId(data.userId, data.groupId)
+    const alreadyMember =
+      await GroupMembershipRepository.findMemberByUserIdAndGroupId(
+        data.userId,
+        data.groupId,
+      );
     if (alreadyMember) {
-      throw new ApiError(
-        httpStatus.CONFLICT,
-        "Usuário já é membro do grupo"
-      )
+      throw new ApiError(httpStatus.CONFLICT, "Usuário já é membro do grupo");
     }
 
     const existingInvite =
@@ -77,8 +78,12 @@ class GroupJoinRequestService {
       );
     }
 
-    const { userId, groupId, ...correctData} = data
-    const newInvite = await GroupJoinRequestRepository.createInvite(correctData, userId, groupId);
+    const { userId, groupId, ...correctData } = data;
+    const newInvite = await GroupJoinRequestRepository.createInvite(
+      correctData,
+      userId,
+      groupId,
+    );
     return newInvite;
   };
 
@@ -89,18 +94,22 @@ class GroupJoinRequestService {
     );
 
     if (data.status == "APPROVED") {
-      await GroupMembershipRepository.createMembership({ 
-        user: {
-          connect: {
-            id: updatedInvite.userId
-          }
+      await GroupMembershipRepository.createMembership(
+        {
+          user: {
+            connect: {
+              id: updatedInvite.userId,
+            },
+          },
+          group: {
+            connect: {
+              id: updatedInvite.userId,
+            },
+          },
         },
-        group: {
-          connect: {
-            id: updatedInvite.userId
-          }
-        }
-      }, updatedInvite.userId, updatedInvite.groupId)
+        updatedInvite.userId,
+        updatedInvite.groupId,
+      );
     }
     return updatedInvite;
   };

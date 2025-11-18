@@ -6,7 +6,7 @@ const allowedJoinRequestStatus = ["PENDING", "APPROVED", "REJECTED"] as const;
 export const findInviteSchema = z.object({
   params: z.object({
     id: z.uuid(),
-    type: z.string().optional()
+    type: z.string().optional(),
   }),
 });
 

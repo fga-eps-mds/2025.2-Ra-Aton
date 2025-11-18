@@ -19,12 +19,27 @@ router.get(
   catchAsync(GroupJoinRequestController.findInviteById),
 );
 
+/*
+ *
+ * /groupJoinRequest/:sender/group/:id
+ * Retorna todos os pedidos de entrada em grupos feitos por ou para o grupo com o ID especificado.
+ * Se quero ver todos os pedidos que eu (usuário autenticado) recebi para entrar em meu grupo, uso
+ * /invite/:meuId/group/:meuGrupoId
+ */
+
 router.get(
   "/:sender/group/:id",
   validateRequest(findInviteSchema),
   catchAsync(GroupJoinRequestController.findAllByGroupId),
 );
 
+/*
+ *
+ * /groupJoinRequest/:sender/user/:id
+ * Retorna todos os pedidos de entrada em grupos feitos por ou para o usuário com o ID especificado.
+ * Se quero ver todos os pedidos que eu (usuário autenticado) fiz para entrar em grupos, uso
+ * /invite/:meuId/user/:meuId
+ */
 router.get(
   "/:sender/user/:id",
   validateRequest(findInviteSchema),

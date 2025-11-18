@@ -7,9 +7,9 @@ import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
 import groupRoutes from "./modules/group/group.routes";
 import inviteRoutes from "./modules/groupJoinRequest/groupJoinRequest.routes";
-import memberRoutes from "./modules/groupMembership/groupMembership.routes"
-import postRoutes  from "./modules/post/post.routes";
-import commentRoutes from "./modules/comment/comment.routes"
+import memberRoutes from "./modules/groupMembership/groupMembership.routes";
+import postRoutes from "./modules/post/post.routes";
+import commentRoutes from "./modules/comment/comment.routes";
 import HttpStatus from "http-status";
 import { postLikeRoutes } from "./modules/postLike/postlike.routes";
 import { reportRoutes } from "./modules/report/report.routes";
@@ -33,7 +33,7 @@ app.use("/users", userRoutes);
 app.use("/login", authRoutes);
 app.use("/group", groupRoutes);
 app.use("/invite", inviteRoutes);
-app.use("/member", memberRoutes)
+app.use("/member", memberRoutes);
 app.use("/posts", postRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 app.use("/posts/:postId/like", postLikeRoutes);
