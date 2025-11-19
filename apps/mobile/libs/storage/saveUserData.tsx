@@ -10,4 +10,4 @@ export async function saveUserData(userData: Record<string, unknown>) {
   } else {
     await SecureStore.setItemAsync(USER_DATA_KEY, json);
   }
-};
+}
