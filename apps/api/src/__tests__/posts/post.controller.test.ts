@@ -75,17 +75,19 @@ describe("PostController", () => {
   describe("createPost", () => {
     it("deve chamar service e retornar 201", async () => {
       const payload = { content: "X", title: "Novo" };
-      const created = { ...payload, id: "p1"};
+      const created = { ...payload, id: "p1" };
       const author = { id: "user123" };
       (postService.createPost as jest.Mock).mockResolvedValue(created);
-      (userService.getUserById as jest.Mock).mockResolvedValue({ id: "user123" });
-      
+      (userService.getUserById as jest.Mock).mockResolvedValue({
+        id: "user123",
+      });
+
       req = { body: payload, user: { id: "user123" } } as any;
       const data = {
         ...req.body,
         author: author,
-      };  
-      
+      };
+
       await postController.createPost(req as Request, res as Response);
 
       expect(postService.createPost).toHaveBeenCalledWith(data);
@@ -204,17 +206,19 @@ describe("PostController", () => {
   describe("createPost", () => {
     it("deve chamar service e retornar 201", async () => {
       const payload = { content: "X", title: "Novo" };
-      const created = { ...payload, id: "p1"};
+      const created = { ...payload, id: "p1" };
       const author = { id: "user123" };
       (postService.createPost as jest.Mock).mockResolvedValue(created);
-      (userService.getUserById as jest.Mock).mockResolvedValue({ id: "user123" });
-      
+      (userService.getUserById as jest.Mock).mockResolvedValue({
+        id: "user123",
+      });
+
       req = { body: payload, user: { id: "user123" } } as any;
       const data = {
         ...req.body,
         author: author,
-      };  
-      
+      };
+
       await postController.createPost(req as Request, res as Response);
 
       expect(postService.createPost).toHaveBeenCalledWith(data);

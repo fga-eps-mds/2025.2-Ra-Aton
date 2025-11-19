@@ -6,16 +6,22 @@ interface updateProfileParams {
   token: string;
 }
 
-export async function updateProfileType({ userName, profileType, token }: updateProfileParams) {
+export async function updateProfileType({
+  userName,
+  profileType,
+  token,
+}: updateProfileParams) {
   try {
     // console.log("Seu Token --> ", token); // testando pq estava recebendo undefined
-    const response = await axios.patch(`${IP}/users/${userName}`, 
-      {userName, profileType},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axios.patch(
+      `${IP}/users/${userName}`,
+      { userName, profileType },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     return response.data;
   } catch (error: any) {

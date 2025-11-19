@@ -28,7 +28,7 @@ export default function FeedScreen() {
       >
         TELA DE CONFIGURAÇÕES
       </Text>
-      <PrimaryButton onPress={logout}>Sair</PrimaryButton>  
+      <PrimaryButton onPress={logout}>Sair</PrimaryButton>
     </View>
   );
 }

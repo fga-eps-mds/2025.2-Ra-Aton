@@ -1,9 +1,16 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { router } from "expo-router";
 
 export type User = {
+  id: string;
   name: string;
   userName: string;
   email: string;
@@ -34,7 +41,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       }
       if (data) setUserState(JSON.parse(data));
       setLoading(false);
-
     };
     loadUser();
   }, []);
@@ -53,19 +59,19 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-  if (Platform.OS === "web") {
-    localStorage.removeItem("userData");
-    console.log("Apagando os dados do [localStorage]")
-  } else {
-    await SecureStore.deleteItemAsync("userData");
-        console.log("Apagando os dados do [secureStorage]")
-  }
-  setUserState(null);
-  setLoading(false);
-  router.replace("/(Auth)/login");
-};
+    if (Platform.OS === "web") {
+      localStorage.removeItem("userData");
+      console.log("Apagando os dados do [localStorage]");
+    } else {
+      await SecureStore.deleteItemAsync("userData");
+      console.log("Apagando os dados do [secureStorage]");
+    }
+    setUserState(null);
+    setLoading(false);
+    router.replace("/(Auth)/login");
+  };
   return (
-    <UserContext.Provider value={{ user, setUser, logout, loading}}>
+    <UserContext.Provider value={{ user, setUser, logout, loading }}>
       {children}
     </UserContext.Provider>
   );

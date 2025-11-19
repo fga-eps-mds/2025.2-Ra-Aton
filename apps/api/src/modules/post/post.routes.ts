@@ -13,9 +13,12 @@ import { auth } from "../../middlewares/auth";
 
 const router: Router = Router();
 
-router.get("/", auth,
+router.get(
+  "/",
+  auth,
   validateRequest(listPostsSchema),
-  catchAsync(postController.listPosts));
+  catchAsync(postController.listPosts),
+);
 
 router.post(
   "/",

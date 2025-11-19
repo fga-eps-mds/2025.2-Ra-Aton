@@ -15,7 +15,10 @@ import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
 import AppText from "./AppText";
 
-type InputCompProps = TextInputProps & {
+type InputCompProps = Omit<TextInputProps, "value"> & {
+  value?: string | number | Date | null | undefined;
+  formatter?: (v: string | number | Date | null | undefined) => string;
+  justView?: boolean;
   width?: DimensionValue;
   height?: DimensionValue;
   label?: string;
@@ -28,7 +31,10 @@ type InputCompProps = TextInputProps & {
 
 const InputComp = ({
   width = "100%",
-  // height = 67,
+  height,
+  value,
+  formatter,
+  justView = false,
   bgColor,
   label,
   iconName,
@@ -44,16 +50,23 @@ const InputComp = ({
   const inputPaddingRight = secureTextEntry ? 40 : 20;
   const backgroundColor = bgColor || themeColors.input;
   const statusBorderColor = status ? Colors.warning : themeColors.orange;
-
   const [showPassword, setShowPassword] = useState(false);
-
+  const stringValue = formatter
+    ? formatter(value)
+    : value instanceof Date
+      ? value.toLocaleString("pt-BR")
+      : value == null
+        ? ""
+        : String(value);
   const styles = makeStyles(themeColors);
 
   return (
-    <View style={{ width, alignItems: "center" }}>
-      <View style={styles.inpuxLabel}>
-        <AppText style={styles.txt}>{label}</AppText>
-      </View>
+    <View style={{ width, height }}>
+      {label ? (
+        <View style={styles.inpuxLabel}>
+          <AppText style={styles.txt}>{label}</AppText>
+        </View>
+      ) : null}
 
       <View style={styles.inputCompContainer}>
         {iconName && (
@@ -73,6 +86,9 @@ const InputComp = ({
               paddingRight: inputPaddingRight,
             },
           ]}
+          value={stringValue}
+          editable={!justView}
+          selectTextOnFocus={false}
           secureTextEntry={secureTextEntry && !showPassword}
           placeholder={placeholder}
           placeholderTextColor={themeColors.text + "99"} // semi-transparente
@@ -98,10 +114,13 @@ const InputComp = ({
         )}
       </View>
 
-      <AppText style={[styles.textStatusMessage, { color: statusBorderColor }]}>
-        {statusText || " "}{" "}
-        {/* Se trocar por "" o tamanho ja fica esperando a mensagem no lugar de aparece condicionalmente*/}
-      </AppText>
+      {label && statusText ? (
+        <AppText
+          style={[styles.textStatusMessage, { color: statusBorderColor }]}
+        >
+          {statusText}
+        </AppText>
+      ) : null}
     </View>
   );
 };
@@ -110,10 +129,11 @@ const makeStyles = (theme: any) =>
   StyleSheet.create({
     inputBox: {
       // width: "100%",
-      flex: 1,
+      // flex: 1,
+      width: "100%",
       height: 45,
       borderRadius: 34,
-      backgroundColor: theme.input,
+      // backgroundColor:  theme.input,
       borderWidth: 1,
       borderColor: theme.orange,
 
