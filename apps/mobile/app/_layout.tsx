@@ -5,6 +5,11 @@ import { Fonts } from "@/constants/Fonts";
 import { useFonts } from "expo-font";
 import { UserProvider } from "@/libs/storage/UserContext";
 
+// ⬇️ importa o React Query
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
   /* eslint-disable @typescript-eslint/no-require-imports */
 
@@ -21,10 +26,12 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <UserProvider>
-        <Stack screenOptions={{ headerShown: false }} />
-      </UserProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <UserProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </UserProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

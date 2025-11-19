@@ -16,6 +16,7 @@ import SpacerComp from "./SpacerComp";
 interface MoreOptionsModalProps {
   isVisible: boolean;
   onClose: () => void;
+  onInfos?: () => void;
   onReport: () => void;
   onDelete?: () => void; // Opcional, se o usuário for dono do post
 }
@@ -24,6 +25,7 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
   isVisible,
   onClose,
   onReport,
+  onInfos,
   onDelete,
 }) => {
   const { isDarkMode } = useTheme();
@@ -44,6 +46,12 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
       icon: "alert-circle-outline",
       action: onReport,
       color: theme.danger || "#D93E3E", // TODO: Adicionar 'danger' em Colors.ts
+    },
+    {
+      label: "Sobre o evento",
+      icon: "information-circle",
+      action: onInfos,
+      color: theme.orange,
     },
     // Adiciona a opção de deletar se a função foi passada
     ...(onDelete

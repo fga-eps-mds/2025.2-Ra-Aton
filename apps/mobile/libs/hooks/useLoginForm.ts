@@ -8,6 +8,7 @@ import { Alert } from "react-native";
 interface LoginResponse {
   token: string;
   user: {
+    id: string;
     name: string;
     userName: string;
     email: string;
@@ -59,6 +60,7 @@ export const useLoginForm = () => {
 
       if (data && data.token && data.user) {
         setUser({
+          id: data.user.id,
           name: data.user.name,
           userName: data.user.userName,
           email: data.user.email,

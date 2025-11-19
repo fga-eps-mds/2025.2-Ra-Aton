@@ -6,7 +6,7 @@ import { Colors } from "@/constants/Colors";
 
 interface LikeButtonProps {
   initialLiked?: boolean;
-  onLike: (isLiked: boolean) => Promise<void>; // Função que chama a API
+  onLike: (isLiked: boolean) => Promise<void>;
 }
 
 const LikeButtonComp: React.FC<LikeButtonProps> = ({
@@ -25,8 +25,6 @@ const LikeButtonComp: React.FC<LikeButtonProps> = ({
     setIsLoading(true);
     const newLikedState = !isLiked;
 
-    // TODO: Criar requisição na pasta libs/posts, importar, usar neste componente e testá-la. (CA5)
-    // A função 'onLike' (passada por props) deve conter a chamada da API
     try {
       await onLike(newLikedState);
       setIsLiked(newLikedState);
@@ -53,7 +51,7 @@ const LikeButtonComp: React.FC<LikeButtonProps> = ({
       <Ionicons
         name={isLiked ? "heart" : "heart-outline"}
         size={28}
-        color={isLiked ? theme.orange : theme.text} // TODO: Usar cor "Like" do Figma
+        color={isLiked ? theme.orange : theme.orange}
         style={styles.icon}
         testID="like-button-icon"
       />

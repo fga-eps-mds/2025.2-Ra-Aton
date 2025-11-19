@@ -12,62 +12,67 @@ import {
 } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
 import SpacerComp from "./SpacerComp";
 import PrimaryButton from "./PrimaryButton";
 import { Fonts } from "@/constants/Fonts";
-
-interface Comment {
-  id: string;
-  author: string;
-  text: string;
-  // TODO: Adicionar avatarUrl, timestamp
-}
+import { Icomment } from "@/libs/interfaces/Icomments";
 
 interface CommentsModalProps {
   isVisible: boolean;
   onClose: () => void;
-  postId: string | null;
+  postId?: string;
+  comments?: Icomment[];
+  isLoading?: boolean;
+  onSendComment?: (content: string) => void;
 }
-
-// Dados Falsos (Mock)
-const MOCK_COMMENTS: Comment[] = [
-  { id: "1", author: "Usuário A", text: "Que legal!" },
-  { id: "2", author: "Usuário B", text: "Vamos participar!" },
-];
 
 const CommentsModalComp: React.FC<CommentsModalProps> = ({
   isVisible,
   onClose,
-  postId,
+  comments,
+  isLoading = false,
+  onSendComment,
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const [newComment, setNewComment] = useState("");
 
-  // TODO: Criar requisição na pasta libs/comments (CA5)
-  // Substituir MOCK_COMMENTS por:
-  // const { data: comments, isLoading, error } = useComments(postId);
-  const isLoading = false;
-  const comments = MOCK_COMMENTS;
+  if (!isVisible) {
+    return null;
+  }
 
-  // TODO: Criar requisição (mutation) para postar comentário (CA5)
+  const displayComments: Icomment[] =
+    comments && comments.length > 0
+      ? comments
+      : [
+          {
+            id: "1",
+            authorId: "Usuário A",
+            content: "Que legal!",
+            postId: "1",
+            createdAt: new Date().toISOString(),
+          } as Icomment,
+        ];
+
   const handlePostComment = () => {
-    if (!newComment.trim()) return;
-    console.log(`Postando comentário no Post ${postId}: ${newComment}`);
-    // await postCommentMutation(postId, newComment);
+    const trimmed = newComment.trim();
+    if (!trimmed) return;
+
+    if (onSendComment) {
+      onSendComment(trimmed);
+    }
+
     setNewComment("");
   };
 
-  const renderComment = ({ item }: { item: Comment }) => (
+  const renderComment = ({ item }: { item: Icomment }) => (
     <View style={styles.commentContainer}>
-      {/* TODO: Adicionar ProfileThumbnailComp aqui */}
       <View style={styles.commentTextContainer}>
         <Text style={[styles.commentAuthor, { color: theme.text }]}>
-          {item.author}
+          {item.authorId}
         </Text>
         <Text style={[styles.commentText, { color: theme.text }]}>
-          {item.text}
+          {item.content}
         </Text>
       </View>
     </View>
@@ -77,12 +82,11 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
     <Modal
       visible={isVisible}
       transparent={true}
-      animationType="slide" // Sobe da base
+      animationType="slide"
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
         <SafeAreaView style={styles.safeArea}>
-          {/* Previne que o clique no conteúdo feche o modal */}
           <Pressable
             style={[styles.modalContainer, { backgroundColor: theme.input }]}
           >
@@ -90,12 +94,11 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
               Comentários
             </Text>
 
-            {/* Seção de Leitura */}
             {isLoading ? (
               <ActivityIndicator size="large" color={theme.orange} />
             ) : (
               <FlatList
-                data={comments}
+                data={displayComments}
                 renderItem={renderComment}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
@@ -109,7 +112,6 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
 
             <SpacerComp height={10} />
 
-            {/* Seção de Escrita */}
             <View style={styles.writeContainer}>
               <TextInput
                 style={[
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     width: "100%",
-    maxHeight: "85%", // O modal não ocupa a tela inteira
+    maxHeight: "85%",
   },
   modalContainer: {
     borderTopLeftRadius: 20,
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.gray, // Cor sutil
+    borderBottomColor: Colors.light.gray,
   },
   commentTextContainer: {
     flex: 1,
@@ -207,8 +209,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 10,
-    fontSize: 24, // Ajuste para Dongle
-    maxHeight: 100, // Limite para multiline
+    fontSize: 24,
+    maxHeight: 100,
   },
 });
 

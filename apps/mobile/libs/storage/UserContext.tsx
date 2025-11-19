@@ -10,6 +10,7 @@ import { Platform } from "react-native";
 import { router } from "expo-router";
 
 export type User = {
+  id: string;
   name: string;
   userName: string;
   email: string;
