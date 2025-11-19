@@ -1,16 +1,12 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-export const saveToken = async (token: string) => {
+const USER_TOKEN_KEY = "userToken";
+
+export async function saveToken(token: string) {
   if (Platform.OS === "web") {
-    try {
-      localStorage.setItem("userToken", token);
-    } catch (e) {
-      console.warn(
-        "LocalStorage indisponível. Não foi possível salvar o token.",
-      );
-    }
+    localStorage.setItem(USER_TOKEN_KEY, token);
   } else {
-    await SecureStore.setItemAsync("userToken", token);
+    await SecureStore.setItemAsync(USER_TOKEN_KEY, token);
   }
-};
+}

@@ -25,31 +25,29 @@ describe("UserService", () => {
       };
 
       // Mock da senha
-        jest.spyOn(bcrypt, "hash").mockResolvedValue("hashedPassword");
+      jest.spyOn(bcrypt, "hash").mockResolvedValue("hashedPassword");
 
       const repo = jest.mocked(userRepository);
 
-      repo.findByEmail.mockResolvedValue(null as any); 
+      repo.findByEmail.mockResolvedValue(null as any);
 
       const now = new Date();
-        repo.create.mockResolvedValue({
-          id: "u_1",
-          name: mockUser.name,
-          userName: mockUser.userName,
-          email: mockUser.email,
-          profileType: null,
-          passwordHash: "hashedPassword",
-          createdAt: now,
-          updatedAt: now,
-        } as any);
+      repo.create.mockResolvedValue({
+        id: "u_1",
+        name: mockUser.name,
+        userName: mockUser.userName,
+        email: mockUser.email,
+        profileType: null,
+        passwordHash: "hashedPassword",
+        createdAt: now,
+        updatedAt: now,
+      } as any);
 
       // Act
       const result = await userService.createUser(mockUser);
 
       // Assert
-      expect(bcrypt.hash).toHaveBeenCalledWith(
-        mockUser.password, 10,
-      );
+      expect(bcrypt.hash).toHaveBeenCalledWith(mockUser.password, 10);
 
       expect(repo.create).toHaveBeenCalledTimes(1);
       expect(repo.create).toHaveBeenCalledWith({
@@ -59,14 +57,12 @@ describe("UserService", () => {
         passwordHash: "hashedPassword",
       });
 
-      expect(userRepository.create).toHaveBeenCalledWith(
-        {
-          name: mockUser.name,
-          userName: mockUser.userName,
-          email: mockUser.email,
-          passwordHash: "hashedPassword",
-        },
-      );
+      expect(userRepository.create).toHaveBeenCalledWith({
+        name: mockUser.name,
+        userName: mockUser.userName,
+        email: mockUser.email,
+        passwordHash: "hashedPassword",
+      });
 
       expect(result).toMatchObject({
         id: "u_1",
@@ -75,8 +71,8 @@ describe("UserService", () => {
         profileType: null, // ProfileType é alterado depois do primeiro login
         email: "test@example.com",
       }); // Verifica se a senha não é retornada
-    expect((result as any).passwordHash).toBeUndefined();
-    expect((result as any).password).toBeUndefined();
+      expect((result as any).passwordHash).toBeUndefined();
+      expect((result as any).password).toBeUndefined();
     });
   });
 

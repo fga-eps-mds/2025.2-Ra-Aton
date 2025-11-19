@@ -47,8 +47,8 @@ export const postService = {
     if (!data.group || !data.groupId) {
       throw new ApiError(
         httpStatus.NOT_FOUND,
-        "Grupo não encontrado, somente grupos podem fazer postagens"
-      )
+        "Grupo não encontrado, somente grupos podem fazer postagens",
+      );
     }
 
     if (data.type === "EVENT") {
@@ -60,7 +60,11 @@ export const postService = {
       }
     }
 
-    const newPost: Post = await postRepository.create(data, data.author.id, data.groupId);
+    const newPost: Post = await postRepository.create(
+      data,
+      data.author.id,
+      data.groupId,
+    );
     return newPost;
   },
 

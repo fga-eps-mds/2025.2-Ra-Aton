@@ -17,5 +17,6 @@
   "jest.rootPath": ".",
   "[typescriptreact]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
-  }
+  },
+  "liveServer.settings.multiRootWorkspaceName": "2025.2-Ra-Aton"
 }
