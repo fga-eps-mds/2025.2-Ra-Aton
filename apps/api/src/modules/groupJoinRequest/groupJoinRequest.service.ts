@@ -4,7 +4,7 @@ import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 import GroupMembershipRepository from "../groupMembership/groupMembership.repository";
 
-function parseMadeBy(value?: string): MadeBy | undefined {
+export function parseMadeBy(value?: string): MadeBy | undefined {
   if (Object.values(MadeBy).includes(value as MadeBy)) {
     return value as MadeBy;
   }

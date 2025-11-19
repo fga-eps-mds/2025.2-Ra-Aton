@@ -95,4 +95,3 @@ export class GroupRepository {
 // Default export kept for backward compatibility
 const defaultExport = new GroupRepository();
 export default defaultExport;
-

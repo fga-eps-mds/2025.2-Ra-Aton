@@ -40,7 +40,7 @@ const repository = new GroupRepository(prismaStub as any);
 
 describe("Group Repository", () => {
   afterEach(() => {
-      jest.clearAllMocks();
+    jest.clearAllMocks();
   });
   beforeEach(async () => {
     await prismaMock.groupMembership.deleteMany();
@@ -54,7 +54,6 @@ describe("Group Repository", () => {
 
   describe("findAll", () => {
     it("should return all groups ordered by createdAt descending", async () => {
-
       prismaMock.group.findMany.mockResolvedValueOnce([
         {
           id: "1",
@@ -98,7 +97,7 @@ describe("Group Repository", () => {
           acceptingNewMembers: true,
           createdAt: new Date("2023-04-01T00:00:00Z"),
           updatedAt: new Date("2023-04-01T00:00:00Z"),
-        }
+        },
       ] as Group[]);
 
       const openGroups = await repository.findAllOpenGroups();
@@ -108,7 +107,7 @@ describe("Group Repository", () => {
       expect(openGroups).toHaveLength(2);
       expect(openGroups[1]?.id).toBe(openGroup2?.id);
       expect(openGroups[0]?.id).toBe(openGroup1?.id);
-      expect(openGroups.every(group => group.acceptingNewMembers)).toBe(true);
+      expect(openGroups.every((group) => group.acceptingNewMembers)).toBe(true);
     });
   });
 
@@ -151,8 +150,7 @@ describe("Group Repository", () => {
 
   describe("createGroup", () => {
     it("should create a new group", async () => {
-
-        const groupToBeCreated: Prisma.GroupCreateInput = {
+      const groupToBeCreated: Prisma.GroupCreateInput = {
         name: "New Group",
         acceptingNewMembers: true,
       };
@@ -180,7 +178,7 @@ describe("Group Repository", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      
+
       prismaMock.group.create.mockResolvedValueOnce(groupData as Group);
       prismaMock.groupMembership.create.mockResolvedValueOnce({
         userId: author.id,
@@ -188,22 +186,22 @@ describe("Group Repository", () => {
         role: "ADMIN",
         isCreator: true,
       } as any);
-      
-        const newGroup = await repository.createGroup(groupToBeCreated, author);
 
-        expect(newGroup).toEqual(groupData);
+      const newGroup = await repository.createGroup(groupToBeCreated, author);
 
-        expect(prismaMock.group.create).toHaveBeenCalledWith({
-          data: groupToBeCreated,
-        });
-        expect(prismaMock.groupMembership.create).toHaveBeenCalledWith({
-          data: {
-            userId: author.id,
-            groupId: groupData.id,
-            role: "ADMIN",
-            isCreator: true,
-          },
-        });
+      expect(newGroup).toEqual(groupData);
+
+      expect(prismaMock.group.create).toHaveBeenCalledWith({
+        data: groupToBeCreated,
+      });
+      expect(prismaMock.groupMembership.create).toHaveBeenCalledWith({
+        data: {
+          userId: author.id,
+          groupId: groupData.id,
+          role: "ADMIN",
+          isCreator: true,
+        },
+      });
     });
   });
 
@@ -211,12 +209,12 @@ describe("Group Repository", () => {
     it("should update a group", async () => {
       const groupId = "1";
       const groupData: Prisma.GroupUpdateInput = {
-        name: "Updated Group",
+        name: "Group",
       };
 
-      prismaMock.group.update.mockResolvedValueOnce({
+      const group: Group = {
         id: groupId,
-        name: "Updated Group",
+        name: "updated Group",
         description: null,
         verificationRequest: false,
         sports: [],
@@ -225,21 +223,23 @@ describe("Group Repository", () => {
         verificationStatus: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-      } as Group);
+      };
+
+      prismaMock.group.update.mockResolvedValueOnce(group);
 
       const updatedGroup = await repository.updateGroup(groupData, groupId);
 
       expect(updatedGroup).toEqual({
         id: groupId,
-        name: "Updated Group",
+        name: "updated Group",
         description: null,
         verificationRequest: false,
         sports: [],
         groupType: "AMATEUR" as GroupType,
         acceptingNewMembers: true,
         verificationStatus: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: group.createdAt,
+        updatedAt: group.updatedAt,
       });
       expect(prismaMock.group.update).toHaveBeenCalledWith({
         where: { id: groupId },
