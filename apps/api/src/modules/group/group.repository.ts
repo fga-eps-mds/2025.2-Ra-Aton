@@ -1,20 +1,22 @@
 import { prisma } from "../../database/prisma.client";
 import { Prisma, Group, User } from "@prisma/client";
 
-class GroupRepository {
+export class GroupRepository {
+  constructor(private prismaClient = prisma) {}
+
   async findAll(): Promise<Group[]> {
-    return prisma.group.findMany({ orderBy: { createdAt: "desc" } });
+    return this.prismaClient.group.findMany({ orderBy: { createdAt: "desc" } });
   }
 
   async findAllOpenGroups(): Promise<Group[]> {
-    return prisma.group.findMany({
+    return this.prismaClient.group.findMany({
       orderBy: { createdAt: "desc" },
       where: { acceptingNewMembers: true },
     });
   }
 
   async findGroupById(id: string): Promise<Group | null> {
-    return prisma.group.findUnique({
+    return this.prismaClient.group.findUnique({
       where: { id },
       include: {
         _count: {
@@ -37,7 +39,7 @@ class GroupRepository {
   }
 
   async findGroupByName(name: string): Promise<Group | null> {
-    return prisma.group.findUnique({
+    return this.prismaClient.group.findUnique({
       where: { name },
       include: {
         _count: {
@@ -63,7 +65,7 @@ class GroupRepository {
     data: Prisma.GroupCreateInput,
     author: User,
   ): Promise<Group> {
-    return prisma.$transaction(async (tx) => {
+    return this.prismaClient.$transaction(async (tx) => {
       const newGroup = await tx.group.create({
         data,
       });
@@ -80,15 +82,17 @@ class GroupRepository {
   }
 
   async updateGroup(data: Prisma.GroupUpdateInput, id: string): Promise<Group> {
-    return prisma.group.update({
+    return this.prismaClient.group.update({
       where: { id },
       data,
     });
   }
 
   async deleteGroup(id: string): Promise<void> {
-    await prisma.group.delete({ where: { id } });
+    await this.prismaClient.group.delete({ where: { id } });
   }
 }
+// Default export kept for backward compatibility
+const defaultExport = new GroupRepository();
+export default defaultExport;
 
-export default new GroupRepository();
