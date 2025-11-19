@@ -10,7 +10,7 @@ function IndexInner() {
   const [tela, setTela] = useState<string | null>(null);
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-const { user, loading } = useUser();
+  const { user, loading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
@@ -34,10 +34,10 @@ const { user, loading } = useUser();
         setTela("login");
       }
       setIsLoading(false);
-  }
+    }
   }, [user, loading]);
 
- useEffect(() => {
+  useEffect(() => {
     if (!isLoading && tela) {
       console.log("Navegando para:", tela);
       router.replace(tela as any);
@@ -63,7 +63,5 @@ const { user, loading } = useUser();
 }
 
 export default function Index() {
-  return (
-      <IndexInner />
-  );
+  return <IndexInner />;
 }

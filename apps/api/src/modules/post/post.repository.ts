@@ -2,7 +2,6 @@ import { prisma } from "../../database/prisma.client";
 import { Post, Prisma } from "@prisma/client";
 
 export const postRepository = {
-
   checkIfUserLikedPost: async (userId: string, postId: string) => {
     return await prisma.postLike.findFirst({
       where: { userId, postId },
@@ -13,7 +12,10 @@ export const postRepository = {
     limit: number,
     offset: number,
     userId: string,
-  ): Promise<{ posts: (Post & { userLiked: boolean })[]; totalCount: number }> => {
+  ): Promise<{
+    posts: (Post & { userLiked: boolean })[];
+    totalCount: number;
+  }> => {
     // Busca a página de posts e o total em uma única transação
     const [posts, totalCount]: [Post[], number] = await prisma.$transaction([
       prisma.post.findMany({
@@ -58,7 +60,6 @@ export const postRepository = {
 
     const likedSet = new Set(likes.map((l) => l.postId));
 
-    
     // Verifica quais posts foram marcados com "Eu vou" pelo usuário em uma única consulta
     const attendances = await prisma.attendance.findMany({
       where: {
@@ -75,7 +76,7 @@ export const postRepository = {
       userLiked: likedSet.has(post.id),
       userGoing: attendanceSet.has(post.id),
     }));
-    
+
     return {
       posts: postsWithLike,
       totalCount,
@@ -104,7 +105,11 @@ export const postRepository = {
     });
   },
 
-   create: async (data: Prisma.PostCreateInput, authorId: string, groupId: string): Promise<Post> => {
+  create: async (
+    data: Prisma.PostCreateInput,
+    authorId: string,
+    groupId: string,
+  ): Promise<Post> => {
     return prisma.post.create({
       data: {
         title: data.title,
@@ -131,14 +136,14 @@ export const postRepository = {
     });
   },
 
-   update: async (id: string, data: Prisma.PostUpdateInput): Promise<Post> => {
+  update: async (id: string, data: Prisma.PostUpdateInput): Promise<Post> => {
     return prisma.post.update({
       where: { id },
       data,
     });
   },
 
-   deletePost: async (id: string): Promise<void> => {
+  deletePost: async (id: string): Promise<void> => {
     await prisma.post.delete({ where: { id } });
   },
 

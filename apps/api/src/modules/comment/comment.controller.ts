@@ -40,7 +40,7 @@ class CommentController {
       if (error instanceof ApiError) {
         return res.status(error.statusCode).json({ message: error.message });
       }
-        return res
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Erro ao excluir o comentário da postagem" });
     }

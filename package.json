@@ -4,12 +4,13 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "dev:offline": "set EXPO_OFFLINE=1 && expo start",
     "dev:api": "pnpm --filter api dev:ready",
     "dev:mobile": "pnpm --filter mobile dev",
     "test": "turbo run test --parallel",
     "test:api": "pnpm --filter api -s test",
     "test:mobile": "pnpm --filter mobile -s test",
-    "test:coverage": "turbo run test -- --coverage",
+    "test:coverage": "turbo run test -- --coverage",  
     "test:watch": "turbo run test -- --watchAll",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -31,6 +32,8 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@tanstack/react-query": "^5.90.8",
     "@testing-library/react-native": "^13.3.3",
     "jest-expo": "~54.0.13"
   },

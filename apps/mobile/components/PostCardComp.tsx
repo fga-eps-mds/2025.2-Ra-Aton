@@ -1,5 +1,6 @@
+// components/PostCardComp.tsx
 import React from "react";
-import { View, Text, StyleSheet, Platform, Image } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import ProfileThumbnailComp from "./ProfileThumbnailComp";
@@ -8,86 +9,138 @@ import LikeButtonComp from "./LikeButtonComp";
 import CommentButtonComp from "./CommentButtonComp";
 import ImGoingButtonComp from "./ImGoingButtonComp";
 import OptionsButtonComp from "./OptionsButtonComp";
-import { IPost } from "../../mobile/src/interfaces/Ipost"; // Você já tem esta importação
+import { IPost } from "@/libs/interfaces/Ipost";
+import { getComments } from "@/libs/auth/handleComments";
+import { useUser } from "@/libs/storage/UserContext";
+import { useToggleLike } from "@/libs/hooks/useToggleLike";
+import { useToggleAttendance } from "@/libs/hooks/useToggleAttendance";
 
-// Props que o card receberá da Home
 interface PostCardProps {
-  post: IPost; // Recebe o objeto post inteiro
+  post: IPost;
   onPressComment: (postId: string) => void;
   onPressOptions: (postId: string) => void;
+  onReloadFeed?: () => void | Promise<void>;
 }
 
 const PostCardComp: React.FC<PostCardProps> = ({
   post,
   onPressComment,
   onPressOptions,
+  onReloadFeed,
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
+  const { user } = useUser();
+  const { mutateAsync } = useToggleLike();
+  const { mutateAsync: mutateEuVouAsync } = useToggleAttendance();
 
-  // Mock de funções de API
   const handleLike = async (isLiked: boolean) => {
-    // TODO: Criar requisição na pasta libs/posts (CA5)
-    console.log(`API: Curtida ${isLiked} no post ${post.id}`);
+    if (!post.id || !user?.id) {
+      console.log("Sem postId ou userId");
+      return;
+    }
+
+    try {
+      const response = await mutateAsync({
+        postId: String(post.id),
+        authorId: user.id,
+      });
+      console.log("Sucesso ao dar o like", response?.data ?? response);
+      if (onReloadFeed) {
+        await onReloadFeed();
+      }
+    } catch (error: any) {
+      console.log(
+        "Erro ao tentar dar o like",
+        error?.response?.data ?? error.message,
+      );
+      throw error;
+    }
   };
+
   const handleGoing = async (isGoing: boolean) => {
-    // TODO: Criar requisição na pasta libs/events (CA5)
-    console.log(`API: Presença ${isGoing} no post ${post.id}`);
+    console.log(
+      `Cliquei no botão de eu vou, então EU VOU : ${isGoing} no post ${post.id}`,
+    );
+    if (!post.id || !user?.id) {
+      console.log("Sem postId ou userId");
+      return;
+    }
+
+    try {
+      const response = await mutateEuVouAsync({
+        postId: String(post.id),
+        authorId: user.id,
+      });
+      console.log("Presença registrada", response?.data ?? response);
+      if (onReloadFeed) {
+        await onReloadFeed();
+      }
+    } catch (error: any) {
+      console.log(
+        "Erro na hora de confirmar a presença",
+        error?.response?.data ?? error.message,
+      );
+    }
   };
+
+  const isEvent = post.type === "EVENT";
 
   return (
     <View style={[styles.container, { backgroundColor: theme.input }]}>
-      {/* Header do Post */}
       <View style={styles.header}>
-        {/* // TODO: Passar a URL da imagem do perfil do post */}
-        <ProfileThumbnailComp size={50} imageUrl={post.userProfileImageUrl} />
-        <SpacerComp width={20} />
+        <ProfileThumbnailComp size={50} />
+        <SpacerComp width={12} />
         <View>
           <Text style={[styles.authorName, { color: theme.text }]}>
-            {post.userName}
+            {post.author?.userName ?? "Autor"}
           </Text>
-          <Text style={[styles.authorId, { color: theme.text }]}>
-            {post.userId}
-          </Text>
+          {/* <Text style={[styles.authorId, { color: theme.text }]}>{post.authorId ?? ""}</Text> */}
         </View>
         <View style={{ flex: 1 }} />
-        <OptionsButtonComp onPress={() => onPressOptions(post.id)} />
+        <OptionsButtonComp onPress={() => onPressOptions(String(post.id))} />
       </View>
 
       <SpacerComp height={10} />
 
-      {/* Conteúdo do Post */}
+      {post.title ? (
+        <>
+          <Text style={[styles.title, { color: theme.text }]}>
+            {post.title}
+          </Text>
+          <SpacerComp height={16} />
+        </>
+      ) : null}
+
       <Text style={[styles.contentText, { color: theme.text }]}>
-        {post.postText}
+        {post.content ?? ""}
       </Text>
 
-      {/* NOVO: Seção da Imagem (Renderização Condicional) */}
-      {post.imageUrl && (
-        <>
-          <SpacerComp height={15} />
-          <Image
-            source={{ uri: post.imageUrl }}
-            style={styles.postImage}
-            resizeMode="cover"
-          />
-        </>
-      )}
+      <SpacerComp height={12} />
 
-      <SpacerComp height={15} />
-
-      {/* Barra de Ações */}
       <View style={styles.actionsBar}>
-        <LikeButtonComp onLike={handleLike} initialLiked={post.isLiked} />
-        <SpacerComp width={15} />
-        <CommentButtonComp onPress={() => onPressComment(post.id)} />
-        <SpacerComp width={15} />
-        {/* // TODO: Mostrar "Eu Vou" apenas se for um evento (ex: post.type === 'event') */}
-        <ImGoingButtonComp
-          onToggleGoing={handleGoing}
-          initialGoing={post.isGoing}
-        >
-          eu vou
-        </ImGoingButtonComp>
+        <LikeButtonComp
+          onLike={handleLike}
+          initialLiked={post.userLiked ?? false}
+        />
+        <Text style={[styles.counter, { color: theme.text }]}>
+          {" "}
+          {post.likesCount ?? 0}
+        </Text>
+        <SpacerComp width={12} />
+        <CommentButtonComp onPress={() => onPressComment(String(post.id))} />
+        <Text style={[styles.counter, { color: theme.text }]}>
+          {" "}
+          {post.commentsCount ?? 0}
+        </Text>
+        <View style={{ flex: 1 }} />
+        {isEvent ? (
+          <ImGoingButtonComp
+            onToggleGoing={handleGoing}
+            initialGoing={post.userGoing ?? false}
+            initialCount={post.attendancesCount ?? 0}
+          />
+        ) : null}
       </View>
     </View>
   );
@@ -114,28 +167,12 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  authorName: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  authorId: {
-    fontSize: 10,
-  },
-  contentText: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  // NOVO: Estilo para a imagem
-  postImage: {
-    width: "100%",
-    aspectRatio: 16 / 9, // Proporção comum
-    borderRadius: 10,
-    backgroundColor: Colors.light.gray, // Placeholder
-  },
+  header: { flexDirection: "row", alignItems: "center" },
+  authorName: { fontSize: 16, fontWeight: "600" },
+  authorId: { fontSize: 11, opacity: 0.7 },
+  title: { fontSize: 18, fontWeight: "700" },
+  contentText: { fontSize: 15, lineHeight: 22 },
+  eventInfo: { fontSize: 12, opacity: 0.8 },
   actionsBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -143,6 +180,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.light.gray,
   },
+  counter: { fontSize: 12, opacity: 0.8 },
 });
 
 export default PostCardComp;

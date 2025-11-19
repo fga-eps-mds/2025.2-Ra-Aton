@@ -1,6 +1,6 @@
 // Arquivo criado apenas para mockar algumas funcionalidade como botão, input, text e view;
-  // Assim fica possível testar o render em diferentes tipos de componentes criados 
-    // Sem ter que aplicar a funcionalidade especifica toda
+// Assim fica possível testar o render em diferentes tipos de componentes criados
+// Sem ter que aplicar a funcionalidade especifica toda
 
 jest.mock("react-native", () => {
   const React = require("react");

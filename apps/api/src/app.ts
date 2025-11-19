@@ -5,8 +5,8 @@ import { globalErrorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
 import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
-import postRoutes  from "./modules/post/post.routes";
-import commentRoutes from "./modules/comment/comment.routes"
+import postRoutes from "./modules/post/post.routes";
+import commentRoutes from "./modules/comment/comment.routes";
 import HttpStatus from "http-status";
 import { postLikeRoutes } from "./modules/postLike/postlike.routes";
 import { reportRoutes } from "./modules/report/report.routes";
