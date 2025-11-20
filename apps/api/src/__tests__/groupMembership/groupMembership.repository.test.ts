@@ -1,7 +1,6 @@
 import { prismaMock } from "../prisma-mock";
 import groupMembershipRepository from "../../modules/groupMembership/groupMembership.repository";
 import { GroupMembership, GroupRole, Prisma } from "@prisma/client";
-import { mock } from "jest-mock-extended";
 
 describe("GroupMembershipRepository", () => {
   afterEach(() => {
@@ -18,7 +17,7 @@ describe("GroupMembershipRepository", () => {
 
   describe("findAllMembers", () => {
     it("deve retornar todos os membros", async () => {
-      const memberData = [
+      const membersData = [
         {
           id: "M1",
           userId: "U1",
@@ -37,14 +36,14 @@ describe("GroupMembershipRepository", () => {
         },
       ];
       prismaMock.groupMembership.findMany.mockResolvedValue(
-        memberData as GroupMembership[],
+        membersData as GroupMembership[],
       );
 
       const members = await groupMembershipRepository.findAllMembers();
 
       expect(members).toHaveLength(2);
-      expect(members[0]).toBe(memberData[0]);
-      expect(members[1]).toBe(memberData[1]);
+      expect(members[0]).toBe(membersData[0]);
+      expect(members[1]).toBe(membersData[1]);
       expect(prismaMock.groupMembership.findMany).toHaveBeenCalledTimes(1);
     });
   });
