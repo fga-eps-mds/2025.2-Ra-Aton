@@ -1,15 +1,21 @@
 import axios from "axios";
-import { IP } from "@/libs/auth/api";
+import { api_route } from "../auth/api";
 
 function convertToBackendDate(dateStr: string): string {
-  // recebe: "dd/mm/yyyy hh:mm"
+  if (!dateStr || !dateStr.includes(" ")) {
+    throw new Error("Formato de data inválido: DD/MM/AAAA HH:MM.");
+  }
+
   const [datePart, timePart] = dateStr.split(" ");
   const [day, month, year] = datePart.split("/");
 
-  // formatação do backend
-  const date = new Date(`${year}-${month}-${day}T${timePart}:00Z`);
+  const date = new Date(`${year}-${month}-${day}T${timePart}:00`);
 
-  return date.toISOString(); 
+  if (isNaN(date.getTime())) {
+    throw new Error("Data fornecida é inválida.");
+  }
+
+  return date.toISOString();
 }
 
 
@@ -38,13 +44,24 @@ export async function createEvent({
   location,
   token,
 }: createEventParams): Promise<CreateEventResponse> {
-  const eventDateFormatted = convertToBackendDate(eventDate);
-  const eventFinishDateFormatted = convertToBackendDate(eventFinishDate);
+  let eventDateFormatted = "";
+  let eventFinishDateFormatted = "";
 
-  console.log(`Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\nData ==>${eventDate} até ${eventFinishDate}\nLocalização ==> ${location}`);
   try {
-    const response = await axios.post(
-      `${IP}/posts/`,
+    eventDateFormatted = convertToBackendDate(eventDate);
+    if (eventFinishDate) {
+      eventFinishDateFormatted = convertToBackendDate(eventFinishDate);
+    }
+  } catch (error: any) {
+    return { error: error.message };
+  }
+
+  console.log(
+    `Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\nData ==>${eventDate} até ${eventFinishDate}\nLocalização ==> ${location}`,
+  );
+  try {
+    const response = await api_route.post(
+      "/posts",
       {
         title,
         type,
@@ -62,10 +79,10 @@ export async function createEvent({
     return response.data;
   } catch (error: any) {
     if (error.response) {
-      // O servidor respondeu com um status != 2__
-      return {
-        error: error.response.data.error || "Erro ao criar [evento].",
-      };
+      const data = error.response.data;
+      const message =
+        data?.issues?.[0]?.message || data?.error || "Erro ao criar evento.";
+      return { error: message };
     } else if (error.request) {
       console.error("Sem resposta do servidor:", error.request);
       throw new Error("Não foi possível conectar ao servidor.");

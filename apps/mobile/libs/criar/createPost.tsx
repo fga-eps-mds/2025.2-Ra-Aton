@@ -1,5 +1,5 @@
 import axios from "axios";
-import { IP } from "@/libs/auth/api";
+import { api_route } from "../auth/api";
 
 interface createPostParams {
   title: string;
@@ -20,11 +20,12 @@ export async function createPost({
   content,
   token,
 }: createPostParams): Promise<CreatePostResponse> {
-
-  console.log(`Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\n`);
+  console.log(
+    `Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\n`,
+  );
   try {
-    const response = await axios.post(
-      `${IP}/posts/`,
+    const response = await api_route.post(
+      "/posts",
       {
         title,
         type,
@@ -39,10 +40,10 @@ export async function createPost({
     return response.data;
   } catch (error: any) {
     if (error.response) {
-      // O servidor respondeu com um status != 2__
-      return {
-        error: error.response.data.error || "Erro ao criar [post].",
-      };
+      const data = error.response.data;
+      const message =
+        data?.issues?.[0]?.message || data?.error || "Erro ao criar evento.";
+      return { error: message };
     } else if (error.request) {
       console.error("Sem resposta do servidor:", error.request);
       throw new Error("Não foi possível conectar ao servidor.");

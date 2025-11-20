@@ -32,7 +32,14 @@ const CriarPartidaInner: React.FC = () => {
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
 
-  const { formsData, isDisabled, setFormData, handleSubmit, comebackPage } = eventoForms();
+  const {
+    formsData,
+    isDisabled,
+    setFormData,
+    handleSubmit,
+    comebackPage,
+    formError,
+  } = partidaForms();
 
   return (
     <BackGroundComp>
@@ -51,23 +58,22 @@ const CriarPartidaInner: React.FC = () => {
         >
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
-              <EventoFormComponent
+              <PartidaFormComponent
                 formsData={formsData}
                 setFormData={setFormData}
+                formError={formError}
               />
             </View>
 
             <Spacer height={40} />
             <View style={styles.redirectInfos}>
               <PrimaryButton disabled={isDisabled} onPress={handleSubmit}>
-                Criar Evento
+                Criar Partida
               </PrimaryButton>
               <Spacer height={30} />
               <AppText style={styles.txt}>Deseja cancelar?</AppText>
               <Spacer height={10} />
-              <SecondaryButton onPress={comebackPage}>
-                Voltar
-              </SecondaryButton>
+              <SecondaryButton onPress={comebackPage}>Voltar</SecondaryButton>
             </View>
           </View>
         </ScrollView>
