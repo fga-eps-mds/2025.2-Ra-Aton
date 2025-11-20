@@ -43,6 +43,28 @@ export const EventInfoModalComp: React.FC<ModalInfoEventProps> = ({
   onClose,
 }) => {
   if (!visible || !post) return null;
+
+  const start = post.eventDate ? new Date(post.eventDate) : null;
+  const end = post.eventFinishDate ? new Date(post.eventFinishDate) : null;
+
+  const formattedStartDate = start ? start.toLocaleDateString("pt-BR") : "";
+
+  const formattedEndDate = end ? end.toLocaleDateString("pt-BR") : "";
+
+  const formattedStartTime = start
+    ? start.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
+  const formattedEndTime = end
+    ? end.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
   return (
     <Modal
       visible={visible}
@@ -79,31 +101,16 @@ export const EventInfoModalComp: React.FC<ModalInfoEventProps> = ({
                   iconName="location"
                 ></InputComp>
                 <InputComp
-                  value={post?.eventDate}
-                  formatter={(v) =>
-                    v
-                      ? new Date(v as any).toLocaleString("pt-BR", {
-                          dateStyle: "short",
-                        })
-                      : ""
-                  }
+                  value={`${formattedStartDate} - ${formattedEndDate}`}
                   justView
                   iconName="calendar"
-                ></InputComp>
+                />
 
                 <InputComp
-                  value={post?.eventFinishDate}
-                  formatter={(v) =>
-                    v
-                      ? new Date(v as any).toLocaleString("pt-BR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : ""
-                  }
+                  value={`${formattedStartTime} - ${formattedEndTime}`}
                   justView
                   iconName="time"
-                ></InputComp>
+                />
               </View>
             </View>
           </Pressable>

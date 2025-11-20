@@ -1,5 +1,5 @@
 import axios from "axios";
-import { IP } from "./api";
+import { api_route } from "./api";
 interface updateProfileParams {
   userName: string;
   profileType: string;
@@ -13,8 +13,8 @@ export async function updateProfileType({
 }: updateProfileParams) {
   try {
     // console.log("Seu Token --> ", token); // testando pq estava recebendo undefined
-    const response = await axios.patch(
-      `${IP}/users/${userName}`,
+    const response = await api_route.patch(
+      `/users/${userName}`,
       { userName, profileType },
       {
         headers: {
