@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useState } from "react";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 
@@ -22,9 +23,7 @@ export default function Partidas() {
           color: isDarkMode ? Colors.dark.text : Colors.light.text,
           fontSize: 18,
         }}
-      >
-        TELA DE PARTIDAS
-      </Text>
+      ></Text>
     </View>
   );
 }

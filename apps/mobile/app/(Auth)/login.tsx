@@ -94,7 +94,9 @@ const HomeInner: React.FC = () => {
 
             /* TODO: Adicionar navegação para fluxo de recuperação */
           >
-            <AppText style={styles.forgotPasswordText}>Esqueci minha senha</AppText>
+            <AppText style={styles.forgotPasswordText}>
+              Esqueci minha senha
+            </AppText>
           </TouchableOpacity>
 
           {/* CA4: Exibição de Erro */}

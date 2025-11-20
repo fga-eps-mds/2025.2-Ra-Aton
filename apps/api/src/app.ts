@@ -5,7 +5,10 @@ import { globalErrorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
 import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
-import postRoutes  from "./modules/post/post.routes";
+import groupRoutes from "./modules/group/group.routes";
+import inviteRoutes from "./modules/groupJoinRequest/groupJoinRequest.routes";
+import memberRoutes from "./modules/groupMembership/groupMembership.routes";
+import postRoutes from "./modules/post/post.routes";
 import commentRoutes from "./modules/comment/comment.routes";
 import HttpStatus from "http-status";
 import matchRoutes from "./modules/match/match.routes";
@@ -32,6 +35,9 @@ app.use("/login", authRoutes);
 app.use("/match", matchRoutes)
 
 // (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
+app.use("/group", groupRoutes);
+app.use("/invite", inviteRoutes);
+app.use("/member", memberRoutes);
 app.use("/posts", postRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 app.use("/posts/:postId/like", postLikeRoutes);

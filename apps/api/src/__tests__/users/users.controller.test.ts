@@ -48,9 +48,7 @@ describe("UserController", () => {
       } as unknown as Response;
 
       // Mock do método createUser do userService
-      (userService.createUser as jest.Mock).mockResolvedValue(
-        mockUserResponse,
-      );
+      (userService.createUser as jest.Mock).mockResolvedValue(mockUserResponse);
 
       // Act: executar o método do controller
       await userController.createUser(req, res);
@@ -238,30 +236,30 @@ describe("UserController", () => {
     });
   });
 
-    describe("deleteUser", () => {
-      it("should delete a user with status 204", async () => {
-        // Arrange
-        const req = {
-          user: { id: "1" },
-          params: { userName: "testuser" },
-        } as unknown as Request;
+  describe("deleteUser", () => {
+    it("should delete a user with status 204", async () => {
+      // Arrange
+      const req = {
+        user: { id: "1" },
+        params: { userName: "testuser" },
+      } as unknown as Request;
 
-        const res = {
-          status: jest.fn().mockReturnThis(),
-          json: jest.fn().mockReturnThis(),
-          send: jest.fn().mockReturnThis(),
-        } as unknown as Response;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+        send: jest.fn().mockReturnThis(),
+      } as unknown as Response;
 
-        (userService.deleteUser as jest.Mock).mockResolvedValue(undefined);
+      (userService.deleteUser as jest.Mock).mockResolvedValue(undefined);
 
-        // Act
-        await userController.deleteUser(req, res);
+      // Act
+      await userController.deleteUser(req, res);
 
-        // Assert
-        expect(userService.deleteUser).toHaveBeenCalledWith("testuser", "1");
-        expect(res.status).toHaveBeenCalledWith(HttpStatus.NO_CONTENT);
-        expect(res.send).toHaveBeenCalledWith();
-        expect(res.json).not.toHaveBeenCalled();
-      });
+      // Assert
+      expect(userService.deleteUser).toHaveBeenCalledWith("testuser", "1");
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.NO_CONTENT);
+      expect(res.send).toHaveBeenCalledWith();
+      expect(res.json).not.toHaveBeenCalled();
     });
+  });
 });

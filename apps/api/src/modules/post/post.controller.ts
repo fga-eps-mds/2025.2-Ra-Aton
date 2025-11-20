@@ -7,8 +7,11 @@ import { userService } from "../user/user.service";
 class PostController {
   async listPosts(req: Request, res: Response) {
     const userId = req.body?.userId ? req.body.userId : (req as any).user?.id;
-    if(!userId){
-      throw new ApiError(HttpStatus.BAD_REQUEST, "UserId é obrigatório no corpo da requisição");
+    if (!userId) {
+      throw new ApiError(
+        HttpStatus.BAD_REQUEST,
+        "UserId é obrigatório no corpo da requisição",
+      );
     }
 
     const DEFAULT_PAGE_LIMIT = 10;
@@ -46,6 +49,9 @@ class PostController {
   }
 
   async createPost(req: Request, res: Response) {
+    console.log(">>> BODY RECEBIDO:", req.body);
+    console.log(">>> eventDate recebido:", req.body.eventDate);
+    console.log(">>> eventFinishDate recebido:", req.body.eventFinishDate);
     const authUserId = (req as any).user;
     const author = await userService.getUserById(authUserId.id);
     if (!author) {

@@ -1,17 +1,13 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-export const saveUserData = async (user: object) => {
-  const userData = JSON.stringify(user);
+const USER_DATA_KEY = "userData";
+
+export async function saveUserData(userData: Record<string, unknown>) {
+  const json = JSON.stringify(userData);
   if (Platform.OS === "web") {
-    try {
-      localStorage.setItem("userData", userData);
-    } catch (e) {
-      console.warn(
-        "LocalStorage indisponível. Não foi possível salvar os dados do usuário.",
-      );
-    }
+    localStorage.setItem(USER_DATA_KEY, json);
   } else {
-    await SecureStore.setItemAsync("userData", userData);
+    await SecureStore.setItemAsync(USER_DATA_KEY, json);
   }
-};
+}

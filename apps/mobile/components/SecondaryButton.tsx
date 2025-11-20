@@ -43,14 +43,15 @@ const Button2Comp: React.FC<Button2CompProps> = ({
       {...props}
     >
       <AppText
-        style={[{
-          color: theme.text,
-          textAlign: "center",
-          fontSize: 20,
-          fontWeight: "500",
-        },
-      decoration,
-    ]}
+        style={[
+          {
+            color: theme.text,
+            textAlign: "center",
+            fontSize: 20,
+            fontWeight: "500",
+          },
+          decoration,
+        ]}
       >
         {children}
       </AppText>

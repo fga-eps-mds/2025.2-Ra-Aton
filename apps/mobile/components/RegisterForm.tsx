@@ -1,6 +1,6 @@
-import React from 'react';
-import { View } from 'react-native';
-import InputComp from '@/components/InputComp';
+import React from "react";
+import { View } from "react-native";
+import InputComp from "@/components/InputComp";
 
 interface RegisterFormProps {
   formData: {
@@ -25,15 +25,17 @@ interface RegisterFormProps {
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   formData,
   errors,
-  setFormData
+  setFormData,
 }) => {
   return (
-    <View style={{ width: '100%' }}>
+    <View style={{ width: "100%" }}>
       <InputComp
         label="Nome completo"
         iconName="person-sharp"
         value={formData.name}
-        onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, name: text }))
+        }
         status={!!errors.name}
         statusText={errors.name}
       />
@@ -42,7 +44,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         label="Nome de usuário"
         iconName="pricetag-outline"
         value={formData.userName}
-        onChangeText={(text) => setFormData(prev => ({ ...prev, userName: text }))}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, userName: text }))
+        }
         status={!!errors.nickname || !!errors.backendNickname}
         statusText={errors.nickname || errors.backendNickname}
       />
@@ -54,7 +58,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         autoComplete="email"
         autoCapitalize="none"
         value={formData.email}
-        onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, email: text }))
+        }
         status={!!errors.email || !!errors.backendEmail}
         statusText={errors.email || errors.backendEmail}
       />
@@ -66,7 +72,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         textContentType="password"
         autoCapitalize="none"
         value={formData.password}
-        onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, password: text }))
+        }
         status={!!errors.password}
         statusText={errors.password}
       />
@@ -78,7 +86,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         textContentType="password"
         autoCapitalize="none"
         value={formData.confirmPassword}
-        onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, confirmPassword: text }))
+        }
         status={!!errors.confirmPassword}
         statusText={errors.confirmPassword}
       />

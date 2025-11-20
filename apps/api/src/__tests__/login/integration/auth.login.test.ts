@@ -36,7 +36,7 @@ describe("API Testes", () => {
         profileType: "JOGADOR",
       };
       prismaMock.user.findUnique.mockResolvedValue(registeredUser);
-      
+
       const res = await request(app)
         .post("/login")
         .send({ email: "H1sZy@example.com", password: "senha123" });
@@ -52,12 +52,12 @@ describe("API Testes", () => {
         userName: "H1sZy",
         name: "H1sZy User",
         createdAt: new Date(),
-        updatedAt: new Date(),        
+        updatedAt: new Date(),
         passwordHash: await bcrypt.hash("senha123", 10),
         profileType: "JOGADOR",
       };
       prismaMock.user.findUnique.mockResolvedValue(registeredUser);
-      
+
       const res = await request(app)
         .post("/login")
         .send({ email: "H1sZy@example.com", password: "senhaErrada" });

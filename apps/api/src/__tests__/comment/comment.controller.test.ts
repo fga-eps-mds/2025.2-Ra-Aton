@@ -128,7 +128,10 @@ describe("CommentController", () => {
 
       req = { params: { id: "c1" }, user: { id: "u1" } } as any;
 
-      await commentController.deleteCommentAsPostAuthor(req as Request, res as Response);
+      await commentController.deleteCommentAsPostAuthor(
+        req as Request,
+        res as Response,
+      );
 
       expect(commentService.deleteComment).toHaveBeenCalledWith("c1", "u1");
       expect(res.status).toHaveBeenCalledWith(httpStatus.NO_CONTENT);

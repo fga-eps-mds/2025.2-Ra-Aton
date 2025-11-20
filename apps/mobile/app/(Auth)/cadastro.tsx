@@ -24,8 +24,9 @@ import Spacer from "@/components/SpacerComp";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import { RegisterForm } from "@/components/RegisterForm";
-import { useRegisterForm } from "@/libs/hooks/useRegisterForm";
 import AppText from "@/components/AppText";
+
+import { useRegisterForm } from "@/libs/hooks/useRegisterForm";
 
 const Cadastro: React.FC = () => {
   return <CadastroInner />;
