@@ -115,6 +115,12 @@ class matchService {
         "Autor da partida não encontrado",
       );
     }
+    if(new Date(data.MatchDate) <= new Date()) {
+      throw new ApiError(
+        HttpStatus.BAD_REQUEST,
+        "Data da partida deve ser uma data futura",
+      );
+    }
 
     const newMatch = await matchRepository.createMatch(data, data.author);
     return newMatch;
