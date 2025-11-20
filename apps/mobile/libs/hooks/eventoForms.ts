@@ -42,9 +42,9 @@ export const eventoForms = () => {
       const result = await createEvent({
         title: formsData.titulo,
         type: "EVENT",
-        content: formsData.descricao,
+        content: formsData.descricao?.trim() || undefined,
         eventDate: formsData.dataInicio,
-        eventFinishDate: formsData.dataFim,
+        eventFinishDate: formsData.dataFim?.trim() || undefined,
         location: formsData.local,
         token: user.token,
       });
