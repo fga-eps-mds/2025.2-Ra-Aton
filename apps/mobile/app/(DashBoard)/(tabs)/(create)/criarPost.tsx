@@ -1,11 +1,7 @@
-/* cadastro page */
-
 import React from "react";
 import {
   StyleSheet,
-  Text,
   View,
-  Image,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -15,31 +11,35 @@ import { useTheme } from "@/constants/Theme";
 import { useRouter } from "expo-router";
 import { Fonts } from "@/constants/Fonts";
 
-// Imagens
-import NamedLogo from "@/assets/img/Logo_1_Atom.png";
-
 // Componentes
 import BackGroundComp from "@/components/BackGroundComp";
 import Spacer from "@/components/SpacerComp";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
-import { RegisterForm } from "@/components/RegisterForm";
 import AppText from "@/components/AppText";
+import { PostFormComponent } from "@/components/PostFormComponent";
 
-import { useRegisterForm } from "@/libs/hooks/useRegisterForm";
+// Libs
+import { postForms } from "@/libs/hooks/postForms";
 
-const Cadastro: React.FC = () => {
-  return <CadastroInner />;
+const CriarPost: React.FC = () => {
+  return <CriarPostInner />;
 };
 
-const CadastroInner: React.FC = () => {
+const CriarPostInner: React.FC = () => {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
 
-  const { formData, errors, isDisabled, setFormData, handleSubmit } =
-    useRegisterForm();
+  const {
+    formsData,
+    isDisabled,
+    setFormData,
+    handleSubmit,
+    comebackPage,
+    formError,
+  } = postForms();
 
   return (
     <BackGroundComp>
@@ -56,28 +56,24 @@ const CadastroInner: React.FC = () => {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <Image source={NamedLogo} style={styles.img} />
-
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
-              <RegisterForm
-                formData={formData}
-                errors={errors}
+              <PostFormComponent
+                formsData={formsData}
                 setFormData={setFormData}
+                formError={formError}
               />
             </View>
 
             <Spacer height={40} />
             <View style={styles.redirectInfos}>
               <PrimaryButton disabled={isDisabled} onPress={handleSubmit}>
-                Criar conta
+                Criar Post
               </PrimaryButton>
               <Spacer height={30} />
-              <AppText style={styles.txt}>Ja possui uma conta?</AppText>
+              <AppText style={styles.txt}>Deseja cancelar?</AppText>
               <Spacer height={10} />
-              <SecondaryButton onPress={() => router.push("/(Auth)/login")}>
-                Login
-              </SecondaryButton>
+              <SecondaryButton onPress={comebackPage}>Voltar</SecondaryButton>
             </View>
           </View>
         </ScrollView>
@@ -86,7 +82,7 @@ const CadastroInner: React.FC = () => {
   );
 };
 
-export default Cadastro;
+export default CriarPost;
 
 const makeStyles = (theme: any) =>
   StyleSheet.create({
