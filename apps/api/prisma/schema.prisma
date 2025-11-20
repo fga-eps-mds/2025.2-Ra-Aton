@@ -251,6 +251,7 @@ model Match {
   MatchDate   DateTime
   MatchStatus MatchStatus
   location    String
+  sport       String
 }
 
 model PlayerSubscription {

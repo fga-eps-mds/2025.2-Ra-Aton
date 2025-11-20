@@ -42,6 +42,7 @@ export class MatchRepository {
           teamNameA: data.teamNameA,
           teamNameB: data.teamNameB,
           location: data.location,
+          sport: data.sport,
           author: {
             connect: {
               id: author.id,
