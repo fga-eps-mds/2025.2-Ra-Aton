@@ -13,6 +13,8 @@
     "test:coverage": "turbo run test -- --coverage",  
     "test:watch": "turbo run test -- --watchAll",
     "lint": "turbo run lint",
+    "lint:api": "turbo run lint --filter api",
+    "lint:mobile": "turbo run lint --filter mobile",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
@@ -20,6 +22,7 @@
     "@testing-library/jest-native": "^5.0.2",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^29.5.14",
+    "cross-env": "^10.1.0",
     "jest": "^30.2.0",
     "jest-watch-typeahead": "^3.0.1",
     "prettier": "^3.6.2",

@@ -32,7 +32,14 @@ const CriarEventoInner: React.FC = () => {
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
 
-  const { formsData, isDisabled, setFormData, handleSubmit, comebackPage } = eventoForms();
+  const {
+    formsData,
+    isDisabled,
+    setFormData,
+    handleSubmit,
+    comebackPage,
+    formError,
+  } = eventoForms();
 
   return (
     <BackGroundComp>
@@ -54,6 +61,7 @@ const CriarEventoInner: React.FC = () => {
               <EventoFormComponent
                 formsData={formsData}
                 setFormData={setFormData}
+                formError={formError}
               />
             </View>
 
@@ -65,9 +73,7 @@ const CriarEventoInner: React.FC = () => {
               <Spacer height={30} />
               <AppText style={styles.txt}>Deseja cancelar?</AppText>
               <Spacer height={10} />
-              <SecondaryButton onPress={comebackPage}>
-                Voltar
-              </SecondaryButton>
+              <SecondaryButton onPress={comebackPage}>Voltar</SecondaryButton>
             </View>
           </View>
         </ScrollView>

@@ -1,9 +1,9 @@
-import React from 'react';
-import { TextInput, View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/constants/Theme';
-import { Colors } from '@/constants/Colors';
-import { Fonts } from '@/constants/Fonts';
-import AppText from './AppText';
+import React from "react";
+import { TextInput, View, Text, StyleSheet } from "react-native";
+import { useTheme } from "@/constants/Theme";
+import { Colors } from "@/constants/Colors";
+import { Fonts } from "@/constants/Fonts";
+import AppText from "./AppText";
 //tem scroll com 73 caracteres
 interface DescricaoInputProps {
   label?: string;
@@ -14,10 +14,10 @@ interface DescricaoInputProps {
 }
 
 export const DescricaoInput: React.FC<DescricaoInputProps> = ({
-  label = 'Descrição',
+  label = "Descrição",
   value,
   onChangeText,
-  placeholder = 'Digite aqui...',
+  placeholder = "Digite aqui...",
   height = 120,
 }) => {
   const { isDarkMode } = useTheme();
@@ -44,19 +44,19 @@ export const DescricaoInput: React.FC<DescricaoInputProps> = ({
 const makeStyles = (theme: any, height: number) =>
   StyleSheet.create({
     container: {
-      width: '100%',
-    //   marginVertical: 12,
-    //   paddingHorizontal: 0,
+      width: "100%",
+      //   marginVertical: 12,
+      //   paddingHorizontal: 0,
     },
     label: {
       fontSize: 25,
-      fontWeight: '300',
+      fontWeight: "300",
       color: theme.text,
       fontFamily: Fonts.mainFont.dongleRegular,
       marginLeft: 12,
     },
     input: {
-      width: '100%',
+      width: "100%",
       height,
       paddingHorizontal: 16,
       paddingVertical: 12,

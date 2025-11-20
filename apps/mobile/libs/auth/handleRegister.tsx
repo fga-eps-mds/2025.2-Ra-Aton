@@ -23,7 +23,7 @@ export async function registerUser({
     return response.data ?? {};
   } catch (error: any) {
     if (error.response) {
-      let raw = error.response.data;
+      const raw = error.response.data;
       let data: any = {};
 
       if (typeof raw === "string") {

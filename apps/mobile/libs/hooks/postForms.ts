@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useUser } from '@/libs/storage/UserContext';
-import { useRouter } from 'expo-router';
-import { createPost } from '@/libs/criar/createPost';
+import { useState } from "react";
+import { Alert } from "react-native";
+import { useUser } from "@/libs/storage/UserContext";
+import { useRouter } from "expo-router";
+import { createPost } from "@/libs/criar/createPost";
 
 export const postForms = () => {
   const router = useRouter();
@@ -10,59 +10,62 @@ export const postForms = () => {
   const [loading, setLoading] = useState(false);
 
   const [formsData, setFormData] = useState({
-    titulo: '',
-    descricao: '',
-
+    titulo: "",
+    descricao: "",
   });
+
+  const [formError, setFormError] = useState("");
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      setFormError("");
       if (!user) {
-        Alert.alert('Erro', 'Usuário não encontrado, faça login novamente.');
-        router.replace('/(Auth)/login');
+        Alert.alert("Erro", "Usuário não encontrado, faça login novamente.");
+        router.replace("/(Auth)/login");
         return;
       }
 
       // Campos Obrigatórios
       if (!formsData.titulo) {
-        Alert.alert('Erro', 'Preencha os campos obrigatórios: Título');
+        Alert.alert("Erro", "Preencha os campos obrigatórios: Título");
         return;
       }
 
       // Envia ao backend
       const result = await createPost({
         title: formsData.titulo,
-        type: 'GENERAL',
+        type: "GENERAL",
         content: formsData.descricao,
         token: user.token,
       });
 
-      if (result.error){              // Quando a requisição vai errada por exemplo sem descrição ativa aq
-        throw new Error(result.error);
-      }  
+      if (result.error) {
+        setFormError(result.error); // aparece no formulário
+        return;
+      }
 
-      Alert.alert('Sucesso', 'Post criado com sucesso!');
-      console.log('Post criado:', result);
-      
+      Alert.alert("Sucesso", "Post criado com sucesso!");
+      console.log("Post criado:", result);
+
       // Limpa formulário
       setFormData({
-        titulo: '',
-        descricao: '',
+        titulo: "",
+        descricao: "",
       });
-      
+
       // Redireciona
-      router.replace('/(DashBoard)/(tabs)/Home');
+      router.replace("/(DashBoard)/(tabs)/Home");
     } catch (error: any) {
-      Alert.alert('Erro ao criar post', error?.message || 'Tente novamente');
-      console.error('Erro:', error);
+      Alert.alert("Erro ao criar post", error?.message || "Tente novamente");
+      console.error("Erro:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const comebackPage = () => {
-    router.push('/(DashBoard)/(tabs)/NovoPost');
+    router.push("/(DashBoard)/(tabs)/NovoPost");
   };
 
   const isDisabled = loading || !formsData.titulo;
@@ -74,5 +77,7 @@ export const postForms = () => {
     isDisabled,
     handleSubmit,
     comebackPage,
+    formError,
+    setFormError,
   };
 };

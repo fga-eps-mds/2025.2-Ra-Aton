@@ -125,9 +125,9 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
-      
+
       <Tabs.Screen
-        name="(create)/criarEvento" 
+        name="(create)/criarEvento"
         options={{
           title: "Buscar Atlética",
           href: null,
@@ -135,7 +135,7 @@ export default function DashboardTabsLayout() {
       />
 
       <Tabs.Screen
-        name="(create)/criarPost" 
+        name="(create)/criarPost"
         options={{
           title: "Buscar Atlética",
           href: null,
@@ -143,13 +143,12 @@ export default function DashboardTabsLayout() {
       />
 
       <Tabs.Screen
-        name="(create)/criarPartida" 
+        name="(create)/criarPartida"
         options={{
           title: "Buscar Atlética",
           href: null,
         }} // Esconde da Navbar
       />
-
     </Tabs>
   );
 }

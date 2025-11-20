@@ -49,6 +49,9 @@ class PostController {
   }
 
   async createPost(req: Request, res: Response) {
+    console.log(">>> BODY RECEBIDO:", req.body);
+    console.log(">>> eventDate recebido:", req.body.eventDate);
+    console.log(">>> eventFinishDate recebido:", req.body.eventFinishDate);
     const authUserId = (req as any).user;
     const author = await userService.getUserById(authUserId.id);
     if (!author) {
