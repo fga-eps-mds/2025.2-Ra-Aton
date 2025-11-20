@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const getMatchSchema = z.object({
   params: z.object({
-    id: z.string().uuid("ID da partida inválido")
+    id: z.string().uuid("ID da partida inválido"),
   }),
 });
 
@@ -27,7 +27,7 @@ export const createMatchSchema = z.object({
     maxPlayers: z
       .number()
       .min(2, "Quantidade de jogadores precisa ser maior que 1"),
-      
+
     // Adicionar validação de times para criar e atualizar
     MatchDate: z.preprocess(
       (val) => {
@@ -41,6 +41,7 @@ export const createMatchSchema = z.object({
       }),
     ),
     location: z.string().min(1, "Endereço precisa ter no mínimo 1 caractere"),
+    sport: z.string().min(1, "Esporte precisa ter no mínimo 1 caractere"),
   }),
 });
 
@@ -82,6 +83,10 @@ export const updateMatchSchema = z.object({
       .string()
       .min(1, "Endereço precisa ter no mínimo 1 caractere")
       .optional(),
+    sport: z
+      .string()
+      .min(1, "Esporte precisa ter no mínimo de 1 caractere")
+      .optional(),
   }),
 });
 
@@ -110,6 +115,6 @@ export const listMatchesSchema = z.object({
       .default(DEFAULT_FEED_LIMIT)
       .optional(),
 
-    page: z.coerce.number().int().positive().default(DEFAULT_PAGE).optional()
+    page: z.coerce.number().int().positive().default(DEFAULT_PAGE).optional(),
   }),
 });
