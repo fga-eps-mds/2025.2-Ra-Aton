@@ -1,5 +1,4 @@
-import { preparePostPayload, PostFormData } from "/home/dom/2025.2-Ra-Aton/apps/mobile/__tests__/paginas/(tabs)/(create)/criarPost.helpes";
-
+import { preparePostPayload, PostFormData } from "@/__tests__/paginas/(tabs)/(create)/criarPost.helpes";
 describe("preparePostPayload (Lógica de Publicação)", () => {
 
   it("deve criar um payload válido extraindo hashtags do conteúdo", () => {

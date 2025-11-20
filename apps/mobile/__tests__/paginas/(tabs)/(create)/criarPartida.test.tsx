@@ -1,4 +1,4 @@
-import { prepareMatchPayload, PartidaFormData } from "/home/dom/2025.2-Ra-Aton/apps/mobile/__tests__/paginas/(tabs)/(create)/criarPartida.helpes";
+import { prepareMatchPayload, PartidaFormData } from "@/__tests__/paginas/(tabs)/(create)/criarPartida.helpes";
 
 describe("prepareMatchPayload (Lógica de criação de Partida)", () => {
 

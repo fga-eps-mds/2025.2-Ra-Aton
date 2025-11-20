@@ -1,4 +1,4 @@
-import { prepareEventPayload, EventoFormData } from "/home/dom/2025.2-Ra-Aton/apps/mobile/__tests__/paginas/(tabs)/(create)/criarEvento.helpes";
+import { prepareEventPayload, EventoFormData } from "@/__tests__/paginas/(tabs)/(create)/criarEvento.helpes";
 
 describe("prepareEventPayload (Lógica de criação de evento)", () => {
   
