@@ -14,7 +14,7 @@ class GroupMembershipController {
     if (!userId) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "ID do grupo é obrigatório" });
+        .json({ message: "ID do usuário é obrigatório" });
     }
 
     const members = await groupMembershipService.findMemberByUserId(userId);
@@ -54,7 +54,7 @@ class GroupMembershipController {
     if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "ID do membro é obrigatario" });
+        .json({ message: "ID do membro é obrigatório" });
     }
     try {
       const updatedMember = await groupMembershipService.updateMembership(
@@ -77,7 +77,7 @@ class GroupMembershipController {
     if (!id) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ message: "ID do membro é obrigatario" });
+        .json({ message: "ID do membro é obrigatório" });
     }
     try {
       await groupMembershipService.deleteMembership(id);
