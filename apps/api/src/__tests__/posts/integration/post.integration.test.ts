@@ -19,13 +19,6 @@ const generateToken = (userId: string) =>
 describe("Post Integration Tests (with prismaMock)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Garante que TODOS os métodos necessários existem
-    prismaMock.postLike = prismaMock.postLike || {};
-    prismaMock.attendance = prismaMock.attendance || {};
-
-    prismaMock.postLike.findMany = jest.fn().mockResolvedValue([]);
-    prismaMock.attendance.findMany = jest.fn().mockResolvedValue([]);
   });
 
   // =======================================================================
@@ -49,6 +42,9 @@ describe("Post Integration Tests (with prismaMock)", () => {
       email: "test@example.com",
       createdAt: new Date(),
       updatedAt: new Date(),
+      name: "Test User",
+      profileType: "JOGADOR",
+      passwordHash: "hashedPassword",
     });
 
     prismaMock.post.create.mockResolvedValue({
@@ -107,6 +103,9 @@ describe("Post Integration Tests (with prismaMock)", () => {
       email: "event@example.com",
       createdAt: new Date(),
       updatedAt: new Date(),
+      name: "Event User",
+      profileType: "JOGADOR",
+      passwordHash: "hashedPassword",
     });
 
     prismaMock.post.create.mockResolvedValue({
@@ -157,6 +156,9 @@ describe("Post Integration Tests (with prismaMock)", () => {
       email: "x@example.com",
       createdAt: new Date(),
       updatedAt: new Date(),
+      name: "User",
+      profileType: "JOGADOR",
+      passwordHash: "hashedPassword",
     });
 
     const response = await request(app)
@@ -207,6 +209,9 @@ describe("Post Integration Tests (with prismaMock)", () => {
       email: "xx@example.com",
       createdAt: new Date(),
       updatedAt: new Date(),
+      name: "UserX",
+      profileType: "JOGADOR",
+      passwordHash: "hashedPassword",
     });
 
     const response = await request(app)
@@ -289,7 +294,12 @@ describe("Post Integration Tests (with prismaMock)", () => {
       groupId: GROUP_ID,
       createdAt: now,
       updatedAt: now,
-      comments: [],
+      likesCount: 0,
+      attendancesCount: 0,
+      commentsCount: 0,
+      eventDate: null,
+      eventFinishDate: null,
+      location: null,
     });
 
     const response = await request(app)
@@ -336,7 +346,9 @@ describe("Post Integration Tests (with prismaMock)", () => {
       updatedAt: new Date(),
     };
 
+    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue(existing);
+    // @ts-ignore
     prismaMock.post.update.mockResolvedValue(updated);
 
     const response = await request(app)
@@ -354,6 +366,18 @@ describe("Post Integration Tests (with prismaMock)", () => {
     prismaMock.post.findUnique.mockResolvedValue({
       id: validUUID,
       authorId: AUTH_USER_ID,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      title: "Old Title",
+      content: "Old Content",
+      type: "GENERAL",
+      groupId: GROUP_ID,
+      eventDate: null,
+      eventFinishDate: null,
+      location: null,
+      likesCount: 0,
+      commentsCount: 0,
+      attendancesCount: 0,
     });
 
     const response = await request(app)
@@ -387,11 +411,13 @@ describe("Post Integration Tests (with prismaMock)", () => {
   it("should delete post if user is author", async () => {
     const token = generateToken(AUTH_USER_ID);
 
+    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue({
       id: validUUID,
       authorId: AUTH_USER_ID,
     });
 
+    // @ts-ignore
     prismaMock.post.delete.mockResolvedValue({ id: validUUID });
 
     await request(app)
@@ -403,6 +429,7 @@ describe("Post Integration Tests (with prismaMock)", () => {
   it("should NOT delete post if user is not author", async () => {
     const token = generateToken(OTHER_USER_ID);
 
+    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue({
       id: validUUID,
       authorId: AUTH_USER_ID,
