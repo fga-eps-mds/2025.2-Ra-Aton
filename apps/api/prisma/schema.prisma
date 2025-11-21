@@ -15,6 +15,11 @@ enum ProfileType {
   ATLETICA
 }
 
+enum TeamSide {
+  A
+  B
+}
+
 enum GroupRole {
   ADMIN
   MEMBER
@@ -36,12 +41,30 @@ enum GroupType {
   AMATEUR
 }
 
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum MadeBy {
+  USER
+  GROUP
+}
+
 enum JoinRequestStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
+enum MatchStatus {
+  EM_BREVE
+  EM_ANDAMENTO
+  FINALIZADO
+}
+
+// Models
 model User {
   id           String       @id @default(uuid())
   name         String
@@ -53,11 +76,14 @@ model User {
   passwordHash String
 
   // Relationships
+  subscription PlayerSubscription[]
   posts           Post[]
+  matchs          Match[]
   Attendance      Attendance[]
   Report          Report[]
   PostLike        PostLike[]
   Comment         Comment[]
+  joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
 }
 
@@ -154,16 +180,21 @@ model Group {
   id          String    @id @default(uuid())
   name        String    @unique
   description String?
-  groupType   GroupType
+  sports      String[]
+  groupType   GroupType @default(AMATEUR)
+
+  verificationRequest Boolean             @default(false)
+  verificationStatus  VerificationStatus?
+  acceptingNewMembers Boolean             @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // relationsships
-  posts       Post[]
-  memberships GroupMembership[]
+  joinRequests GroupJoinRequest[]
+  posts        Post[]
+  memberships  GroupMembership[]
   // follows Follow[]
-  // joinRequests GroupJoinRequest[]
 }
 
 model GroupMembership {
@@ -190,16 +221,48 @@ model GroupMembership {
 //   @@unique([userId, groupId])
 // }
 
-// model GroupJoinRequest {
-//   id          String            @id @default(uuid())
-//   requester   User              @relation(fields: [requesterId], references: [id], onDelete: Cascade)
-//   requesterId String
-//   group       Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//   groupId     String
-//   status      JoinRequestStatus @default(PENDING)
-//   message     String?
-//   createdAt   DateTime          @default(now())
-//   updatedAt   DateTime          @updatedAt
+model GroupJoinRequest {
+  id        String            @id @default(uuid())
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  group     Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  madeBy    MadeBy
+  status    JoinRequestStatus @default(PENDING)
+  message   String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
-//   @@unique([requesterId, groupId])
-// }
+  @@unique([userId, groupId])
+}
+
+model Match {
+  id          String               @id @default(uuid())
+  title       String
+  description String? // descrição (opcional)
+  teamNameA   String?              @default("TIME_A") // nome do time A
+  teamNameB   String?              @default("TIME_B") // nome do time B
+  author      User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
+  maxPlayers  Int // numero max de jogadores
+  players     PlayerSubscription[] // jogadores inscritos
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  MatchDate   DateTime
+  MatchStatus MatchStatus
+  location    String
+  sport       String
+}
+
+model PlayerSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matchId   String
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team      TeamSide
+  createdAt DateTime @default(now())
+
+  @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
+}
+

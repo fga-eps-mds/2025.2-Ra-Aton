@@ -12,6 +12,7 @@ const queryClient = new QueryClient();
 
 export default function RootLayout() {
   /* eslint-disable @typescript-eslint/no-require-imports */
+
   const [fontsLoaded, fontsError] = useFonts({
     [Fonts.mainFont
       .dongleRegular]: require("@/assets/fonts/Dongle-Regular.ttf"),
