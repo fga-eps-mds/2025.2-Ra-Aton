@@ -1,87 +1,156 @@
 import React from "react";
-import { View, Text, StyleSheet,Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { EventInfoModalComp } from "./EventInfoModal";
-import { Imatches } from "@/libs/interfaces/Imatches";
-import InputComp from "./InputComp";
+import { Imatches } from "@/libs/interfaces/Imatches"; // Mudei o caminho para mockar, mantenha o seu
 import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
-
+import VsIconSvg from "@/assets/img/vs-icon.svg"
 
 interface CardMatchesProps {
     Imatches?: Imatches[],
     onPressJoinMatch?: () => void,
     onPressInfos?: () => void,
     onReloadFeed?: () => void | Promise<void>;
-
-
 }
 
-export const MatchesCard : React.FC<CardMatchesProps> = ({
+export const MatchesCard: React.FC<CardMatchesProps> = ({
     Imatches, onPressJoinMatch, onPressInfos, onReloadFeed
-})  => {
-
-    return(
+}) => {
+    return (
         <View style={styles.container}>
-
             <View style={styles.BoxCardHeader}>
-                <View style={{width:100, alignItems:'center'}}>
+                
+                <View style={styles.headerSideItem}>
                     <View style={styles.BoxCardStatus}>
-                        <Text style={styles.txt}>FINALIZADA</Text>
+                        <Text style={styles.txtStatus}>STATUS</Text>
                     </View>
                 </View>
-                <View style={{width:150,height:40, marginLeft:10}}>
-                        <Text style={styles.txt}>MODALIDADE COM ALGUM NOME MUITO GRANDE</Text>
-                </View>
-                <View style={{width:30,height:30,marginLeft:35,alignItems:'center', justifyContent:'center'}}>
-                    <Ionicons name="information-circle" color={Colors.input.iconColor} size={25}/>
+
+                <View style={styles.headerCenterItem}>
+                    <Text 
+                        style={styles.txtTitle} 
+                        numberOfLines={1} 
+                        ellipsizeMode="tail"
+                    >
+                        [ESPORTE]
+                    </Text>
                 </View>
 
-                {/* <View style={styles.BoxInfos}>
-                    <Text>Icone</Text>
-                </View> */}
+                <View style={[styles.headerSideItem, { alignItems: 'flex-end' }]}>
+                    <TouchableOpacity onPress={onPressInfos}>
+                    <Ionicons name="information-circle" color={Colors.input.iconColor} size={25} />
+                    </TouchableOpacity>
+                </View>
+
+            </View>
+            <View style={styles.MidCardBox}>
+                <View style={styles.TeamNames}>
+                    <Text style={styles.txtNameTeam}>Time A</Text>
+                    <VsIconSvg height={25} width={20}/>
+                    <Text style={styles.txtNameTeam}>Time B</Text>
+                </View>
+            </View>
+            <View style={styles.BoxConfirm}>
+                <View style={styles.CardBtnConfirm}>
+                    <TouchableOpacity style={styles.btnConfirm}>PARTICIPAR</TouchableOpacity>
+                </View>
             </View>
 
         </View>
-
-
     )
-
 }
 
 const styles = StyleSheet.create({
-    txt:{
-        color:'white',
-        textAlign:'center',
-        fontFamily:Fonts.mainFont.dongleRegular
+    container: {
+        height: 150,
+        width: 350,
+        backgroundColor:Colors.cardGames.backgroundCard,
+        borderRadius: 20,
+        overflow: 'hidden', 
     },
-    container:{
-        height:150,
-        width:350,
-        backgroundColor:'blue',
-        borderRadius:20
+    BoxCardHeader: {
+        height: 45, 
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        backgroundColor: Colors.cardGames.header,
+        paddingHorizontal: 10, 
     },
-    BoxCardHeader:{
-        height:40,
+    headerSideItem: {
+        minWidth: 40, 
+        justifyContent: 'center',
+    },
+    // Container do meio (Título)
+    headerCenterItem: {
+        flex: 1, 
+        paddingHorizontal: 5, 
+        justifyContent: 'center',
+    },
+    BoxCardStatus: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+        backgroundColor: Colors.input.iconColor,
+        alignSelf: 'flex-start', 
+    },
+    txtStatus: {
+        color: 'white',
+        textAlign: 'center',
+        fontSize: 12,
+        fontFamily: Fonts.mainFont.dongleRegular
+    },
+    txtTitle: {
+        color: 'white',
+        textAlign: 'center', 
+        fontFamily: Fonts.mainFont.dongleRegular,
+        fontSize: 20, 
+    },
+
+    MidCardBox:{
+        height:85,
         width:'100%',
-        flexDirection:'row',
         alignItems:'center',
-
-        borderTopStartRadius:15,
-        borderTopEndRadius:15,
-        backgroundColor:Colors.dark.gray,
-
-        paddingHorizontal:5,
-    },
-    BoxCardStatus:{
         justifyContent:'center',
-        alignItems:'center',
-        height:25,
-        width:80,
-        borderRadius:20,
-        backgroundColor:Colors.input.iconColor,
+
+        backgroundColor:Colors.cardGames.backgroundCard
+        // paddingHorizontal:40
+
     },
-    TextHeader:{
+    TeamNames:{
+        height:45,
+        width:230,
+        alignItems:'center',
+        justifyContent:'space-around',
+        flexDirection:'row',
+    },
+    txtNameTeam:{
+        color: 'white',
+        textAlign: 'center', 
+        fontFamily: Fonts.mainFont.dongleRegular,
+        fontSize:40
+    },
+    BoxConfirm:{
+        height:'100%',
+        width:'100%',
+        alignItems:'center',
+        // backgroundColor:'white',
+    },
+    CardBtnConfirm:{
+        height:'100%',
+        width:120,
+        alignItems:'center',
+    },
+    btnConfirm:{
+        width:'100%',
+
+        textAlign:'center',        
+        borderTopLeftRadius:13,
+        borderTopRightRadius:13,
+
+        color:'white',
+        fontFamily:Fonts.mainFont.dongleRegular,
+        backgroundColor:'green',
     }
 
 })
