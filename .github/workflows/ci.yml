@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://postgres:password@localhost:5432/aton
+      TZ: America/Sao_Paulo
     services:
       postgres:
         image: postgres:15
@@ -24,6 +25,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Set local timezone
+        run: sudo timedatectl set-timezone America/Sao_Paulo
+
       - name: Caching pnpm
         uses: pnpm/action-setup@v4
 
@@ -68,7 +73,7 @@ jobs:
         working-directory: .
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: pnpm test
+        run: TZ=America/Sao_Paulo node --timezone=America/Sao_Paulo ./node_modules/.bin/jest
 
       - name: Workspace typecheck
         run: pnpm -w -s run check-types || true
