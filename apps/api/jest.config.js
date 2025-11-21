@@ -33,6 +33,8 @@ const config = {
     "!<rootDir>/src/**/*.config.{ts,js}",
   ],
   coverageDirectory: "<rootDir>/coverage",
+
+  coverageReporters: ["html"],
 };
 
 module.exports = config;
