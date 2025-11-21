@@ -76,7 +76,7 @@ model User {
   passwordHash String
 
   // Relationships
-  subscription    PlayerSubscription[]
+  subscription PlayerSubscription[]
   posts           Post[]
   matchs          Match[]
   Attendance      Attendance[]
@@ -251,6 +251,7 @@ model Match {
   MatchDate   DateTime
   MatchStatus MatchStatus
   location    String
+  sport       String
 }
 
 model PlayerSubscription {
