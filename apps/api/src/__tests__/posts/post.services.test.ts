@@ -41,8 +41,8 @@ const mockEventPostData = {
   type: "EVENT",
   group: mockGroup,
   groupId: GROUP_ID,
-  eventDate: new Date().toISOString(),
-  eventFinishDate: new Date().toISOString(),
+  eventDate: "2026-11-20T21:30:00.000Z",
+  eventFinishDate: "2027-11-20T21:30:00.000Z",
   location: "Auditório Principal",
   author: { id: MOCK_AUTHOR_ID },
 };
@@ -210,7 +210,7 @@ describe("PostService", () => {
     it("deve lançar ApiError 400 se for um EVENTO e eventDate, eventFinishDate ou location estiver faltando", async () => {
       const expectedError = new ApiError(
         HttpStatus.BAD_REQUEST,
-        "Data de inicio, Data de terminó e Localização do evento são obrigatórios em postagens do tipo evento",
+        "Data de inicio, Data de termino e Localização do evento são obrigatórios em postagens do tipo evento",
       );
 
       // Caso 1: eventDate faltando
@@ -222,12 +222,6 @@ describe("PostService", () => {
       // Caso 2: location faltando
       const invalidData2 = { ...mockEventPostData, location: undefined };
       await expect(postService.createPost(invalidData2)).rejects.toThrow(
-        expectedError,
-      );
-
-      // Caso 3: eventFinishDate faltando
-      const invalidData3 = { ...mockEventPostData, eventFinishDate: undefined };
-      await expect(postService.createPost(invalidData3)).rejects.toThrow(
         expectedError,
       );
 

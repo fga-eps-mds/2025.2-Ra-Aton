@@ -50,3 +50,7 @@ pnpm test:mobile # roda os testes do frontend (apps/mobile)
 pnpm test # roda os testes do backend e do frontend
 ```
 
+Dependendo da sua versão do Node.js, pode ser necessário configurar a variável de ambiente `NODE_OPTIONS` para que o Jest funcione corretamente com o `localStorage` durante os testes. No script de `test` de /api e /mobile já tem o cross-env para resolver isso mas em caso de falhas, você pode fazer isso manualmente adicionando o seguinte comando antes de rodar os testes:
+```bash
+export NODE_OPTIONS=--localstorage-file=./.jest-localstorage
+```
