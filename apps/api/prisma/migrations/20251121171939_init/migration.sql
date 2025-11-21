@@ -1,3 +1,17 @@
+/*
+  Warnings:
+
+  - A unique constraint covering the columns `[userName]` on the table `User` will be added. If there are existing duplicate values, this will fail.
+  - Added the required column `passwordHash` to the `User` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `userName` to the `User` table without a default value. This is not possible if the table is not empty.
+
+*/
+-- CreateEnum
+CREATE TYPE "ProfileType" AS ENUM ('JOGADOR', 'TORCEDOR', 'ATLETICA');
+
+-- CreateEnum
+CREATE TYPE "TeamSide" AS ENUM ('A', 'B');
+
 -- CreateEnum
 CREATE TYPE "GroupRole" AS ENUM ('ADMIN', 'MEMBER');
 
@@ -11,7 +25,21 @@ CREATE TYPE "ReportStatus" AS ENUM ('PENDING', 'REVIEWED', 'DISMISSED');
 CREATE TYPE "GroupType" AS ENUM ('ATHLETIC', 'AMATEUR');
 
 -- CreateEnum
+CREATE TYPE "VerificationStatus" AS ENUM ('PENDING', 'VERIFIED', 'REJECTED');
+
+-- CreateEnum
+CREATE TYPE "MadeBy" AS ENUM ('USER', 'GROUP');
+
+-- CreateEnum
 CREATE TYPE "JoinRequestStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+
+-- CreateEnum
+CREATE TYPE "MatchStatus" AS ENUM ('EM_BREVE', 'EM_ANDAMENTO', 'FINALIZADO');
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "passwordHash" TEXT NOT NULL,
+ADD COLUMN     "profileType" "ProfileType",
+ADD COLUMN     "userName" TEXT NOT NULL;
 
 -- CreateTable
 CREATE TABLE "Post" (
@@ -83,7 +111,11 @@ CREATE TABLE "Group" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
-    "groupType" "GroupType" NOT NULL,
+    "sports" TEXT[],
+    "groupType" "GroupType" NOT NULL DEFAULT 'AMATEUR',
+    "verificationRequest" BOOLEAN NOT NULL DEFAULT false,
+    "verificationStatus" "VerificationStatus",
+    "acceptingNewMembers" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -102,6 +134,50 @@ CREATE TABLE "GroupMembership" (
     CONSTRAINT "GroupMembership_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "GroupJoinRequest" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "groupId" TEXT NOT NULL,
+    "madeBy" "MadeBy" NOT NULL,
+    "status" "JoinRequestStatus" NOT NULL DEFAULT 'PENDING',
+    "message" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "GroupJoinRequest_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Match" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "teamNameA" TEXT DEFAULT 'TIME_A',
+    "teamNameB" TEXT DEFAULT 'TIME_B',
+    "authorId" TEXT NOT NULL,
+    "maxPlayers" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "MatchDate" TIMESTAMP(3) NOT NULL,
+    "MatchStatus" "MatchStatus" NOT NULL,
+    "location" TEXT NOT NULL,
+    "sport" TEXT NOT NULL,
+
+    CONSTRAINT "Match_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PlayerSubscription" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "matchId" TEXT NOT NULL,
+    "team" "TeamSide" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PlayerSubscription_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Attendance_userId_postId_key" ON "Attendance"("userId", "postId");
 
@@ -116,6 +192,15 @@ CREATE UNIQUE INDEX "Group_name_key" ON "Group"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "GroupMembership_userId_groupId_key" ON "GroupMembership"("userId", "groupId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GroupJoinRequest_userId_groupId_key" ON "GroupJoinRequest"("userId", "groupId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PlayerSubscription_userId_matchId_key" ON "PlayerSubscription"("userId", "matchId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_userName_key" ON "User"("userName");
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -155,3 +240,18 @@ ALTER TABLE "GroupMembership" ADD CONSTRAINT "GroupMembership_userId_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "GroupMembership" ADD CONSTRAINT "GroupMembership_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GroupJoinRequest" ADD CONSTRAINT "GroupJoinRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GroupJoinRequest" ADD CONSTRAINT "GroupJoinRequest_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Match" ADD CONSTRAINT "Match_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlayerSubscription" ADD CONSTRAINT "PlayerSubscription_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlayerSubscription" ADD CONSTRAINT "PlayerSubscription_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match"("id") ON DELETE CASCADE ON UPDATE CASCADE;
