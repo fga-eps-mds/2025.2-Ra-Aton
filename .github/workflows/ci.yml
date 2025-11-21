@@ -26,9 +26,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Set local timezone
-        run: sudo timedatectl set-timezone America/Sao_Paulo
-
       - name: Caching pnpm
         uses: pnpm/action-setup@v4
 
@@ -73,7 +70,8 @@ jobs:
         working-directory: .
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: TZ=America/Sao_Paulo node --timezone=America/Sao_Paulo ./node_modules/.bin/jest
+          TZ: America/Sao_Paulo
+        run: pnpm test
 
       - name: Workspace typecheck
         run: pnpm -w -s run check-types || true
