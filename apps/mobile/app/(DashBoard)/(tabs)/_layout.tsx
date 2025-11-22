@@ -149,6 +149,14 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
+
+      <Tabs.Screen
+        name="(create)/criarGrupo"
+        options={{
+          title: "Criar Grupo",
+          href: null,
+        }} // Esconde da Navbar
+      />
     </Tabs>
   );
 }

@@ -37,6 +37,11 @@ export default function NovoPost() {
           <PrimaryButton onPress={() => router.push("/criarPartida")}>
             Criar Partida
           </PrimaryButton>
+          <Spacer height={40} />
+
+          <PrimaryButton onPress={() => router.push("/criarGrupo")}>
+            Criar Grupo
+          </PrimaryButton>
 
           <Spacer height={40} />
 
