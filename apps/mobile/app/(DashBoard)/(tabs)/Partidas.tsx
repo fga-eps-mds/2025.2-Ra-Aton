@@ -42,7 +42,7 @@ const {
 
   return (
     <BackGroundComp>
-      <View style={styles.container}>
+      {/* <View style={styles.container}>
 
       <MatchesCard onPressInfos={openModal} onPressJoinMatch={openConfirmCard}></MatchesCard>
       <MatchDetailsModal visible={visible} onClose={closeModal} match={mockMatchData}></MatchDetailsModal>
@@ -50,7 +50,7 @@ const {
       <MoreOptionsModalComp isVisible={visibleInfosHandleMatch} onClose={closeInfosHandleMatch} onInfosMatch={openVisibleReportMatch} ></MoreOptionsModalComp>
       <ReportReasonModal isVisible={visibleReportMatch} onClose={closeVisibleReportMatch}></ReportReasonModal>
       
-      </View>
+      </View> */}
 
 
     </BackGroundComp>
