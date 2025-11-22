@@ -14,7 +14,7 @@ interface CardMatchesProps {
 }
 
 export const MatchesCard: React.FC<CardMatchesProps> = ({
-    Imatches, onPressJoinMatch, onPressInfos, onReloadFeed
+   Imatches, onPressJoinMatch, onPressInfos, onReloadFeed
 }) => {
     return (
         <View style={styles.container}>
@@ -52,7 +52,7 @@ export const MatchesCard: React.FC<CardMatchesProps> = ({
             </View>
             <View style={styles.BoxConfirm}>
                 <View style={styles.CardBtnConfirm}>
-                    <TouchableOpacity style={styles.btnConfirm}>PARTICIPAR</TouchableOpacity>
+                    <TouchableOpacity style={styles.btnConfirm} onPress={onPressJoinMatch}>PARTICIPAR</TouchableOpacity>
                 </View>
             </View>
 

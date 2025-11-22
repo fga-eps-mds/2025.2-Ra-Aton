@@ -8,8 +8,8 @@ import VsIconSvg from "@/assets/img/vs-icon.svg"
 
 
 interface HandleMatchCompProps {
-    isVisible?: boolean,
-    onClose?: () => void,
+    isVisible: boolean,
+    onClose: () => void,
     match?: Imatches[],  
     isChangeTeam?: boolean,
     IsNotify?: boolean,
