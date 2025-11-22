@@ -38,12 +38,14 @@ export const HandleMatchComp: React.FC<HandleMatchCompProps> = ({
                                 numberOfLines={2} 
                                 adjustsFontSizeToFit 
                             >
-                                Partida casual de [FUTEBOL DE SABÃO COM NOME GIGANTE]
+                            Partida casual de [FUTEBOL DE SABÃO COM NOME GIGANTE]
                             </Text>
                         </View>
 
                         <View style={[styles.boxSideItem, { alignItems: 'flex-end' }]}>
+                            <TouchableOpacity onPress={onPressMoreInfos}>
                             <Ionicons name="ellipsis-vertical" size={20} color={'white'}/>
+                            </TouchableOpacity>
                         </View>
                     </View>
 
@@ -73,13 +75,12 @@ export const HandleMatchComp: React.FC<HandleMatchCompProps> = ({
                             </View>
                          </View>
 
-                         <View style={styles.boxNotifications}>
+                         {/* <View style={styles.boxNotifications}>
                             <TouchableOpacity> 
                                 <Ionicons name="checkbox-outline" size={15} color={Colors.input.iconColor}/> 
                             </TouchableOpacity>
                             <Text style={styles.txtNotify}>Deseja receber notificações sobre esse evento?</Text>
-                         </View>
-                        
+                         </View> */}
                     </View>
 
                 </View>

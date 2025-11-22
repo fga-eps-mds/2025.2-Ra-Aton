@@ -97,7 +97,7 @@ export function EventDetailsModal({
             <View>
               <Text style={[styles.infoLabel, { color: theme.text }]}>
                 Horário
-              </Text>
+              </Text>''
               <Text style={[styles.infoValue, { color: theme.text }]}>
                 {formattedTime}
               </Text>

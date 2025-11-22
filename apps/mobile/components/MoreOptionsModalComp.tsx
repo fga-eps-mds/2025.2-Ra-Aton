@@ -17,20 +17,21 @@ interface MoreOptionsModalProps {
   isVisible: boolean;
   onClose: () => void;
   onInfos?: () => void;
-  onReport: () => void;
+  onInfosMatch?: () => void;
+  onReport?: () => void;
   onDelete?: () => void; // Opcional, se o usuário for dono do post
 }
 
 const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
   isVisible,
   onClose,
+  onInfosMatch,
   onReport,
   onInfos,
   onDelete,
 }) => {
   const { isDarkMode } = useTheme();
-  // Use a safe Modal fallback for test environments where RN's Modal may be
-  // unavailable or mocked differently. This avoids crashing during render.
+
   const ModalComponent: React.ComponentType<any> =
     (Modal as any) ||
     function ({ visible, children }: any) {
@@ -41,26 +42,43 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
   const modalOptions = [
-    {
+    ...(onReport ? [{
       label: "Reportar Post",
       icon: "alert-circle-outline",
       action: onReport,
-      color: theme.danger || "#D93E3E", // TODO: Adicionar 'danger' em Colors.ts
-    },
+      color: "#D93E3E", 
+    }] : [])
+    ,
+    ...(onInfosMatch ? [
+      {
+      label:"Reportar Partida",
+      icon:"alert-circle-outline",
+      action: onInfosMatch,
+      color:"#D93E3E" 
+      } 
+    ] : [])
+    ,
+
+    // {
+    //   label:"Reportar Evento",
+    //   icon:"alert-circle-outline",
+    //   action: onInfosMatch,
+    //   color:"#D93E3E"
+    // }
+    
     {
       label: "Sobre o evento",
       icon: "information-circle",
       action: onInfos,
       color: theme.orange,
     },
-    // Adiciona a opção de deletar se a função foi passada
     ...(onDelete
       ? [
           {
             label: "Excluir Post",
             icon: "trash-outline",
             action: onDelete,
-            color: theme.danger || "#D93E3E",
+            color: "#D93E3E",
           },
         ]
       : []),
@@ -117,7 +135,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end", // Alinha o modal na base
+    justifyContent: "flex-end", 
   },
   safeArea: {
     width: "100%",
@@ -126,7 +144,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    paddingBottom: 30, // Espaço para safe area
+    paddingBottom: 30, 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
