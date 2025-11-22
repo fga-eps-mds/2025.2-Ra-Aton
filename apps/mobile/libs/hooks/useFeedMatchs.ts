@@ -7,8 +7,9 @@ export const UseModalFeedMatchs = () =>{
     const [visibleDetailsHandle, setVisibleDetailsHandle] = useState(initialState);;
     const [visibleInfosHandleMatch, setVisibleInfosHandleMatch] = useState(initialState);
     const [visibleReportMatch, setVisibleReportMatch] = useState(initialState);;
-    
-const useModal = () => {
+
+
+    const useModal = () => {
     setVisible(true);
 };
 
@@ -49,6 +50,9 @@ const closeReportMatchModal = () => {
 }
 
 
+
+
+
     return {    
     visibleConfirmCard,
     visible,
@@ -69,7 +73,7 @@ const closeReportMatchModal = () => {
     closeModalMoreInfosHandleModal,
 
     openReportMatchModal,
-    closeReportMatchModal
+    closeReportMatchModal,
 }
 }
 

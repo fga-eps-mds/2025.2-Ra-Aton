@@ -42,6 +42,7 @@ const {
     visibleInfosHandleMatch,
     visibleReportMatch,
 
+
     useModal,
     closeModal,
 
@@ -55,7 +56,9 @@ const {
     closeModalMoreInfosHandleModal,
 
     openReportMatchModal,
-    closeReportMatchModal
+    closeReportMatchModal,
+    
+   
  } = UseModalFeedMatchs();
 
   return (
@@ -65,7 +68,7 @@ const {
       <MatchesCard onPressInfos={useModal} onPressJoinMatch={openModalConfirmCard}></MatchesCard>
       <MatchDetailsModal visible={visible} onClose={closeModal} match={mockMatchData}></MatchDetailsModal>
       <HandleMatchComp isVisible={visibleConfirmCard}  onClose={closeModalConfirmCard} onPressMoreInfos={openModalMoreInfosHandleModal}></HandleMatchComp>
-      <MoreOptionsModalComp isVisible={visibleInfosHandleMatch} onClose={closeModalMoreInfosHandleModal} onInfosMatch={openReportMatchModal}></MoreOptionsModalComp>
+      <MoreOptionsModalComp isVisible={visibleInfosHandleMatch} onClose={closeModalMoreInfosHandleModal} onInfos={useModal} onInfosMatch={openReportMatchModal}></MoreOptionsModalComp>
       <ReportReasonModal isVisible={visibleReportMatch} onClose={closeReportMatchModal}></ReportReasonModal>
       
       </View>
