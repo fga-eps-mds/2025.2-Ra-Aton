@@ -8,8 +8,11 @@ import InputComp from "@/components/InputComp";
 import BackGroundComp from "@/components/BackGroundComp";
 import { MatchesCard } from "@/components/MatchesCardComp";
 import { HandleMatchComp } from "@/components/HandleMatchComp";
-import { useModal, useModalConfirmCard } from "@/libs/hooks/useFeedMatchs";
+import { UseModalFeedMatchs } from "@/libs/hooks/useFeedMatchs";
 import { MatchDetailsModal } from "@/components/MatchDetailsModal";
+import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
+import ReportReasonModal from "@/components/ReportReasonModal";
+
 
 export default function Partidas() {
   const { isDarkMode } = useTheme();
@@ -24,15 +27,6 @@ export default function Partidas() {
     },
   });
 
-  const {
-    visible, closeModal, openModal
-  } = useModal();
- 
-  const {
-    visibleConfirmCard, openConfirmCard, closeConfirmCard
-  } =  useModalConfirmCard();
- 
-  
 
 const mockMatchData = {
     id: '1',
@@ -41,13 +35,21 @@ const mockMatchData = {
     location: 'Quadra do Centro',
 } as any;
 
+const {
+  
+
+ } = UseModalFeedMatchs();
+
   return (
     <BackGroundComp>
       <View style={styles.container}>
 
       <MatchesCard onPressInfos={openModal} onPressJoinMatch={openConfirmCard}></MatchesCard>
       <MatchDetailsModal visible={visible} onClose={closeModal} match={mockMatchData}></MatchDetailsModal>
-      <HandleMatchComp isVisible={visibleConfirmCard}  onClose={closeConfirmCard}></HandleMatchComp>
+      <HandleMatchComp isVisible={visibleConfirmCard}  onClose={closeConfirmCard} onPressMoreInfos={openInfosHandleMatch}></HandleMatchComp>
+      <MoreOptionsModalComp isVisible={visibleInfosHandleMatch} onClose={closeInfosHandleMatch} onInfosMatch={openVisibleReportMatch} ></MoreOptionsModalComp>
+      <ReportReasonModal isVisible={visibleReportMatch} onClose={closeVisibleReportMatch}></ReportReasonModal>
+      
       </View>
 
 

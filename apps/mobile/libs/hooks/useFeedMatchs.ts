@@ -1,17 +1,45 @@
 import { useState } from 'react';
+const initialState = false;
 
-export const useModal = (initialState: boolean = false) => {
-    const [visible, setVisible] = useState(initialState);
-    const openModal = () => setVisible(true);
-    const closeModal = () => setVisible(false);
+const [visibleConfirmCard, setVisibleConfirmCard] = useState(initialState);
+const [visible, setVisible] = useState(initialState);
+const [visibleDetailsHandle, setVisibleDetailsHandle] = useState(initialState);;
+const [visibleInfosHandleMatch, setVisibleInfosHandleMatch] = useState(initialState);
+const [visibleReportMatch, setVisibleReportMatch] = useState(initialState);;
     
-    return { visible, openModal, closeModal };
+const useModal = () => {
+    setVisible(true);
+    setVisible(false);    
 };
 
-export const useModalConfirmCard = (initialState : boolean = false) => {
-    const [visibleConfirmCard, setVisibleConfirmCard] = useState(initialState);
-    const openConfirmCard = () => setVisibleConfirmCard(true);
-    const closeConfirmCard = () => setVisibleConfirmCard(false);
-    
-    return {visibleConfirmCard, openConfirmCard, closeConfirmCard};
+const useDetailsHandleMatchModal = () => {
+    setVisibleDetailsHandle(true);
+    setVisibleDetailsHandle(false);
 }
+
+const useModalConfirmCard = () => {
+    setVisibleConfirmCard(true);
+    setVisibleConfirmCard(false);
+    
+}
+const useModalMoreInfosHandleModal = () => {
+    setVisibleInfosHandleMatch(true);
+    setVisibleInfosHandleMatch(false);
+}
+
+const useReportMatchModal = (initalState : boolean = false) => {
+    setVisibleReportMatch(true);
+    setVisibleReportMatch(false);    
+}
+
+export const UseModalFeedMatchs = () =>{
+  
+    return {
+        useModal,
+        useDetailsHandleMatchModal,
+        useModalConfirmCard,
+        useModalMoreInfosHandleModal,
+        useReportMatchModal
+    }
+}
+
