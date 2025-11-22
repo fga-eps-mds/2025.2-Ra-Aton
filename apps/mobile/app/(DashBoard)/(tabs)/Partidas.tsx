@@ -8,9 +8,7 @@ import InputComp from "@/components/InputComp";
 import BackGroundComp from "@/components/BackGroundComp";
 import { MatchesCard } from "@/components/MatchesCardComp";
 import { HandleMatchComp } from "@/components/HandleMatchComp";
-import { useModal } from "@/libs/hooks/useModal";
-import { EventInfoModalComp } from "@/components/EventInfoModal";
-import { EventDetailsModal } from "@/components/EventDetailsModal";
+import { useModal, useModalConfirmCard } from "@/libs/hooks/useFeedMatchs";
 import { MatchDetailsModal } from "@/components/MatchDetailsModal";
 
 export default function Partidas() {
@@ -30,6 +28,12 @@ export default function Partidas() {
     visible, closeModal, openModal
   } = useModal();
  
+  const {
+    visibleConfirmCard, openConfirmCard, closeConfirmCard
+  } =  useModalConfirmCard();
+ 
+  
+
 const mockMatchData = {
     id: '1',
     title: 'Futebol de Quinta',
@@ -41,10 +45,9 @@ const mockMatchData = {
     <BackGroundComp>
       <View style={styles.container}>
 
-        <MatchesCard onPressInfos={openModal}></MatchesCard>
+      <MatchesCard onPressInfos={openModal} onPressJoinMatch={openConfirmCard}></MatchesCard>
       <MatchDetailsModal visible={visible} onClose={closeModal} match={mockMatchData}></MatchDetailsModal>
-
-
+      <HandleMatchComp isVisible={visibleConfirmCard}  onClose={closeConfirmCard}></HandleMatchComp>
       </View>
 
 
