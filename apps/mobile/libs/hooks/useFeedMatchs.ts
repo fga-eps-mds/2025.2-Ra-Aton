@@ -1,45 +1,75 @@
 import { useState } from 'react';
-const initialState = false;
 
-const [visibleConfirmCard, setVisibleConfirmCard] = useState(initialState);
-const [visible, setVisible] = useState(initialState);
-const [visibleDetailsHandle, setVisibleDetailsHandle] = useState(initialState);;
-const [visibleInfosHandleMatch, setVisibleInfosHandleMatch] = useState(initialState);
-const [visibleReportMatch, setVisibleReportMatch] = useState(initialState);;
+export const UseModalFeedMatchs = () =>{
+    const initialState = false;
+    const [visibleConfirmCard, setVisibleConfirmCard] = useState(initialState);
+    const [visible, setVisible] = useState(initialState);
+    const [visibleDetailsHandle, setVisibleDetailsHandle] = useState(initialState);;
+    const [visibleInfosHandleMatch, setVisibleInfosHandleMatch] = useState(initialState);
+    const [visibleReportMatch, setVisibleReportMatch] = useState(initialState);;
     
 const useModal = () => {
     setVisible(true);
-    setVisible(false);    
 };
 
-const useDetailsHandleMatchModal = () => {
+const closeModal = () => {
+    setVisible(false);
+}
+
+const openDetailsHandleMatchModal = () => {
     setVisibleDetailsHandle(true);
+}
+
+const closeDetailsHandleMatchModal = () => {
     setVisibleDetailsHandle(false);
 }
 
-const useModalConfirmCard = () => {
+const openModalConfirmCard = () => {
     setVisibleConfirmCard(true);
-    setVisibleConfirmCard(false);
-    
 }
-const useModalMoreInfosHandleModal = () => {
+
+const closeModalConfirmCard = () => {
+    setVisibleConfirmCard(false);
+}
+
+const openModalMoreInfosHandleModal = () => {
     setVisibleInfosHandleMatch(true);
+}
+
+const closeModalMoreInfosHandleModal = () => {
     setVisibleInfosHandleMatch(false);
 }
 
-const useReportMatchModal = (initalState : boolean = false) => {
+const openReportMatchModal = () => {
     setVisibleReportMatch(true);
-    setVisibleReportMatch(false);    
 }
 
-export const UseModalFeedMatchs = () =>{
-  
-    return {
-        useModal,
-        useDetailsHandleMatchModal,
-        useModalConfirmCard,
-        useModalMoreInfosHandleModal,
-        useReportMatchModal
-    }
+const closeReportMatchModal = () => {
+    setVisibleReportMatch(false);
+}
+
+
+    return {    
+    visibleConfirmCard,
+    visible,
+    visibleDetailsHandle,
+    visibleInfosHandleMatch,
+    visibleReportMatch,
+
+    useModal,
+    closeModal,
+
+    openDetailsHandleMatchModal,
+    closeDetailsHandleMatchModal,
+    
+    openModalConfirmCard,
+    closeModalConfirmCard,
+    
+    openModalMoreInfosHandleModal,
+    closeModalMoreInfosHandleModal,
+
+    openReportMatchModal,
+    closeReportMatchModal
+}
 }
 
