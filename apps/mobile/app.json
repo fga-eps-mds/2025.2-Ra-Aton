@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ton.aton",
+      "bundleIdentifier": "com.unb.aton",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
