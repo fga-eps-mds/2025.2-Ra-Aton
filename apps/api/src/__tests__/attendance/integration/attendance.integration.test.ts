@@ -58,4 +58,58 @@ describe("Testes de Integração de Presença", () => {
       userId,
     });
   });
+
+  it("deve alternar presença (deletar) quando usuário já está presente via API", async () => {
+    const postId = "post-123";
+    const userId = "user-456";
+    const usuarioExistente = {
+      id: userId,
+      userName: "usuarioPresenca",
+      email: "presenca@example.com",
+      name: "Usuário Presença",
+      profileType: "JOGADOR",
+      passwordHash: await bcrypt.hash("senhaPresenca", 10),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(usuarioExistente);
+
+    const resLogin = await request(app)
+      .post("/login")
+      .send({
+        email: usuarioExistente.email,
+        password: "senhaPresenca",
+      })
+      .expect(HttpStatus.OK);
+
+    const token = resLogin.body.token;
+
+    const presencaExistente = {
+      id: "presenca-789",
+      postId,
+      userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    prismaMock.attendance.findFirst.mockResolvedValue(presencaExistente as any);
+    prismaMock.attendance.delete.mockResolvedValue(presencaExistente as any);
+    (prismaMock.post.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app)
+      .post(`/posts/${postId}/attendance`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ authorId: userId })
+      .expect(HttpStatus.CREATED);
+
+    expect(res.body).toMatchObject({
+      id: presencaExistente.id,
+      postId,
+      userId,
+    });
+
+    expect(prismaMock.attendance.delete).toHaveBeenCalledWith({
+      where: { id: presencaExistente.id },
+    });
+  });
 });
