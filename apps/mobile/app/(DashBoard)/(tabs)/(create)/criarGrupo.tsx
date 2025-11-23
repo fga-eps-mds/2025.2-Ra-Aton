@@ -140,90 +140,105 @@ export default function CriarGrupoScreen() {
                             </View>
                             {errors.type && <Text style={styles.errorText}>{errors.type.message}</Text>}
                         </View>
-                    </BackGroundComp>
-                    );
+
+                        {/* Botão de Ação */}
+                        <View style={styles.buttonContainer}>
+                            {isLoading ? (
+                                <ActivityIndicator size="large" color={theme.orange} />
+                            ) : (
+                                <PrimaryButton
+                                    onPress={submitForm}
+                                >Criar Grupo</PrimaryButton>
+                            )}
+                        </View>
+
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </BackGroundComp>
+    );
 }
 
-                    const TypeButton = ({label, selected, onPress, theme}: any) => (
-                    <TouchableOpacity
-                        style={[
-                            styles.typeButton,
-                            selected && { backgroundColor: theme.orange, borderColor: theme.orange }
-                        ]}
-                        onPress={onPress}
-                    >
-                        <Text style={[
-                            styles.typeText,
-                            { color: selected ? '#fff' : theme.text }
-                        ]}>
-                            {label}
-                        </Text>
-                    </TouchableOpacity>
-                    );
+const TypeButton = ({ label, selected, onPress, theme }: any) => (
+    <TouchableOpacity
+        style={[
+            styles.typeButton,
+            selected && { backgroundColor: theme.orange, borderColor: theme.orange }
+        ]}
+        onPress={onPress}
+    >
+        <Text style={[
+            styles.typeText,
+            { color: selected ? '#fff' : theme.text }
+        ]}>
+            {label}
+        </Text>
+    </TouchableOpacity>
+);
 
-                    const styles = StyleSheet.create({
-                        scrollContainer: {
-                        flexGrow: 1,
-                    paddingBottom: 40,
+const styles = StyleSheet.create({
+    scrollContainer: {
+        flexGrow: 1,
+        paddingBottom: 40,
     },
-                    header: {
-                        flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: 20,
-                    paddingVertical: 15,
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
     },
-                    backButton: {
-                        padding: 5,
+    backButton: {
+        padding: 5,
     },
-                    title: {
-                        fontSize: 20,
-                    fontWeight: 'bold',
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
     },
-                    formContainer: {
-                        paddingHorizontal: 20,
-                    marginTop: 10,
+    formContainer: {
+        paddingHorizontal: 20,
+        marginTop: 10,
     },
-                    inputGroup: {
-                        marginBottom: 20,
+    inputGroup: {
+        marginBottom: 20,
     },
-                    label: {
-                        fontSize: 16,
-                    marginBottom: 8,
-                    fontWeight: '600',
+    label: {
+        fontSize: 16,
+        marginBottom: 8,
+        fontWeight: '600',
     },
-                    textArea: {
-                        borderWidth: 1,
-                    borderRadius: 8,
-                    padding: 12,
-                    fontSize: 16,
-                    minHeight: 100,
+    textArea: {
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        minHeight: 100,
     },
-                    errorText: {
-                        color: '#ff4d4d',
-                    fontSize: 12,
-                    marginTop: 5,
+    errorText: {
+        color: '#ff4d4d',
+        fontSize: 12,
+        marginTop: 5,
     },
-                    typeSelector: {
-                        flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    gap: 10,
+    typeSelector: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
     },
-                    typeButton: {
-                        flex: 1,
-                    paddingVertical: 12,
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    justifyContent: 'center',
+    typeButton: {
+        flex: 1,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-                    typeText: {
-                        fontSize: 16,
-                    fontWeight: '500',
+    typeText: {
+        fontSize: 16,
+        fontWeight: '500',
     },
-                    buttonContainer: {
-                        marginTop: 20,
-                    alignItems: 'center',
+    buttonContainer: {
+        marginTop: 20,
+        alignItems: 'center',
     },
 });

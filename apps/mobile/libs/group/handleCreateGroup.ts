@@ -1,5 +1,7 @@
 // ARQUIVO: apps/mobile/libs/group/handleCreateGroup.ts
-import { api_route } from "@/libs/auth/api";
+
+// 1. MUDANÇA CRÍTICA: Importar do caminho CORRETO (src/libs/api)
+import { api_route } from "../../../mobile/libs/auth/api";
 import { IGroup } from "@/libs/interfaces/Igroup";
 
 // Interface baseada na documentação group.md + Necessidades do Frontend
@@ -9,9 +11,7 @@ export interface CreateGroupPayload {
   sports?: string[];
   verificationRequest: boolean;
   acceptingNewMembers?: boolean;
-
-  // ✅ MANTENHA isso aqui. O formulário precisa saber que esse campo existe.
-  // Nós vamos removê-lo antes de enviar para a API.
+  // Mantemos o type para o frontend, removemos antes de enviar
   type?: "ATHLETIC" | "AMATEUR";
 }
 
@@ -25,7 +25,6 @@ export async function handleCreateGroup(
 ): Promise<IGroup> {
   try {
     // 1. Separa o 'type' do resto dos dados
-    // 'payloadToSend' conterá tudo EXCETO o 'type'
     const { type, ...payloadToSend } = payload;
 
     console.log(
@@ -35,7 +34,7 @@ export async function handleCreateGroup(
 
     // 2. Envia apenas os dados que o backend aceita
     const response = await api_route.post<CreateGroupResponse>(
-      "/group",
+      "/group", // Rota no singular
       payloadToSend,
     );
 
@@ -46,8 +45,6 @@ export async function handleCreateGroup(
 
     if (error.response) {
       const data = error.response.data;
-
-      // Log detalhado para ajudar a debugar o erro 500
       console.error("Erro detalhado do Backend:", data);
 
       if (typeof data === "string") {
