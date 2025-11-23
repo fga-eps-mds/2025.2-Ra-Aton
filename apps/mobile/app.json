@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.ton.aton",
+      "package": "com.unb.aton",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json",
