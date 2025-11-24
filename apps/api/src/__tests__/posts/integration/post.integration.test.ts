@@ -225,4 +225,43 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       "Grupo não encontrado, somente grupos podem fazer postagens",
     );
   });
+
+  // =======================================================================
+  // GET /posts
+  // =======================================================================
+
+  it("deve listar posts com paginação", async () => {
+    const token = generateToken(AUTH_USER_ID);
+
+    const now = new Date();
+
+    const posts = [
+      {
+        id: validUUID,
+        title: "A",
+        content: "B",
+        type: "GENERAL",
+        authorId: AUTH_USER_ID,
+        groupId: GROUP_ID,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+
+    prismaMock.$transaction.mockResolvedValue([posts, 1]);
+
+    prismaMock.postLike.findMany.mockResolvedValue([]);
+    prismaMock.attendance.findMany.mockResolvedValue([]);
+
+    const response = await request(app)
+      .get("/posts")
+      .set("Authorization", `Bearer ${token}`)
+      .query({ limit: 10, page: 1 })
+      .send({ userId: AUTH_USER_ID })
+      .expect(HttpStatus.OK);
+
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.meta.totalCount).toBe(1);
+  });
+
 });
