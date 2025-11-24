@@ -157,4 +157,11 @@ describe("Integração - Módulo de GroupMembership (/member)", () => {
     expect(res.body.message).toBe("Membro não encontrado");
   });
 
+  it("deve excluir um membro existente", async () => {
+    groupMembershipService.deleteMembership.mockResolvedValue(undefined);
+
+    await request(app)
+      .delete(`/member/${VALID_MEMBER_ID}`)
+      .expect(httpStatus.NO_CONTENT);
+  });
 });
