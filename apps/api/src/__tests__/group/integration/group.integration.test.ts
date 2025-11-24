@@ -79,4 +79,35 @@ describe("Integração - Módulo de Grupos", () => {
     expect(res.body.length).toBe(1);
     expect(res.body[0].name).toBe("Basquete");
   });
+
+  // ============================================================================
+  // BUSCAR POR NOME
+  // ============================================================================
+
+  it("deve retornar 404 ao buscar grupo inexistente", async () => {
+    (GroupRepository.findGroupByName as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app)
+      .get("/group/Inexistente")
+      .expect(httpStatus.NOT_FOUND);
+
+    expect(res.body.error).toBe("Grupo não encontrado");
+  });
+
+  it("deve retornar grupo ao buscar por nome", async () => {
+    (GroupRepository.findGroupByName as jest.Mock).mockResolvedValue({
+      id: "g1",
+      name: "Basquete",
+      memberships: [],
+      _count: { memberships: 0 },
+    });
+
+    const res = await request(app)
+      .get("/group/Basquete")
+      .expect(httpStatus.FOUND);
+
+    expect(res.body.name).toBe("Basquete");
+  });
+
+
 });
