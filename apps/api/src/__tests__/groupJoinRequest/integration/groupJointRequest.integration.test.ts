@@ -154,4 +154,19 @@ describe("Integração - Módulo de GroupMembership", () => {
     expect(res.body.id).toBe(NEW_MEMBER_ID);
   });
 
+  // UPDATE — OK
+  it("deve atualizar um membro", async () => {
+    GroupMembershipRepository.updateMember.mockResolvedValue({
+      id: VALID_MEMBER_ID,
+      role: "ADMIN",
+    });
+
+    const res = await request(app)
+      .patch(`/member/${VALID_MEMBER_ID}`)
+      .send({ role: "ADMIN" })
+      .expect(200);
+
+    expect(res.body.role).toBe("ADMIN");
+  });
+
 });
