@@ -92,4 +92,22 @@ describe("POSTLIKE Integration Tests", () => {
     });
   });
 
+  // ===========================================================================
+  // 3) ERRO — FALTA DE authorId NO BODY
+  // ===========================================================================
+  it("deve retornar 400 quando authorId estiver ausente no corpo da requisição", async () => {
+    const token = generateToken(USER_ID);
+
+    const response = await request(app)
+      .post(`/posts/${POST_ID}/like`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({})
+      .expect(HttpStatus.BAD_REQUEST);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toBeDefined();
+    expect(response.body.errors || response.body.error).toBeDefined();
+    expect(response.body.errors || response.body.error).toBe("Erro de validação");
+  });
+
 });
