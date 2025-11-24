@@ -5,6 +5,9 @@ import { globalErrorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
 import userRoutes from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
+import groupRoutes from "./modules/group/group.routes";
+import inviteRoutes from "./modules/groupJoinRequest/groupJoinRequest.routes";
+import memberRoutes from "./modules/groupMembership/groupMembership.routes";
 import postRoutes from "./modules/post/post.routes";
 import commentRoutes from "./modules/comment/comment.routes";
 import HttpStatus from "http-status";
@@ -29,6 +32,9 @@ app.get("/", (_req: Request, res: Response) => {
 // --- MONTAGEM DAS ROTAS ---
 app.use("/users", userRoutes);
 app.use("/login", authRoutes);
+app.use("/group", groupRoutes);
+app.use("/invite", inviteRoutes);
+app.use("/member", memberRoutes);
 app.use("/posts", postRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 app.use("/posts/:postId/like", postLikeRoutes);
