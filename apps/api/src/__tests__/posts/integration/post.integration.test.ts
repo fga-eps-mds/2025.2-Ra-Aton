@@ -317,4 +317,84 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       .expect(HttpStatus.NOT_FOUND);
   });
 
+  // =======================================================================
+  // PATCH /posts/:id
+  // =======================================================================
+
+  it("deve atualizar um post quando o usuário é o autor", async () => {
+    const token = generateToken(AUTH_USER_ID);
+
+    const existing = {
+      id: validUUID,
+      title: "Old",
+      content: "Old",
+      type: "GENERAL",
+      authorId: AUTH_USER_ID,
+      groupId: GROUP_ID,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const updated = {
+      ...existing,
+      title: "New Title",
+      content: "New Content",
+      updatedAt: new Date(),
+    };
+
+    prismaMock.post.findUnique.mockResolvedValue(existing);
+    prismaMock.post.update.mockResolvedValue(updated);
+
+    const response = await request(app)
+      .patch(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "New Title", content: "New Content" })
+      .expect(HttpStatus.OK);
+
+    expect(response.body.title).toBe("New Title");
+  });
+
+  it("não deve atualizar um post se o usuário não for o autor", async () => {
+    const token = generateToken(OTHER_USER_ID);
+
+    prismaMock.post.findUnique.mockResolvedValue({
+      id: validUUID,
+      authorId: AUTH_USER_ID,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      title: "Old Title",
+      content: "Old Content",
+      type: "GENERAL",
+      groupId: GROUP_ID,
+      eventDate: null,
+      eventFinishDate: null,
+      location: null,
+      likesCount: 0,
+      commentsCount: 0,
+      attendancesCount: 0,
+    });
+
+    const response = await request(app)
+      .patch(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "New Title" })
+      .expect(HttpStatus.FORBIDDEN);
+
+    const err = response.body.error || response.body.message;
+    expect(err).toBe("Você não tem permissão para atualizar esta postagem");
+  });
+
+  it("deve retornar 404 ao tentar atualizar um post inexistente", async () => {
+    const token = generateToken(AUTH_USER_ID);
+
+    prismaMock.post.findUnique.mockResolvedValue(null);
+
+    const response = await request(app)
+      .patch(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "Valid Title" })
+      .expect(HttpStatus.NOT_FOUND);
+
+    expect(response.body.error || response.body.message).toBeDefined();
+  });
 });
