@@ -129,7 +129,8 @@ describe("Integração - Módulo de GroupMembership", () => {
       })
       .expect(httpStatus.CONFLICT);
 
-    expect(res.body.message).toBe("Usuário já é membro do grupo");
+    // handler retorna { error: "..." }
+    expect(res.body.error || res.body.message).toBe("Usuário já é membro do grupo");
   });
 
   // CREATE — OK
