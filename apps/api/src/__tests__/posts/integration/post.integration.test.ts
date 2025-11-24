@@ -397,4 +397,54 @@ describe("Testes de Integração Post (com prismaMock))", () => {
 
     expect(response.body.error || response.body.message).toBeDefined();
   });
+
+  // =======================================================================
+  // DELETE /posts/:id
+  // =======================================================================
+
+  it("deve excluir um post quando o usuário é o autor", async () => {
+    const token = generateToken(AUTH_USER_ID);
+
+    prismaMock.post.findUnique.mockResolvedValue({
+      id: validUUID,
+      authorId: AUTH_USER_ID,
+    });
+
+    prismaMock.post.delete.mockResolvedValue({ id: validUUID });
+
+    await request(app)
+      .delete(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(HttpStatus.NO_CONTENT);
+  });
+
+  it("não deve excluir um post se o usuário não for o autor", async () => {
+    const token = generateToken(OTHER_USER_ID);
+
+    prismaMock.post.findUnique.mockResolvedValue({
+      id: validUUID,
+      authorId: AUTH_USER_ID,
+    });
+
+    const response = await request(app)
+      .delete(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(HttpStatus.FORBIDDEN);
+
+    const err = response.body.error || response.body.message;
+    expect(err).toBe("Você não tem permissão para excluir esta postagem");
+  });
+
+  it("deve retornar 404 ao tentar excluir um post inexistente", async () => {
+    const token = generateToken(AUTH_USER_ID);
+
+    prismaMock.post.findUnique.mockResolvedValue(null);
+
+    const response = await request(app)
+      .delete(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(HttpStatus.NOT_FOUND);
+
+    expect(response.body.error || response.body.message).toBeDefined();
+  });
 });
