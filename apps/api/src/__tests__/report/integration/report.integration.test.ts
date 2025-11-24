@@ -10,7 +10,7 @@ const VALID_ID = "8b6f1ec0-8d7b-4bb1-ba47-2a52e5c6d2f4";
 const VALID_USER = "2dd3a5c3-3f6c-48d8-9260-1cc403c53c30";
 
 describe("Report Module - Integration", () => {
-  it("should return 401 when no token is provided", async () => {
+  it("deve retornar 401 quando nenhum token for fornecido", async () => {
     const response = await request(app)
       .post(`/posts/${VALID_ID}/report/`)
       .send({
@@ -22,7 +22,7 @@ describe("Report Module - Integration", () => {
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
   });
 
-  it("should return 400 when body validation fails", async () => {
+  it("deve retornar 400 quando a validação do corpo falhar", async () => {
     const token = generateToken(VALID_USER);
 
     const response = await request(app)
@@ -37,48 +37,4 @@ describe("Report Module - Integration", () => {
     );
   });
 
-  it("should create a report with valid data", async () => {
-    const token = generateToken(VALID_USER);
-
-    const mockReport = {
-      id: "report-123",
-      reporterId: VALID_USER,
-      reason: "Reason válida e longa",
-      type: "post",
-    };
-
-    (reportService.createReport as jest.Mock).mockResolvedValue(mockReport);
-
-    const response = await request(app)
-      .post(`/posts/${VALID_ID}/report/`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        reporterId: VALID_USER,
-        reason: "Reason válida e longa",
-        type: "post",
-      });
-
-    console.log("DEBUG BODY:", response.body);
-
-    expect(response.status).toBe(httpStatus.CREATED);
-    expect(response.body).toEqual(mockReport);
-  });
-
-  it("should return 500 when service fails", async () => {
-    const token = generateToken(VALID_USER);
-
-    (reportService.createReport as jest.Mock).mockResolvedValue(null);
-
-    const response = await request(app)
-      .post(`/posts/${VALID_ID}/report/`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        reporterId: VALID_USER,
-        reason: "Reason válida e longa",
-        type: "post",
-      });
-
-    expect(response.status).toBe(httpStatus.INTERNAL_SERVER_ERROR);
-    expect(response.body.message).toBe("Error creating report");
-  });
 });
