@@ -16,7 +16,7 @@ const generateToken = (userId: string) =>
     expiresIn: "1h",
   });
 
-describe("Post Integration Tests (with prismaMock)", () => {
+describe("Testes de Integração Post (com prismaMock))", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -222,7 +222,7 @@ describe("Post Integration Tests (with prismaMock)", () => {
 
     const err = response.body.error || response.body.message;
     expect(err).toBe(
-      "Grupo não encontrado, somente grupos podem fazer postagens"
+      "Grupo não encontrado, somente grupos podem fazer postagens",
     );
   });
 
@@ -265,8 +265,6 @@ describe("Post Integration Tests (with prismaMock)", () => {
     expect(response.body.data).toHaveLength(1);
     expect(response.body.meta.totalCount).toBe(1);
   });
-
-
 
   // =======================================================================
   // GET /posts/:id
