@@ -109,7 +109,6 @@ describe("Integração - Módulo de Grupos", () => {
     expect(res.body.name).toBe("Basquete");
   });
 
-
   // ============================================================================
   // CRIAÇÃO
   // ============================================================================
@@ -159,7 +158,7 @@ describe("Integração - Módulo de Grupos", () => {
     expect(res.body.name).toBe("Futsal");
   });
 
-    // ============================================================================
+  // ============================================================================
   // UPDATE
   // ============================================================================
 
@@ -225,5 +224,55 @@ describe("Integração - Módulo de Grupos", () => {
     );
   });
 
+  // ============================================================================
+  // DELETE
+  // ============================================================================
 
+  it("deve excluir grupo quando usuário é ADMIN", async () => {
+    const token = generateToken(AUTH_USER);
+
+    (GroupRepository.findGroupByName as jest.Mock).mockResolvedValue({
+      id: "g5",
+      name: "ParaExcluir",
+    });
+
+    (
+      GroupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock
+    ).mockResolvedValue({
+      userId: AUTH_USER,
+      role: "ADMIN",
+    });
+
+    (GroupRepository.deleteGroup as jest.Mock).mockResolvedValue(null);
+
+    await request(app)
+      .delete("/group/ParaExcluir")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(httpStatus.NO_CONTENT);
+  });
+
+  it("deve retornar 403 ao tentar excluir grupo sem ser ADMIN", async () => {
+    const token = generateToken(OTHER_USER);
+
+    (GroupRepository.findGroupByName as jest.Mock).mockResolvedValue({
+      id: "g6",
+      name: "OutroGrupo",
+    });
+
+    (
+      GroupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock
+    ).mockResolvedValue({
+      userId: OTHER_USER,
+      role: "MEMBER",
+    });
+
+    const res = await request(app)
+      .delete("/group/OutroGrupo")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(httpStatus.FORBIDDEN);
+
+    expect(res.body.message).toBe(
+      "Usuário não possui permissão para editar o grupo",
+    );
+  });
 });
