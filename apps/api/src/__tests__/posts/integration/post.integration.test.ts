@@ -264,4 +264,57 @@ describe("Testes de Integração Post (com prismaMock))", () => {
     expect(response.body.meta.totalCount).toBe(1);
   });
 
+  // =======================================================================
+  // GET /posts/:id
+  // =======================================================================
+
+  it("deve retornar 400 se o id for inválido", async () => {
+    const token = generateToken(AUTH_USER_ID);
+
+    await request(app)
+      .get("/posts/not-a-uuid")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(HttpStatus.BAD_REQUEST);
+  });
+
+  it("deve retornar um post por id", async () => {
+    const token = generateToken(AUTH_USER_ID);
+    const now = new Date();
+
+    prismaMock.post.findUnique.mockResolvedValue({
+      id: validUUID,
+      title: "Some Title",
+      content: "Text",
+      type: "GENERAL",
+      authorId: AUTH_USER_ID,
+      groupId: GROUP_ID,
+      createdAt: now,
+      updatedAt: now,
+      likesCount: 0,
+      attendancesCount: 0,
+      commentsCount: 0,
+      eventDate: null,
+      eventFinishDate: null,
+      location: null,
+    });
+
+    const response = await request(app)
+      .get(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toHaveProperty("id");
+  });
+
+  it("deve retornar 404 quando o post não existir", async () => {
+    const token = generateToken(AUTH_USER_ID);
+
+    prismaMock.post.findUnique.mockResolvedValue(null);
+
+    await request(app)
+      .get(`/posts/${validUUID}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(HttpStatus.NOT_FOUND);
+  });
+
 });
