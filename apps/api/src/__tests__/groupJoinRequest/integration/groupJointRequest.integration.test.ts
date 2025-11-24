@@ -94,4 +94,22 @@ describe("Integração - Módulo de GroupMembership", () => {
     expect(res.body.id).toBe(VALID_MEMBER_ID);
   });
 
+  // FIND BY GROUP
+  it("deve listar membros por ID do grupo", async () => {
+    GroupMembershipRepository.findMemberByGroupId.mockResolvedValue([
+      {
+        id: VALID_MEMBER_ID,
+        userId: VALID_USER_ID,
+        groupId: VALID_GROUP_ID,
+        role: "MEMBER",
+      },
+    ]);
+
+    const res = await request(app)
+      .get(`/member/group/${VALID_GROUP_ID}`)
+      .expect(200);
+
+    expect(res.body.length).toBe(1);
+  });
+
 });
