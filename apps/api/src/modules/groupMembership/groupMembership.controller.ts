@@ -45,6 +45,7 @@ class GroupMembershipController {
   }
 
   async createMembership(req: Request, res: Response) {
+    console.log("REQ BODY:", req.body);
     const newMember = await groupMembershipService.createMembership(req.body);
     res.status(HttpStatus.CREATED).json(newMember);
   }
