@@ -123,4 +123,22 @@ describe("POSTLIKE Integration Tests", () => {
       .expect(HttpStatus.BAD_REQUEST);
   });
 
+  // ===========================================================================
+  // 5) ERRO — EXCEÇÃO INTERNA DO SERVICE / PRISMA
+  // ===========================================================================
+  it("deve retornar 500 quando o Prisma lançar uma exceção interna", async () => {
+    const token = generateToken(USER_ID);
+
+    prismaMock.postLike.findFirst.mockRejectedValue(
+      new Error("Database exploded"),
+    );
+
+    const response = await request(app)
+      .post(`/posts/${POST_ID}/like`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ authorId: USER_ID })
+      .expect(HttpStatus.INTERNAL_SERVER_ERROR);
+
+    expect(response.body).toHaveProperty("error", "Database exploded");
+  });
 });
