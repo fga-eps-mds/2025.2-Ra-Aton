@@ -159,5 +159,71 @@ describe("Integração - Módulo de Grupos", () => {
     expect(res.body.name).toBe("Futsal");
   });
 
+    // ============================================================================
+  // UPDATE
+  // ============================================================================
+
+  it("deve atualizar grupo quando usuário é ADMIN", async () => {
+    const token = generateToken(AUTH_USER);
+
+    (GroupRepository.findGroupByName as jest.Mock)
+      .mockResolvedValueOnce({
+        id: "g4",
+        name: "Antigo",
+      })
+      .mockResolvedValueOnce(null); // ← garante que "Atualizado" é disponível
+
+    (
+      GroupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock
+    ).mockResolvedValue({
+      userId: AUTH_USER,
+      role: "ADMIN",
+    });
+
+    (GroupRepository.updateGroup as jest.Mock).mockResolvedValue({
+      id: "g4",
+      name: "Atualizado",
+    });
+
+    const res = await request(app)
+      .patch("/group/Antigo")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ name: "Atualizado" })
+      .expect(httpStatus.OK);
+
+    expect(res.body.name).toBe("Atualizado");
+  });
+
+  it("deve retornar 403 ao tentar atualizar grupo sem permissão", async () => {
+    const token = generateToken(OTHER_USER);
+
+    (userService.getUserById as jest.Mock).mockResolvedValue({
+      id: OTHER_USER,
+      userName: "Outro",
+    });
+
+    (GroupRepository.findGroupByName as jest.Mock).mockResolvedValue({
+      id: "g4",
+      name: "Antigo",
+    });
+
+    (
+      GroupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock
+    ).mockResolvedValue({
+      userId: OTHER_USER,
+      role: "MEMBER",
+    });
+
+    const res = await request(app)
+      .patch("/group/Antigo")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ description: "Nova desc" })
+      .expect(httpStatus.FORBIDDEN);
+
+    expect(res.body.message).toBe(
+      "Usuário não possui permissão para editar o grupo",
+    );
+  });
+
 
 });
