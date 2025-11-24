@@ -113,24 +113,45 @@ describe("Integração - Módulo de GroupMembership", () => {
   });
 
   // ALREADY MEMBER
-it("deve retornar 409 se usuário já for membro do grupo", async () => {
-  GroupMembershipRepository.findMemberByUserIdAndGroupId.mockResolvedValue({
-    id: VALID_MEMBER_ID,
-    userId: VALID_USER_ID,
-    groupId: VALID_GROUP_ID,
-    role: "MEMBER",
-  });
-
-  const res = await request(app)
-    .post("/member")
-    .send({
+  it("deve retornar 409 se usuário já for membro do grupo", async () => {
+    GroupMembershipRepository.findMemberByUserIdAndGroupId.mockResolvedValue({
+      id: VALID_MEMBER_ID,
       userId: VALID_USER_ID,
       groupId: VALID_GROUP_ID,
-    })
-    .expect(httpStatus.CONFLICT);
+      role: "MEMBER",
+    });
 
-  // handler retorna { error: "..." }
-  expect(res.body.error || res.body.message).toBe("Usuário já é membro do grupo");
-});
+    const res = await request(app)
+      .post("/member")
+      .send({
+        userId: VALID_USER_ID,
+        groupId: VALID_GROUP_ID,
+      })
+      .expect(httpStatus.CONFLICT);
+
+    expect(res.body.message).toBe("Usuário já é membro do grupo");
+  });
+
+  // CREATE — OK
+  it("deve criar um novo membro", async () => {
+    GroupMembershipRepository.findMemberByUserIdAndGroupId.mockResolvedValue(null);
+
+    GroupMembershipRepository.createMembership.mockResolvedValue({
+      id: NEW_MEMBER_ID,
+      userId: VALID_USER_ID,
+      groupId: VALID_GROUP_ID,
+      role: "MEMBER",
+    });
+
+    const res = await request(app)
+      .post("/member")
+      .send({
+        userId: VALID_USER_ID,
+        groupId: VALID_GROUP_ID,
+      })
+      .expect(httpStatus.CREATED);
+
+    expect(res.body.id).toBe(NEW_MEMBER_ID);
+  });
 
 });
