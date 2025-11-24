@@ -108,4 +108,27 @@ describe("Integração - Módulo de GroupMembership (/member)", () => {
             .expect(httpStatus.CONFLICT);
     });
 
+    it("deve criar um novo membro", async () => {
+        const VALID_GROUP_UUID = "55555555-5555-4555-8d55-555555555555"; // UUID V4 VÁLIDO
+
+        groupMembershipService.findMemberByUserIdAndGroupId.mockResolvedValue(null);
+
+        groupMembershipService.createMembership.mockResolvedValue({
+            id: NEW_MEMBER_ID,
+            userId: VALID_USER_ID,
+            groupId: VALID_GROUP_UUID,
+            role: "MEMBER",
+        });
+
+        const res = await request(app)
+            .post("/member")
+            .send({
+            userId: VALID_USER_ID,
+            groupId: VALID_GROUP_UUID,
+            })
+            .expect(httpStatus.CREATED);
+
+        expect(res.body.id).toBe(NEW_MEMBER_ID);
+    });
+
 });
