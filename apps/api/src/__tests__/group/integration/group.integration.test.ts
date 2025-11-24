@@ -110,4 +110,54 @@ describe("Integração - Módulo de Grupos", () => {
   });
 
 
+  // ============================================================================
+  // CRIAÇÃO
+  // ============================================================================
+
+  it("deve retornar 409 ao tentar criar grupo já existente", async () => {
+    const token = generateToken(AUTH_USER);
+
+    (GroupRepository.findGroupByName as jest.Mock).mockResolvedValue({
+      id: "g1",
+      name: "Basquete",
+    });
+
+    const res = await request(app)
+      .post("/group")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Basquete",
+        description: "desc",
+        verificationRequest: false,
+      })
+      .expect(httpStatus.CONFLICT);
+
+    expect(res.body.error).toBe("Nome do grupo já está em uso");
+  });
+
+  it("deve criar grupo com sucesso", async () => {
+    const token = generateToken(AUTH_USER);
+
+    (GroupRepository.findGroupByName as jest.Mock).mockResolvedValue(null);
+
+    (GroupRepository.createGroup as jest.Mock).mockResolvedValue({
+      id: "g2",
+      name: "Futsal",
+      description: "Grupo teste",
+    });
+
+    const res = await request(app)
+      .post("/group")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Futsal",
+        description: "Grupo teste",
+        verificationRequest: false,
+      })
+      .expect(httpStatus.CREATED);
+
+    expect(res.body.name).toBe("Futsal");
+  });
+
+
 });
