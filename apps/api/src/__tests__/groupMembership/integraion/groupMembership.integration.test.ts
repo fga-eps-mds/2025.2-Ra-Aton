@@ -69,5 +69,18 @@ describe("Integração - Módulo de GroupMembership (/member)", () => {
     expect(res.body.length).toBe(1);
   });
 
+  it("deve retornar 404 ao buscar membro inexistente", async () => {
+    groupMembershipService.findMemberById.mockImplementation(() => {
+        throw new ApiError(httpStatus.NOT_FOUND, "Membro não encotrado");
+    });
+
+    const res = await request(app)
+        .get(`/member/${VALID_MEMBER_ID}`)
+        .expect(httpStatus.NOT_FOUND);
+
+    // O backend não retorna mensagem — só o status, então:
+    expect(res.body).toEqual({ error: "Membro não encotrado" });
+  });
+
 
 });
