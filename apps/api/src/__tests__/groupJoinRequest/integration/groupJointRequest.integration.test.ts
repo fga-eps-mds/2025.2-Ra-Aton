@@ -169,4 +169,16 @@ describe("Integração - Módulo de GroupMembership", () => {
     expect(res.body.role).toBe("ADMIN");
   });
 
+  // DELETE — NOT FOUND
+  it("deve retornar 404 ao tentar excluir membro inexistente", async () => {
+    GroupMembershipRepository.findMemberById.mockResolvedValue(null);
+
+    const res = await request(app)
+      .delete(`/member/${VALID_MEMBER_ID}`)
+      .expect(httpStatus.NOT_FOUND);
+
+    expect(res.body.message).toBe("Membro não encontrado");
+  });
+
+
 });
