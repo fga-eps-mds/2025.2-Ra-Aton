@@ -97,4 +97,15 @@ describe("Integração - Módulo de GroupMembership (/member)", () => {
     expect(res.body.id).toBe(VALID_MEMBER_ID);
   });
 
+    it("deve retornar 409 se usuário já for membro do grupo", async () => {
+        groupMembershipService.createMembership.mockImplementation(() => {
+            throw new ApiError(httpStatus.CONFLICT, "Usuário já é membro do grupo");
+        });
+
+        await request(app)
+            .post("/member")
+            .send({ userId: VALID_USER_ID, groupId: VALID_GROUP_ID })
+            .expect(httpStatus.CONFLICT);
+    });
+
 });
