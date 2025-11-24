@@ -82,5 +82,19 @@ describe("Integração - Módulo de GroupMembership (/member)", () => {
     expect(res.body).toEqual({ error: "Membro não encotrado" });
   });
 
+  it("deve retornar um membro pelo ID", async () => {
+    groupMembershipService.findMemberById.mockResolvedValue({
+      id: VALID_MEMBER_ID,
+      userId: VALID_USER_ID,
+      groupId: VALID_GROUP_ID,
+      role: "MEMBER",
+    });
+
+    const res = await request(app)
+      .get(`/member/${VALID_MEMBER_ID}`)
+      .expect(httpStatus.OK);
+
+    expect(res.body.id).toBe(VALID_MEMBER_ID);
+  });
 
 });
