@@ -110,4 +110,17 @@ describe("POSTLIKE Integration Tests", () => {
     expect(response.body.errors || response.body.error).toBe("Erro de validação");
   });
 
+  // ===========================================================================
+  // 4) ERRO — postId inválido (UUID inválido)
+  // ===========================================================================
+  it("deve retornar 400 quando o postId for inválido", async () => {
+    const token = generateToken(USER_ID);
+
+    await request(app)
+      .post("/posts/not-a-uuid/like")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ authorId: USER_ID })
+      .expect(HttpStatus.BAD_REQUEST);
+  });
+
 });
