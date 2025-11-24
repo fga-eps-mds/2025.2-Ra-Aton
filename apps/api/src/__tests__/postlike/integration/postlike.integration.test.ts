@@ -54,4 +54,42 @@ describe("POSTLIKE Integration Tests", () => {
     });
   });
 
+  // ===========================================================================
+  // 2) REMOVER CURTIDA (UNLIKE)
+  // ===========================================================================
+  it("deve remover a curtida de um post quando uma curtida existente for encontrada", async () => {
+    const token = generateToken(USER_ID);
+
+    prismaMock.postLike.findFirst.mockResolvedValue({
+      id: "like-987",
+      postId: POST_ID,
+      userId: USER_ID,
+    });
+
+    prismaMock.postLike.delete.mockResolvedValue({
+      id: "like-987",
+      postId: POST_ID,
+      userId: USER_ID,
+    });
+
+    prismaMock.post.update.mockResolvedValue({});
+
+    const response = await request(app)
+      .post(`/posts/${POST_ID}/like`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ authorId: USER_ID })
+      .expect(HttpStatus.CREATED);
+
+    expect(response.body).toMatchObject({
+      id: "like-987",
+      postId: POST_ID,
+      userId: USER_ID,
+    });
+
+    expect(prismaMock.post.update).toHaveBeenCalledWith({
+      where: { id: POST_ID },
+      data: { likesCount: { increment: -1 } },
+    });
+  });
+
 });
