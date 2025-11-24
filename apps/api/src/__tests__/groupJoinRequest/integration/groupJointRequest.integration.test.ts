@@ -112,4 +112,25 @@ describe("Integração - Módulo de GroupMembership", () => {
     expect(res.body.length).toBe(1);
   });
 
+  // ALREADY MEMBER
+it("deve retornar 409 se usuário já for membro do grupo", async () => {
+  GroupMembershipRepository.findMemberByUserIdAndGroupId.mockResolvedValue({
+    id: VALID_MEMBER_ID,
+    userId: VALID_USER_ID,
+    groupId: VALID_GROUP_ID,
+    role: "MEMBER",
+  });
+
+  const res = await request(app)
+    .post("/member")
+    .send({
+      userId: VALID_USER_ID,
+      groupId: VALID_GROUP_ID,
+    })
+    .expect(httpStatus.CONFLICT);
+
+  // handler retorna { error: "..." }
+  expect(res.body.error || res.body.message).toBe("Usuário já é membro do grupo");
+});
+
 });
