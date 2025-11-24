@@ -37,4 +37,31 @@ describe("Report Module - Integration", () => {
     );
   });
 
+  it("deve criar um reporte com dados válidos", async () => {
+    const token = generateToken(VALID_USER);
+
+    const mockReport = {
+      id: "report-123",
+      reporterId: VALID_USER,
+      reason: "Reason válida e longa",
+      type: "post",
+    };
+
+    (reportService.createReport as jest.Mock).mockResolvedValue(mockReport);
+
+    const response = await request(app)
+      .post(`/posts/${VALID_ID}/report/`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        reporterId: VALID_USER,
+        reason: "Reason válida e longa",
+        type: "post",
+      });
+
+    console.log("DEBUG BODY:", response.body);
+
+    expect(response.status).toBe(httpStatus.CREATED);
+    expect(response.body).toEqual(mockReport);
+  });
+
 });
