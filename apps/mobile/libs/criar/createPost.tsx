@@ -30,6 +30,8 @@ export async function createPost({
         title,
         type,
         content,
+        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
+        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
       },
       {
         headers: {

@@ -36,7 +36,7 @@ export const postForms = () => {
       const result = await createPost({
         title: formsData.titulo,
         type: "GENERAL",
-        content: formsData.descricao,
+        content: formsData.descricao?.trim() || undefined,
         token: user.token,
       });
 
