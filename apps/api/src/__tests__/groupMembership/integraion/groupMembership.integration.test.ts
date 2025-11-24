@@ -145,4 +145,16 @@ describe("Integração - Módulo de GroupMembership (/member)", () => {
     expect(res.body.role).toBe("ADMIN");
   });
 
+  it("deve retornar 404 ao tentar excluir membro inexistente", async () => {
+    groupMembershipService.deleteMembership.mockImplementation(() => {
+      throw new ApiError(httpStatus.NOT_FOUND, "Membro não encontrado");
+    });
+
+    const res = await request(app)
+      .delete(`/member/${VALID_MEMBER_ID}`)
+      .expect(httpStatus.NOT_FOUND);
+
+    expect(res.body.message).toBe("Membro não encontrado");
+  });
+
 });
