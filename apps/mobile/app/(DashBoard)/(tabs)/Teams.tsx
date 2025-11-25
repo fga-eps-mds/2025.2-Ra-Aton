@@ -1,35 +1,42 @@
-import { StyleSheet, View, Image, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button1Comp from "../../../components/PrimaryButton";
 import Button2Comp from "../../../components/SecondaryButton";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
 import Spacer from "../../../components/SpacerComp";
-import { useTheme } from "../../../constants/Theme";
-import { Colors } from "../../../constants/Colors";
 import BackGroundComp from "@/components/BackGroundComp";
 import AppText from "@/components/AppText";
-import { useGroups } from "@/libs/hooks/getGroups";
 import TwoOptionButton from "@/components/TwoOptionButton";
 import TwoOptionSwitch from "@/components/TwoOptionButton";
+import { useTheme } from "../../../constants/Theme";
+import { Colors } from "../../../constants/Colors";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
+
+import { useGroups } from "@/libs/hooks/getGroups";
+import { useUser } from "@/libs/storage/UserContext";
+
+import { requestJoinGroup } from "@/libs/group/requestJoinGroup";
+import { JoinedGroupsComp } from "@/components/JoinedGroupsComp";
 
 const Teams = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
   const router = useRouter();
+  const { user } = useUser();
 
   const {
-    filtered,
+    groups,
+    filtered: filteredFinal,
     loading,
+    error,
     selectedType,
-    setSelectedType
+    setSelectedType,
+    acceptingOnly,
+    setAcceptingOnly,
   } = useGroups();
-  
+
   const [type, setType] = useState<"LEFT" | "RIGHT">("LEFT");
-
-
-
 
   return (
     <BackGroundComp style={styles.container}>
@@ -60,7 +67,9 @@ const Teams = () => {
             },
           ]}
         >
-          <AppText style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}>
+          <AppText
+            style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}
+          >
             Seus times
           </AppText>
           <ScrollView
@@ -72,105 +81,10 @@ const Teams = () => {
             }}
             keyboardShouldPersistTaps="handled"
           >
-            
-            <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  height: 130,
-                  backgroundColor: theme.input,
-                  borderWidth: 1,
-                  borderColor: theme.background,
-                  marginBottom: 20,
-                  borderRadius: 10,
-                  padding: 15,
-                  shadowColor: "black",
-                  shadowOffset: {
-                    width: -2,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.55,
-                  shadowRadius: 3.5,
-                  elevation: 5,
-                }}
-              >
-                <View style={{width: 70, height: 70, borderRadius: 35, backgroundColor: "gray" }}>
+            <JoinedGroupsComp name="Atlética exemplo"></JoinedGroupsComp> 
+            <JoinedGroupsComp name="Atlética exemplo 2"></JoinedGroupsComp>
+            <JoinedGroupsComp name="Atlética exemplo 3"></JoinedGroupsComp> 
 
-                </View>
-                <View style={{ flexDirection: "column", flex: 1, marginLeft: 15 }}>
-                    <AppText style={[styles.txt, { fontSize: 24 }]}>
-                      Atlética exemplo
-                    </AppText>
-                    {/* <AppText style={[styles.txt, { fontSize: 14, opacity: 0.7 }]}>
-                      @exemplo
-                    </AppText> */}
-                  </View>                
-                  <View
-                  style={{
-                  width: "25%",
-                  height: "100%",
-                  justifyContent: "space-around",
-                  }}
-                >
-                  <Button1Comp style={{ width: "100%", height: 35 }}>
-                    Seguir
-                  </Button1Comp>
-                  <Button2Comp style={{ width: "100%", height: 35 }}>
-                    Perfil
-                  </Button2Comp>
-                </View>
-              </View>
-               <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  height: 130,
-                  backgroundColor: theme.input,
-                  borderWidth: 1,
-                  borderColor: theme.background,
-                  marginBottom: 20,
-                  borderRadius: 10,
-                  padding: 15,
-                  shadowColor: "black",
-                  shadowOffset: {
-                    width: -2,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.55,
-                  shadowRadius: 3.5,
-                  elevation: 5,
-                }}
-              >
-                <View style={{width: 70, height: 70, borderRadius: 35, backgroundColor: "gray" }}>
-
-                </View>
-                <View style={{ flexDirection: "column", flex: 1, marginLeft: 15 }}>
-                    <AppText style={[styles.txt, { fontSize: 24 }]}>
-                      Atlética exemplo
-                    </AppText>
-                    {/* <AppText style={[styles.txt, { fontSize: 14, opacity: 0.7 }]}>
-                      @exemplo
-                    </AppText> */}
-                  </View>                
-                  <View
-                  style={{
-                  width: "25%",
-                  height: "100%",
-                  justifyContent: "space-around",
-                  }}
-                >
-                  <Button1Comp style={{ width: "100%", height: 35 }}>
-                    Seguir
-                  </Button1Comp>
-                  <Button2Comp style={{ width: "100%", height: 35 }}>
-                    Perfil
-                  </Button2Comp>
-                </View>
-              </View>
           </ScrollView>
         </SafeAreaView>
 
@@ -185,14 +99,24 @@ const Teams = () => {
           }
         />
 
+        <Button2Comp
+          style={{ width: "60%", height: 40, marginTop: 10 }}
+          onPress={() => setAcceptingOnly(!acceptingOnly)}
+        >
+          {acceptingOnly ? "Aceitando ✔" : "Apenas aceitando"}
+        </Button2Comp>
         <Spacer height={"5%"} />
 
         <SafeAreaView
-          style={[{ height: "80%", width: "100%",
+          style={[
+            {
+              height: "80%",
+              width: "100%",
               // borderWidth: 1,
               // borderColor: theme.orange,
-              // borderRadius: 10, 
-            }]}
+              // borderRadius: 10,
+            },
+          ]}
         >
           <AppText style={[{ alignSelf: "center" }, styles.txt]}>
             outras equipes
@@ -210,7 +134,7 @@ const Teams = () => {
             {/* <AppText>
           Outros grupos que o usuário pode entrar
           </AppText> */}
-            {filtered.map((g) => (
+            {filteredFinal.map((g) => (
               <View
                 key={g.id}
                 style={{
@@ -234,9 +158,14 @@ const Teams = () => {
                   elevation: 5,
                 }}
               >
-                <View style={{width: 70, height: 70, borderRadius: "50%", backgroundColor: "gray" }}>
-
-                </View>
+                <View
+                  style={{
+                    width: 70,
+                    height: 70,
+                    borderRadius: "50%",
+                    backgroundColor: "gray",
+                  }}
+                ></View>
                 <AppText style={styles.txt}>{g.name}</AppText>
                 <View
                   style={{
@@ -246,8 +175,31 @@ const Teams = () => {
                     marginTop: 10,
                   }}
                 >
-                  <Button1Comp style={{ width: "45%", height: 35 }}>
-                    Seguir
+                  <Button1Comp
+                    style={{ width: "45%", height: 35 }}
+                    onPress={async () => {
+                      try {
+                        const result = await requestJoinGroup(
+                          user.id,
+                          user.token,
+                          g.id,
+                        );
+
+                        if (result.ok === false) {
+                          Alert.alert("Aviso", result.message);
+                          return;
+                        }
+
+                        Alert.alert("Sucesso", "Solicitação enviada!");
+                      } catch (err) {
+                        Alert.alert(
+                          "Erro",
+                          "Não foi possível enviar a solicitação.",
+                        );
+                      }
+                    }}
+                  >
+                    Solicitar
                   </Button1Comp>
                   <Button2Comp style={{ width: "45%", height: 35 }}>
                     Perfil
