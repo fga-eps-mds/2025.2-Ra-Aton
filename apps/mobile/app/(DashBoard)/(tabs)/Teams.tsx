@@ -10,6 +10,8 @@ import { Colors } from "../../../constants/Colors";
 import BackGroundComp from "@/components/BackGroundComp";
 import AppText from "@/components/AppText";
 import { useGroups } from "@/libs/hooks/getGroups";
+import TwoOptionButton from "@/components/TwoOptionButton";
+import TwoOptionSwitch from "@/components/TwoOptionButton";
 
 const Teams = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -23,6 +25,8 @@ const Teams = () => {
     selectedType,
     setSelectedType
   } = useGroups();
+  
+  const [type, setType] = useState<"LEFT" | "RIGHT">("LEFT");
 
 
 
@@ -34,7 +38,7 @@ const Teams = () => {
           padding: 0,
           paddingBottom: 0,
           paddingHorizontal: 20,
-          backgroundColor: "blue",
+          backgroundColor: theme.background,
           alignItems: "center",
           flex: 1,
         }}
@@ -45,19 +49,22 @@ const Teams = () => {
         <SafeAreaView
           style={[
             {
-              maxHeight: "40%",
+              height: "30%",
               width: "100%",
-              backgroundColor: "red",
-              flexGrow: 1,
+              // backgroundColor: "red",
+              // flexGrow: 1,
+              // backgroundColor: theme.input,
+              // borderWidth: 1,
+              // borderColor: theme.orange,
+              // borderRadius: 10,
             },
           ]}
         >
-          <AppText style={[{ alignSelf: "center" }, styles.txt]}>
+          <AppText style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}>
             Seus times
           </AppText>
           <ScrollView
             contentContainerStyle={{
-              backgroundColor: "green",
               width: "100%",
               height: "100%",
               alignItems: "center",
@@ -65,32 +72,133 @@ const Teams = () => {
             }}
             keyboardShouldPersistTaps="handled"
           >
-            <AppText>Grupos que o usuário ja esta</AppText>
+            
+            <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  height: 130,
+                  backgroundColor: theme.input,
+                  borderWidth: 1,
+                  borderColor: theme.background,
+                  marginBottom: 20,
+                  borderRadius: 10,
+                  padding: 15,
+                  shadowColor: "black",
+                  shadowOffset: {
+                    width: -2,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.55,
+                  shadowRadius: 3.5,
+                  elevation: 5,
+                }}
+              >
+                <View style={{width: 70, height: 70, borderRadius: 35, backgroundColor: "gray" }}>
+
+                </View>
+                <View style={{ flexDirection: "column", flex: 1, marginLeft: 15 }}>
+                    <AppText style={[styles.txt, { fontSize: 24 }]}>
+                      Atlética exemplo
+                    </AppText>
+                    {/* <AppText style={[styles.txt, { fontSize: 14, opacity: 0.7 }]}>
+                      @exemplo
+                    </AppText> */}
+                  </View>                
+                  <View
+                  style={{
+                  width: "25%",
+                  height: "100%",
+                  justifyContent: "space-around",
+                  }}
+                >
+                  <Button1Comp style={{ width: "100%", height: 35 }}>
+                    Seguir
+                  </Button1Comp>
+                  <Button2Comp style={{ width: "100%", height: 35 }}>
+                    Perfil
+                  </Button2Comp>
+                </View>
+              </View>
+               <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  height: 130,
+                  backgroundColor: theme.input,
+                  borderWidth: 1,
+                  borderColor: theme.background,
+                  marginBottom: 20,
+                  borderRadius: 10,
+                  padding: 15,
+                  shadowColor: "black",
+                  shadowOffset: {
+                    width: -2,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.55,
+                  shadowRadius: 3.5,
+                  elevation: 5,
+                }}
+              >
+                <View style={{width: 70, height: 70, borderRadius: 35, backgroundColor: "gray" }}>
+
+                </View>
+                <View style={{ flexDirection: "column", flex: 1, marginLeft: 15 }}>
+                    <AppText style={[styles.txt, { fontSize: 24 }]}>
+                      Atlética exemplo
+                    </AppText>
+                    {/* <AppText style={[styles.txt, { fontSize: 14, opacity: 0.7 }]}>
+                      @exemplo
+                    </AppText> */}
+                  </View>                
+                  <View
+                  style={{
+                  width: "25%",
+                  height: "100%",
+                  justifyContent: "space-around",
+                  }}
+                >
+                  <Button1Comp style={{ width: "100%", height: 35 }}>
+                    Seguir
+                  </Button1Comp>
+                  <Button2Comp style={{ width: "100%", height: 35 }}>
+                    Perfil
+                  </Button2Comp>
+                </View>
+              </View>
           </ScrollView>
         </SafeAreaView>
 
         <Spacer height={"5%"} />
 
-        <Button2Comp
-          style={{ width: "80%", height: 50 }}
-          onPress={() =>
-            setSelectedType(selectedType === "AMATEUR" ? "ATHLETIC" : "AMATEUR")
+        <TwoOptionSwitch
+          optionLeft="Amadores"
+          optionRight="Atléticas"
+          selected={selectedType === "AMATEUR" ? "LEFT" : "RIGHT"}
+          onChange={(side) =>
+            setSelectedType(side === "LEFT" ? "AMATEUR" : "ATHLETIC")
           }
-        >
-          botão de amadores/atletica
-        </Button2Comp>
+        />
 
         <Spacer height={"5%"} />
 
         <SafeAreaView
-          style={[{ maxHeight: "80%", width: "100%", backgroundColor: "red" }]}
+          style={[{ height: "80%", width: "100%",
+              // borderWidth: 1,
+              // borderColor: theme.orange,
+              // borderRadius: 10, 
+            }]}
         >
           <AppText style={[{ alignSelf: "center" }, styles.txt]}>
             outras equipes
           </AppText>
           <ScrollView
             contentContainerStyle={{
-              backgroundColor: "green",
               width: "100%",
               padding: 0,
               flexDirection: "row",
@@ -107,19 +215,29 @@ const Teams = () => {
                 key={g.id}
                 style={{
                   width: "45%",
-                  height: 150,
-                  backgroundColor: "white",
+                  height: 170,
+                  backgroundColor: theme.input,
+                  borderWidth: 1,
+                  borderColor: theme.background,
                   justifyContent: "center",
                   alignItems: "center",
                   marginBottom: 20,
                   borderRadius: 10,
-                  paddingVertical:5,
+                  paddingVertical: 10,
+                  shadowColor: "black",
+                  shadowOffset: {
+                    width: -2,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.55,
+                  shadowRadius: 3.5,
+                  elevation: 5,
                 }}
               >
                 <View style={{width: 70, height: 70, borderRadius: "50%", backgroundColor: "gray" }}>
 
                 </View>
-                <AppText style={{fontSize:20}}>{g.name}</AppText>
+                <AppText style={styles.txt}>{g.name}</AppText>
                 <View
                   style={{
                     flexDirection: "row",
