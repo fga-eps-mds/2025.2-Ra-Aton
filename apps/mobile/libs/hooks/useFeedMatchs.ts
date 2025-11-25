@@ -6,8 +6,8 @@ export const UseModalFeedMatchs = () =>{
     const [visible, setVisible] = useState(initialState);
     const [visibleDetailsHandle, setVisibleDetailsHandle] = useState(initialState);;
     const [visibleInfosHandleMatch, setVisibleInfosHandleMatch] = useState(initialState);
-    const [visibleReportMatch, setVisibleReportMatch] = useState(initialState);;
-
+    const [visibleReportMatch, setVisibleReportMatch] = useState(initialState);
+    const [statusVisibleInfos, setStatusVisibleInfos] = useState(initialState);
 
     const useModal = () => {
     setVisible(true);
@@ -15,6 +15,17 @@ export const UseModalFeedMatchs = () =>{
 
 const closeModal = () => {
     setVisible(false);
+}
+
+const closeDetailsAndBackToHandle = () => {
+  setVisible(false);            // fecha o MatchDetailsModal
+  setVisibleConfirmCard(true);  // reabre o HandleMatchComp
+};
+
+const openDetailsFromHandle = () => {
+    setVisibleInfosHandleMatch(false);
+    setVisibleConfirmCard(false);
+    setVisible(true);
 }
 
 const openDetailsHandleMatchModal = () => {
@@ -74,6 +85,10 @@ const closeReportMatchModal = () => {
 
     openReportMatchModal,
     closeReportMatchModal,
+
+    openDetailsFromHandle,
+    closeDetailsAndBackToHandle,
+
 }
 }
 
