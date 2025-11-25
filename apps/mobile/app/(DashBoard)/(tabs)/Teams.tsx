@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert } from "react-native";
+import { StyleSheet, View, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button1Comp from "../../../components/PrimaryButton";
 import Button2Comp from "../../../components/SecondaryButton";
@@ -11,12 +11,13 @@ import { useTheme } from "../../../constants/Theme";
 import { Colors } from "../../../constants/Colors";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-
+import {CreateGroupComp} from "@/components/CreateGroupComp";
 import { useGroups } from "@/libs/hooks/getGroups";
 import { useUser } from "@/libs/storage/UserContext";
 
 import { requestJoinGroup } from "@/libs/group/requestJoinGroup";
 import { JoinedGroupsComp } from "@/components/JoinedGroupsComp";
+import { followGroup } from "@/libs/group/followGroup";
 
 const Teams = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -77,10 +78,11 @@ const Teams = () => {
               width: "100%",
               height: "100%",
               alignItems: "center",
-              padding: 20,
+              paddingHorizontal: 20,
             }}
             keyboardShouldPersistTaps="handled"
           >
+            <CreateGroupComp></CreateGroupComp>
             <JoinedGroupsComp name="Atlética exemplo"></JoinedGroupsComp> 
             <JoinedGroupsComp name="Atlética exemplo 2"></JoinedGroupsComp>
             <JoinedGroupsComp name="Atlética exemplo 3"></JoinedGroupsComp> 
@@ -135,7 +137,7 @@ const Teams = () => {
           Outros grupos que o usuário pode entrar
           </AppText> */}
             {filteredFinal.map((g) => (
-              <View
+              <TouchableOpacity
                 key={g.id}
                 style={{
                   width: "45%",
@@ -157,6 +159,7 @@ const Teams = () => {
                   shadowRadius: 3.5,
                   elevation: 5,
                 }}
+                onPress={() => router.push(`/profile/${g.id}` as any)}
               >
                 <View
                   style={{
@@ -201,11 +204,31 @@ const Teams = () => {
                   >
                     Solicitar
                   </Button1Comp>
-                  <Button2Comp style={{ width: "45%", height: 35 }}>
-                    Perfil
+                  <Button2Comp style={{ width: "45%", height: 35 }}
+                  onPress={async () => {
+                      try {
+                        const result = await followGroup(
+                          user.token,
+                          g.id,
+                        );
+
+                        if (result.ok === false) {
+                          Alert.alert("Aviso", result.message);
+                          return;
+                        }
+
+                        Alert.alert("Sucesso", "Solicitação enviada!");
+                      } catch (err) {
+                        Alert.alert(
+                          "Erro",
+                          "Não foi possível enviar a solicitação.",
+                        );
+                      }
+                    }}>
+                    seguir
                   </Button2Comp>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         </SafeAreaView>

@@ -5,17 +5,11 @@ import SecondaryButton from "@/components/SecondaryButton";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 
-interface JoinedGroupsCompProps {
-  name: string;
-  onPrimaryPress?: () => void;
-  onSecondaryPress?: () => void;
+interface CreateGroupCompProps {
 }
 
-export const JoinedGroupsComp = ({
-  name,
-  onPrimaryPress,
-  onSecondaryPress,
-}: JoinedGroupsCompProps) => {
+export const CreateGroupComp = ({
+}: CreateGroupCompProps) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
@@ -56,7 +50,7 @@ export const JoinedGroupsComp = ({
                 style={{ flexDirection: "column", flex: 1, marginLeft: 15 }}
               >
                 <AppText style={{ fontSize: 24, color: theme.text, fontWeight: "500"}}>
-                  {name}
+                  Novo Grupo
                 </AppText>
                 {/* <AppText style={[styles.txt, { fontSize: 14, opacity: 0.7 }]}>
                       @exemplo
@@ -69,11 +63,8 @@ export const JoinedGroupsComp = ({
                   justifyContent: "space-around",
                 }}
               >
-                <PrimaryButton style={{ width: "100%", height: 35 }}>
-                  ???
-                </PrimaryButton>
                 <SecondaryButton style={{ width: "100%", height: 35 }}>
-                  Perfil
+                  Criar +
                 </SecondaryButton>
               </View>
             </View>
