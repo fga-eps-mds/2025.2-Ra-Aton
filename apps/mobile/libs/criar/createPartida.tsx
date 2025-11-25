@@ -19,58 +19,63 @@ function convertToBackendDate(dateStr: string): string {
 }
 
 
-interface createEventParams {
+interface createPartidaParams {
+  author: any;
+  userId: string;
   title: string;
-  type: string;
-  content: string;
-  eventDate: string;
-  eventFinishDate: string;
+  description: string;
+  sport: string;
+  maxPlayers: number;
+  teamNameA: string;
+  teamNameB: string;
+  MatchDate: string;
   location: string;
   token: string;
 }
 
-interface CreateEventResponse {
+interface CreatePartidaResponse {
   id?: string;
   title?: string;
   error?: string;
 }
 
-export async function createEvent({
+export async function createPartida({
+  author,
+  userId,
   title,
-  type,
-  content,
-  eventDate,
-  eventFinishDate,
+  description,
+  sport,
+  maxPlayers,
+  teamNameA,
+  teamNameB,
+  MatchDate,
   location,
   token,
-}: createEventParams): Promise<CreateEventResponse> {
-  let eventDateFormatted = "";
-  let eventFinishDateFormatted = "";
+}: createPartidaParams): Promise<CreatePartidaResponse> {
+  let MatchDateFormatted = "";
+  let partidaFinishDateFormatted = "";
 
   try {
-    eventDateFormatted = convertToBackendDate(eventDate);
-    if (eventFinishDate) {
-      eventFinishDateFormatted = convertToBackendDate(eventFinishDate);
-    }
+    MatchDateFormatted = convertToBackendDate(MatchDate);
   } catch (error: any) {
     return { error: error.message };
   }
 
-  console.log(
-    `Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\nData ==>${eventDate} até ${eventFinishDate}\nLocalização ==> ${location}`,
-  );
+  console.log(`Title ==> ${title}\nDescricao ==> ${description}\nData ==>${MatchDate}\nLocalização ==> ${location}\nUser:`, author);
   try {
     const response = await api_route.post(
-      "/posts",
+      "/match/",
       {
+        author,
+        userId,
         title,
-        type,
-        content,
-        eventDate: eventDateFormatted,
-        eventFinishDate: eventFinishDateFormatted || undefined,
+        description,
+        sport,
+        maxPlayers,
+        teamNameA,
+        teamNameB,
+        MatchDate: MatchDateFormatted,
         location,
-        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
       },
       {
         headers: {
@@ -83,14 +88,14 @@ export async function createEvent({
     if (error.response) {
       const data = error.response.data;
       const message =
-        data?.issues?.[0]?.message || data?.error || "Erro ao criar evento.";
+        data?.issues?.[0]?.message || data?.error || "Erro ao criar partida.";
       return { error: message };
     } else if (error.request) {
       console.error("Sem resposta do servidor:", error.request);
       throw new Error("Não foi possível conectar ao servidor.");
     } else {
-      console.error("Erro ao criar evento:", error.message);
-      throw new Error("Erro inesperado ao criar [evento].");
+      console.error("Erro ao criar partida:", error.message);
+      throw new Error("Erro inesperado ao criar [partida].");
     }
   }
 }
