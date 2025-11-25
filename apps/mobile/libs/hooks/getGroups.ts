@@ -6,14 +6,17 @@ type Group = {
   id: string;
   name: string;
   groupType: "AMATEUR" | "ATHLETIC";
+  acceptingNewMembers: boolean;
+  description: string;
 };
 
 export function useGroups() {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedType, setSelectedType] = useState<"AMATEUR" | "ATHLETIC">("AMATEUR");
+  const [acceptingOnly, setAcceptingOnly] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  const [selectedType, setSelectedType] = useState<"AMATEUR" | "ATHLETIC">("AMATEUR");
 
   useEffect(() => {
     async function load() {
@@ -29,14 +32,17 @@ export function useGroups() {
     load();
   }, []);
 
-  const filtered = groups.filter(g => g.groupType === selectedType);
+  const filteredByType  = groups.filter(g => g.groupType === selectedType);
+  const filteredFinal = acceptingOnly ? filteredByType.filter((g) => g.acceptingNewMembers) : filteredByType;
 
   return {
     groups,
-    filtered,
+    filtered: filteredFinal,
     loading,
     error,
     selectedType,
     setSelectedType,
+    acceptingOnly,
+    setAcceptingOnly,
   };
 }
