@@ -8,7 +8,7 @@ import Spacer from "@/components/SpacerComp";
 
 export default function FeedScreen() {
   const { isDarkMode } = useTheme();
-  const { user, logout, confirmDelete } = useUser();
+  const { user, logout, deleteAccount, confirmDelete } = useUser();
   const themeStyles = StyleSheet.create({
     container: {
       flex: 1,

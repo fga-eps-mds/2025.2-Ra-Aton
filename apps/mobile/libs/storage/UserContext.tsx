@@ -80,7 +80,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
     try {
       setLoading(true);
-      const res = await api_route.delete(`/api/v1/users/${user.userName}`)
+      const res = await api_route.delete(`/users/${user.userName}`)
       if (res.status == 204) {
         Alert.alert(
           "Conta excluída",
