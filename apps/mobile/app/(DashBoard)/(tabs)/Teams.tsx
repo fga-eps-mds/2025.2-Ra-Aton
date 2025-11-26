@@ -1,4 +1,10 @@
-import { StyleSheet, View, ScrollView, Alert, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button1Comp from "../../../components/PrimaryButton";
 import Button2Comp from "../../../components/SecondaryButton";
@@ -11,7 +17,7 @@ import { useTheme } from "../../../constants/Theme";
 import { Colors } from "../../../constants/Colors";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import {CreateGroupComp} from "@/components/CreateGroupComp";
+import { CreateGroupComp } from "@/components/CreateGroupComp";
 import { useGroups } from "@/libs/hooks/getGroups";
 import { useUser } from "@/libs/storage/UserContext";
 
@@ -38,6 +44,13 @@ const Teams = () => {
   } = useGroups();
 
   const [type, setType] = useState<"LEFT" | "RIGHT">("LEFT");
+
+  const [messages, setMessages] = useState<{ [groupId: string]: string }>({});
+  const setGroupMessage = (groupId: string, message: string) => {
+    setMessages((prev) => ({ ...prev, [groupId]: message }));
+  };
+
+  const [globalError, setGlobalError] = useState<string | null>(null);
 
   return (
     <BackGroundComp style={styles.container}>
@@ -83,10 +96,9 @@ const Teams = () => {
             keyboardShouldPersistTaps="handled"
           >
             <CreateGroupComp></CreateGroupComp>
-            <JoinedGroupsComp name="Atlética exemplo"></JoinedGroupsComp> 
+            <JoinedGroupsComp name="Atlética exemplo"></JoinedGroupsComp>
             <JoinedGroupsComp name="Atlética exemplo 2"></JoinedGroupsComp>
-            <JoinedGroupsComp name="Atlética exemplo 3"></JoinedGroupsComp> 
-
+            <JoinedGroupsComp name="Atlética exemplo 3"></JoinedGroupsComp>
           </ScrollView>
         </SafeAreaView>
 
@@ -123,6 +135,20 @@ const Teams = () => {
           <AppText style={[{ alignSelf: "center" }, styles.txt]}>
             outras equipes
           </AppText>
+          {globalError && (
+            <AppText
+              style={{
+                color: "red",
+                marginTop: 0,
+                marginBottom: 0,
+                fontSize: 22,
+                textAlign: "center",
+              }}
+            >
+              {globalError}
+            </AppText>
+          )}
+
           <ScrollView
             contentContainerStyle={{
               width: "100%",
@@ -141,7 +167,7 @@ const Teams = () => {
                 key={g.id}
                 style={{
                   width: "45%",
-                  height: 170,
+                  height: 210,
                   backgroundColor: theme.input,
                   borderWidth: 1,
                   borderColor: theme.background,
@@ -170,6 +196,12 @@ const Teams = () => {
                   }}
                 ></View>
                 <AppText style={styles.txt}>{g.name}</AppText>
+                {/* {messages[g.id] && (
+                  <AppText style={{ color: theme.orange , marginTop: 0, fontSize: 18, textAlign: "center" }}>
+                    {messages[g.id]}
+                  </AppText>
+                )} */}
+
                 <View
                   style={{
                     flexDirection: "row",
@@ -189,28 +221,35 @@ const Teams = () => {
                         );
 
                         if (result.ok === false) {
-                          Alert.alert("Aviso", result.message);
+                          setGroupMessage(g.id, result.message);
+                          setGlobalError(result.message);
+
                           return;
                         }
 
-                        Alert.alert("Sucesso", "Solicitação enviada!");
-                      } catch (err) {
-                        Alert.alert(
-                          "Erro",
-                          "Não foi possível enviar a solicitação.",
+                        setGroupMessage(
+                          g.id,
+                          "Solicitação enviada com sucesso!",
                         );
+                        setGlobalError(null);
+                      } catch (err) {
+                        const msg =
+                          err?.response?.data?.message ||
+                          err?.message ||
+                          "Não foi possível enviar a solicitação.";
+
+                        setGroupMessage(g.id, msg);
+                        setGlobalError(msg);
                       }
                     }}
                   >
                     Solicitar
                   </Button1Comp>
-                  <Button2Comp style={{ width: "45%", height: 35 }}
-                  onPress={async () => {
+                  <Button2Comp
+                    style={{ width: "45%", height: 35 }}
+                    onPress={async () => {
                       try {
-                        const result = await followGroup(
-                          user.token,
-                          g.id,
-                        );
+                        const result = await followGroup(user.token, g.id);
 
                         if (result.ok === false) {
                           Alert.alert("Aviso", result.message);
@@ -218,13 +257,18 @@ const Teams = () => {
                         }
 
                         Alert.alert("Sucesso", "Solicitação enviada!");
-                      } catch (err) {
+                      } catch (err: any) {
+                        console.log("Erro inesperado:", err);
+
                         Alert.alert(
                           "Erro",
-                          "Não foi possível enviar a solicitação.",
+                          err?.response?.data?.message ||
+                            err?.message ||
+                            "Não foi possível enviar a solicitação.",
                         );
                       }
-                    }}>
+                    }}
+                  >
                     seguir
                   </Button2Comp>
                 </View>
