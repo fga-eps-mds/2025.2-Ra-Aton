@@ -83,8 +83,8 @@ describe("Testes de Integração Post (com prismaMock))", () => {
   it("deve criar um post EVENT com sucesso quando todos os campos forem fornecidos", async () => {
     const token = generateToken(AUTH_USER_ID);
 
-    const eventStart = new Date().toISOString();
-    const eventEnd = new Date(Date.now() + 3600000).toISOString();
+    const eventStart = new Date(Date.now() + 3600000).toISOString(); // Data futura
+    const eventEnd = new Date(Date.now() + 7200000).toISOString(); // Data + futura ainda
 
     const body = {
       title: "Event Test",
