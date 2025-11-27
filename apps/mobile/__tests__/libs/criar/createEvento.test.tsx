@@ -1,15 +1,14 @@
 import { createEvent } from "@/libs/criar/createEvento";
 import { api_route } from "@/libs/auth/api";
 
-// 1. O mock deve ser autossuficiente. Definimos a função diretamente aqui dentro.
+// 1. Mock da API
 jest.mock("@/libs/auth/api", () => ({
   IP: "http://fake-api.com",
   api_route: {
-    post: jest.fn(), // Cria a função mockada aqui
+    post: jest.fn(),
   },
 }));
 
-// Helper para facilitar a tipagem no TypeScript
 const mockedPost = api_route.post as jest.Mock;
 
 beforeEach(() => {
@@ -36,11 +35,11 @@ describe("createEvent", () => {
       },
     };
 
-    // Usamos a variável importada e castada para definir o comportamento
     mockedPost.mockResolvedValue(mockResponse);
 
     const result = await createEvent(validParams);
 
+    // Datas convertidas esperadas
     const expectedStartDate = new Date("2025-12-25T17:30:00Z").toISOString();
     const expectedFinishDate = new Date("2025-12-25T21:00:00Z").toISOString();
 
@@ -55,6 +54,8 @@ describe("createEvent", () => {
         eventDate: expectedStartDate,
         eventFinishDate: expectedFinishDate,
         location: validParams.location,
+        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
+        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
       },
       {
         headers: {
@@ -64,7 +65,7 @@ describe("createEvent", () => {
     );
   });
 
-  // --- Teste de Erro do Servidor (Status != 2xx) ---
+  // --- Teste de Erro do Servidor ---
   it("deve retornar um objeto de erro se o servidor responder com erro (ex: 400/500)", async () => {
     const errorMessage = "Data inválida para o evento";
 
@@ -99,7 +100,7 @@ describe("createEvent", () => {
     });
   });
 
-  // --- Teste de Erro de Rede (Sem resposta) ---
+  // --- Teste de Erro de Rede ---
   it("deve lançar exceção se não houver resposta do servidor (erro de conexão)", async () => {
     const mockError = {
       request: {}, 

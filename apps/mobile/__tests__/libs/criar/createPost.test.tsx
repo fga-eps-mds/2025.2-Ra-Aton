@@ -1,18 +1,16 @@
 import { createPost } from "@/libs/criar/createPost";
 import { api_route } from "@/libs/auth/api";
 
-// 1. Mockamos o módulo local onde a instância do axios é criada
+// 1. Mockamos o módulo local
 jest.mock("@/libs/auth/api", () => ({
   IP: "http://fake-api.com",
   api_route: {
-    post: jest.fn(), // Criamos a função mockada aqui dentro
+    post: jest.fn(),
   },
 }));
 
-// 2. Criamos um helper tipado para facilitar a leitura e o uso do mock
 const mockedPost = api_route.post as jest.Mock;
 
-// Limpa o histórico antes de cada teste
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -34,18 +32,18 @@ describe("createPost", () => {
       },
     };
 
-    // Usamos mockedPost
     mockedPost.mockResolvedValue(mockResponse);
 
     const result = await createPost(validParams);
 
-    // Verifica a chamada na api_route.post
     expect(mockedPost).toHaveBeenCalledWith(
       "/posts", 
       {
         title: validParams.title,
         type: validParams.type,
         content: validParams.content,
+        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
+        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
       },
       {
         headers: {
@@ -61,7 +59,6 @@ describe("createPost", () => {
   it("deve retornar um objeto { error } se o servidor responder com erro", async () => {
     const serverErrorMessage = "Título muito curto.";
 
-    // Simula erro com estrutura do Axios (response.data)
     const mockError = {
       response: {
         data: {
