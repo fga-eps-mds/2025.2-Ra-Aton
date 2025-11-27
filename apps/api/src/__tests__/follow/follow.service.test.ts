@@ -1,10 +1,8 @@
 import followService from '../../modules/follow/follow.service';
 import followRepository from '../../modules/follow/follow.repository';
 import groupRepository from '../../modules/group/group.repository';
-import { ApiError } from '../../utils/ApiError';
 import httpStatus from 'http-status';
 
-// Mock dos repositórios
 jest.mock('../../modules/follow/follow.repository');
 jest.mock('../../modules/group/group.repository');
 
@@ -21,22 +19,17 @@ describe('FollowService', () => {
 
   describe('followGroup', () => {
     it('deve seguir um grupo com sucesso', async () => {
-      // Arrange
-      mockedGroupRepo.findById.mockResolvedValue({ id: groupId } as any); // Grupo existe
-      mockedFollowRepo.findFollow.mockResolvedValue(null); // Não segue ainda
+      (mockedGroupRepo.findGroupById as jest.Mock).mockResolvedValue({ id: groupId });
+      (mockedFollowRepo.findFollow as jest.Mock).mockResolvedValue(null);
 
-      // Act
       await followService.followGroup(userId, groupId);
 
-      // Assert
       expect(mockedFollowRepo.createFollow).toHaveBeenCalledWith(userId, groupId);
     });
 
     it('deve lançar erro 404 se o grupo não existir', async () => {
-      // Arrange
-      mockedGroupRepo.findById.mockResolvedValue(null); // Grupo não encontrado
+      (mockedGroupRepo.findGroupById as jest.Mock).mockResolvedValue(null);
 
-      // Act & Assert
       await expect(followService.followGroup(userId, groupId))
         .rejects.toHaveProperty('statusCode', httpStatus.NOT_FOUND);
       
@@ -44,11 +37,9 @@ describe('FollowService', () => {
     });
 
     it('deve lançar erro 409 se já seguir o grupo', async () => {
-      // Arrange
-      mockedGroupRepo.findById.mockResolvedValue({ id: groupId } as any);
-      mockedFollowRepo.findFollow.mockResolvedValue({ id: 'follow-1' } as any); // Já segue
+      (mockedGroupRepo.findGroupById as jest.Mock).mockResolvedValue({ id: groupId });
+      (mockedFollowRepo.findFollow as jest.Mock).mockResolvedValue({ id: 'follow-1' });
 
-      // Act & Assert
       await expect(followService.followGroup(userId, groupId))
         .rejects.toHaveProperty('statusCode', httpStatus.CONFLICT);
       
@@ -58,21 +49,16 @@ describe('FollowService', () => {
 
   describe('unfollowGroup', () => {
     it('deve deixar de seguir um grupo com sucesso', async () => {
-      // Arrange
-      mockedFollowRepo.findFollow.mockResolvedValue({ id: 'follow-1' } as any); // Segue
+      (mockedFollowRepo.findFollow as jest.Mock).mockResolvedValue({ id: 'follow-1' });
 
-      // Act
       await followService.unfollowGroup(userId, groupId);
 
-      // Assert
       expect(mockedFollowRepo.deleteFollow).toHaveBeenCalledWith(userId, groupId);
     });
 
     it('deve lançar erro 400 se tentar deixar de seguir grupo que não segue', async () => {
-      // Arrange
-      mockedFollowRepo.findFollow.mockResolvedValue(null); // Não segue
+      (mockedFollowRepo.findFollow as jest.Mock).mockResolvedValue(null);
 
-      // Act & Assert
       await expect(followService.unfollowGroup(userId, groupId))
         .rejects.toHaveProperty('statusCode', httpStatus.BAD_REQUEST);
       
@@ -82,16 +68,13 @@ describe('FollowService', () => {
 
   describe('getUserFollowingGroups', () => {
     it('deve retornar lista paginada de grupos', async () => {
-      // Arrange
       const mockGroups = [{ id: 'g1', name: 'Grupo A' }];
       const mockResult = { groups: mockGroups, totalCount: 1 };
       
-      mockedFollowRepo.findGroupsFollowedByUser.mockResolvedValue(mockResult as any);
+      (mockedFollowRepo.findGroupsFollowedByUser as jest.Mock).mockResolvedValue(mockResult);
 
-      // Act
       const result = await followService.getUserFollowingGroups(userId, 10, 1);
 
-      // Assert
       expect(mockedFollowRepo.findGroupsFollowedByUser).toHaveBeenCalledWith(userId, 10, 0);
       expect(result.data).toEqual(mockGroups);
       expect(result.meta.page).toBe(1);
