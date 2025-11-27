@@ -52,6 +52,7 @@ enum MadeBy {
   GROUP
 }
 
+
 enum JoinRequestStatus {
   PENDING
   APPROVED
@@ -85,6 +86,7 @@ model User {
   Comment         Comment[]
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
+  followedGroups GroupFollow[]
 }
 
 model Post {
@@ -183,9 +185,9 @@ model Group {
   sports      String[]
   groupType   GroupType @default(AMATEUR)
 
+  acceptingNewMembers Boolean             @default(false)
   verificationRequest Boolean             @default(false)
   verificationStatus  VerificationStatus?
-  acceptingNewMembers Boolean             @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -194,7 +196,7 @@ model Group {
   joinRequests GroupJoinRequest[]
   posts        Post[]
   memberships  GroupMembership[]
-  // follows Follow[]
+  followers GroupFollow[]
 }
 
 model GroupMembership {
@@ -266,3 +268,16 @@ model PlayerSubscription {
   @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
 
+model GroupFollow {
+  id String @id @default(uuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  groupId String
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, groupId])
+}
