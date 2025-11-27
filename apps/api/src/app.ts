@@ -45,6 +45,7 @@ app.use("/posts/:postId/comments", commentRoutes);
 app.use("/posts/:postId/like", postLikeRoutes);
 app.use("/posts/:postId/attendance", attendanceRoutes);
 app.use("/posts/:id/report", reportRoutes);
+app.use("/notifications", notificationsRoutes);
 
 // --- TRATAMENTO DE ERROS ---
 // Middleware para rotas não encontradas (404)

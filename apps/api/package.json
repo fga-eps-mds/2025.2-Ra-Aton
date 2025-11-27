@@ -26,6 +26,7 @@
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "expo-server-sdk": "^4.0.0",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "http-status": "^2.1.0",
