@@ -17,10 +17,10 @@ import Spacer from "@/components/SpacerComp";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import AppText from "@/components/AppText";
-import { EventoFormComponent } from "@/components/EventoFormComponent";
+import { PartidaFormComponent } from "@/components/PartidaFormComponent";
 
 // Libs
-import { eventoForms } from "@/libs/hooks/eventoForms";
+import { partidaForms } from "@/libs/hooks/partidaForms";
 
 const CriarPartida: React.FC = () => {
   return <CriarPartidaInner />;
@@ -31,7 +31,7 @@ const CriarPartidaInner: React.FC = () => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
-
+  
   const {
     formsData,
     isDisabled,

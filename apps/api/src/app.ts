@@ -11,6 +11,7 @@ import memberRoutes from "./modules/groupMembership/groupMembership.routes";
 import postRoutes from "./modules/post/post.routes";
 import commentRoutes from "./modules/comment/comment.routes";
 import HttpStatus from "http-status";
+import matchRoutes from "./modules/match/match.routes";
 import { postLikeRoutes } from "./modules/postLike/postlike.routes";
 import { reportRoutes } from "./modules/report/report.routes";
 import { attendanceRoutes } from "./modules/attendance/attendance.routes";
@@ -32,6 +33,9 @@ app.get("/", (_req: Request, res: Response) => {
 // --- MONTAGEM DAS ROTAS ---
 app.use("/users", userRoutes);
 app.use("/login", authRoutes);
+app.use("/match", matchRoutes)
+
+// (Adicione outras rotas de módulos aqui, ex: /api/v1/posts, etc.)
 app.use("/group", groupRoutes);
 app.use("/invite", inviteRoutes);
 app.use("/member", memberRoutes);

@@ -1,5 +1,7 @@
+import { start } from "repl";
 import app from "./app";
 import { config } from "./config/env";
+import { startAllSchedulers } from "./schedulers";
 
 // Validate required environment variables
 if (!config.JWT_SECRET) {
@@ -11,4 +13,5 @@ const PORT = config.PORT ? Number(config.PORT) : 4000;
 
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`API listening on http://0.0.0.0:${PORT}`);
+  startAllSchedulers();
 });
