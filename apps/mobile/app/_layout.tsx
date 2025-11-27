@@ -1,11 +1,15 @@
 // app/_layout.tsx
+// Importa polyfills PRIMEIRO, antes de qualquer outro import
+import '../polyfills';
+
 import { ThemeProvider } from "@/constants/Theme";
 import { Stack } from "expo-router";
 import { Fonts } from "@/constants/Fonts";
 import { useFonts } from "expo-font";
-import { UserProvider } from "@/libs/storage/UserContext";
+import { UserProvider, useUser } from "@/libs/storage/UserContext";
 import { useNotifications } from "@/libs/notifications/useNotifications";
 import { useEffect } from "react";
+import { syncPushToken } from "@/libs/notifications/syncPushToken";
 
 // ⬇️ importa o React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -14,14 +18,15 @@ const queryClient = new QueryClient();
 
 function AppContent() {
   const { expoPushToken, notification } = useNotifications();
+  const { user } = useUser();
 
+  // Sincroniza token quando usuário está logado e token de notificação disponível
   useEffect(() => {
-    if (expoPushToken) {
-      console.log('📱 Expo Push Token:', expoPushToken);
-      // TODO: Enviar token para o backend
-      // await api.post('/users/push-token', { token: expoPushToken });
+    if (expoPushToken && user?.token) {
+      console.log('📱 Sincronizando Expo Push Token com backend...');
+      syncPushToken(expoPushToken, user.token);
     }
-  }, [expoPushToken]);
+  }, [expoPushToken, user?.token]);
 
   useEffect(() => {
     if (notification) {

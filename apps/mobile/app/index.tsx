@@ -1,3 +1,6 @@
+// Importa polyfills PRIMEIRO
+import '../polyfills';
+
 import { useEffect, useState } from "react";
 import { Redirect, useRouter } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
