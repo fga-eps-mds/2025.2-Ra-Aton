@@ -4,9 +4,9 @@ import { auth } from '../../middlewares/auth';
 
 const router: Router = Router();
 
-router.post('/groups/:id/follow', auth, followController.followGroup);
+router.post('/groups/:name/follow', auth, followController.followGroup);
 
-router.delete('/groups/:id/follow', auth, followController.unfollowGroup);
+router.delete('/groups/:name/follow', auth, followController.unfollowGroup);
 
 router.get('/users/:id/following-groups', followController.listUserFollowing);
 

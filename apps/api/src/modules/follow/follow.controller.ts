@@ -1,29 +1,40 @@
 import { Request, Response } from 'express';
 import followService from './follow.service';
 import httpStatus from 'http-status';
+import GroupRepository from '../group/group.repository';
 
 class FollowController {
     async followGroup(req: Request, res: Response) {
-        const { id: groupId } = req.params;
-        const { id: userId } = (req as any).user;
+        const { name: groupName } = req.params;
+        const { id: userId } = (req as any).user!;
 
-        if (!groupId) {
-            return res.status(httpStatus.BAD_REQUEST).json({ message: 'ID do grupo é necessário' });
+        if (!groupName) {
+            return res.status(httpStatus.BAD_REQUEST).json({ message: 'Nome do grupo é necessário' });
         }
 
-        await followService.followGroup(userId, groupId);
+        const group = await GroupRepository.findGroupByName(groupName);
+        if (!group) {
+            return res.status(httpStatus.NOT_FOUND).json({ message: 'Grupo não encontrado' });
+        }
+        await followService.followGroup(userId, group.id);
+
         res.status(httpStatus.CREATED).json({ message: "Grupo seguido com sucesso" });
     }
 
     async unfollowGroup(req: Request, res: Response) {
-        const { id: groupId } = req.params;
-        const { id: userId } = (req as any).user;
-        
-        if (!groupId) {
-            return res.status(httpStatus.BAD_REQUEST).json({ message: 'ID do grupo é necessário' });
+        const { name: groupName } = req.params;
+        const { id: userId } = (req as any).user!;
+
+        if (!groupName) {
+            return res.status(httpStatus.BAD_REQUEST).json({ message: 'Nome do grupo é necessário' });
         }
 
-        await followService.unfollowGroup(userId, groupId);
+        const group = await GroupRepository.findGroupByName(groupName);
+        if (!group) {
+            return res.status(httpStatus.NOT_FOUND).json({ message: 'Grupo não encontrado' });
+        }
+
+        await followService.unfollowGroup(userId, group.id);
         res.status(httpStatus.NO_CONTENT).send();
     }
 

@@ -5,7 +5,7 @@ import httpStatus from "http-status";
 
 class FollowService {
     async followGroup(userId: string, groupId: string) {
-        const group = await groupRepository.findById(groupId);
+        const group = await groupRepository.findGroupById(groupId);
         if (!group) {
             throw new ApiError(httpStatus.NOT_FOUND, "Grupo não encontrado");
         }
