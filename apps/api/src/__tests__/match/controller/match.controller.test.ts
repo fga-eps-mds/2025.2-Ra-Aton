@@ -1,6 +1,5 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import matchController from "../../../modules/match/match.controller";
-import { ApiError } from "../../../utils/ApiError";
 import HttpStatus from "http-status";
 import matchService from "../../../modules/match/match.service";
 import { userService } from "../../../modules/user/user.service";
@@ -15,6 +14,7 @@ describe("matchController", () => {
     let res: Partial<Response>;
     let statusMock: jest.Mock;
     let jsonMock: jest.Mock;
+    let nextMock: jest.Mock;
 
     beforeEach(() => {
         req = {};
@@ -24,6 +24,7 @@ describe("matchController", () => {
         };
         statusMock = res.status as jest.Mock;
         jsonMock = res.json as jest.Mock;
+        nextMock = jest.fn();
     });
 
     it("should create a match and return it with status 201", async () => {
@@ -50,10 +51,12 @@ describe("matchController", () => {
             profileType: null,
         };
 
-        const mockCreatedMatch = {
+        const mockCreatedMatch: Match = {
             ...mockMatchData,
             MatchStatus: "EM_BREVE",
             id: "1",
+            authorId: mockAuthor.id,
+            sport: "Soccer",
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -64,9 +67,19 @@ describe("matchController", () => {
 
         (matchService.createMatch as jest.Mock).mockResolvedValue(mockCreatedMatch);
         (userService.getUserById as jest.Mock).mockResolvedValue(mockAuthor);
+        
+        // Mockar as informações que vão para o middleware de notificação
+        res.locals = {
+            newMatchId: mockCreatedMatch.id,
+            matchTitle: mockCreatedMatch.title,
+            matchDate: mockCreatedMatch.MatchDate,
+            matchLocation: mockCreatedMatch.location,
+            matchSport: (mockCreatedMatch as Match).sport,
+            authorName: mockAuthor.name,
+        };
 
         // Act
-        await matchController.createMatch(req as Request, res as Response);
+        await matchController.createMatch(req as Request, res as Response, nextMock as NextFunction);
 
         // Assert
         expect(statusMock).toHaveBeenCalledWith(HttpStatus.CREATED);
@@ -85,7 +98,7 @@ describe("matchController", () => {
         };
 
         // Act
-        await matchController.createMatch(req as Request, res as Response);
+        await matchController.createMatch(req as Request, res as Response, nextMock as NextFunction);
 
         // Assert
         expect(statusMock).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
@@ -105,7 +118,7 @@ describe("matchController", () => {
         (userService.getUserById as jest.Mock).mockResolvedValue(null);
 
         // Act
-        await matchController.createMatch(req as Request, res as Response);
+        await matchController.createMatch(req as Request, res as Response, nextMock as NextFunction);
 
         // Assert
         expect(statusMock).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
@@ -122,9 +135,10 @@ describe("matchController", () => {
             title: "Updated Match Title",
         };
 
-        const mockUpdatedMatch = {
+        const mockUpdatedMatch: Match = {
             id: mockMatchId,
             authorId: mockAuthUserId,
+            sport: "Soccer",
             title: "Updated Match Title",
             description: "Some description",
             MatchDate: new Date(),
@@ -138,10 +152,10 @@ describe("matchController", () => {
         };
 
         req = {
-            params: { id: mockMatchId },
-            body: mockUpdateData,
-            user: { id: mockAuthUserId },
-        } as Partial<Request>;
+          params: { id: mockMatchId },
+          body: mockUpdateData,
+          user: { id: mockAuthUserId },
+        } as any;
 
         (matchService.updateMatch as jest.Mock).mockResolvedValue(mockUpdatedMatch);
 
@@ -200,7 +214,7 @@ describe("matchController", () => {
         req = {
             params: { id: mockMatchId },
             user: { id: mockAuthUserId },
-        } as Partial<Request>;
+        } as any;
 
         // Act
         await matchController.deleteMatch(req as Request, res as Response);
