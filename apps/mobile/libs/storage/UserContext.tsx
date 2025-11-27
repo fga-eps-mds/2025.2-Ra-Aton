@@ -6,8 +6,9 @@ import React, {
   useEffect,
 } from "react";
 import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+import { Alert, Platform } from "react-native";
 import { router } from "expo-router";
+import { api_route } from "../auth/api";
 
 export type User = {
   id: string;
@@ -23,6 +24,8 @@ interface UserContextType {
   setUser: (user: User | null) => void;
   logout: () => void;
   loading: boolean;
+  deleteAccount: () => void;
+  confirmDelete: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -70,8 +73,47 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
     router.replace("/(Auth)/login");
   };
+
+  const deleteAccount = async () => {
+    if (!user || !user.name) {
+      Alert.alert("Erro", "Usuário não encontrado")
+    }
+    try {
+      setLoading(true);
+      const res = await api_route.delete(`/users/${user.userName}`)
+      if (res.status == 204) {
+        Alert.alert(
+          "Conta excluída",
+          "Sua conta foi excluída com sucesso",
+          [{ text: "OK", onPress: () => logout() }]
+        )
+      } else {
+        throw new Error("Resposta inesperada do servidor");
+      }
+    } catch (err: any) {
+      console.warn("[deleteAccount] erro:", err?.response ?? err?.message ?? err);
+      const msg =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Não foi possível excluir a conta. Tente novamente mais tarde.";
+      Alert.alert("Erro ao excluir conta", msg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const confirmDelete = async () => {
+    Alert.alert(
+      "Confirmar exclusão",
+      "Tem certeza que deseja excluir sua conta? Esta ação é irreversível.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Excluir", style: "destructive", onPress: deleteAccount },
+      ],
+    );
+  };
   return (
-    <UserContext.Provider value={{ user, setUser, logout, loading }}>
+    <UserContext.Provider value={{ user, setUser, logout, loading, deleteAccount, confirmDelete }}>
       {children}
     </UserContext.Provider>
   );
