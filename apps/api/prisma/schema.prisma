@@ -20,11 +20,6 @@ enum TeamSide {
   B
 }
 
-enum TeamSide {
-  A
-  B
-}
-
 enum GroupRole {
   ADMIN
   MEMBER
@@ -57,16 +52,6 @@ enum MadeBy {
   GROUP
 }
 
-enum VerificationStatus {
-  PENDING
-  VERIFIED
-  REJECTED
-}
-
-enum MadeBy {
-  USER
-  GROUP
-}
 
 enum JoinRequestStatus {
   PENDING
@@ -74,13 +59,6 @@ enum JoinRequestStatus {
   REJECTED
 }
 
-enum MatchStatus {
-  EM_BREVE
-  EM_ANDAMENTO
-  FINALIZADO
-}
-
-// Models
 enum MatchStatus {
   EM_BREVE
   EM_ANDAMENTO
@@ -102,12 +80,10 @@ model User {
   subscription PlayerSubscription[]
   posts           Post[]
   matchs          Match[]
-  matchs          Match[]
   Attendance      Attendance[]
   Report          Report[]
   PostLike        PostLike[]
   Comment         Comment[]
-  joinRequests    GroupJoinRequest[]
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
   followedGroups GroupFollow[]
@@ -209,15 +185,9 @@ model Group {
   sports      String[]
   groupType   GroupType @default(AMATEUR)
 
+  acceptingNewMembers Boolean             @default(false)
   verificationRequest Boolean             @default(false)
   verificationStatus  VerificationStatus?
-  acceptingNewMembers Boolean             @default(false)
-  sports      String[]
-  groupType   GroupType @default(AMATEUR)
-
-  verificationRequest Boolean             @default(false)
-  verificationStatus  VerificationStatus?
-  acceptingNewMembers Boolean             @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
