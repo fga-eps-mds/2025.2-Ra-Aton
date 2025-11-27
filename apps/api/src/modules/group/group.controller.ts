@@ -22,7 +22,10 @@ class GroupController {
         .status(HttpStatus.NOT_FOUND)
         .json({ message: "Nome do grupo é obrigatorio" });
     }
-    const groupFound = await GroupService.getGroupByName(groupName);
+
+    const authUser = (req as any).user!;
+    const currentUserId =  authUser?.id;
+    const groupFound = await GroupService.getGroupByName(groupName, currentUserId);
     return res.status(HttpStatus.FOUND).json(groupFound);
   }
 

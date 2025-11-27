@@ -1,8 +1,13 @@
 import { Group } from "@prisma/client";
 import GroupRepository from "./group.repository";
 import GroupMembershipRepository from "../groupMembership/groupMembership.repository";
+import followRepository from "../follow/follow.repository";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
+
+export type GroupWithDetails = Group & {
+  isFollowing: boolean;
+};
 
 class GroupService {
   getAllGroups = async (): Promise<Group[]> => {
@@ -19,12 +24,19 @@ class GroupService {
     });
   };
 
-  getGroupByName = async (name: string): Promise<Group> => {
+  getGroupByName = async (name: string, userId?: string): Promise<GroupWithDetails> => {
     const groupFound = await GroupRepository.findGroupByName(name);
     if (!groupFound) {
       throw new ApiError(httpStatus.NOT_FOUND, "Grupo não encontrado");
     }
-    return groupFound;
+
+    let isFollowing = false;
+    if (userId) {
+      const follow = await followRepository.findFollow(userId, groupFound.id);
+      isFollowing = !!follow;
+    }
+
+    return { ...groupFound, isFollowing };
   };
 
   createGroup = async (data: any, author: any): Promise<Group> => {
