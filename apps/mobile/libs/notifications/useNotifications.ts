@@ -1,6 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
-import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
 import { registerForPushNotificationsAsync, setupNotificationHandler } from './registerNotifications';
+
+// Importação condicional para evitar erros na Web
+let Notifications: typeof import('expo-notifications') | null = null;
+
+if (Platform.OS !== 'web') {
+  Notifications = require('expo-notifications');
+}
+
+// Tipo genérico para notificação que funciona em todas as plataformas
+type NotificationType = typeof Notifications extends null ? null : import('expo-notifications').Notification;
 
 /**
  * Hook para gerenciar notificações no app
@@ -14,11 +24,17 @@ import { registerForPushNotificationsAsync, setupNotificationHandler } from './r
  */
 export function useNotifications() {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
-  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
-  const notificationListener = useRef<Notifications.Subscription | undefined>();
-  const responseListener = useRef<Notifications.Subscription | undefined>();
+  const [notification, setNotification] = useState<NotificationType | null>(null);
+  const notificationListener = useRef<any>(undefined);
+  const responseListener = useRef<any>(undefined);
 
   useEffect(() => {
+    // Não configura notificações na Web
+    if (Platform.OS === 'web' || !Notifications) {
+      console.log('ℹ️ Notificações desabilitadas na versão Web');
+      return;
+    }
+
     // Configura o handler de notificações
     setupNotificationHandler();
 
@@ -37,7 +53,7 @@ export function useNotifications() {
 
     // Listener para quando uma notificação é recebida enquanto o app está aberto
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
+      setNotification(notification as NotificationType);
       console.log('🔔 Notificação recebida:', notification);
     });
 

@@ -1,9 +1,17 @@
-import { View, StyleSheet } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import { View, StyleSheet, Platform } from 'react-native';
 import PrimaryButton from '@/components/PrimaryButton';
+
+let Notifications: typeof import('expo-notifications') | null = null;
+if (Platform.OS !== 'web') {
+  Notifications = require('expo-notifications');
+}
 
 export default function TestNotifications() {
   const sendLocalNotification = async () => {
+    if (!Notifications) {
+      console.log('Notificações não suportadas nesta plataforma');
+      return;
+    }
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "Teste Local 🔔",
@@ -15,6 +23,10 @@ export default function TestNotifications() {
   };
 
   const sendImmediateNotification = async () => {
+    if (!Notifications) {
+      console.log('Notificações não suportadas nesta plataforma');
+      return;
+    }
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "Notificação Imediata ⚡",

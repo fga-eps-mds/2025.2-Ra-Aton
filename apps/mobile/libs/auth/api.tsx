@@ -1,9 +1,10 @@
 // apps/mobile/src/libs/api.ts
 import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 import { getUserData } from "@/libs/storage/getUserData";
+import { config } from "@/libs/config/env";
 
 export const api_route = axios.create({
-  baseURL: "http://localhost:4000",
+  baseURL: config.apiUrl,
   timeout: 5000,
 });
 

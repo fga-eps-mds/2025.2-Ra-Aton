@@ -1,6 +1,15 @@
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+
+// Importação condicional para evitar erros na Web
+let Notifications: typeof import('expo-notifications') | null = null;
+let Device: typeof import('expo-device') | null = null;
+let Constants: typeof import('expo-constants').default | null = null;
+
+if (Platform.OS !== 'web') {
+  Notifications = require('expo-notifications');
+  Device = require('expo-device');
+  Constants = require('expo-constants').default;
+}
 
 /**
  * Configura e registra o dispositivo para receber notificações push.
@@ -8,10 +17,17 @@ import Constants from 'expo-constants';
  * ESTRATÉGIA HÍBRIDA:
  * - Funciona no Expo Go (com aviso no console)
  * - Funciona perfeitamente na Development Build com Firebase configurado
+ * - Retorna null na Web (notificações não suportadas)
  * 
  * @returns O token de notificação ou null se não for possível obter
  */
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
+  // 0. Verificação de Plataforma: Web não suporta notificações push nativas
+  if (Platform.OS === 'web' || !Notifications || !Device || !Constants) {
+    console.log('ℹ️ Notificações push não são suportadas na Web');
+    return null;
+  }
+
   // 1. Verificação de Segurança: Estamos no Expo Go?
   // O Expo Go não tem o 'google-services.json' embutido corretamente para o seu projeto.
   const isExpoGo = Constants.appOwnership === 'expo';
@@ -66,6 +82,11 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
  * Configura como as notificações devem ser apresentadas quando o app está aberto
  */
 export function setupNotificationHandler() {
+  // Não configura handler na Web
+  if (Platform.OS === 'web' || !Notifications) {
+    return;
+  }
+
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
