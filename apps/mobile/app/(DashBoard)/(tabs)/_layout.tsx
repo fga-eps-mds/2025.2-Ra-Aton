@@ -149,6 +149,14 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
+
+      <Tabs.Screen
+        name="Solicitacoes"
+        options={{
+          title: "Solicitações",
+          href: null,
+        }} // Esconde da Navbar
+      />
     </Tabs>
   );
 }

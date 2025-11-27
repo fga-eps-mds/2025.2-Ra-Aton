@@ -74,7 +74,9 @@ class GroupJoinRequestRepository {
         user: {
           select: { id: true, userName: true, email: true },
         },
-        group: true,
+        group: {
+          select: { id: true, name: true },
+        },
       },
     });
   }
