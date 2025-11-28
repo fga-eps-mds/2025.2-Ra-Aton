@@ -15,6 +15,8 @@ import matchRoutes from "./modules/match/match.routes";
 import { postLikeRoutes } from "./modules/postLike/postlike.routes";
 import { reportRoutes } from "./modules/report/report.routes";
 import { attendanceRoutes } from "./modules/attendance/attendance.routes";
+import notificationsRoutes from "./modules/notification/notification.routes";
+import followRoutes from "./modules/follow/follow.routes";
 
 const app: Express = express();
 
