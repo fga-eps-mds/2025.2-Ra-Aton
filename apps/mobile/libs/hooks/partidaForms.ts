@@ -2,18 +2,21 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { useUser } from "@/libs/storage/UserContext";
 import { useRouter } from "expo-router";
-import { createEvent } from "@/libs/criar/createEvento";
+import { createPartida } from "@/libs/criar/createPartida";
 
-export const eventoForms = () => {
+export const partidaForms = () => {
   const router = useRouter();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-
+    
   const [formsData, setFormData] = useState({
     titulo: "",
     descricao: "",
+    esporte: "",
+    maxPlayers: 6,
+    nomeEquipeA: "",
+    nomeEquipeB: "",
     dataInicio: "",
-    dataFim: "",
     local: "",
   });
 
@@ -30,21 +33,25 @@ export const eventoForms = () => {
       }
 
       // Campos obrigatórios
-      if (!formsData.titulo || !formsData.dataInicio || !formsData.local) {
+      if (!formsData.titulo || !formsData.dataInicio || !formsData.local || !formsData.esporte) {
         Alert.alert(
           "Erro",
-          "Preencha os campos obrigatórios: Título, Data Início e Local",
+          "Preencha os campos obrigatórios: Título, Data Início, Local e Esporte",
         );
         return;
       }
 
       // Envia ao backend
-      const result = await createEvent({
+      const result = await createPartida({
+        author: user,
+        userId: user.id,
         title: formsData.titulo,
-        type: "EVENT",
-        content: formsData.descricao?.trim() || undefined,
-        eventDate: formsData.dataInicio,
-        eventFinishDate: formsData.dataFim?.trim() || undefined,
+        description: formsData.descricao?.trim() || undefined,
+        sport: formsData.esporte,
+        maxPlayers: formsData.maxPlayers,
+        teamNameA: formsData.nomeEquipeA?.trim() || undefined,
+        teamNameB: formsData.nomeEquipeB?.trim() || undefined,
+        MatchDate: formsData.dataInicio,
         location: formsData.local,
         token: user.token,
       });
@@ -54,22 +61,25 @@ export const eventoForms = () => {
         return;
       }
 
-      Alert.alert("Sucesso", "Evento criado com sucesso!");
-      console.log("Evento criado:", result);
+      Alert.alert("Sucesso", "Partida criado com sucesso!");
+      console.log("Partida criado:", result);
 
       // Limpa formulário
       setFormData({
         titulo: "",
         descricao: "",
+        esporte: "",
+        maxPlayers: 6,
+        nomeEquipeA: "",
+        nomeEquipeB: "",
         dataInicio: "",
-        dataFim: "",
         local: "",
       });
 
       // Redireciona
-      router.replace("/(DashBoard)/(tabs)/Home");
+      router.replace("/(DashBoard)/(tabs)/Partidas");
     } catch (error: any) {
-      Alert.alert("Erro ao criar evento", error?.message || "Tente novamente");
+      Alert.alert("Erro ao criar partida", error?.message || "Tente novamente");
       console.error("Erro:", error);
     } finally {
       setLoading(false);
@@ -81,7 +91,7 @@ export const eventoForms = () => {
   };
 
   const isDisabled =
-    loading || !formsData.titulo || !formsData.dataInicio || !formsData.local;
+    loading || !formsData.titulo || !formsData.dataInicio || !formsData.local || !formsData.esporte;
 
   return {
     formsData,
