@@ -151,9 +151,9 @@ export default function DashboardTabsLayout() {
       />
 
       <Tabs.Screen
-        name="Solicitacoes"
+        name="(create)/criarGrupo"
         options={{
-          title: "Solicitações",
+          title: "Criar Grupo",
           href: null,
         }} // Esconde da Navbar
       />
