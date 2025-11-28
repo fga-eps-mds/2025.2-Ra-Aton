@@ -2,13 +2,21 @@ import groupService from "../../modules/group/group.service";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 import GroupRepository from "../../modules/group/group.repository";
+import followRepository from "../../modules/follow/follow.repository";
 import GroupMembershipRepository from "../../modules/groupMembership/groupMembership.repository";
-import { $Enums } from "@prisma/client/wasm";
+import {
+  $Enums,
+  Group,
+  GroupType,
+  VerificationStatus,
+} from "@prisma/client/wasm";
+import { group } from "console";
 
 jest.mock("../../modules/group/group.repository");
 jest.mock("../../modules/groupMembership/groupMembership.repository");
 jest.mock("../../modules/follow/follow.repository", () => ({
   findFollow: jest.fn(),
+  findGroupsFollowedByUser: jest.fn(),
 }));
 
 describe("GroupService", () => {
@@ -38,28 +46,81 @@ describe("GroupService", () => {
 
     it("should mark isMember as true for groups the user belongs to", async () => {
       const userId = "user-123";
-      const mockGroups = [
-        { id: "1", name: "Group 1" }, 
-        { id: "2", name: "Group 2" },
+      const mockGroups: Group[] = [
+        {
+          name: "grupo1",
+          id: "id-1",
+          description: "descricao1",
+          sports: ["esport1", "esport2"],
+          groupType: GroupType.AMATEUR,
+          acceptingNewMembers: true,
+          verificationRequest: true,
+          verificationStatus: VerificationStatus.PENDING,
+          createdAt: new Date("2025-11-28T21:27:04.691Z"),
+          updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+        },
+        {
+          name: "grupo2",
+          id: "id-2",
+          description: "descricao2",
+          sports: ["esport1", "esport2"],
+          groupType: GroupType.ATHLETIC,
+          acceptingNewMembers: false,
+          verificationRequest: false,
+          verificationStatus: VerificationStatus.VERIFIED,
+          createdAt: new Date("2025-11-28T21:27:04.691Z"),
+          updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+        },
       ];
 
-      const mockMemberships = [
-        { groupId: "1", userId: userId } 
-      ];
+      const mockMemberships = [{ groupId: "1", userId: userId }];
 
       (GroupRepository.findAll as jest.Mock).mockResolvedValue(mockGroups);
+      (
+        followRepository.findGroupsFollowedByUser as jest.Mock
+      ).mockResolvedValue({ groups: mockGroups, totalCount: 0 });
       // Mocka o retorno das inscrições do usuário
-      (GroupMembershipRepository.findMemberByUserId as jest.Mock).mockResolvedValue(mockMemberships);
+      (
+        GroupMembershipRepository.findMemberByUserId as jest.Mock
+      ).mockResolvedValue(mockMemberships);
 
       const result = await groupService.getAllGroups(userId);
 
       const expectedResult = [
-        { id: "1", name: "Group 1", isMember: true, isFollowing: false },
-        { id: "2", name: "Group 2", isMember: false, isFollowing: false },
+        {
+          name: "grupo1",
+          id: "id-1",
+          description: "descricao1",
+          sports: ["esport1", "esport2"],
+          groupType: GroupType.AMATEUR,
+          acceptingNewMembers: true,
+          verificationRequest: true,
+          isMember: false,
+          isFollowing: true,
+          verificationStatus: VerificationStatus.PENDING,
+          createdAt: new Date("2025-11-28T21:27:04.691Z"),
+          updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+        },
+        {
+          name: "grupo2",
+          id: "id-2",
+          description: "descricao2",
+          sports: ["esport1", "esport2"],
+          groupType: GroupType.ATHLETIC,
+          acceptingNewMembers: false,
+          isMember: false,
+          isFollowing: true,
+          verificationRequest: false,
+          verificationStatus: VerificationStatus.VERIFIED,
+          createdAt: new Date("2025-11-28T21:27:04.691Z"),
+          updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+        },
       ];
 
       expect(result).toEqual(expectedResult);
-      expect(GroupMembershipRepository.findMemberByUserId).toHaveBeenCalledWith(userId);
+      expect(GroupMembershipRepository.findMemberByUserId).toHaveBeenCalledWith(
+        userId,
+      );
     });
   });
 
