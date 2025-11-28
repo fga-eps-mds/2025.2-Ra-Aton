@@ -24,6 +24,9 @@ import { useUser } from "@/libs/storage/UserContext";
 import { requestJoinGroup } from "@/libs/group/requestJoinGroup";
 import { JoinedGroupsComp } from "@/components/JoinedGroupsComp";
 import { followGroup } from "@/libs/group/followGroup";
+import { unfollowGroup } from "@/libs/group/unfollowGroup";
+
+import { GroupCard } from "@/components/findGroupCard";
 
 const Teams = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -34,6 +37,8 @@ const Teams = () => {
 
   const {
     groups,
+    myGroups,
+    otherGroups,
     filtered: filteredFinal,
     loading,
     error,
@@ -41,6 +46,8 @@ const Teams = () => {
     setSelectedType,
     acceptingOnly,
     setAcceptingOnly,
+    reload,
+    updateGroup,
   } = useGroups();
 
   const [type, setType] = useState<"LEFT" | "RIGHT">("LEFT");
@@ -51,6 +58,8 @@ const Teams = () => {
   };
 
   const [globalError, setGlobalError] = useState<string | null>(null);
+
+
 
   return (
     <BackGroundComp style={styles.container}>
@@ -65,19 +74,12 @@ const Teams = () => {
         }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Scroll principal (azul) */}
         <Spacer height={"5%"} />
         <SafeAreaView
           style={[
             {
               height: "30%",
               width: "100%",
-              // backgroundColor: "red",
-              // flexGrow: 1,
-              // backgroundColor: theme.input,
-              // borderWidth: 1,
-              // borderColor: theme.orange,
-              // borderRadius: 10,
             },
           ]}
         >
@@ -96,9 +98,16 @@ const Teams = () => {
             keyboardShouldPersistTaps="handled"
           >
             <CreateGroupComp></CreateGroupComp>
-            <JoinedGroupsComp name="Atlética exemplo"></JoinedGroupsComp>
-            <JoinedGroupsComp name="Atlética exemplo 2"></JoinedGroupsComp>
-            <JoinedGroupsComp name="Atlética exemplo 3"></JoinedGroupsComp>
+            {myGroups.length === 0 ? (
+              <AppText style={[{ textAlign: "center" }, styles.txt]}>
+                Você ainda não faz parte de nenhum time.
+              </AppText>
+            ) : (
+              myGroups.map(g => (
+                <JoinedGroupsComp key={g.id} name={g.name} />
+              ))
+            )}
+
           </ScrollView>
         </SafeAreaView>
 
@@ -126,9 +135,6 @@ const Teams = () => {
             {
               height: "80%",
               width: "100%",
-              // borderWidth: 1,
-              // borderColor: theme.orange,
-              // borderRadius: 10,
             },
           ]}
         >
@@ -159,128 +165,27 @@ const Teams = () => {
             }}
             keyboardShouldPersistTaps="handled"
           >
-            {/* <AppText>
-          Outros grupos que o usuário pode entrar
-          </AppText> */}
             {filteredFinal.map((g) => (
-              <TouchableOpacity
-                key={g.id}
-                style={{
-                  width: "45%",
-                  height: 210,
-                  backgroundColor: theme.input,
-                  borderWidth: 1,
-                  borderColor: theme.background,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginBottom: 20,
-                  borderRadius: 10,
-                  paddingVertical: 10,
-                  shadowColor: "black",
-                  shadowOffset: {
-                    width: -2,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.55,
-                  shadowRadius: 3.5,
-                  elevation: 5,
-                }}
-                onPress={() => router.push(`/profile/${g.id}` as any)}
-              >
-                <View
-                  style={{
-                    width: 70,
-                    height: 70,
-                    borderRadius: "50%",
-                    backgroundColor: "gray",
-                  }}
-                ></View>
-                <AppText style={styles.txt}>{g.name}</AppText>
-                {/* {messages[g.id] && (
-                  <AppText style={{ color: theme.orange , marginTop: 0, fontSize: 18, textAlign: "center" }}>
-                    {messages[g.id]}
-                  </AppText>
-                )} */}
+          <GroupCard
+  key={g.id}
+  group={g}
+  user={user}
+  onReload={reload}
+  followGroup={followGroup}
+  unfollowGroup={unfollowGroup}
+  updateGroup={updateGroup}
+  requestJoinGroup={requestJoinGroup}
+  setGroupMessage={setGroupMessage}
+  setGlobalError={setGlobalError}
+/>
 
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-evenly",
-                    width: "100%",
-                    marginTop: 10,
-                  }}
-                >
-                  <Button1Comp
-                    style={{ width: "45%", height: 35 }}
-                    onPress={async () => {
-                      try {
-                        const result = await requestJoinGroup(
-                          user.id,
-                          user.token,
-                          g.id,
-                        );
 
-                        if (result.ok === false) {
-                          setGroupMessage(g.id, result.message);
-                          setGlobalError(result.message);
-
-                          return;
-                        }
-
-                        setGroupMessage(
-                          g.id,
-                          "Solicitação enviada com sucesso!",
-                        );
-                        setGlobalError(null);
-                      } catch (err) {
-                        const msg =
-                          err?.response?.data?.message ||
-                          err?.message ||
-                          "Não foi possível enviar a solicitação.";
-
-                        setGroupMessage(g.id, msg);
-                        setGlobalError(msg);
-                      }
-                    }}
-                  >
-                    Solicitar
-                  </Button1Comp>
-                  <Button2Comp
-                    style={{ width: "45%", height: 35 }}
-                    onPress={async () => {
-                      try {
-                        const result = await followGroup(user.token, g.id);
-
-                        if (result.ok === false) {
-                          Alert.alert("Aviso", result.message);
-                          return;
-                        }
-
-                        Alert.alert("Sucesso", "Solicitação enviada!");
-                      } catch (err: any) {
-                        console.log("Erro inesperado:", err);
-
-                        Alert.alert(
-                          "Erro",
-                          err?.response?.data?.message ||
-                            err?.message ||
-                            "Não foi possível enviar a solicitação.",
-                        );
-                      }
-                    }}
-                  >
-                    seguir
-                  </Button2Comp>
-                </View>
-              </TouchableOpacity>
             ))}
           </ScrollView>
         </SafeAreaView>
 
         <Spacer height={20} />
-        {/* <SafeAreaView style={[{height: 200, width: "100%", backgroundColor: 'red'}]}>
-        <AppText style={styles.txt}>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ex in labore asperiores vero quisquam dignissimos, ducimus ipsa quia itaque. At fuga modi consectetur cupiditate tempore architecto hic porro recusandae? Eveniet. Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis laborum minima possimus ex? Veritatis ducimus similique beatae at excepturi nesciunt illum numquam? Vel qui recusandae dolore voluptatibus minima minus dolor?</AppText>
-      </SafeAreaView> */}
+
       </ScrollView>
     </BackGroundComp>
   );
@@ -293,7 +198,6 @@ const makeStyles = (theme: any) =>
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      // padding: 16,
     },
     txt: {
       color: theme.text,

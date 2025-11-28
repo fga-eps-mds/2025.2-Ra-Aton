@@ -26,9 +26,9 @@ export function useSolicitacoes() {
   const { user } = useUser();
 
   const load = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
+    if (!user?.id) return;
 
+    setLoading(true);
     try {
       const data = await loadSolicitacoes(user.id);
       setSolicitacoes(data);
@@ -39,10 +39,16 @@ export function useSolicitacoes() {
     }
   }, [user?.id]);
 
+  useEffect(() => {
+    if (user?.id) {
+      load();
+    }
+  }, [user?.id]);
+
   useFocusEffect(
     useCallback(() => {
-      load();
-    }, [load])
+      if (user?.id) load();
+    }, [load, user?.id])
   );
 
 

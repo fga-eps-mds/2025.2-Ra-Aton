@@ -1,25 +1,22 @@
 import { AxiosError } from "axios";
 import { api_route } from "@/libs/auth/api";
 
-export async function followGroup(token: string, groupName: string){
+export async function unfollowGroup(token: string, groupName: string){
 
   try {
-    const res = await api_route.post(`follow/groups/${groupName}/follow`,
-      {
-        groupName,
-      },
+    const res = await api_route.delete(`follow/groups/${groupName}/follow`,
         { headers: { Authorization: `Bearer ${token}`} }
     );
-    console.log("Você está seguindo o grupo");
+    console.log("Você deixou de seguir o grupo");
     return res.data;
     } catch (error) {
         const e = error as AxiosError;
-        console.log("Erro ao seguir grupo:", e);
+        console.log("Erro ao deixar de seguir grupo:", e);
         if(e.response?.status === 409){
-          console.log("Voce ja segue o grupo.");
+          console.log("Voce não segue o grupo.");
           return {
             ok: false,
-            message: "Voce ja segue o grupo.",
+            message: "Voce não segue o grupo.",
           };
         }
         if (e.response?.status === 400 || e.response?.status === 404) {

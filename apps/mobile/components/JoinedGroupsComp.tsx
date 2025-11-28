@@ -43,7 +43,6 @@ export const JoinedGroupsComp = ({
                 elevation: 5,
               }}
             >
-                {/* imagem */}
               <View
                 style={{
                   width: 60,
@@ -58,9 +57,7 @@ export const JoinedGroupsComp = ({
                 <AppText style={{ fontSize: 24, color: theme.text, fontWeight: "500"}}>
                   {name}
                 </AppText>
-                {/* <AppText style={[styles.txt, { fontSize: 14, opacity: 0.7 }]}>
-                      @exemplo
-                    </AppText> */}
+
               </View>
               <View
                 style={{
@@ -70,11 +67,9 @@ export const JoinedGroupsComp = ({
                 }}
               >
                 <PrimaryButton style={{ width: "100%", height: 35 }}>
-                  ???
-                </PrimaryButton>
-                <SecondaryButton style={{ width: "100%", height: 35 }}>
                   Perfil
-                </SecondaryButton>
+                </PrimaryButton>
+
               </View>
             </View>
     )
