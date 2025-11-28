@@ -42,7 +42,7 @@ export default function CriarGrupoScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 
                     <View style={styles.header}>
                         <TouchableOpacity onPress={goBack} style={styles.backButton}>
@@ -138,10 +138,16 @@ export default function CriarGrupoScreen() {
                                     theme={theme}
                                 />
                             </View>
+                            {selectedType === 'ATHLETIC' && (
+                                <Text style={ styles.txtFormsAthletic}>
+                                    Para criar uma atlética verificada é necessário enviar documentação comprobatória ao time Aton
+                                     {"\n"}
+                                     {/* {"http://algo:porta"}  rodrigo: aqui a gente coloca o link do forms  */}  
+                                </Text>
+                            )}
                             {errors.type && <Text style={styles.errorText}>{errors.type.message}</Text>}
                         </View>
 
-                        {/* Botão de Ação */}
                         <View style={styles.buttonContainer}>
                             {isLoading ? (
                                 <ActivityIndicator size="large" color={theme.orange} />
@@ -241,4 +247,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         alignItems: 'center',
     },
+    txtFormsAthletic:{
+        fontSize:15,
+        color: '#ff4d4d',
+        fontWeight:'600',
+        marginTop:10,   
+    }
+
 });
