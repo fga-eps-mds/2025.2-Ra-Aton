@@ -8,7 +8,6 @@ import {
   CreateGroupPayload,
 } from "@/libs/group/handleCreateGroup";
 
-// Interface local para o formulário
 export interface CreateGroupFormData {
   name: string;
   description: string;
@@ -20,13 +19,12 @@ export function useCreateGroupForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Configuração do hook-form SEM resolver externo (Zod)
   const {
     control,
     handleSubmit,
     setValue,
     watch,
-    setError, // Usado para definir erros manualmente
+    setError, // Usado para definir erros visuais nos campos
     formState: { errors },
   } = useForm<CreateGroupFormData>({
     defaultValues: {
@@ -39,7 +37,7 @@ export function useCreateGroupForm() {
 
   const selectedType = watch("type");
 
-  // Função de validação manual
+  // Validação manual simples (já que removemos o Zod a seu pedido)
   const validateForm = (data: CreateGroupFormData): boolean => {
     let isValid = true;
 
@@ -51,35 +49,10 @@ export function useCreateGroupForm() {
       isValid = false;
     }
 
-    // Descrição é opcional na API, mas se preenchida, min 2 chars
-    if (
-      data.description &&
-      data.description.length > 0 &&
-      data.description.length < 2
-    ) {
-      setError("description", {
-        type: "manual",
-        message: "A descrição deve ter pelo menos 2 caracteres",
-      });
-      isValid = false;
-    }
-
-    if (!data.type) {
-      setError("type", { type: "manual", message: "Selecione um tipo" });
-      isValid = false;
-    }
-
-    // Validação do esporte (frontend requirement)
-    // if (!data.sport || data.sport.length < 2) {
-    //   setError('sport', { type: 'manual', message: 'Informe o esporte principal' });
-    //   isValid = false;
-    // }
-
     return isValid;
   };
 
   const onSubmit = async (data: CreateGroupFormData) => {
-    // 1. Executa validação manual
     if (!validateForm(data)) return;
 
     setIsLoading(true);
@@ -88,18 +61,50 @@ export function useCreateGroupForm() {
         name: data.name,
         description: data.description || undefined,
         type: data.type,
-        verificationRequest: true, // Hardcoded conforme doc (obrigatório)
+        verificationRequest: true,
         acceptingNewMembers: true,
         sports: data.sport ? [data.sport] : [],
       };
 
-      await handleCreateGroup(payload);
+      // Chama a API
+      const newGroup = await handleCreateGroup(payload);
 
-      Alert.alert("Sucesso", "Grupo criado com sucesso!", [
-        { text: "OK", onPress: () => router.back() },
+      // SUCESSO:
+      // 1. Mostra um alerta rápido (ou Toast se tivesse biblioteca)
+      Alert.alert("Sucesso!", `O grupo "${newGroup.name}" foi criado.`, [
+        {
+          text: "Ir para o Perfil",
+          onPress: () => {
+            // 2. Redireciona para a página do grupo criado
+            // Usa 'replace' para que o botão voltar não retorne ao formulário de criação
+            router.replace({
+              pathname: "/group/[id]", // O nome exato do arquivo/rota
+              params: { id: newGroup.id }, // O parâmetro dinâmico
+            });
+          },
+        },
       ]);
     } catch (error: any) {
-      Alert.alert("Erro", error.message || "Ocorreu um erro ao criar o grupo.");
+      const errorMessage = error.message || "";
+
+      // ERRO DE UX INTELIGENTE:
+      // Se o erro for sobre nome duplicado, marcamos o campo 'name' em vermelho
+      // em vez de jogar um popup na cara do usuário.
+      if (
+        errorMessage.toLowerCase().includes("nome") &&
+        errorMessage.toLowerCase().includes("uso")
+      ) {
+        setError("name", {
+          type: "manual",
+          message: "Este nome já está em uso. Por favor, escolha outro.",
+        });
+      } else {
+        // Para outros erros (rede, servidor), mostramos o Alert
+        Alert.alert(
+          "Atenção",
+          errorMessage || "Ocorreu um erro ao criar o grupo. Tente novamente.",
+        );
+      }
     } finally {
       setIsLoading(false);
     }
