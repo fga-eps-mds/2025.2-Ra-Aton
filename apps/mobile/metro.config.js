@@ -6,16 +6,35 @@ const workspaceRoot = path.resolve(projectRoot, '..', '..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Add workspace root to watchFolders so metro can resolve packages in the monorepo
-config.watchFolders = config.watchFolders || [];
-if (!config.watchFolders.includes(workspaceRoot)) {
-  config.watchFolders.push(workspaceRoot);
-}
+// 1. Configuração do Monorepo
+// Adiciona a raiz do workspace para o Metro vigiar
+config.watchFolders = [workspaceRoot];
 
-// Provide resolver extraNodeModules so imports from '@' resolve to ./app
-config.resolver = config.resolver || {};
+// Adiciona os caminhos dos node_modules (importante para pnpm)
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+
+
+// 2. Configuração do SVG e Alias
+const { transformer, resolver } = config;
+
+// Transformer: ok substituir o objeto
+config.transformer = {
+  ...transformer,
+  babelTransformerPath: require.resolve("react-native-svg-transformer"),
+};
+
+// Resolver: AQUI ESTAVA O ERRO. 
+// Não substitua o objeto config.resolver inteiro. Modifique as listas dentro dele.
+
+config.resolver.assetExts = resolver.assetExts.filter((ext) => ext !== "svg");
+config.resolver.sourceExts = [...resolver.sourceExts, "svg"];
+
+// Configuração do Alias (@)
 config.resolver.extraNodeModules = {
-  ...(config.resolver.extraNodeModules || {}),
+  ...config.resolver.extraNodeModules,
   '@': path.resolve(projectRoot, '.'),
 };
 
