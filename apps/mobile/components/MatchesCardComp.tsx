@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Imatches } from "@/libs/interfaces/Imatches"; // Mudei o caminho para mockar, mantenha o seu
 import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
+import Spacer from "@/components/SpacerComp";
 import VsIconSvg from "@/assets/img/vs-icon.svg"
 
 interface CardMatchesProps {
@@ -45,10 +46,17 @@ export const MatchesCard: React.FC<CardMatchesProps> = ({
 
             </View>
             <View style={styles.MidCardBox}>
+                    <Spacer height={20}></Spacer>
                 <View style={styles.TeamNames}>
-                    <Text style={styles.txtNameTeam}>{match?.teamNameA ?? "Time A"}</Text>
+                    <View style = {styles.NameResult}>
+                        <Text style={styles.txtNameTeam}>{match?.teamNameA ?? "Time A"}</Text>
+                        <Text style={styles.txtNameTeam}>{match.teamAScore}</Text>
+                    </View>
                     <VsIconSvg height={25} width={20}/>
-                    <Text style={styles.txtNameTeam}>{match?.teamNameB ?? "Time B"}</Text>
+                    <View style = {styles.NameResult}>
+                        <Text style={styles.txtNameTeam}>{match?.teamNameB ?? "Time B"}</Text>
+                        <Text style={styles.txtNameTeam}>{match.teamBScore}</Text>
+                    </View>
                 </View>
             </View>
             <View style={styles.BoxConfirm}>
@@ -80,6 +88,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         backgroundColor: Colors.cardGames.header,
         paddingHorizontal: 10, 
+    },
+    NameResult: {
+        // backgroundColor: 'red',
     },
     headerSideItem: {
         minWidth: 40, 
@@ -124,11 +135,13 @@ const styles = StyleSheet.create({
 
     },
     TeamNames:{
-        height:45,
+        height:40,
         width:230,
         alignItems:'center',
         justifyContent:'space-around',
         flexDirection:'row',
+                // backgroundColor: 'purple',
+
     },
     txtNameTeam:{
         color: 'white',
