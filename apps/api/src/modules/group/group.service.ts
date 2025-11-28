@@ -5,15 +5,29 @@ import followRepository from "../follow/follow.repository";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 
+
 export type GroupWithDetails = Group & {
-  isFollowing: boolean;
+  isFollowing?: boolean;
+  isMember: boolean;
 };
 
 class GroupService {
-  getAllGroups = async (): Promise<Group[]> => {
+  getAllGroups = async (userId?: string): Promise<GroupWithDetails[]> => {
     const groups = await GroupRepository.findAll();
+    
+    let userGroupIds: string[] = [];
+
+    if (userId) {
+      const memberships = await GroupMembershipRepository.findMemberByUserId(userId);
+      userGroupIds = memberships.map((m) => m.groupId);
+    }
+
     return groups.map((group: Group) => {
-      return group;
+      return {
+        ...group,
+        isMember: userGroupIds.includes(group.id),
+        isFollowing: false 
+      };
     });
   };
 
@@ -31,12 +45,17 @@ class GroupService {
     }
 
     let isFollowing = false;
+    let isMember = false;
+
     if (userId) {
       const follow = await followRepository.findFollow(userId, groupFound.id);
       isFollowing = !!follow;
+
+      const member = await GroupMembershipRepository.findMemberByUserIdAndGroupId(userId, groupFound.id);
+      isMember = !!member;
     }
 
-    return { ...groupFound, isFollowing };
+    return { ...groupFound, isFollowing, isMember };
   };
 
   createGroup = async (data: any, author: any): Promise<Group> => {
