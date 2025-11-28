@@ -42,7 +42,7 @@ const REPORT_REASONS = [
 interface ReportReasonModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSubmit: (reason: string) => void;
+  onSubmit?: (reason: string) => void;
 }
 
 const ReportReasonModal: React.FC<ReportReasonModalProps> = ({
@@ -59,7 +59,7 @@ const ReportReasonModal: React.FC<ReportReasonModalProps> = ({
       return visible
         ? React.createElement(React.Fragment, null, children)
         : null;
-    };
+    };  
 
   return (
     <ModalComponent

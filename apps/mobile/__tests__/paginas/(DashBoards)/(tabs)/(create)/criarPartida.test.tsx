@@ -1,4 +1,4 @@
-import { prepareMatchPayload, PartidaFormData } from "@/__tests__/paginas/(tabs)/(create)/criarPartida.helpes";
+import { prepareMatchPayload, PartidaFormData } from "@/__tests__/paginas/(DashBoards)/(tabs)/(create)/criarPartida.helpes";
 
 describe("prepareMatchPayload (Lógica de criação de Partida)", () => {
 
