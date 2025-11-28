@@ -17,6 +17,10 @@ class NotificationService {
         return notificationRepository.findByUserId(userId);
     }
 
+    async getUnreadCount(userId: string) {
+        return notificationRepository.countUnread(userId);
+    }
+
     async markAsRead(notificationId: string) {
         return notificationRepository.markAsRead(notificationId);
     }
