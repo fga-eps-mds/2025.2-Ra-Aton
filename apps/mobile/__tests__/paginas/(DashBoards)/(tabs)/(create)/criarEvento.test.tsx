@@ -1,7 +1,7 @@
-import { prepareEventPayload, EventoFormData } from "@/__tests__/paginas/(tabs)/(create)/criarEvento.helpes";
+import { prepareEventPayload, EventoFormData } from "@/__tests__/paginas/(DashBoards)/(tabs)/(create)/criarEvento.helpes";
 
 describe("prepareEventPayload (Lógica de criação de evento)", () => {
-  
+
   it("deve preparar o payload do evento corretamente com dados válidos", () => {
     const inputData: EventoFormData = {
       titulo: " Campeonato de Futsal ", // Com espaços para testar o trim()
@@ -53,13 +53,13 @@ describe("prepareEventPayload (Lógica de criação de evento)", () => {
 
   it("retorna null se a data for obrigatória e estiver ausente", () => {
     const inputData = {
-        titulo: "Festa", 
-        descricao: "Teste",
-        data: "", // Data vazia
-        local: "Casa",
-      };
-  
-      const resultado = prepareEventPayload(inputData);
-      expect(resultado).toBeNull();
+      titulo: "Festa",
+      descricao: "Teste",
+      data: "", // Data vazia
+      local: "Casa",
+    };
+
+    const resultado = prepareEventPayload(inputData);
+    expect(resultado).toBeNull();
   });
 });
