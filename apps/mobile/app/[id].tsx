@@ -9,6 +9,7 @@ import BackGroundComp from '@/components/BackGroundComp';
 
 export default function GroupProfileScreen() {
     const { id } = useLocalSearchParams(); // Pega o ID da URL
+    console.log(">>> TELA DE PERFIL MONTADA! ID:", id);
     const router = useRouter();
     const { isDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;

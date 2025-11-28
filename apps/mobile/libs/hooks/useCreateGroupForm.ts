@@ -24,7 +24,7 @@ export function useCreateGroupForm() {
     handleSubmit,
     setValue,
     watch,
-    setError, // Usado para definir erros visuais nos campos
+    setError, 
     formState: { errors },
   } = useForm<CreateGroupFormData>({
     defaultValues: {
@@ -37,10 +37,8 @@ export function useCreateGroupForm() {
 
   const selectedType = watch("type");
 
-  // Validação manual simples (já que removemos o Zod a seu pedido)
   const validateForm = (data: CreateGroupFormData): boolean => {
     let isValid = true;
-
     if (!data.name || data.name.length < 2) {
       setError("name", {
         type: "manual",
@@ -48,7 +46,6 @@ export function useCreateGroupForm() {
       });
       isValid = false;
     }
-
     return isValid;
   };
 
@@ -66,30 +63,31 @@ export function useCreateGroupForm() {
         sports: data.sport ? [data.sport] : [],
       };
 
-      // Chama a API
+      // 1. Chama a API
       const newGroup = await handleCreateGroup(payload);
+      
+      // 2. SUCESSO!
+      // Não usamos Alert com callback aqui para evitar problemas de contexto.
+      // Navegamos IMEDIATAMENTE.
+      
+      console.log("Redirecionando para:", `/group/${newGroup.id}`);
+      
+      // Pequeno delay para garantir que o estado de loading não interfira na transição
+      setTimeout(() => {
+          // Usa 'replace' para não voltar ao formulário
+          router.replace({
+            pathname: "/group/[id]",
+            params: { id: newGroup.id },
+          });
+          
+          // (Opcional) Mostra um alerta DEPOIS de iniciar a navegação, 
+          // ou deixa para a próxima tela mostrar um Toast.
+          Alert.alert("Sucesso", `Grupo "${newGroup.name}" criado!`);
+      }, 100);
 
-      // SUCESSO:
-      // 1. Mostra um alerta rápido (ou Toast se tivesse biblioteca)
-      Alert.alert("Sucesso!", `O grupo "${newGroup.name}" foi criado.`, [
-        {
-          text: "Ir para o Perfil",
-          onPress: () => {
-            // 2. Redireciona para a página do grupo criado
-            // Usa 'replace' para que o botão voltar não retorne ao formulário de criação
-            router.replace({
-              pathname: "/group/[id]", // O nome exato do arquivo/rota
-              params: { id: newGroup.id }, // O parâmetro dinâmico
-            });
-          },
-        },
-      ]);
     } catch (error: any) {
       const errorMessage = error.message || "";
 
-      // ERRO DE UX INTELIGENTE:
-      // Se o erro for sobre nome duplicado, marcamos o campo 'name' em vermelho
-      // em vez de jogar um popup na cara do usuário.
       if (
         errorMessage.toLowerCase().includes("nome") &&
         errorMessage.toLowerCase().includes("uso")
@@ -99,7 +97,6 @@ export function useCreateGroupForm() {
           message: "Este nome já está em uso. Por favor, escolha outro.",
         });
       } else {
-        // Para outros erros (rede, servidor), mostramos o Alert
         Alert.alert(
           "Atenção",
           errorMessage || "Ocorreu um erro ao criar o grupo. Tente novamente.",

@@ -1,4 +1,4 @@
-// app/_layout.tsx
+//ARQUIVO: apps/mobile/app/_layout.tsx
 import { ThemeProvider } from "@/constants/Theme";
 import { Stack } from "expo-router";
 import { Fonts } from "@/constants/Fonts";
@@ -39,14 +39,14 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="(Auth)" />
             <Stack.Screen name="(DashBoard)" />
-            
+
             {/* Rota de Perfil de Grupo (na raiz) */}
-            <Stack.Screen 
-              name="group/[id]" 
-              options={{ 
+            <Stack.Screen
+              name="app/[id]"
+              options={{
                 headerShown: false, // Se quiser sem header padrão
                 presentation: 'card', // Animação padrão de push
-              }} 
+              }}
             />
           </Stack>
         </UserProvider>

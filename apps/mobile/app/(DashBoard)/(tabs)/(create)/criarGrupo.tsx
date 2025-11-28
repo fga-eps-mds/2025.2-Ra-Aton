@@ -18,6 +18,7 @@ import { Colors } from '@/constants/Colors';
 import BackGroundComp from '@/components/BackGroundComp';
 import PrimaryButton from '@/components/PrimaryButton';
 import InputComp from '@/components/InputComp';
+import { useRouter } from 'expo-router';
 
 // Importamos apenas o nosso hook customizado (agora sem Zod)
 import { useCreateGroupForm } from '@/libs/hooks/useCreateGroupForm';
@@ -25,6 +26,7 @@ import { useCreateGroupForm } from '@/libs/hooks/useCreateGroupForm';
 export default function CriarGrupoScreen() {
     const { isDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;
+    const router = useRouter();
 
     const {
         control,
@@ -37,7 +39,18 @@ export default function CriarGrupoScreen() {
     } = useCreateGroupForm();
 
     return (
+        //console.log(">>> TELA DE CRIAR GRUPO MONTADA!"),
         <BackGroundComp>
+            {/* BOTÃO DE TESTE DE NAVEGAÇÃO */}
+            <TouchableOpacity
+                style={{ backgroundColor: 'red', padding: 20, marginBottom: 20 }}
+                onPress={() => {
+                    console.log("Botão de teste clicado");
+                    router.push({ pathname: "/group/[id]", params: { id: "teste-123" } });
+                }}
+            >
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>TESTAR REDIRECIONAMENTO AGORA</Text>
+            </TouchableOpacity>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
@@ -139,10 +152,10 @@ export default function CriarGrupoScreen() {
                                 />
                             </View>
                             {selectedType === 'ATHLETIC' && (
-                                <Text style={ styles.txtFormsAthletic}>
+                                <Text style={styles.txtFormsAthletic}>
                                     Para criar uma atlética verificada é necessário enviar documentação comprobatória ao time Aton
-                                     {"\n"}
-                                     {/* {"http://algo:porta"}  rodrigo: aqui a gente coloca o link do forms  */}  
+                                    {"\n"}
+                                    {/* {"http://algo:porta"}  rodrigo: aqui a gente coloca o link do forms  */}
                                 </Text>
                             )}
                             {errors.type && <Text style={styles.errorText}>{errors.type.message}</Text>}
@@ -247,11 +260,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         alignItems: 'center',
     },
-    txtFormsAthletic:{
-        fontSize:15,
+    txtFormsAthletic: {
+        fontSize: 15,
         color: '#ff4d4d',
-        fontWeight:'600',
-        marginTop:10,   
+        fontWeight: '600',
+        marginTop: 10,
     }
 
 });
