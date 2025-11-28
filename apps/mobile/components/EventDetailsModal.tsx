@@ -11,12 +11,14 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../constants/Theme";
 import { Colors } from "../constants/Colors";
-import { IPost } from "../src/interfaces/Ipost";
+import { IPost } from "@/libs/interfaces/Ipost";
+import { Imatches } from "@/libs/interfaces/Imatches";
 
 type EventDetailsModalProps = {
   visible: boolean;
   onClose: () => void;
-  post: IPost | null; // O post cujos detalhes serão exibidos
+  post?: IPost | null; 
+  matches?: Imatches | null
 };
 
 export function EventDetailsModal({
@@ -28,11 +30,10 @@ export function EventDetailsModal({
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
   if (!post) {
-    return null; // Não renderiza nada se nenhum post estiver selecionado
+    return null; 
   }
 
-  // Formatar dados do evento (AC6)
-  const eventDate = post.event?.date ? new Date(post.event.date) : null;
+  const eventDate = post.eventDate ? new Date(post.eventDate) : null;
   const formattedDate = eventDate
     ? eventDate.toLocaleDateString("pt-BR", {
         weekday: "long",
@@ -49,25 +50,22 @@ export function EventDetailsModal({
 
   return (
     <Modal
-      animationType="slide" // Desliza de baixo para cima
-      transparent={true} // Fundo transparente
+      animationType="slide" 
+      transparent={true} 
       visible={visible}
-      onRequestClose={onClose} // Permite fechar com o botão "voltar" do Android
+      onRequestClose={onClose} 
     >
-      {/* 1. Backdrop (fundo escuro clicável para fechar) */}
       <Pressable
         style={styles.backdrop}
-        onPress={onClose} // Fecha ao clicar fora
+        onPress={onClose}
       />
 
-      {/* 2. Conteúdo do Modal */}
+      
       <View
         style={[styles.modalContent, { backgroundColor: theme.background }]}
       >
-        {/* "Puxador" (Handle) */}
         <View style={[styles.handle, { backgroundColor: theme.gray }]} />
 
-        {/* Cabeçalho */}
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.text }]}>
             Detalhes do Evento
@@ -77,7 +75,6 @@ export function EventDetailsModal({
           </TouchableOpacity>
         </View>
 
-        {/* Corpo com Detalhes */}
         <View style={styles.body}>
           <Text style={[styles.postText, { color: theme.text }]}>
             {post.content}
@@ -100,7 +97,7 @@ export function EventDetailsModal({
             <View>
               <Text style={[styles.infoLabel, { color: theme.text }]}>
                 Horário
-              </Text>
+              </Text>''
               <Text style={[styles.infoValue, { color: theme.text }]}>
                 {formattedTime}
               </Text>
@@ -114,7 +111,7 @@ export function EventDetailsModal({
                 Local
               </Text>
               <Text style={[styles.infoValue, { color: theme.text }]}>
-                {post.event?.location}
+                {post.location}
               </Text>
             </View>
           </View>
@@ -127,7 +124,7 @@ export function EventDetailsModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo escurecido
+    backgroundColor: "rgba(0, 0, 0, 0.5)", 
   },
   modalContent: {
     position: "absolute",
