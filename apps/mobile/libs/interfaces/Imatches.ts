@@ -6,7 +6,7 @@ export type Imatches = {
     description: string,
     authorId: string,
     matchDate: string,
-    matchStatus: string,
+    MatchStatus: string,
     location: string,
     maxPlayers: number,
     teamNameA: string,
@@ -26,7 +26,7 @@ export type Imatches = {
             id:string,
             name:string,
             userName:string,
-        }
+        }[]
     },
     teamB:{
         name:string,
@@ -37,6 +37,6 @@ export type Imatches = {
             id:string,
             name:string,
             userName:string,
-        }
+        }[]
     }
 };
