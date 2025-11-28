@@ -64,6 +64,13 @@ enum MatchStatus {
   EM_ANDAMENTO
   FINALIZADO
 }
+enum NotificationType {
+  GROUP_JOIN_REQUEST
+  GROUP_JOIN_APPROVED
+  GROUP_JOIN_REJECTED
+  MATCH_REMINDER
+  SYSTEM
+}
 
 // Models
 model User {
@@ -87,6 +94,7 @@ model User {
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
   followedGroups GroupFollow[]
+  notifications Notification[]
 }
 
 model Post {
@@ -252,6 +260,7 @@ model Match {
   updatedAt   DateTime             @updatedAt
   MatchDate   DateTime
   MatchStatus MatchStatus
+  reminderSent Boolean @default(false)
   location    String
   sport       String
 }
@@ -280,4 +289,20 @@ model GroupFollow {
   createdAt DateTime @default(now())
 
   @@unique([userId, groupId])
+}
+
+model Notification {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title String
+  content String
+  type NotificationType
+
+  resourceId String?
+  resourceType String? // "GROUP", "MATCH"
+
+  readAt DateTime?
+  createdAt DateTime @default(now())
 }
