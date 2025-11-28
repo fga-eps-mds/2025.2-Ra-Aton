@@ -19,13 +19,15 @@ import { Colors } from "../../../constants/Colors";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { CreateGroupComp } from "@/components/CreateGroupComp";
-import { useSolicitacoes } from "@/libs/hooks/getSolicitacoes";
 import { useUser } from "@/libs/storage/UserContext";
+import { useSolicitacoes } from "@/libs/hooks/getSolicitacoes";
+import { cancelarSolicitacao} from "@/libs/solicitacoes/cancelarSolicitacao";
+import { aceitarSolicitacao } from "@/libs/solicitacoes/aceitarSolicitacao";
+import { rejeitarSolicitacao } from "@/libs/solicitacoes/rejeitarSolicitacao";
 
 import SecondaryButton from "../../../components/SecondaryButton";
 import PrimaryButton from "../../../components/PrimaryButton";
 import { SolicitacoesComp } from "@/components/SolicitacoesComp";
-
 
 
 const Solicitacoes = () => {
@@ -39,6 +41,7 @@ const Solicitacoes = () => {
         solicitacoes,
         loading,
         error,
+        refetch,
       } = useSolicitacoes();
 
     const enviadas = solicitacoes.filter(s => s.madeBy === "USER")
@@ -47,6 +50,11 @@ const Solicitacoes = () => {
 
     const enviadasPendentes = enviadas.filter(s => s.status === "PENDING");
     const enviadasRespondidas = enviadas.filter(
+    s => s.status === "APPROVED" || s.status === "REJECTED"
+    );
+
+    const recebidasPendentes = recebidas.filter(s => s.status === "PENDING");
+    const recebidasRespondidas = recebidas.filter(
     s => s.status === "APPROVED" || s.status === "REJECTED"
     );
 
@@ -116,6 +124,9 @@ const Solicitacoes = () => {
                                             key={s.id}
                                             name={s.group.name}
                                             status={s.status}
+                                            onPrimaryPress={async () => {await cancelarSolicitacao(s.id);
+                                                                        refetch();
+                                            }}
                                         />
                                     ))
                                 )}
@@ -184,17 +195,62 @@ const Solicitacoes = () => {
                                 }}
                                 keyboardShouldPersistTaps="handled"
                             >
-                                {recebidas.length === 0 ? (
+                                {recebidasPendentes.length === 0 ? (
                                     <AppText style={styles.txt}>
                                         Nenhum convite recebido.
                                     </AppText>
                                 ) : (
-                                    recebidas.map(s => (
+                                    recebidasPendentes.map(s => (
                                         <SolicitacoesComp
                                             key={s.id}
                                             name={s.group.name}
                                             status={s.status}
                                             autor={s.madeBy}
+                                            onPrimaryPress={async () => {
+                                                await aceitarSolicitacao(s.id);
+                                                refetch();
+                                            }}
+                                            onSecondaryPress={async () => {
+                                                await rejeitarSolicitacao(s.id);
+                                                refetch();
+                                            }}
+                                        />
+                                    ))
+                                )}
+                            </ScrollView>
+                        </SafeAreaView>
+
+                        <Spacer height={30} />
+
+                        {/* Respondidas */}
+                        <SafeAreaView style={{ width: "100%", height: "90%" }}>
+                            <AppText
+                                style={[
+                                    { alignSelf: "center", marginBottom: 10 },
+                                    styles.txt,
+                                ]}
+                            >
+                                Solicitações Aceitas/Rejeitadas
+                            </AppText>
+
+                            <ScrollView
+                                contentContainerStyle={{
+                                    width: "100%",
+                                    alignItems: "center",
+                                    paddingHorizontal: 20,
+                                }}
+                                keyboardShouldPersistTaps="handled"
+                            >
+                                {recebidasRespondidas.length === 0 ? (
+                                    <AppText style={styles.txt}>
+                                        Nenhuma solicitação respondida.
+                                    </AppText>
+                                ) : (
+                                    recebidasRespondidas.map(s => (
+                                        <SolicitacoesComp
+                                            key={s.id}
+                                            name={s.group.name}
+                                            status={s.status}
                                         />
                                     ))
                                 )}

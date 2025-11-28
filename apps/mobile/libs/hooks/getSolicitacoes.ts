@@ -25,28 +25,33 @@ export function useSolicitacoes() {
   const [error, setError] = useState<Error | null>(null);
   const { user } = useUser();
 
-useFocusEffect(
-  useCallback(() => {
+  const load = useCallback(async () => {
     if (!user) return;
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await loadSolicitacoes(user.id);
-        setSolicitacoes(data);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+
+    try {
+      const data = await loadSolicitacoes(user.id);
+      setSolicitacoes(data);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, [user?.id])
-);
+  }, [user?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
+
 
 
   return {
     solicitacoes,
     loading,
     error,
+    refetch: load,  
+    setSolicitacoes,
   };
 }

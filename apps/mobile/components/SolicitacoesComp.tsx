@@ -86,7 +86,7 @@ export const SolicitacoesComp = ({
                 }}
             >
                 {type1 == "Cancelar" || type1 == "Aceitar" ? (
-                <PrimaryButton style={{ width: "100%", height: 35 }}>
+                <PrimaryButton style={{ width: "100%", height: 35 }} onPress={onPrimaryPress}>
                     {type1}
                 </PrimaryButton>
                 ) : (
@@ -95,7 +95,7 @@ export const SolicitacoesComp = ({
                 </SecondaryButton>
                 )}
                 {type2 !== "" && (
-                    <PrimaryButton style={{ width: "100%", height: 35 }}>
+                    <PrimaryButton style={{ width: "100%", height: 35 }} onPress={onSecondaryPress}>
                         {type2}
                     </PrimaryButton>
                 )}
