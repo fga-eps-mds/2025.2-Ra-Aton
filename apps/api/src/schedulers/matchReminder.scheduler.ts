@@ -31,7 +31,7 @@ export const sendMatchReminders = async () => {
       const notificationsData = match.players.map((subscription) => ({
         userId: subscription.userId,
         type: NotificationType.MATCH_REMINDER,
-        title: 'Sua partida está chegando! ⚽',
+        title: 'Sua partida está chegando!',
         content: `A partida ${match.title} começa em menos de 1 hora.`,
         resourceId: match.id,
         resourceType: 'MATCH'

@@ -137,7 +137,7 @@ class GroupJoinRequestService {
       await notificationService.send(
         updatedInvite.userId,
         NotificationType.GROUP_JOIN_APPROVED,
-        "Entrada Aprovada! 🎉",
+        "Entrada Aprovada!",
         `Sua solicitação para entrar no grupo ${groupName} foi aprovada.`,
         updatedInvite.groupId,
         "GROUP",
@@ -149,7 +149,7 @@ class GroupJoinRequestService {
       await notificationService.send(
         updatedInvite.userId,
         NotificationType.GROUP_JOIN_REJECTED,
-        "Entrada Rejeitada ❌",
+        "Entrada Rejeitada",
         `Sua solicitação para entrar no grupo ${groupName} foi rejeitada.`,
         updatedInvite.groupId,
         "GROUP",
