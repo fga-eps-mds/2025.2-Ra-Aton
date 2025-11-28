@@ -273,11 +273,13 @@ describe("groupJoinRequestRepository", () => {
           },
         },
         include: {
-          user: {
-            select: { id: true, userName: true, email: true },
-          },
-          group: true,
+        user: {
+          select: { id: true, userName: true, email: true },
         },
+        group: {
+          select: { id: true, name: true },
+        },
+      },
       });
     });
   });

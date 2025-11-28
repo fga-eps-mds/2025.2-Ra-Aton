@@ -81,6 +81,15 @@ export function CustomDrawerContent(props: any) {
       />
 
       <DrawerItem
+        label="Solicitações"
+        labelStyle={{ color: theme.text, fontSize: 16 }}
+        icon={({ color, size }) => (
+          <Ionicons name="notifications-outline" size={size} color={theme.orange} />
+        )}
+        onPress={() => navigateTo("Solicitacoes")}
+      />
+
+      <DrawerItem
         label="Configurações"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
