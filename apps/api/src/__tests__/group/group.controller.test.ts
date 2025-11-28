@@ -60,10 +60,10 @@ describe("CommentController", () => {
       expect(res.json).toHaveBeenCalledWith(groups);
     });
 
-    it("should return a group by name", async () => {
-      const group = { id: "1", name: "Group 1" };
+    it("should return a group by name including isFollowing status", async () => {
+      const groupWithDetails = { id: "1", name: "Group 1", isFollowing: false };
 
-      (GroupService.getGroupByName as jest.Mock).mockResolvedValue(group);
+      (GroupService.getGroupByName as jest.Mock).mockResolvedValue(groupWithDetails);
 
       req = {
         params: { name: "Group 1" },
@@ -71,9 +71,25 @@ describe("CommentController", () => {
 
       await GroupController.getGroupByName(req as Request, res as Response);
 
-      expect(GroupService.getGroupByName).toHaveBeenCalledWith("Group 1");
+      expect(GroupService.getGroupByName).toHaveBeenCalledWith("Group 1", undefined);
       expect(res.status).toHaveBeenCalledWith(HttpStatus.FOUND);
-      expect(res.json).toHaveBeenCalledWith(group);
+      expect(res.json).toHaveBeenCalledWith(groupWithDetails);
+    });
+
+    it("should pass userId to service when user is authenticated", async () => {
+      const groupWithDetails = { id: "1", name: "Group 1", isFollowing: true };
+      (GroupService.getGroupByName as jest.Mock).mockResolvedValue(groupWithDetails);
+
+      req = {
+        params: { name: "Group 1" },
+        user: { id: "user-123" }
+      } as any;
+
+      await GroupController.getGroupByName(req as Request, res as Response);
+
+      expect(GroupService.getGroupByName).toHaveBeenCalledWith("Group 1", "user-123");
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.FOUND);
+      expect(res.json).toHaveBeenCalledWith(groupWithDetails);
     });
 
     it("should return 404 if group name is not provided", async () => {
