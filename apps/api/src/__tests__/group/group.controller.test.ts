@@ -2,13 +2,15 @@ import type { Request, Response } from "express";
 import HttpStatus from "http-status";
 import { userService } from "../../modules/user/user.service";
 import GroupService from "../../modules/group/group.service";
-import { ApiError } from "../../utils/ApiError";
 import GroupController from "../../modules/group/group.controller";
+import jwt from "jsonwebtoken";
 
+// Mocks
 jest.mock("../../modules/group/group.service");
 jest.mock("../../modules/user/user.service");
+jest.mock("jsonwebtoken");
 
-describe("CommentController", () => {
+describe("GroupController", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
   let statusMock: jest.Mock;
@@ -34,7 +36,9 @@ describe("CommentController", () => {
 
       (GroupService.getAllGroups as jest.Mock).mockResolvedValue(groups);
 
-      req = {};
+      req = {
+        headers: {},
+      } as Partial<Request>;
 
       await GroupController.listGroups(req as Request, res as Response);
 
@@ -51,7 +55,9 @@ describe("CommentController", () => {
 
       (GroupService.getAllOpenGroups as jest.Mock).mockResolvedValue(groups);
 
-      req = {};
+      req = {
+        headers: {},
+      } as Partial<Request>;
 
       await GroupController.listOpenGroups(req as Request, res as Response);
 
@@ -67,7 +73,8 @@ describe("CommentController", () => {
 
       req = {
         params: { name: "Group 1" },
-      };
+        headers: {},
+      } as Partial<Request>;
 
       await GroupController.getGroupByName(req as Request, res as Response);
 
@@ -76,14 +83,22 @@ describe("CommentController", () => {
       expect(res.json).toHaveBeenCalledWith(groupWithDetails);
     });
 
-    it("should pass userId to service when user is authenticated", async () => {
+    it("should pass userId to service when user is authenticated via Token", async () => {
       const groupWithDetails = { id: "1", name: "Group 1", isFollowing: true };
+      
+      // Configura o mock do Service
       (GroupService.getGroupByName as jest.Mock).mockResolvedValue(groupWithDetails);
+      
+
+      (jwt.verify as jest.Mock).mockReturnValue({ id: "user-123" });
+
 
       req = {
         params: { name: "Group 1" },
-        user: { id: "user-123" }
-      } as any;
+        headers: {
+          authorization: "Bearer valid_token_mock",
+        },
+      } as Partial<Request>;
 
       await GroupController.getGroupByName(req as Request, res as Response);
 
@@ -95,7 +110,8 @@ describe("CommentController", () => {
     it("should return 404 if group name is not provided", async () => {
       req = {
         params: {},
-      };
+        headers: {},
+      } as Partial<Request>;
 
       await GroupController.getGroupByName(req as Request, res as Response);
 
@@ -116,7 +132,8 @@ describe("CommentController", () => {
       req = {
         user: authUser,
         body: newGroupData,
-      } as Partial<Request>;
+        headers: {},
+      } as any;
 
       (userService.getUserById as jest.Mock).mockResolvedValue(author);
       (GroupService.createGroup as jest.Mock).mockResolvedValue(createdGroup);
@@ -134,7 +151,8 @@ describe("CommentController", () => {
 
     it("should return 401 if user is not authorized", async () => {
       req = {
-        user: null,
+        user: undefined,
+        headers: {},
       } as Partial<Request>;
 
       await GroupController.createGroup(req as Request, res as Response);
@@ -151,7 +169,8 @@ describe("CommentController", () => {
       req = {
         user: authUser,
         body: { name: "New Group" },
-      } as Partial<Request>;
+        headers: {},
+      } as any;
 
       (userService.getUserById as jest.Mock).mockResolvedValue(null);
 
@@ -176,7 +195,8 @@ describe("CommentController", () => {
         user: authUser,
         params: { name: groupName },
         body: updateData,
-      } as Partial<Request>;
+        headers: {},
+      } as any;
 
       (GroupService.updateGroup as jest.Mock).mockResolvedValue(updatedGroup);
 
@@ -193,9 +213,10 @@ describe("CommentController", () => {
 
     it("should return 401 if user is not authorized", async () => {
       req = {
-        user: null,
+        user: undefined,
         params: { name: "Existing Group" },
         body: { name: "Updated Group" },
+        headers: {},
       } as Partial<Request>;
 
       await GroupController.updateGroup(req as Request, res as Response);
@@ -213,7 +234,8 @@ describe("CommentController", () => {
         user: authUser,
         params: {},
         body: { name: "Updated Group" },
-      } as Partial<Request>;
+        headers: {},
+      } as any;
 
       await GroupController.updateGroup(req as Request, res as Response);
 
@@ -232,7 +254,8 @@ describe("CommentController", () => {
       req = {
         user: authUser,
         params: { name: groupName },
-      } as Partial<Request>;
+        headers: {},
+      } as any;
 
       await GroupController.deleteGroup(req as Request, res as Response);
 
@@ -243,8 +266,9 @@ describe("CommentController", () => {
 
     it("should return 401 if user is not authorized", async () => {
       req = {
-        user: null,
+        user: undefined,
         params: { name: "Existing Group" },
+        headers: {},
       } as Partial<Request>;
 
       await GroupController.deleteGroup(req as Request, res as Response);
@@ -261,7 +285,8 @@ describe("CommentController", () => {
       req = {
         user: authUser,
         params: {},
-      } as Partial<Request>;
+        headers: {},
+      } as any;
 
       await GroupController.deleteGroup(req as Request, res as Response);
 
