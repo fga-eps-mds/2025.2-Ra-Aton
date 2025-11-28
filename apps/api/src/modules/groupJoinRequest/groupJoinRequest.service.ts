@@ -1,8 +1,11 @@
-import { GroupJoinRequest, MadeBy } from "@prisma/client";
+import { GroupJoinRequest, MadeBy, NotificationType } from "@prisma/client";
 import GroupJoinRequestRepository from "./groupJoinRequest.repository";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 import GroupMembershipRepository from "../groupMembership/groupMembership.repository";
+import GroupRepository from "../group/group.repository";
+import notificationService from "../notification/notification.service";
+import { userService } from "../user/user.service";
 
 export function parseMadeBy(value?: string): MadeBy | undefined {
   if (Object.values(MadeBy).includes(value as MadeBy)) {
@@ -84,6 +87,23 @@ class GroupJoinRequestService {
       userId,
       groupId,
     );
+
+    if (newInvite.madeBy === MadeBy.USER) {
+      const group = await GroupRepository.findGroupById(groupId);
+      const user = await userService.getUserById(userId);
+      const admins = await GroupMembershipRepository.findAdminsByGroupId(groupId);
+
+      for (const admin of admins) {
+        await notificationService.send(
+          admin.userId,
+          NotificationType.GROUP_JOIN_REQUEST,
+          "Solicitação de Entrada",
+          `${user.userName} solicitou para entrar no grupo ${group?.name}.`,
+          groupId,
+          "GROUP",
+        );
+      }
+    }
     return newInvite;
   };
 
@@ -92,6 +112,9 @@ class GroupJoinRequestService {
       data,
       id,
     );
+
+    const group = await GroupRepository.findGroupById(updatedInvite.groupId);
+    const groupName = group?.name || "grupo";
 
     if (data.status == "APPROVED") {
       await GroupMembershipRepository.createMembership(
@@ -109,6 +132,27 @@ class GroupJoinRequestService {
         },
         updatedInvite.userId,
         updatedInvite.groupId,
+      );
+
+      await notificationService.send(
+        updatedInvite.userId,
+        NotificationType.GROUP_JOIN_APPROVED,
+        "Entrada Aprovada! 🎉",
+        `Sua solicitação para entrar no grupo ${groupName} foi aprovada.`,
+        updatedInvite.groupId,
+        "GROUP",
+      );
+    }
+
+
+    if (data.status == "REJECTED") {
+      await notificationService.send(
+        updatedInvite.userId,
+        NotificationType.GROUP_JOIN_REJECTED,
+        "Entrada Rejeitada ❌",
+        `Sua solicitação para entrar no grupo ${groupName} foi rejeitada.`,
+        updatedInvite.groupId,
+        "GROUP",
       );
     }
     return updatedInvite;
