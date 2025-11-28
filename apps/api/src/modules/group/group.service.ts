@@ -16,17 +16,21 @@ class GroupService {
     const groups = await GroupRepository.findAll();
     
     let userGroupIds: string[] = [];
+    let userFollowingIds: string[] = [];
 
     if (userId) {
       const memberships = await GroupMembershipRepository.findMemberByUserId(userId);
       userGroupIds = memberships.map((m) => m.groupId);
+
+    const followed = await followRepository.findGroupsFollowedByUser(userId, 1000, 0); 
+    userFollowingIds = followed.groups.map((g) => g.id); 
     }
 
     return groups.map((group: Group) => {
       return {
         ...group,
         isMember: userGroupIds.includes(group.id),
-        isFollowing: false 
+        isFollowing: userFollowingIds.includes(group.id),
       };
     });
   };
