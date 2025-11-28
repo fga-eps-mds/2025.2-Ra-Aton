@@ -19,6 +19,20 @@ export const Colors = {
   input: {
     iconColor: "#F84B07", // cor do icone dos inputs
   },
+
+  cardGames:{
+    header:"#2C2C2C",
+    backgroundCard:"#1C1C1C",
+    confirmBtn:"#006400",
+
+  },
+  handleCardGames:{
+    headerLine:"#F84B07",
+    backgroundModal:"#121212",
+    backgroundBoxInfos:"#2C2C2C",
+    backgroundPlayes:"#1C1C1C",
+  },
+  
   text: {
     inputErr: "#FF2C2C",
   },
