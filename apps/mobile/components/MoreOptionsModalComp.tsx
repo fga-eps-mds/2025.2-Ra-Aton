@@ -19,7 +19,9 @@ interface MoreOptionsModalProps {
   onInfos?: () => void;
   onInfosMatch?: () => void;
   onReport?: () => void;
-  onDelete?: () => void; // Opcional, se o usuário for dono do post
+  onDetailsMatch?: () => void;
+  onDelete?: () => void;
+  onLeaveMatch?: () => void;
 }
 
 const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
@@ -29,6 +31,8 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
   onReport,
   onInfos,
   onDelete,
+  onDetailsMatch,
+  onLeaveMatch,
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -42,30 +46,30 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
   const modalOptions = [
+    ...(onDetailsMatch ? [
+      {
+        label: "Descrição da partida",
+        icon: "reader-outline",
+        action: onDetailsMatch,
+        color: theme.orange,
+      }
+    ] : [])
+    ,
+
     ...(onReport ? [{
       label: "Reportar Post",
       icon: "alert-circle-outline",
       action: onReport,
-      color: "#D93E3E", 
+      color: "#D93E3E",
     }] : [])
     ,
-    ...(onInfosMatch ? [
-      {
-      label:"Reportar Partida",
-      icon:"alert-circle-outline",
-      action: onInfosMatch,
-      color:"#D93E3E" 
-      } 
-    ] : [])
-    ,
-
     // {
     //   label:"Reportar Evento",
     //   icon:"alert-circle-outline",
     //   action: onInfosMatch,
     //   color:"#D93E3E"
     // }
-    
+
     {
       label: "Sobre o evento",
       icon: "information-circle",
@@ -74,14 +78,33 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
     },
     ...(onDelete
       ? [
-          {
-            label: "Excluir Post",
-            icon: "trash-outline",
-            action: onDelete,
-            color: "#D93E3E",
-          },
-        ]
+        {
+          label: "Excluir Post",
+          icon: "trash-outline",
+          action: onDelete,
+          color: "#D93E3E",
+        },
+      ]
       : []),
+
+    ...(onInfosMatch ? [
+      {
+        label: "Reportar Partida",
+        icon: "alert-circle-outline",
+        action: onInfosMatch,
+        color: "#D93E3E"
+      }
+    ] : []),
+
+    ...(onLeaveMatch ? [
+      {
+        label: "Abandonar partida",
+        icon: "log-out-outline",
+        action: onLeaveMatch,
+        color: "#D93E3E",
+      }
+    ] : []),
+
   ];
 
   return (
@@ -135,7 +158,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end", 
+    justifyContent: "flex-end",
   },
   safeArea: {
     width: "100%",
@@ -144,7 +167,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    paddingBottom: 30, 
+    paddingBottom: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,

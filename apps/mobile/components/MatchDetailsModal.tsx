@@ -22,11 +22,10 @@ export function MatchDetailsModal({
   onClose,
   match,
 }: MatchDetailsModalProps) {
-  
   if (!match) return null;
+  const matchDate = match?.MatchDate ? new Date(match.MatchDate) : null;
 
-  const matchDate = match.date ? new Date(match.date) : null;
-  const formattedDate = matchDate
+   const formattedDate = matchDate
     ? matchDate.toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "2-digit",
@@ -40,6 +39,7 @@ export function MatchDetailsModal({
         minute: "2-digit",
       })
     : "--:--";
+
 
   return (
     <Modal
@@ -57,21 +57,21 @@ export function MatchDetailsModal({
           <View style={styles.infoRow}>
             <Ionicons name="football" size={20} color={Colors.light.orange} />
             <Text style={styles.infoText} numberOfLines={1}>
-              {match.title || "Futebol"}
+              {match.title || ""}
             </Text>
           </View>
 
           <View style={styles.infoRow}>
             <Ionicons name="location-outline" size={20} color={Colors.light.orange} />
             <Text style={styles.infoText} numberOfLines={1}>
-              {match.location || "Local não definido"}
+              {match.location || ""}
             </Text>
           </View>
 
           <View style={styles.infoRow}>
             <Ionicons name="calendar-outline" size={20} color={Colors.light.orange} />
             <Text style={styles.infoText}>
-              {formattedDate}
+                  {formattedDate}
             </Text>
           </View>
 

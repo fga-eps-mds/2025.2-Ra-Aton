@@ -7,14 +7,15 @@ import { Fonts } from "@/constants/Fonts";
 import VsIconSvg from "@/assets/img/vs-icon.svg"
 
 interface CardMatchesProps {
-    Imatches?: Imatches[],
+    match?: Imatches,
     onPressJoinMatch?: () => void,
     onPressInfos?: () => void,
     onReloadFeed?: () => void | Promise<void>;
+    isUserSubscriped?: boolean,
 }
 
 export const MatchesCard: React.FC<CardMatchesProps> = ({
-   Imatches, onPressJoinMatch, onPressInfos, onReloadFeed
+   match, onPressJoinMatch, onPressInfos, onReloadFeed, isUserSubscriped
 }) => {
     return (
         <View style={styles.container}>
@@ -22,7 +23,7 @@ export const MatchesCard: React.FC<CardMatchesProps> = ({
                 
                 <View style={styles.headerSideItem}>
                     <View style={styles.BoxCardStatus}>
-                        <Text style={styles.txtStatus}>STATUS</Text>
+                        <Text style={styles.txtStatus}>{match?.MatchStatus || ""}</Text>
                     </View>
                 </View>
 
@@ -32,7 +33,7 @@ export const MatchesCard: React.FC<CardMatchesProps> = ({
                         numberOfLines={1} 
                         ellipsizeMode="tail"
                     >
-                        [ESPORTE]
+                        {match?.title ?? ""}
                     </Text>
                 </View>
 
@@ -45,14 +46,17 @@ export const MatchesCard: React.FC<CardMatchesProps> = ({
             </View>
             <View style={styles.MidCardBox}>
                 <View style={styles.TeamNames}>
-                    <Text style={styles.txtNameTeam}>Time A</Text>
+                    <Text style={styles.txtNameTeam}>{match?.teamNameA ?? "Time A"}</Text>
                     <VsIconSvg height={25} width={20}/>
-                    <Text style={styles.txtNameTeam}>Time B</Text>
+                    <Text style={styles.txtNameTeam}>{match?.teamNameB ?? "Time B"}</Text>
                 </View>
             </View>
             <View style={styles.BoxConfirm}>
                 <View style={styles.CardBtnConfirm}>
-                    <TouchableOpacity style={styles.btnConfirm} onPress={onPressJoinMatch}>PARTICIPAR</TouchableOpacity>
+                    <TouchableOpacity style={styles.btnConfirm} onPress={onPressJoinMatch}>
+                        <Text style={styles.txtConfirm}>
+                        {isUserSubscriped ? "VISUALIZAR" : "PARTICIPAR"}
+                    </Text></TouchableOpacity>
                 </View>
             </View>
 
@@ -91,6 +95,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 20,
+        justifyContent:'center',
+        alignItems:'center',
         backgroundColor: Colors.input.iconColor,
         alignSelf: 'flex-start', 
     },
@@ -128,7 +134,7 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center', 
         fontFamily: Fonts.mainFont.dongleRegular,
-        fontSize:40
+        fontSize:25,   
     },
     BoxConfirm:{
         height:'100%',
@@ -143,14 +149,18 @@ const styles = StyleSheet.create({
     },
     btnConfirm:{
         width:'100%',
-
-        textAlign:'center',        
+        alignItems:'center',
         borderTopLeftRadius:13,
         borderTopRightRadius:13,
+        // textAlign:'center',        
 
-        color:'white',
-        fontFamily:Fonts.mainFont.dongleRegular,
         backgroundColor:'green',
+    },
+    txtConfirm:{
+        textAlign:'center',        
+        // fontSize:18,
+        fontFamily:Fonts.mainFont.dongleRegular,
+        color:'white',
     }
 
 })
