@@ -7,6 +7,9 @@ import { $Enums } from "@prisma/client/wasm";
 
 jest.mock("../../modules/group/group.repository");
 jest.mock("../../modules/groupMembership/groupMembership.repository");
+jest.mock("../../modules/follow/follow.repository", () => ({
+  findFollow: jest.fn(),
+}));
 
 describe("GroupService", () => {
   afterEach(() => {
@@ -14,7 +17,7 @@ describe("GroupService", () => {
   });
 
   describe("getAllGroups", () => {
-    it("should return an array of groups", async () => {
+    it("should return an array of groups with default boolean flags (false)", async () => {
       const mockGroups = [
         { id: "1", name: "Group 1" },
         { id: "2", name: "Group 2" },
@@ -24,8 +27,39 @@ describe("GroupService", () => {
 
       const result = await groupService.getAllGroups();
 
-      expect(result).toEqual(mockGroups);
+      const expectedResult = [
+        { id: "1", name: "Group 1", isMember: false, isFollowing: false },
+        { id: "2", name: "Group 2", isMember: false, isFollowing: false },
+      ];
+
+      expect(result).toEqual(expectedResult);
       expect(GroupRepository.findAll).toHaveBeenCalledTimes(1);
+    });
+
+    it("should mark isMember as true for groups the user belongs to", async () => {
+      const userId = "user-123";
+      const mockGroups = [
+        { id: "1", name: "Group 1" }, 
+        { id: "2", name: "Group 2" },
+      ];
+
+      const mockMemberships = [
+        { groupId: "1", userId: userId } 
+      ];
+
+      (GroupRepository.findAll as jest.Mock).mockResolvedValue(mockGroups);
+      // Mocka o retorno das inscrições do usuário
+      (GroupMembershipRepository.findMemberByUserId as jest.Mock).mockResolvedValue(mockMemberships);
+
+      const result = await groupService.getAllGroups(userId);
+
+      const expectedResult = [
+        { id: "1", name: "Group 1", isMember: true, isFollowing: false },
+        { id: "2", name: "Group 2", isMember: false, isFollowing: false },
+      ];
+
+      expect(result).toEqual(expectedResult);
+      expect(GroupMembershipRepository.findMemberByUserId).toHaveBeenCalledWith(userId);
     });
   });
 
