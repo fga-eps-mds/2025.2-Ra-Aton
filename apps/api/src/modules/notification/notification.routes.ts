@@ -6,6 +6,8 @@ const router: Router = Router();
 
 router.get("/", auth, notificationController.list); // listar notificações do usuário
 
+router.get("/unread-count", auth, notificationController.getUnreadCount);
+
 router.patch("/:id/read", auth, notificationController.markAsRead); // marcar como lida
 
 router.patch("/read-all", auth, notificationController.markAllAsRead); // marcar todas como lidas

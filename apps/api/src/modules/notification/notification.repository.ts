@@ -25,6 +25,15 @@ class NotificationRepository {
         });
     }
 
+    async countUnread(userId: string): Promise<number> {
+        return prisma.notification.count({
+            where: {
+                userId,
+                readAt: null,
+            },
+        });
+    }
+
     async markAsRead(notificationId: string) {
         return prisma.notification.update({
             where: { id: notificationId },

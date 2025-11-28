@@ -11,6 +11,14 @@ class NotificationController {
     return res.status(httpStatus.OK).json(notifications);
   }
 
+  async getUnreadCount(req: Request, res: Response) {
+        const { id: userId } = (req as any).user!;
+
+        const count = await notificationService.getUnreadCount(userId);
+
+        return res.status(httpStatus.OK).json({ count });
+    }
+
   async markAsRead(req: Request, res: Response) {
     const { id: notificationId } = req.params;
 
