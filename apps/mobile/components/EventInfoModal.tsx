@@ -27,16 +27,6 @@ interface ModalInfoEventProps {
   onClose?: () => void;
 }
 
-// {isEvent ? (
-//         <>
-//           <SpacerComp height={10} />
-//           <Text style={[styles.eventInfo, { color: theme.text }]}>
-//             {post.location ? `Local: ${post.location}` : ""}
-//             {post.eventDate ? `  •  Início: ${new Date(post.eventDate).toLocaleString()}` : ""}
-//             {post.eventFinishDate ? `  •  Fim: ${new Date(post.eventFinishDate).toLocaleString()}` : ""}
-//           </Text>
-//         </>
-//       ) : null}
 export const EventInfoModalComp: React.FC<ModalInfoEventProps> = ({
   post,
   visible,
