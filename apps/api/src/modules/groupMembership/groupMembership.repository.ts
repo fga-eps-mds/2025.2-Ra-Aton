@@ -1,5 +1,5 @@
 import { prisma } from "../../database/prisma.client";
-import { Prisma, GroupMembership } from "@prisma/client";
+import { Prisma, GroupMembership, Group } from "@prisma/client";
 
 class GroupMembershipRepository {
   async findAllMembers(): Promise<GroupMembership[]> {
@@ -33,10 +33,13 @@ class GroupMembershipRepository {
         user: {
           select: { id: true, userName: true, email: true },
         },
-        group: true,
+        group: {
+          select: { id: true, name: true, groupType: true },
+        },
       },
     });
   }
+  //TODO: Criar função para selecionar grupos em que o usuário é ADMIN
 
   async findMemberByGroupId(groupId: string): Promise<GroupMembership[]> {
     return prisma.groupMembership.findMany({

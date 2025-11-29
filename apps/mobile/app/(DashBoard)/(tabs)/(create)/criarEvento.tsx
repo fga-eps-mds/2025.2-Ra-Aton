@@ -41,6 +41,8 @@ const CriarEventoInner: React.FC = () => {
     formError,
   } = eventoForms();
 
+  // TODO: Implementar seleção de grupo ao criar evento criar um component para listar os grupos do usuário
+
   return (
     <BackGroundComp>
       <KeyboardAvoidingView

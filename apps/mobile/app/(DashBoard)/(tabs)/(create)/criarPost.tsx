@@ -41,6 +41,8 @@ const CriarPostInner: React.FC = () => {
     formError,
   } = postForms();
 
+  // TODO: Implementar seleção de grupo ao criar post criar um component para listar os grupos do usuário
+
   return (
     <BackGroundComp>
       <KeyboardAvoidingView

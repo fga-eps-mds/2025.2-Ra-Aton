@@ -69,6 +69,8 @@ export async function createEvent({
         eventDate: eventDateFormatted,
         eventFinishDate: eventFinishDateFormatted || undefined,
         location,
+
+        // TODO: Ajustar quando implementar grupos GET de todos os grupos do usuário
         group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
         groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
       },
