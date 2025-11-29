@@ -15,6 +15,8 @@ type Button1CompProps = {
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   iconName?: keyof typeof Ionicons.glyphMap;
+  textSize?: number; 
+  textWeight?: number;
 } & TouchableOpacityProps;
 
 const Button1Comp: React.FC<Button1CompProps> = ({
@@ -22,6 +24,8 @@ const Button1Comp: React.FC<Button1CompProps> = ({
   children,
   iconName,
   disabled,
+  textSize = 22,
+  textWeight = 700,
   ...props
 }) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -50,8 +54,8 @@ const Button1Comp: React.FC<Button1CompProps> = ({
           style={{
             color: themeColors.text,
             textAlign: "center",
-            fontWeight: "700",
-            fontSize: 22,
+            fontWeight: String(textWeight) as any,
+            fontSize: textSize,
           }}
         >
           {children}
