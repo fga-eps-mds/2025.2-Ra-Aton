@@ -4,7 +4,7 @@ import { useUser } from "@/libs/storage/UserContext";
 import { useRouter } from "expo-router";
 import { createPost } from "@/libs/criar/createPost";
 
-export const postForms = () => {
+export const postForms = (selectedGroupId: string | null) => {
   const router = useRouter();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,7 @@ export const postForms = () => {
     try {
       setLoading(true);
       setFormError("");
+      console.log('[postForms] handleSubmit - selectedGroupId:', selectedGroupId);
       if (!user) {
         Alert.alert("Erro", "Usuário não encontrado, faça login novamente.");
         router.replace("/(Auth)/login");
@@ -32,12 +33,19 @@ export const postForms = () => {
         return;
       }
 
+      if (!selectedGroupId) {
+        Alert.alert("Erro", "Selecione um grupo para criar o post");
+        return;
+      }
+
       // Envia ao backend
+      console.log('[postForms] Chamando createPost com groupId:', selectedGroupId);
       const result = await createPost({
         title: formsData.titulo,
         type: "GENERAL",
         content: formsData.descricao?.trim() || undefined,
         token: user.token,
+        groupId: selectedGroupId,
       });
 
       if (result.error) {
@@ -68,7 +76,7 @@ export const postForms = () => {
     router.push("/(DashBoard)/(tabs)/NovoPost");
   };
 
-  const isDisabled = loading || !formsData.titulo;
+  const isDisabled = loading || !formsData.titulo || !selectedGroupId;
 
   return {
     formsData,

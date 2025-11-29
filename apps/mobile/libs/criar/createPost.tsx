@@ -6,6 +6,7 @@ interface createPostParams {
   type: string;
   content: string;
   token: string;
+  groupId: string;
 }
 
 interface CreatePostResponse {
@@ -19,22 +20,28 @@ export async function createPost({
   type,
   content,
   token,
+  groupId,
 }: createPostParams): Promise<CreatePostResponse> {
-  console.log(
-    `Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\n`,
-  );
+  console.log('[createPost] Parâmetros recebidos:');
+  console.log('  - title:', title);
+  console.log('  - type:', type);
+  console.log('  - content:', content);
+  console.log('  - groupId:', groupId);
+  console.log('  - groupId type:', typeof groupId);
+  console.log('  - groupId is null?', groupId === null);
+  console.log('  - groupId is undefined?', groupId === undefined);
   try {
+    const payload = {
+      title,
+      type,
+      content,
+      groupId,
+    };
+    console.log('[createPost] Payload sendo enviado:', JSON.stringify(payload, null, 2));
+    
     const response = await api_route.post(
       "/posts",
-      {
-        title,
-        type,
-        content,
-
-        // TODO: Ajustar quando implementar grupos GET de todos os grupos do usuário
-        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${token}`,
