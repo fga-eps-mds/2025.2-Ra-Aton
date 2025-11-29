@@ -2,19 +2,29 @@ import { prisma } from "../../database/prisma.client";
 import { Prisma } from "@prisma/client";
 
 export const commentRepository = {
-  findAll: async () => {
-    return await prisma.comment.findMany();
-  },
+findAll: async () => {
+  return await prisma.comment.findMany({
+    include: {
+      author: true,
+    },
+  });
+},
 
   findByPostId: async (postId: string) => {
     return await prisma.comment.findMany({
       where: { postId },
+      include: {
+        author: true,
+      },
     });
   },
 
   findById: async (id: string) => {
     return await prisma.comment.findUnique({
       where: { id },
+      include: {
+        author: true,
+      },
     });
   },
 

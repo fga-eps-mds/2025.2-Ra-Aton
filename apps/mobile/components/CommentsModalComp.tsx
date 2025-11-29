@@ -69,7 +69,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
     <View style={styles.commentContainer}>
       <View style={styles.commentTextContainer}>
         <Text style={[styles.commentAuthor, { color: theme.text }]}>
-          {item.authorId}
+          {item.author?.userName ?? "Usuário desconhecido"}
         </Text>
         <Text style={[styles.commentText, { color: theme.text }]}>
           {item.content}
@@ -77,6 +77,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
       </View>
     </View>
   );
+console.log("COMMENTS RECEIVED: ", comments);
 
   return (
     <Modal
