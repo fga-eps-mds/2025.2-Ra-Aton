@@ -1,0 +1,51 @@
+{
+  "name": "aton",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "dev:offline": "set EXPO_OFFLINE=1 && expo start",
+    "dev:api": "pnpm --filter api dev:ready",
+    "dev:mobile": "pnpm --filter mobile dev",
+    "test": "turbo run test --parallel",
+    "test:api": "pnpm --filter api -s test",
+    "test:mobile": "pnpm --filter mobile -s test",
+    "test:coverage": "turbo run test -- --coverage",
+    "test:watch": "turbo run test -- --watchAll",
+    "lint": "turbo run lint",
+    "lint:api": "turbo run lint --filter api",
+    "lint:mobile": "turbo run lint --filter mobile",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
+  "devDependencies": {
+    "@testing-library/jest-native": "^5.0.2",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^29.5.14",
+    "cross-env": "^10.1.0",
+    "jest": "^30.2.0",
+    "jest-watch-typeahead": "^3.0.1",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.5",
+    "turbo": "^2.5.8",
+    "typescript": "5.9.2"
+  },
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@tanstack/react-query": "^5.90.8",
+    "@testing-library/react-native": "^13.3.3",
+    "jest-expo": "~54.0.13",
+    "react-hook-form": "^7.66.1",
+    "zod": "^4.1.12"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0"
+    }
+  }
+}

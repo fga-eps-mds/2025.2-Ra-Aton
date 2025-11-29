@@ -1,0 +1,29 @@
+{
+  "extends": "@repo/typescript-config/react-native.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["ES2017", "DOM"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "ignoreDeprecations": "6.0",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "types": ["jest", "@testing-library/jest-native"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*ttf",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "types/**/*.d.ts",
+    "jest-setup.js",
+    "__tests__/**/*.tsx",
+    "__tests__/**/*.ts",
+    "src/interfaces/Ipost.ts"
+  ]
+}

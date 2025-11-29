@@ -1,0 +1,16 @@
+{
+  "name": "@repo/jest-config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "jest-preset.js",
+  "dependencies": {
+    "@types/jest": "^30.0.0",
+    "ts-jest": "^29.4.5"
+  },
+  "devDependencies": {
+    "@jest/core": "29.7.0",
+    "@jest/environment": "29.7.0",
+    "@jest/globals": "29.7.0",
+    "jest": "29.7.0"
+  }
+}
