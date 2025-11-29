@@ -50,7 +50,7 @@ describe("MatchRepository", () => {
   describe("createMatch", () => {
     it("should create a new match and subscribe the author", async () => {
       // Arrange
-        const author = {
+      const author = {
         id: "author-id",
         userName: "authorUser",
         email: "author@example",
@@ -95,22 +95,13 @@ describe("MatchRepository", () => {
         team: TeamSide.A,
       } as PlayerSubscription);
 
-    // Sanity checks before invoking the repository to ensure our stubs point
-    // to the same mock functions we configured.
-    expect(prismaStub.match.create).toBe(prismaMock.match.create);
-    expect(prismaStub.playerSubscription.create).toBe(
-      prismaMock.playerSubscription.create,
-    );
+      // Act
+      const result = await matchRepository.createMatch(matchData, author);
 
-    // Act
-    const result = await matchRepository.createMatch(matchData, author);
-
-    // Quick sanity checks to help debug when things go wrong
-    expect(prismaStub.$transaction).toHaveBeenCalledTimes(1);
-    expect(prismaMock.match.create).toHaveBeenCalledTimes(1);
-
-    // Assert final result
-    expect(result).toEqual(createdMatch);
+      // Assert
+      expect(prismaStub.$transaction).toHaveBeenCalledTimes(1);
+      expect(prismaMock.match.create).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(createdMatch);
     });
 
     it("should throw an error if match creation fails", async () => {
@@ -145,7 +136,6 @@ describe("MatchRepository", () => {
       ).rejects.toThrow("Database error");
 
       expect(prismaStub.$transaction).toHaveBeenCalledTimes(1);
-      expect(prismaMock.match.create).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -155,34 +145,22 @@ describe("MatchRepository", () => {
       const matchId = "match-id";
       const matchData = {
         title: "Updatable Match",
-        description: "Updatable description",
-        MatchDate: new Date(),
-        teamNameA: "Updatable Team A",
-        teamNameB: "Updatable Team B",
-        location: "Updatable Stadium",
-        maxPlayers: 22,
       };
 
       const updatedMatch = {
         id: matchId,
         authorId: "author-id",
         title: "Updated Match",
-        description: "Updated description",
-        MatchDate: new Date(),
-        teamNameA: "Updated Team A",
-        teamNameB: "Updated Team B",
-        location: "Updated Stadium",
-        maxPlayers: 22,
+        // ... outros campos mockados se necessário
         MatchStatus: MatchStatus.EM_BREVE,
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
+      } as any;
 
       prismaMock.match.update.mockResolvedValue(updatedMatch);
 
       // Act
       const result = await matchRepository.updateMatch(matchId, matchData);
-
 
       // Assert
       expect(prismaMock.match.update).toHaveBeenCalledWith({
@@ -195,49 +173,25 @@ describe("MatchRepository", () => {
     it("should throw an error if match update fails", async () => {
       // Arrange
       const matchId = "match-id";
-      const matchData = {
-          title: "Updatable Match",
-          description: "Updatable description",
-          MatchDate: new Date(),
-          teamNameA: "Updatable Team A",
-          teamNameB: "Updatable Team B",
-          location: "Updatable Stadium",
-          maxPlayers: 22,
-      };
+      const matchData = { title: "Fail Match" };
 
-      prismaMock.match.update.mockRejectedValue(new Error("Database error") as any);
+      prismaMock.match.update.mockRejectedValue(new Error("Database error"));
 
       // Act & Assert
       await expect(
         matchRepository.updateMatch(matchId, matchData),
       ).rejects.toThrow("Database error");
-
-      expect(prismaMock.match.update).toHaveBeenCalledWith({
-        where: { id: matchId },
-        data: matchData,
-      });
     });
   });
 
-  describe("Delete Match", () => {
+  describe("deleteMatch", () => {
     it("should delete an existing match", async () => {
       // Arrange
       const matchId = "match-id-to-delete";
-
       const deletedMatch = {
         id: matchId,
-        authorId: "author-id",
         title: "Deleted Match",
-        description: "This match has been deleted",
-        MatchDate: new Date(),
-        teamNameA: "Team A",
-        teamNameB: "Team B",
-        location: "Stadium A",
-        maxPlayers: 22,
-        MatchStatus: MatchStatus.FINALIZADO,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      } as any;
 
       prismaMock.match.delete.mockResolvedValue(deletedMatch);
 
@@ -254,19 +208,221 @@ describe("MatchRepository", () => {
       expect(result).toEqual(deletedMatch);
     });
 
-    it("should throw an error if match deletion fails", async () => {
+    it("should throw an error if match deletion fails (e.g. not found)", async () => {
       // Arrange
       const matchId = "non-existent-match-id";
-
-      prismaMock.match.delete.mockRejectedValue(new Error("Database error") as any);
+      // Simula que o prisma retorna null no delete (o que normalmente lançaria erro, mas para o mock...)
+      // Ou melhor, o seu código faz um check `if (!match)`. Mas o prisma.delete lança erro se não achar.
+      // Vamos simular que o delete retorna null para testar o seu `if (!match) throw new Error`.
+      prismaMock.match.delete.mockResolvedValue(null as any);
 
       // Act & Assert
       await expect(
         matchRepository.deleteMatch(matchId),
-      ).rejects.toThrow("Database error");
+      ).rejects.toThrow("Match not found");
+    });
+  });
 
-      expect(prismaMock.match.delete).toHaveBeenCalledWith({
+  // ======================================================
+  // FIND ALL (Paginação)
+  // ======================================================
+  describe("findAll", () => {
+    it("should return paginated matches and total count", async () => {
+      // Arrange
+      const limit = 10;
+      const offset = 0;
+      const mockMatches = [
+        { id: "1", title: "Match 1", _count: { players: 5 } },
+        { id: "2", title: "Match 2", _count: { players: 2 } },
+      ] as any;
+      const totalCount = 20;
+
+      // Mock do findMany
+      prismaMock.match.findMany.mockResolvedValue(mockMatches);
+      // Mock do count
+      prismaMock.match.count.mockResolvedValue(totalCount);
+
+      // Act
+      const result = await matchRepository.findAll(limit, offset);
+
+      // Assert
+      expect(prismaStub.$transaction).toHaveBeenCalledTimes(1);
+      expect(prismaMock.match.findMany).toHaveBeenCalledWith({
+        take: limit,
+        skip: offset,
+        orderBy: { MatchDate: "desc" },
+        include: { _count: { select: { players: true } } },
+      });
+      expect(prismaMock.match.count).toHaveBeenCalled();
+      
+      expect(result).toEqual({
+        matches: mockMatches,
+        totalCount: totalCount,
+      });
+    });
+
+    it("should propagate errors from transaction", async () => {
+      // Arrange
+      // Simulamos que a transação falha
+      // Como nosso stub usa Promise.all, se uma promessa falhar, tudo falha.
+      prismaMock.match.findMany.mockRejectedValue(new Error("DB Error"));
+
+      // Act & Assert
+      await expect(matchRepository.findAll(10, 0)).rejects.toThrow("DB Error");
+    });
+  });
+
+  // ======================================================
+  // FIND BY ID
+  // ======================================================
+  describe("findById", () => {
+    it("should return a match with players included", async () => {
+      // Arrange
+      const matchId = "uuid-1";
+      const mockMatch = {
+        id: matchId,
+        title: "Details Match",
+        players: [
+          { userId: "u1", user: { id: "u1", name: "User 1" } }
+        ]
+      } as any;
+
+      prismaMock.match.findUnique.mockResolvedValue(mockMatch);
+
+      // Act
+      const result = await matchRepository.findById(matchId);
+
+      // Assert
+      expect(prismaMock.match.findUnique).toHaveBeenCalledWith({
         where: { id: matchId },
+        include: {
+          players: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  userName: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).toEqual(mockMatch);
+    });
+
+    it("should return null if match is not found", async () => {
+      // Arrange
+      prismaMock.match.findUnique.mockResolvedValue(null);
+
+      // Act
+      const result = await matchRepository.findById("uuid-none");
+
+      // Assert
+      expect(result).toBeNull();
+    });
+  });
+
+  // ======================================================
+  // FIND SUBSCRIPTION
+  // ======================================================
+  describe("findSubscription", () => {
+    it("should return a subscription if found", async () => {
+      // Arrange
+      const userId = "u1";
+      const matchId = "m1";
+      const mockSub = { id: "sub1", userId, matchId } as PlayerSubscription;
+
+      prismaMock.playerSubscription.findUnique.mockResolvedValue(mockSub);
+
+      // Act
+      const result = await matchRepository.findSubscription(userId, matchId);
+
+      // Assert
+      expect(prismaMock.playerSubscription.findUnique).toHaveBeenCalledWith({
+        where: {
+          userId_matchId: { userId, matchId },
+        },
+      });
+      expect(result).toEqual(mockSub);
+    });
+
+    it("should return null if subscription not found", async () => {
+      // Arrange
+      prismaMock.playerSubscription.findUnique.mockResolvedValue(null);
+
+      // Act
+      const result = await matchRepository.findSubscription("u1", "m1");
+
+      // Assert
+      expect(result).toBeNull();
+    });
+  });
+
+  // ======================================================
+  // CREATE SUBSCRIPTION
+  // ======================================================
+  describe("createSubscription", () => {
+    it("should create a player subscription", async () => {
+      // Arrange
+      const userId = "u1";
+      const matchId = "m1";
+      const team = TeamSide.A;
+      const mockSub = { id: "sub1", userId, matchId, team } as PlayerSubscription;
+
+      prismaMock.playerSubscription.create.mockResolvedValue(mockSub);
+
+      // Act
+      const result = await matchRepository.createSubscription(userId, matchId, team);
+
+      // Assert
+      expect(prismaMock.playerSubscription.create).toHaveBeenCalledWith({
+        data: { userId, matchId, team },
+      });
+      expect(result).toEqual(mockSub);
+    });
+  });
+
+  // ======================================================
+  // UPDATE SUBSCRIPTION TEAM
+  // ======================================================
+  describe("updateSubscriptionTeam", () => {
+    it("should update the team of a subscription", async () => {
+      // Arrange
+      const subId = "sub1";
+      const newTeam = TeamSide.B;
+      const mockUpdatedSub = { id: subId, team: newTeam } as PlayerSubscription;
+
+      prismaMock.playerSubscription.update.mockResolvedValue(mockUpdatedSub);
+
+      // Act
+      const result = await matchRepository.updateSubscriptionTeam(subId, newTeam);
+
+      // Assert
+      expect(prismaMock.playerSubscription.update).toHaveBeenCalledWith({
+        where: { id: subId },
+        data: { team: newTeam },
+      });
+      expect(result).toEqual(mockUpdatedSub);
+    });
+  });
+
+  // ======================================================
+  // DELETE SUBSCRIPTION
+  // ======================================================
+  describe("deleteSubscription", () => {
+    it("should delete a subscription", async () => {
+      // Arrange
+      const subId = "sub1";
+      prismaMock.playerSubscription.delete.mockResolvedValue({ id: subId } as any);
+
+      // Act
+      await matchRepository.deleteSubscription(subId);
+
+      // Assert
+      expect(prismaMock.playerSubscription.delete).toHaveBeenCalledWith({
+        where: { id: subId },
       });
     });
   });

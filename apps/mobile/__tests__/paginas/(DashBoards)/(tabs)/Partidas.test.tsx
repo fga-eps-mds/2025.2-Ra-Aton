@@ -1,28 +1,32 @@
 import React from "react";
-import { render } from "@testing-library/react-native";
+import { render, waitFor, fireEvent } from "@testing-library/react-native";
+// Ajuste o caminho conforme a estrutura real do seu projeto, se necessário
 import Partidas from "@/app/(DashBoard)/(tabs)/Partidas";
+
+// --- MOCKS GLOBAIS ---
 
 jest.mock("@/constants/Theme", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
 jest.mock("@/components/BackGroundComp", () => {
-  const React = require("react");
+  const { View } = require("react-native");
   return function BackGroundComp({ children }: any) {
-    return <>{children}</>;
+    return <View>{children}</View>;
   };
 });
 
+// Mock para espionar as props passadas para o Card
 const mockMatchesCard = jest.fn();
 jest.mock("@/components/MatchesCardComp", () => ({
   MatchesCard: (props: any) => {
     mockMatchesCard(props);
-    const React = require("react");
     const { View } = require("react-native");
-    return <View />;
+    return <View testID="matches-card" />;
   },
 }));
 
+// Mocks de Componentes Visuais (Retornam null para não pesar no teste)
 jest.mock("@/components/HandleMatchComp", () => ({
   HandleMatchComp: () => null,
 }));
@@ -38,10 +42,33 @@ jest.mock("@/components/ModalDescription", () => ({
   ModalDescription: () => null,
 }));
 
+// Mock do React Navigation (useFocusEffect)
 jest.mock("@react-navigation/native", () => ({
   useFocusEffect: (cb: any) => cb(),
 }));
 
+// --- MOCKS DE LÓGICA E API ---
+
+// 1. Mock do Expo Router (Navegação e Params)
+const mockSetParams = jest.fn();
+// Mockamos o retorno do hook para podermos alterar em cada teste
+let mockSearchParams = { matchId: undefined as string | undefined };
+
+jest.mock("expo-router", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    setParams: mockSetParams,
+  }),
+  useLocalSearchParams: () => mockSearchParams,
+}));
+
+// 2. Mock da API handleMatch
+const mockGetMatchById = jest.fn();
+jest.mock("@/libs/auth/handleMatch", () => ({
+  getMatchById: (id: string) => mockGetMatchById(id),
+}));
+
+// 3. Mock do Hook useMatchesFunctions (Estado do Feed)
 let mockMatches: any[] = [];
 let mockIsLoading = false;
 const mockOnRefresh = jest.fn();
@@ -68,50 +95,53 @@ jest.mock("@/libs/hooks/useMatchesFunctions", () => ({
   }),
 }));
 
+// 4. Mock do Hook UseModalFeedMatchs (Gerenciamento de Modais)
 const mockUseModal = jest.fn();
 const mockCloseModal = jest.fn();
-const mockOpenDetailsHandleMatchModal = jest.fn();
-const mockCloseDetailsHandleMatchModal = jest.fn();
 const mockOpenModalConfirmCard = jest.fn();
 const mockCloseModalConfirmCard = jest.fn();
-const mockOpenModalMoreInfosHandleModal = jest.fn();
-const mockCloseModalMoreInfosHandleModal = jest.fn();
-const mockOpenReportMatchModal = jest.fn();
-const mockCloseReportMatchModal = jest.fn();
-const mockOpenDetailsFromHandle = jest.fn();
-const mockOpenDescriptionMatchModal = jest.fn();
-const mockCloseDescriptionMatchModal = jest.fn();
 
-jest.mock("@/libs/hooks/useFeedMatchs", () => ({
-  UseModalFeedMatchs: () => ({
-    visibleConfirmCard: false,
-    visible: false,
-    visibleDetailsHandle: false,
-    visibleInfosHandleMatch: false,
-    visibleReportMatch: false,
-    visibleDescriptionMatch: false,
-    selectedMatch: null,
-    useModal: mockUseModal,
-    closeModal: mockCloseModal,
-    openDetailsHandleMatchModal: mockOpenDetailsHandleMatchModal,
-    closeDetailsHandleMatchModal: mockCloseDetailsHandleMatchModal,
-    openModalConfirmCard: mockOpenModalConfirmCard,
-    closeModalConfirmCard: mockCloseModalConfirmCard,
-    openModalMoreInfosHandleModal: mockOpenModalMoreInfosHandleModal,
-    closeModalMoreInfosHandleModal: mockCloseModalMoreInfosHandleModal,
-    openReportMatchModal: mockOpenReportMatchModal,
-    closeReportMatchModal: mockCloseReportMatchModal,
-    openDetailsFromHandle: mockOpenDetailsFromHandle,
-    openDescriptionMatchModal: mockOpenDescriptionMatchModal,
-    closeDescriptionMatchModal: mockCloseDescriptionMatchModal,
-  }),
-}));
+// CORREÇÃO DO ERRO 'noop': Definimos a função dentro do factory do mock
+jest.mock("@/libs/hooks/useFeedMatchs", () => {
+  const noop = () => {}; // Função vazia auxiliar definida DENTRO do escopo
+
+  return {
+    UseModalFeedMatchs: () => ({
+      visibleConfirmCard: false,
+      visible: false,
+      visibleDetailsHandle: false,
+      visibleInfosHandleMatch: false,
+      visibleReportMatch: false,
+      visibleDescriptionMatch: false,
+      selectedMatch: null,
+      // Usamos as variáveis globais 'mock...' onde precisamos espionar
+      useModal: mockUseModal,
+      closeModal: mockCloseModal,
+      openDetailsHandleMatchModal: noop,
+      closeDetailsHandleMatchModal: noop,
+      openModalConfirmCard: mockOpenModalConfirmCard,
+      closeModalConfirmCard: mockCloseModalConfirmCard,
+      openModalMoreInfosHandleModal: noop,
+      closeModalMoreInfosHandleModal: noop,
+      openReportMatchModal: noop,
+      closeReportMatchModal: noop,
+      openDetailsFromHandle: noop,
+      openDescriptionMatchModal: noop,
+      closeDescriptionMatchModal: noop,
+    }),
+  };
+});
+
+// --- SUÍTE DE TESTES ---
 
 describe("Tela Partidas", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Resetar estados globais dos mocks
     mockIsLoading = false;
     mockMatches = [];
+    mockSearchParams = { matchId: undefined }; // Reset params URL
   });
 
   it("não renderiza cards de partidas quando está carregando e não há dados", () => {
@@ -157,23 +187,20 @@ describe("Tela Partidas", () => {
     render(<Partidas />);
 
     const props = mockMatchesCard.mock.calls[0][0];
+    // Simula o clique no botão de entrar
     props.onPressJoinMatch();
 
     expect(mockJoinMatch).toHaveBeenCalledTimes(1);
     const [matchArg, callbackArg] = mockJoinMatch.mock.calls[0];
     expect(matchArg.id).toBe("1");
+    // Verifica se o callback passado é a função de abrir o modal de confirmação
     expect(callbackArg).toBe(mockOpenModalConfirmCard);
   });
 
   it("ao acionar onPressInfos do card chama useModal com a partida", () => {
     mockIsLoading = false;
     mockMatches = [
-      {
-        id: "1",
-        MatchStatus: "ABERTA",
-        teamNameA: "Time Azul",
-        teamNameB: "Time Vermelho",
-      },
+      { id: "1", MatchStatus: "ABERTA" },
     ];
 
     render(<Partidas />);
@@ -193,5 +220,33 @@ describe("Tela Partidas", () => {
     render(<Partidas />);
 
     expect(mockReloadFeed).toHaveBeenCalled();
+  });
+
+  // --- NOVO TESTE DE NOTIFICAÇÃO ---
+  it("deve buscar partida e abrir modal se matchId vier na URL (Notificação)", async () => {
+    // Arrange
+    const notificationMatchId = "123-uuid";
+    const mockMatchData = { id: notificationMatchId, title: "Jogo Notificado" };
+    
+    // Simula que a rota veio com o parâmetro matchId
+    mockSearchParams = { matchId: notificationMatchId };
+    
+    // Simula o retorno da API
+    mockGetMatchById.mockResolvedValue(mockMatchData);
+
+    // Act
+    render(<Partidas />);
+
+    // Assert (esperamos que as promessas do useEffect resolvam)
+    await waitFor(() => {
+      // 1. Chamou a API com o ID correto?
+      expect(mockGetMatchById).toHaveBeenCalledWith(notificationMatchId);
+      
+      // 2. Abriu o modal com os dados retornados?
+      expect(mockOpenModalConfirmCard).toHaveBeenCalledWith(mockMatchData);
+      
+      // 3. Limpou o parâmetro da URL?
+      expect(mockSetParams).toHaveBeenCalledWith({ matchId: "" });
+    });
   });
 });

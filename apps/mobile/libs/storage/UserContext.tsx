@@ -17,6 +17,7 @@ export type User = {
   email: string;
   token: string;
   profileType?: string | null;
+  notificationsAllowed: boolean;
 };
 
 interface UserContextType {
