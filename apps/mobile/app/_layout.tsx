@@ -39,15 +39,7 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="(Auth)" />
             <Stack.Screen name="(DashBoard)" />
-
-            {/* Rota de Perfil de Grupo (na raiz) */}
-            <Stack.Screen
-              name="app/[id]"
-              options={{
-                headerShown: false, // Se quiser sem header padrão
-                presentation: 'card', // Animação padrão de push
-              }}
-            />
+            <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
           </Stack>
         </UserProvider>
       </ThemeProvider>

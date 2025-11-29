@@ -157,6 +157,31 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
+
+      <Tabs.Screen
+        name="(create)/gerenciarPost"
+        options={{
+          title: "Gerenciar Post",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="perfilGrupo"
+        options={{
+          title: "Perfil do Grupo",
+          href: null,
+        }} // Esconde da Navbar
+      />
+      <Tabs.Screen
+        name="Solicitacoes"
+        options={{
+          title: "Solicitacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
     </Tabs>
+
+
   );
 }

@@ -1,7 +1,5 @@
 // ARQUIVO: apps/mobile/libs/group/handleCreateGroup.ts
-
-// 1. MUDANÇA CRÍTICA: Importar do caminho CORRETO (src/libs/api)
-import { api_route } from "../../../mobile/libs/auth/api";
+import { api_route } from "@/libs/auth/api";
 import { IGroup } from "@/libs/interfaces/Igroup";
 
 // Interface baseada na documentação group.md + Necessidades do Frontend
@@ -11,14 +9,11 @@ export interface CreateGroupPayload {
   sports?: string[];
   verificationRequest: boolean;
   acceptingNewMembers?: boolean;
-  // Mantemos o type para o frontend, removemos antes de enviar
   type?: "ATHLETIC" | "AMATEUR";
 }
 
-interface CreateGroupResponse {
-  message: string;
-  group: IGroup;
-}
+// O Backend retorna o próprio Grupo, não um objeto com { group: ... }
+// Portanto, não precisamos mais da interface CreateGroupResponse antiga.
 
 export async function handleCreateGroup(
   payload: CreateGroupPayload,
@@ -33,13 +28,13 @@ export async function handleCreateGroup(
     );
 
     // 2. Envia apenas os dados que o backend aceita
-    const response = await api_route.post<CreateGroupResponse>(
-      "/group", // Rota no singular
-      payloadToSend,
-    );
+    // A resposta da API é do tipo IGroup diretamente
+    const response = await api_route.post<IGroup>("/group", payloadToSend);
 
     console.log("Resposta da API:", response.data);
-    return response.data.group;
+
+    // CORREÇÃO CRÍTICA: Retornar response.data diretamente
+    return response.data;
   } catch (error: any) {
     let errorMessage = "Erro ao criar o grupo.";
 

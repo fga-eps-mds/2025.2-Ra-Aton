@@ -18,7 +18,7 @@ import { Colors } from '@/constants/Colors';
 import BackGroundComp from '@/components/BackGroundComp';
 import PrimaryButton from '@/components/PrimaryButton';
 import InputComp from '@/components/InputComp';
-import { useRouter } from 'expo-router';
+import { useRouter, Redirect } from 'expo-router';
 
 // Importamos apenas o nosso hook customizado (agora sem Zod)
 import { useCreateGroupForm } from '@/libs/hooks/useCreateGroupForm';
@@ -35,11 +35,13 @@ export default function CriarGrupoScreen() {
         setValue,
         submitForm,
         isLoading,
-        goBack
+        createdGroupId // 2. PEGUE O ID AQUI
     } = useCreateGroupForm();
 
+    if (createdGroupId) {
+        return <Redirect href={`/group/${createdGroupId}`} />;
+    }
     return (
-        //console.log(">>> TELA DE CRIAR GRUPO MONTADA!"),
         <BackGroundComp>
             {/* BOTÃO DE TESTE DE NAVEGAÇÃO */}
             <TouchableOpacity
@@ -58,7 +60,7 @@ export default function CriarGrupoScreen() {
                 <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 
                     <View style={styles.header}>
-                        <TouchableOpacity onPress={goBack} style={styles.backButton}>
+                        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                             <Ionicons name="arrow-back" size={24} color={theme.text} />
                         </TouchableOpacity>
                         <Text style={[styles.title, { color: theme.text }]}>Criar Novo Grupo</Text>

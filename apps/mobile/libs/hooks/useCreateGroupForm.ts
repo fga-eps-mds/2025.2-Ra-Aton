@@ -1,12 +1,11 @@
-// ARQUIVO: apps/mobile/libs/hooks/useCreateGroupForm.ts
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 import {
   handleCreateGroup,
   CreateGroupPayload,
 } from "@/libs/group/handleCreateGroup";
+import { router } from "expo-router";
 
 export interface CreateGroupFormData {
   name: string;
@@ -16,15 +15,16 @@ export interface CreateGroupFormData {
 }
 
 export function useCreateGroupForm() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  // NOVO ESTADO: Armazena o ID do grupo criado com sucesso
+  const [createdGroupId, setCreatedGroupId] = useState<string | null>(null);
 
   const {
     control,
     handleSubmit,
     setValue,
     watch,
-    setError, 
+    setError,
     formState: { errors },
   } = useForm<CreateGroupFormData>({
     defaultValues: {
@@ -40,10 +40,7 @@ export function useCreateGroupForm() {
   const validateForm = (data: CreateGroupFormData): boolean => {
     let isValid = true;
     if (!data.name || data.name.length < 2) {
-      setError("name", {
-        type: "manual",
-        message: "O nome deve ter pelo menos 2 caracteres",
-      });
+      setError("name", { type: "manual", message: "Mínimo 2 caracteres" });
       isValid = false;
     }
     return isValid;
@@ -63,44 +60,30 @@ export function useCreateGroupForm() {
         sports: data.sport ? [data.sport] : [],
       };
 
-      // 1. Chama a API
       const newGroup = await handleCreateGroup(payload);
-      
-      // 2. SUCESSO!
-      // Não usamos Alert com callback aqui para evitar problemas de contexto.
-      // Navegamos IMEDIATAMENTE.
-      
-      console.log("Redirecionando para:", `/group/${newGroup.id}`);
-      
-      // Pequeno delay para garantir que o estado de loading não interfira na transição
-      setTimeout(() => {
-          // Usa 'replace' para não voltar ao formulário
-          router.replace({
-            pathname: "/group/[id]",
-            params: { id: newGroup.id },
-          });
-          
-          // (Opcional) Mostra um alerta DEPOIS de iniciar a navegação, 
-          // ou deixa para a próxima tela mostrar um Toast.
-          Alert.alert("Sucesso", `Grupo "${newGroup.name}" criado!`);
-      }, 100);
 
+      // SUCESSO:
+      setTimeout(() => {
+        console.log("Navegando para perfilGrupo com ID:", newGroup.id);
+        router.replace({
+          pathname: "/perfilGrupo", // Nome exato do arquivo na raiz
+          //params: { id: newGroup.id }, // Isso vira ?id=...
+        });
+
+        Alert.alert("Sucesso", `Grupo "${newGroup.name}" criado!`);
+      }, 100);
     } catch (error: any) {
       const errorMessage = error.message || "";
-
       if (
         errorMessage.toLowerCase().includes("nome") &&
         errorMessage.toLowerCase().includes("uso")
       ) {
         setError("name", {
           type: "manual",
-          message: "Este nome já está em uso. Por favor, escolha outro.",
+          message: "Este nome já está em uso.",
         });
       } else {
-        Alert.alert(
-          "Atenção",
-          errorMessage || "Ocorreu um erro ao criar o grupo. Tente novamente.",
-        );
+        Alert.alert("Erro", errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -116,6 +99,6 @@ export function useCreateGroupForm() {
     setValue,
     submitForm,
     isLoading,
-    goBack: router.back,
+    createdGroupId, // Retornamos o ID para o componente usar
   };
 }
