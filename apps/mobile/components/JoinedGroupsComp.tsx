@@ -66,7 +66,7 @@ export const JoinedGroupsComp = ({
                   justifyContent: "space-around",
                 }}
               >
-                <PrimaryButton style={{ width: "100%", height: 35 }}>
+                <PrimaryButton textWeight={500} textSize={20} style={{ width: "100%", height: 35 }}>
                   Perfil
                 </PrimaryButton>
 

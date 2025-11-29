@@ -6,6 +6,7 @@ export async function loadGroups(token: string, userId: string) {
     const res = await api_route.get(`/group/?userId=${userId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
+    console.log(`[loadGroups]: token ${token}\t userId ${userId}`)
     return res.data;
   } catch (e) {
     console.log("Error loading groups:", e);

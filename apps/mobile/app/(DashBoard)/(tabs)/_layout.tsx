@@ -1,8 +1,6 @@
 import React from "react";
-// Imports necessários para o botão "Menu" da Sidebar
 import { Tabs, useNavigation } from "expo-router";
 import { DrawerActions, EventArg } from "@react-navigation/native";
-// Imports de Estilo
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../constants/Theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,20 +9,19 @@ export default function DashboardTabsLayout() {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
-  // Hook para controlar a navegação (necessário para abrir o Drawer)
   const navigation = useNavigation();
 
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // O Header agora é controlado pelo Drawer (pai)
+        headerShown: false, 
         tabBarActiveTintColor: theme.orange,
         tabBarInactiveTintColor: theme.text,
         tabBarStyle: {
           backgroundColor: theme.input,
           borderTopWidth: 2,
           borderTopColor: theme.orange,
-          height: 65,
+          height: 105,
         },
         tabBarLabelStyle: {
           fontSize: 10,
@@ -36,10 +33,9 @@ export default function DashboardTabsLayout() {
         },
       }}
     >
-      {/* ===== BOTÕES VISÍVEIS NA NAVBAR ===== */}
 
       <Tabs.Screen
-        name="Home" // Referencia (tabs)/Home.tsx
+        name="Home" 
         options={{
           title: "Feed",
           tabBarIcon: ({ color, size }) => (
@@ -48,7 +44,7 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="Teams" // Referencia (tabs)/Teams.tsx
+        name="Teams" 
         options={{
           title: "Equipes",
           tabBarIcon: ({ color, size }) => (
@@ -57,7 +53,7 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="NovoPost" // Referencia (tabs)/NovoPost.tsx
+        name="NovoPost" 
         options={{
           title: "Post",
           tabBarIcon: ({ color, size }) => (
@@ -66,7 +62,7 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="Partidas" // Referencia (tabs)/Partidas.tsx
+        name="Partidas" 
         options={{
           title: "Partidas",
           tabBarIcon: ({ color, size }) => (
@@ -75,9 +71,8 @@ export default function DashboardTabsLayout() {
         }}
       />
 
-      {/* ===== BOTÃO FALSO PARA ABRIR A SIDEBAR (MENU) ===== */}
       <Tabs.Screen
-        name="menu" // Nome "falso", Ele aponta para o arquivo "Dummy" menu.tsx -- se deletar esse arquivo, o botão some.
+        name="menu"
         options={{
           title: "Menu",
           tabBarIcon: ({ color, size }) => (
@@ -86,15 +81,12 @@ export default function DashboardTabsLayout() {
         }}
         listeners={{
           tabPress: (e: EventArg<"tabPress", true>) => {
-            // Previne a navegação para uma tela "menu"
             e.preventDefault();
-            // Dispara a ação de abrir a Sidebar (Drawer)
             navigation.dispatch(DrawerActions.openDrawer());
           },
         }}
       />
 
-      {/* ===== TELAS ESCONDIDAS (Acessíveis pela Sidebar) ===== */}
 
       <Tabs.Screen
         name="Friends" // Referencia (tabs)/Friends.tsx
@@ -157,6 +149,23 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
+
+        <Tabs.Screen
+        name="(create)/gerenciarPost"
+        options={{
+          title: "gerenciarPost",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="Solicitacoes"
+        options={{
+          title: "Solicitacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
     </Tabs>
   );
 }
