@@ -39,7 +39,7 @@ findAll: async () => {
       },
     });
     return await prisma.comment.create({
-      data,
+      data, // SOMENTE isso
     });
   },
 

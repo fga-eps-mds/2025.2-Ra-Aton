@@ -47,8 +47,9 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
       : [
           {
             id: "1",
-            authorId: "Usuário A",
+            author: { userName: "Usuário A" },
             content: "Que legal!",
+
             postId: "1",
             createdAt: new Date().toISOString(),
           } as Icomment,
