@@ -14,6 +14,7 @@ interface LoginResponse {
     userName: string;
     email: string;
     profileType: string | null;
+    notificationsAllowed: boolean;
   };
 }
 

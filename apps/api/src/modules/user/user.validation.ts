@@ -53,7 +53,6 @@ export const updateUserSchema = z.object({
         .transform((val) => val.toLowerCase().trim())
         .optional(),
 
-      // --- CORREÇÃO APLICADA AQUI ---
       profileType: z
         .string()
         .transform((val) => val.toUpperCase())
@@ -63,7 +62,8 @@ export const updateUserSchema = z.object({
           { message: "Profile type inválido" }, // Mensagem de erro customizada
         )
         .optional(),
-      // --- FIM DA CORREÇÃO ---
+
+      notificationsAllowed: z.boolean().optional(),
     })
     .refine((data) => Object.keys(data).length > 0, {
       message: "Nenhuma mudança encontrada",

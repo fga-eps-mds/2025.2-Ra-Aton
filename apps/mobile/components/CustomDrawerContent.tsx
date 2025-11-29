@@ -9,9 +9,16 @@ import { useUser } from "@/libs/storage/UserContext";
 
 // import { NavigationProp } from '@react-navigation/native'; // <-- Não é mais necessário
 
+// import { View } from 'react-native/types'; --- IGNORE ---
+import { View, Text } from "react-native";
+import { useNotifications } from "../libs/storage/NotificationContext";
+export default CustomDrawerContent;
+
 // O componente recebe 'props'
 export function CustomDrawerContent(props: any) {
   const { user, logout } = useUser();
+
+  const { unreadCount } = useNotifications();
 
   // 2. PEGUE O 'navigation' DIRETAMENTE DAS PROPS
   const { navigation } = props;
@@ -90,6 +97,40 @@ export function CustomDrawerContent(props: any) {
       />
 
       <DrawerItem
+        label={() => (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={{ color: theme.text, fontSize: 16 }}>Notificações</Text>
+
+            {unreadCount > 0 && (
+              <View
+                style={{
+                  backgroundColor: "red",
+                  marginLeft: 8,
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                  borderRadius: 10,
+                  minWidth: 20,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>
+                  {unreadCount}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+        icon={({ size }) => (
+          <Ionicons
+            name="notifications-outline"  // ÍCONE DE SININHO
+            size={size}
+            color={theme.orange}
+          />
+        )}
+        onPress={() => navigateTo("Notifications")}
+      />
+      
+      <DrawerItem
         label="Configurações"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
@@ -108,3 +149,4 @@ export function CustomDrawerContent(props: any) {
     </DrawerContentScrollView>
   );
 }
+

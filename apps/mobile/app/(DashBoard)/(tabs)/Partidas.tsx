@@ -1,5 +1,4 @@
-// Partidas.tsx
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
@@ -12,9 +11,12 @@ import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
 import ReportReasonModal from "@/components/ReportReasonModal";
 import { useFeedMatches } from "@/libs/hooks/useMatchesFunctions";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
 import { Imatches } from "@/libs/interfaces/Imatches";
 import { ModalDescription } from "@/components/ModalDescription";
+
+// --- NOVOS IMPORTS ---
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { getMatchById } from "@/libs/auth/handleMatch";
 
 export default function Partidas() {
   const { isDarkMode } = useTheme();
@@ -28,6 +30,9 @@ export default function Partidas() {
     },
   });
 
+  const router = useRouter();
+  const { matchId } = useLocalSearchParams();
+
   const {
     visibleConfirmCard,
     visible,
@@ -35,29 +40,20 @@ export default function Partidas() {
     visibleInfosHandleMatch,
     visibleReportMatch,
     visibleDescriptionMatch,
-
     selectedMatch,
-
     useModal,
     closeModal,
-
     openDetailsHandleMatchModal,
     closeDetailsHandleMatchModal,
-
     openModalConfirmCard,
     closeModalConfirmCard,
-
     openModalMoreInfosHandleModal,
     closeModalMoreInfosHandleModal,
-
     openReportMatchModal,
     closeReportMatchModal,
-
     openDetailsFromHandle,
-
     openDescriptionMatchModal,
-    closeDescriptionMatchModal
-
+    closeDescriptionMatchModal,
   } = UseModalFeedMatchs();
 
   const {
@@ -79,6 +75,30 @@ export default function Partidas() {
       reloadFeed();
     }, [reloadFeed]),
   );
+
+  useEffect(() => {
+    const checkNotificationRedirect = async () => {
+      if (matchId && typeof matchId === "string" && matchId !== "") {
+        try {
+          console.log("🔔 Abrindo partida via notificação:", matchId);
+          
+          // Busca os dados atualizados da partida
+          const matchData = await getMatchById(matchId);
+          
+          if (matchData) {
+            // Abre o modal HandleMatchComp com os dados carregados
+            openModalConfirmCard(matchData);
+
+            router.setParams({ matchId: "" });
+          }
+        } catch (error) {
+          console.error("Erro ao carregar partida da notificação:", error);
+        }
+      }
+    };
+
+    checkNotificationRedirect();
+  }, [matchId]);
 
   return (
     <BackGroundComp>
@@ -116,7 +136,6 @@ export default function Partidas() {
           isVisible={visibleConfirmCard}
           onClose={closeModalConfirmCard}
           match={selectedMatch ?? undefined}
-          // onLeaveMatch={selectedMatch ? () => leaveMatch(selectedMatch, closeModalConfirmCard ) : undefined}
           onPressMoreInfos={openModalMoreInfosHandleModal}
           onSwitchTeam={
             selectedMatch
@@ -134,17 +153,15 @@ export default function Partidas() {
           isVisible={visibleInfosHandleMatch}
           onClose={closeModalMoreInfosHandleModal}
           onInfos={openDetailsFromHandle}
-          // onInfosMatch={openReportMatchModal}
           onDetailsMatch={openDescriptionMatchModal}
           onLeaveMatch={
             selectedMatch
-              ? () => leaveMatch(selectedMatch, () => {
-                closeModalConfirmCard(); 
-              })
+              ? () =>
+                  leaveMatch(selectedMatch, () => {
+                    closeModalConfirmCard();
+                  })
               : undefined
           }
-
-
         />
 
         <MatchDetailsModal

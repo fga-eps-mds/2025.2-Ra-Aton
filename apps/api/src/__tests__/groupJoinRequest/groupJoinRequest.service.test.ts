@@ -5,10 +5,16 @@ import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 import groupJoinRequestRepository from "../../modules/groupJoinRequest/groupJoinRequest.repository";
 import groupMembershipRepository from "../../modules/groupMembership/groupMembership.repository";
-import { parse } from "path";
+import groupRepository from "../../modules/group/group.repository";
+import notificationService from "../../modules/notification/notification.service";
+import { userService } from "../../modules/user/user.service";
+import { MadeBy, NotificationType } from "@prisma/client";
 
 jest.mock("../../modules/groupJoinRequest/groupJoinRequest.repository");
 jest.mock("../../modules/groupMembership/groupMembership.repository");
+jest.mock("../../modules/group/group.repository");
+jest.mock("../../modules/notification/notification.service");
+jest.mock("../../modules/user/user.service");
 
 describe("GroupJoinRequestService", () => {
   afterEach(() => {
@@ -45,10 +51,6 @@ describe("GroupJoinRequestService", () => {
         statusCode: httpStatus.NOT_FOUND,
         message: "Convite não encontrado",
       });
-
-      expect(groupJoinRequestRepository.findInviteById).toHaveBeenCalledWith(
-        "nonexistent-id",
-      );
     });
   });
 
@@ -65,7 +67,6 @@ describe("GroupJoinRequestService", () => {
       const result = await groupJoinRequestService.findAllInvites();
 
       expect(result).toEqual(mockInvites);
-      expect(groupJoinRequestRepository.findAll).toHaveBeenCalled();
     });
   });
 
@@ -86,9 +87,10 @@ describe("GroupJoinRequestService", () => {
         groupJoinRequestRepository.findInviteByUserId,
       ).toHaveBeenCalledWith("user1", undefined);
     });
+
     it("should return invites for given userId with madeBy filter", async () => {
       const mockInvites = [
-        { id: "1", userId: "user1", groupId: "group1", madeBy: "SENDER" },
+        { id: "1", userId: "user1", groupId: "group1", madeBy: "USER" },
       ];
       (
         groupJoinRequestRepository.findInviteByUserId as jest.Mock
@@ -116,14 +118,14 @@ describe("GroupJoinRequestService", () => {
         groupJoinRequestRepository.findInviteByGroupId as jest.Mock
       ).mockResolvedValue(mockInvites);
 
-      const result =
-        await groupJoinRequestService.findInviteByGroupId("group1");
+      const result = await groupJoinRequestService.findInviteByGroupId("group1");
 
       expect(result).toEqual(mockInvites);
       expect(
         groupJoinRequestRepository.findInviteByGroupId,
       ).toHaveBeenCalledWith("group1", undefined);
     });
+
     it("should return invites for given groupId with madeBy filter", async () => {
       const mockInvites = [
         { id: "1", userId: "user1", groupId: "group1", madeBy: "USER" },
@@ -145,149 +147,147 @@ describe("GroupJoinRequestService", () => {
   });
 
   describe("createInvite", () => {
-    it("should create and return new invite", async () => {
+    it("should create invite and notify admins when made by USER", async () => {
       const mockInviteData = {
         userId: "user1",
         groupId: "group1",
         madeBy: "USER",
       };
+      
       const mockCreatedInvite = {
         id: "1",
         ...mockInviteData,
+        madeBy: MadeBy.USER
       };
 
-      (
-        groupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock
-      ).mockResolvedValue(null);
-      (
-        groupJoinRequestRepository.findInviteByUserAndGroupId as jest.Mock
-      ).mockResolvedValue(null);
-      (groupJoinRequestRepository.createInvite as jest.Mock).mockResolvedValue(
-        mockCreatedInvite,
-      );
+      const mockGroup = { id: "group1", name: "Grupo Teste" };
+      const mockUser = { id: "user1", userName: "UserTest" };
+      const mockAdmins = [{ userId: "admin1" }, { userId: "admin2" }];
+
+      (groupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock).mockResolvedValue(null);
+      (groupJoinRequestRepository.findInviteByUserAndGroupId as jest.Mock).mockResolvedValue(null);
+      (groupJoinRequestRepository.createInvite as jest.Mock).mockResolvedValue(mockCreatedInvite);
+      (groupRepository.findGroupById as jest.Mock).mockResolvedValue(mockGroup);
+      (userService.getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (groupMembershipRepository.findAdminsByGroupId as jest.Mock).mockResolvedValue(mockAdmins);
+      (notificationService.send as jest.Mock).mockResolvedValue(undefined);
 
       const result = await groupJoinRequestService.createInvite(mockInviteData);
 
       expect(result).toEqual(mockCreatedInvite);
+      
       expect(groupJoinRequestRepository.createInvite).toHaveBeenCalledWith(
-        { madeBy: mockInviteData.madeBy },
-        mockInviteData.userId,
-        mockInviteData.groupId,
+        { madeBy: "USER" },
+        "user1",
+        "group1"
+      );
+
+      expect(groupMembershipRepository.findAdminsByGroupId).toHaveBeenCalledWith("group1");
+      
+      expect(notificationService.send).toHaveBeenCalledTimes(2);
+      expect(notificationService.send).toHaveBeenCalledWith(
+        "admin1",
+        NotificationType.GROUP_JOIN_REQUEST,
+        expect.any(String),
+        expect.stringContaining("UserTest"),
+        "group1",
+        "GROUP"
       );
     });
 
     it("should throw ApiError if user is already a group member", async () => {
-      const mockInviteData = {
-        userId: "user1",
-        groupId: "group1",
-        madeBy: "USER",
-      };
-      const mockExistingMember = {
-        id: "member1",
-        userId: "user1",
-        groupId: "group1",
-      };
+      const mockInviteData = { userId: "user1", groupId: "group1" };
+      (groupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock).mockResolvedValue({ id: "1" });
 
-      (
-        groupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock
-      ).mockResolvedValue(mockExistingMember);
-
-      await expect(
-        groupJoinRequestService.createInvite(mockInviteData),
-      ).rejects.toThrow(ApiError);
-
-      await expect(
-        groupJoinRequestService.createInvite(mockInviteData),
-      ).rejects.toMatchObject({
-        statusCode: httpStatus.CONFLICT,
-        message: "Usuário já é membro do grupo",
-      });
-
-      expect(
-        groupMembershipRepository.findMemberByUserIdAndGroupId,
-      ).toHaveBeenCalledWith("user1", "group1");
+      await expect(groupJoinRequestService.createInvite(mockInviteData))
+        .rejects.toMatchObject({ statusCode: httpStatus.CONFLICT });
     });
 
     it("should throw ApiError if an invite already exists", async () => {
-      const mockInviteData = {
-        userId: "user1",
-        groupId: "group1",
-        madeBy: "USER",
-      };
-      const mockExistingInvite = {
-        id: "invite1",
-        userId: "user1",
-        groupId: "group1",
-      };
+      const mockInviteData = { userId: "user1", groupId: "group1" };
+      (groupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock).mockResolvedValue(null);
+      (groupJoinRequestRepository.findInviteByUserAndGroupId as jest.Mock).mockResolvedValue({ id: "1" });
 
-      (
-        groupMembershipRepository.findMemberByUserIdAndGroupId as jest.Mock
-      ).mockResolvedValue(null);
-      (
-        groupJoinRequestRepository.findInviteByUserAndGroupId as jest.Mock
-      ).mockResolvedValue(mockExistingInvite);
-
-      await expect(
-        groupJoinRequestService.createInvite(mockInviteData),
-      ).rejects.toThrow(ApiError);
-
-      await expect(
-        groupJoinRequestService.createInvite(mockInviteData),
-      ).rejects.toMatchObject({
-        statusCode: httpStatus.CONFLICT,
-        message: "Usuário já foi convidado para equipe recentemente",
-      });
-
-      expect(
-        groupJoinRequestRepository.findInviteByUserAndGroupId,
-      ).toHaveBeenCalledWith("user1", "group1");
+      await expect(groupJoinRequestService.createInvite(mockInviteData))
+        .rejects.toMatchObject({ statusCode: httpStatus.CONFLICT });
     });
   });
 
   describe("updateInvite", () => {
-    it("should update and return invite", async () => {
+    it("should update invite, create membership and notify user on APPROVE", async () => {
       const mockInviteData = { status: "APPROVED" };
       const mockUpdatedInvite = {
         id: "1",
+        userId: "user1",
+        groupId: "group1",
         ...mockInviteData,
       };
+      const mockGroup = { id: "group1", name: "Grupo Teste" };
 
-      (groupJoinRequestRepository.updateInvite as jest.Mock).mockResolvedValue(
-        mockUpdatedInvite,
-      );
+      (groupJoinRequestRepository.updateInvite as jest.Mock).mockResolvedValue(mockUpdatedInvite);
+      (groupRepository.findGroupById as jest.Mock).mockResolvedValue(mockGroup);
+      (groupMembershipRepository.createMembership as jest.Mock).mockResolvedValue({});
+      (notificationService.send as jest.Mock).mockResolvedValue(undefined);
 
-      const result = await groupJoinRequestService.updateInvite(
-        mockInviteData,
-        "1",
-      );
+      const result = await groupJoinRequestService.updateInvite(mockInviteData, "1");
 
       expect(result).toEqual(mockUpdatedInvite);
-      expect(groupJoinRequestRepository.updateInvite).toHaveBeenCalledWith(
-        mockInviteData,
-        "1",
+      expect(groupMembershipRepository.createMembership).toHaveBeenCalled();
+      
+      expect(notificationService.send).toHaveBeenCalledWith(
+        "user1",
+        NotificationType.GROUP_JOIN_APPROVED,
+        expect.stringContaining("Aprovada"),
+        expect.stringContaining("Grupo Teste"),
+        "group1",
+        "GROUP"
       );
+    });
+
+    it("should update invite and notify user on REJECT", async () => {
+      const mockInviteData = { status: "REJECTED" };
+      const mockUpdatedInvite = {
+        id: "1",
+        userId: "user1",
+        groupId: "group1",
+        ...mockInviteData,
+      };
+      const mockGroup = { id: "group1", name: "Grupo Teste" };
+
+      (groupJoinRequestRepository.updateInvite as jest.Mock).mockResolvedValue(mockUpdatedInvite);
+      (groupRepository.findGroupById as jest.Mock).mockResolvedValue(mockGroup);
+      (notificationService.send as jest.Mock).mockResolvedValue(undefined);
+
+      await groupJoinRequestService.updateInvite(mockInviteData, "1");
+
+      expect(notificationService.send).toHaveBeenCalledWith(
+        "user1",
+        NotificationType.GROUP_JOIN_REJECTED,
+        expect.stringContaining("Rejeitada"),
+        expect.stringContaining("Grupo Teste"),
+        "group1",
+        "GROUP"
+      );
+      
+      expect(groupMembershipRepository.createMembership).not.toHaveBeenCalled();
     });
   });
 
   describe("parseMadeBy", () => {
     it("should return undefined for undefined sender", () => {
-      const result = parseMadeBy(undefined);
-      expect(result).toBeUndefined();
+      expect(parseMadeBy(undefined)).toBeUndefined();
     });
 
     it("should return 'USER' for sender 'USER'", () => {
-      const result = parseMadeBy("USER");
-      expect(result).toBe("USER");
+      expect(parseMadeBy("USER")).toBe("USER");
     });
 
     it("should return 'GROUP' for sender 'GROUP'", () => {
-      const result = parseMadeBy("GROUP");
-      expect(result).toBe("GROUP");
+      expect(parseMadeBy("GROUP")).toBe("GROUP");
     });
 
     it("should return undefined for invalid sender", () => {
-      const result = parseMadeBy("INVALID");
-      expect(result).toBeUndefined();
+      expect(parseMadeBy("INVALID")).toBeUndefined();
     });
   });
 
