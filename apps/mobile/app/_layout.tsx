@@ -32,20 +32,19 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <UserProvider>
-          {/* A Stack deve envolver TUDO o que é navegação */}
-          <Stack
-            screenOptions={{
-              headerShown: false, // Padrão: sem header
-            }}
-          >
-            {/* Rotas principais */}
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(Auth)" />
-            <Stack.Screen name="(DashBoard)" />
-            <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
-          </Stack>
           <NotificationProvider>
-            <Stack screenOptions={{ headerShown: false }} />
+            {/* A Stack deve envolver TUDO o que é navegação */}
+            <Stack
+              screenOptions={{
+                headerShown: false, // Padrão: sem header
+              }}
+            >
+              {/* Rotas principais */}
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(Auth)" />
+              <Stack.Screen name="(DashBoard)" />
+              <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
+            </Stack>
           </NotificationProvider>
         </UserProvider>
       </ThemeProvider>
