@@ -82,6 +82,7 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   passwordHash String
+  notificationsAllowed Boolean @default(true)
 
   // Relationships
   subscription PlayerSubscription[]
