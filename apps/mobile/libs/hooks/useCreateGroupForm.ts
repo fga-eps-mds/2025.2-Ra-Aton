@@ -66,21 +66,16 @@ export function useCreateGroupForm() {
         sports: data.sport ? [data.sport] : [],
       };
 
-      // Chama a API
       const newGroup = await handleCreateGroup(payload);
 
       // SUCESSO:
-      // 1. Mostra um alerta rápido (ou Toast se tivesse biblioteca)
-      Alert.alert("Sucesso!", `O grupo "${newGroup.name}" foi criado.`, [
+      Alert.alert("Sucesso!", `O grupo "${newGroup.name}" foi criado com sucesso!`, [
         {
-          text: "Ir para o Perfil",
+          text: "Voltar",
           onPress: () => {
-            // 2. Redireciona para a página do grupo criado
-            // Usa 'replace' para que o botão voltar não retorne ao formulário de criação
-            router.replace({
-              pathname: "/group/[id]", // O nome exato do arquivo/rota
-              params: { id: newGroup.id }, // O parâmetro dinâmico
-            });
+            router.replace( "/(Dashboard/(tabs)/(menu))")
+            // atilaa09: Por enquando não da pra mandar o usuário pra tela de perfil pois ela nn existe.
+                            // <----- Quando existir a tela gente coloca aqui.
           },
         },
       ]);
@@ -99,7 +94,6 @@ export function useCreateGroupForm() {
           message: "Este nome já está em uso. Por favor, escolha outro.",
         });
       } else {
-        // Para outros erros (rede, servidor), mostramos o Alert
         Alert.alert(
           "Atenção",
           errorMessage || "Ocorreu um erro ao criar o grupo. Tente novamente.",

@@ -1,11 +1,3 @@
-/*
-  Warnings:
-
-  - A unique constraint covering the columns `[userName]` on the table `User` will be added. If there are existing duplicate values, this will fail.
-  - Added the required column `passwordHash` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `userName` to the `User` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- CreateEnum
 CREATE TYPE "ProfileType" AS ENUM ('JOGADOR', 'TORCEDOR', 'ATLETICA');
 
@@ -36,10 +28,19 @@ CREATE TYPE "JoinRequestStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 -- CreateEnum
 CREATE TYPE "MatchStatus" AS ENUM ('EM_BREVE', 'EM_ANDAMENTO', 'FINALIZADO');
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "passwordHash" TEXT NOT NULL,
-ADD COLUMN     "profileType" "ProfileType",
-ADD COLUMN     "userName" TEXT NOT NULL;
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
+    "profileType" "ProfileType",
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Post" (
@@ -189,6 +190,12 @@ CREATE TABLE "GroupFollow" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_userName_key" ON "User"("userName");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Attendance_userId_postId_key" ON "Attendance"("userId", "postId");
 
 -- CreateIndex
@@ -211,9 +218,6 @@ CREATE UNIQUE INDEX "PlayerSubscription_userId_matchId_key" ON "PlayerSubscripti
 
 -- CreateIndex
 CREATE UNIQUE INDEX "GroupFollow_userId_groupId_key" ON "GroupFollow"("userId", "groupId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_userName_key" ON "User"("userName");
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
