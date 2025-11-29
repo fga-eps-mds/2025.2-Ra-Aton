@@ -7,76 +7,58 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Button1Comp from "../../../components/PrimaryButton";
-import Button2Comp from "../../../components/SecondaryButton";
 import Spacer from "../../../components/SpacerComp";
 import BackGroundComp from "@/components/BackGroundComp";
 import AppText from "@/components/AppText";
-import TwoOptionButton from "@/components/TwoOptionButton";
 import TwoOptionSwitch from "@/components/TwoOptionButton";
 import { useTheme } from "../../../constants/Theme";
 import { Colors } from "../../../constants/Colors";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { CreateGroupComp } from "@/components/CreateGroupComp";
 import { useUser } from "@/libs/storage/UserContext";
 import { useSolicitacoes } from "@/libs/hooks/getSolicitacoes";
-import { cancelarSolicitacao} from "@/libs/solicitacoes/cancelarSolicitacao";
+import { cancelarSolicitacao } from "@/libs/solicitacoes/cancelarSolicitacao";
 import { aceitarSolicitacao } from "@/libs/solicitacoes/aceitarSolicitacao";
 import { rejeitarSolicitacao } from "@/libs/solicitacoes/rejeitarSolicitacao";
 
-import SecondaryButton from "../../../components/SecondaryButton";
-import PrimaryButton from "../../../components/PrimaryButton";
 import { SolicitacoesComp } from "@/components/SolicitacoesComp";
 
-
 const Solicitacoes = () => {
-    const { isDarkMode, toggleDarkMode } = useTheme();
+    const { isDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;
     const styles = makeStyles(theme);
     const router = useRouter();
     const { user } = useUser();
 
-     const {
-        solicitacoes,
-        loading,
-        error,
-        refetch,
-      } = useSolicitacoes();
+    const { solicitacoes, loading, refetch } = useSolicitacoes();
 
-    const enviadas = solicitacoes.filter(s => s.madeBy === "USER")
-    const recebidas = solicitacoes.filter(s => s.madeBy === "GROUP")
-
+    const enviadas = solicitacoes.filter(s => s.madeBy === "USER");
+    const recebidas = solicitacoes.filter(s => s.madeBy === "GROUP");
 
     const enviadasPendentes = enviadas.filter(s => s.status === "PENDING");
-    const enviadasRespondidas = enviadas.filter(
-    s => s.status === "APPROVED" || s.status === "REJECTED"
-    );
+    const enviadasRespondidas = enviadas.filter(s => s.status !== "PENDING");
 
     const recebidasPendentes = recebidas.filter(s => s.status === "PENDING");
-    const recebidasRespondidas = recebidas.filter(
-    s => s.status === "APPROVED" || s.status === "REJECTED"
-    );
+    const recebidasRespondidas = recebidas.filter(s => s.status !== "PENDING");
 
     const [selectedTab, setSelectedTab] = useState<"LEFT" | "RIGHT">("LEFT");
+
     if (loading) {
-    return (
-                <BackGroundComp style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
-        <ActivityIndicator size="large" color={theme.orange} />
-        </BackGroundComp >
-    );
+        return (
+            <BackGroundComp style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+                <ActivityIndicator size="large" color={theme.orange} />
+            </BackGroundComp>
+        );
     }
 
     return (
         <BackGroundComp style={styles.container}>
             <ScrollView
                 contentContainerStyle={{
-                    padding: 0,
-                    paddingBottom: 0,
                     paddingHorizontal: 20,
+                    paddingBottom: 50,
                     backgroundColor: theme.background,
                     alignItems: "center",
-                    flex: 1,
                 }}
                 keyboardShouldPersistTaps="handled"
             >
@@ -90,74 +72,44 @@ const Solicitacoes = () => {
                 />
 
 
-                {/*  ABA ENVIADAS  */}
                 {selectedTab === "LEFT" && (
                     <>
-                                            <Spacer height={30} />
+                        <Spacer height={30} />
 
-                        {/* Pendentes */}
-                        <SafeAreaView style={{ width: "100%", height: "42%" }}>
-                            <AppText
-                                style={[
-                                    { alignSelf: "center", marginBottom: 10 },
-                                    styles.txt,
-                                ]}
-                            >
+                        <SafeAreaView style={{ width: "100%" }}>
+                            <AppText style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}>
                                 Solicitações enviadas
                             </AppText>
 
-                            <ScrollView
-                                contentContainerStyle={{
-                                    width: "100%",
-                                    alignItems: "center",
-                                    paddingHorizontal: 20,
-                                }}
-                                keyboardShouldPersistTaps="handled"
-                            >
+                            <View style={styles.sectionContainer}>
                                 {enviadasPendentes.length === 0 ? (
-                                    <AppText style={styles.txt}>
-                                        Nenhuma solicitação pendente.
-                                    </AppText>
+                                    <AppText style={styles.txt}>Nenhuma solicitação pendente.</AppText>
                                 ) : (
                                     enviadasPendentes.map(s => (
                                         <SolicitacoesComp
                                             key={s.id}
                                             name={s.group.name}
                                             status={s.status}
-                                            onPrimaryPress={async () => {await cancelarSolicitacao(s.id);
-                                                                        refetch();
+                                            onPrimaryPress={async () => {
+                                                await cancelarSolicitacao(s.id);
+                                                refetch();
                                             }}
                                         />
                                     ))
                                 )}
-                            </ScrollView>
+                            </View>
                         </SafeAreaView>
 
                         <Spacer height={30} />
 
-                        {/* Respondidas */}
-                        <SafeAreaView style={{ width: "100%", height: "90%" }}>
-                            <AppText
-                                style={[
-                                    { alignSelf: "center", marginBottom: 10 },
-                                    styles.txt,
-                                ]}
-                            >
+                        <SafeAreaView style={{ width: "100%" }}>
+                            <AppText style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}>
                                 Solicitações Aceitas/Rejeitadas
                             </AppText>
 
-                            <ScrollView
-                                contentContainerStyle={{
-                                    width: "100%",
-                                    alignItems: "center",
-                                    paddingHorizontal: 20,
-                                }}
-                                keyboardShouldPersistTaps="handled"
-                            >
+                            <View style={styles.sectionContainer}>
                                 {enviadasRespondidas.length === 0 ? (
-                                    <AppText style={styles.txt}>
-                                        Nenhuma solicitação respondida.
-                                    </AppText>
+                                    <AppText style={styles.txt}>Nenhuma solicitação respondida.</AppText>
                                 ) : (
                                     enviadasRespondidas.map(s => (
                                         <SolicitacoesComp
@@ -167,38 +119,24 @@ const Solicitacoes = () => {
                                         />
                                     ))
                                 )}
-                            </ScrollView>
+                            </View>
                         </SafeAreaView>
                     </>
                 )}
 
-                {/*  ABA RECEBIDAS  */}
+
                 {selectedTab === "RIGHT" && (
                     <>
                         <Spacer height={30} />
 
                         <SafeAreaView style={{ width: "100%" }}>
-                            <AppText
-                                style={[
-                                    { alignSelf: "center", marginBottom: 10 },
-                                    styles.txt,
-                                ]}
-                            >
+                            <AppText style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}>
                                 Convites recebidos
                             </AppText>
 
-                            <ScrollView
-                                contentContainerStyle={{
-                                    width: "100%",
-                                    alignItems: "center",
-                                    paddingHorizontal: 20,
-                                }}
-                                keyboardShouldPersistTaps="handled"
-                            >
+                            <View style={styles.sectionContainer}>
                                 {recebidasPendentes.length === 0 ? (
-                                    <AppText style={styles.txt}>
-                                        Nenhum convite recebido.
-                                    </AppText>
+                                    <AppText style={styles.txt}>Nenhum convite recebido.</AppText>
                                 ) : (
                                     recebidasPendentes.map(s => (
                                         <SolicitacoesComp
@@ -217,30 +155,17 @@ const Solicitacoes = () => {
                                         />
                                     ))
                                 )}
-                            </ScrollView>
+                            </View>
                         </SafeAreaView>
 
                         <Spacer height={30} />
 
-                        {/* Respondidas */}
-                        <SafeAreaView style={{ width: "100%", height: "90%" }}>
-                            <AppText
-                                style={[
-                                    { alignSelf: "center", marginBottom: 10 },
-                                    styles.txt,
-                                ]}
-                            >
+                        <SafeAreaView style={{ width: "100%" }}>
+                            <AppText style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}>
                                 Solicitações Aceitas/Rejeitadas
                             </AppText>
 
-                            <ScrollView
-                                contentContainerStyle={{
-                                    width: "100%",
-                                    alignItems: "center",
-                                    paddingHorizontal: 20,
-                                }}
-                                keyboardShouldPersistTaps="handled"
-                            >
+                            <View style={styles.sectionContainer}>
                                 {recebidasRespondidas.length === 0 ? (
                                     <AppText style={styles.txt}>
                                         Nenhuma solicitação respondida.
@@ -254,13 +179,12 @@ const Solicitacoes = () => {
                                         />
                                     ))
                                 )}
-                            </ScrollView>
+                            </View>
                         </SafeAreaView>
                     </>
                 )}
-
             </ScrollView>
-        </BackGroundComp >
+        </BackGroundComp>
     );
 };
 
@@ -271,23 +195,17 @@ const makeStyles = (theme: any) =>
         container: {
             flex: 1,
             backgroundColor: theme.background,
-            // padding: 16,
         },
         txt: {
             color: theme.text,
             fontWeight: "500",
-            fontSize: 24,
+            fontSize: 22,
+            textAlign: "center",
         },
-
-        inputBox: {
+        sectionContainer: {
             width: "100%",
-            height: 40,
-            borderRadius: 34,
-            backgroundColor: theme.input,
-            borderWidth: 1,
-            borderColor: theme.orange,
-            alignItems: "flex-start",
-            justifyContent: "center",
-            paddingHorizontal: 34,
+            alignItems: "center",
+            paddingHorizontal: 20,
+            gap: 10,
         },
     });

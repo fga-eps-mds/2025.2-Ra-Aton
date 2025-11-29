@@ -1,4 +1,4 @@
-// app/_layout.tsx
+//ARQUIVO: apps/mobile/app/_layout.tsx
 import { ThemeProvider } from "@/constants/Theme";
 import { Stack } from "expo-router";
 import { Fonts } from "@/constants/Fonts";
@@ -8,17 +8,20 @@ import { UserProvider } from "@/libs/storage/UserContext";
 // ⬇️ importa o React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+// ⬇️ importa o NotificationProvider
+import { NotificationProvider } from "@/libs/storage/NotificationContext";
+
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
   /* eslint-disable @typescript-eslint/no-require-imports */
 
   const [fontsLoaded, fontsError] = useFonts({
-    [Fonts.mainFont
-      .dongleRegular]: require("@/assets/fonts/Dongle-Regular.ttf"),
+    [Fonts.mainFont.dongleRegular]: require("@/assets/fonts/Dongle-Regular.ttf"),
     [Fonts.otherFonts.dongleBold]: require("@/assets/fonts/Dongle-Bold.ttf"),
     [Fonts.otherFonts.dongleLight]: require("@/assets/fonts/Dongle-Light.ttf"),
   });
+
   /* eslint-enable @typescript-eslint/no-require-imports */
 
   if (!fontsLoaded && !fontsError) {
@@ -39,16 +42,11 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="(Auth)" />
             <Stack.Screen name="(DashBoard)" />
-            
-            {/* Rota de Perfil de Grupo (na raiz) */}
-            <Stack.Screen 
-              name="group/[id]" 
-              options={{ 
-                headerShown: false, // Se quiser sem header padrão
-                presentation: 'card', // Animação padrão de push
-              }} 
-            />
+            <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
           </Stack>
+          <NotificationProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </NotificationProvider>
         </UserProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -29,6 +29,8 @@ describe("CommentRepository", () => {
       expect(result).toEqual(mockComments);
       expect(prismaMock.comment.findMany).toHaveBeenCalledWith({
         where: { postId },
+          include: { author: true },
+
       });
     });
   });
@@ -42,6 +44,7 @@ describe("CommentRepository", () => {
       expect(result).toEqual(mockComment);
       expect(prismaMock.comment.findUnique).toHaveBeenCalledWith({
         where: { id: "c1" },
+          include: { author: true },
       });
     });
   });

@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 import { getUserData } from "@/libs/storage/getUserData";
 
 export const api_route = axios.create({
-  baseURL: "http://localhost:4000",
+  baseURL: "http://192.168.3.187:4000",
   timeout: 5000,
 });
 

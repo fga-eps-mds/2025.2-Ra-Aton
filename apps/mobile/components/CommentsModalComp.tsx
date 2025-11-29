@@ -47,8 +47,9 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
       : [
           {
             id: "1",
-            authorId: "Usuário A",
+            author: { userName: "Usuário A" },
             content: "Que legal!",
+
             postId: "1",
             createdAt: new Date().toISOString(),
           } as Icomment,
@@ -69,7 +70,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
     <View style={styles.commentContainer}>
       <View style={styles.commentTextContainer}>
         <Text style={[styles.commentAuthor, { color: theme.text }]}>
-          {item.authorId}
+          {item.author?.userName ?? "Usuário desconhecido"}
         </Text>
         <Text style={[styles.commentText, { color: theme.text }]}>
           {item.content}
@@ -77,6 +78,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
       </View>
     </View>
   );
+console.log("COMMENTS RECEIVED: ", comments);
 
   return (
     <Modal

@@ -14,6 +14,8 @@ export type Group = {
 };
 
 export function useGroups() {
+  console.log("useGroups HOOK RUNNING");
+
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedType, setSelectedType] = useState<"AMATEUR" | "ATHLETIC">("AMATEUR");
   const [acceptingOnly, setAcceptingOnly] = useState(false);
@@ -29,7 +31,6 @@ export function useGroups() {
     try {
       setLoading(true);
       const data = await loadGroups(user.token, user.id);
-      // console.log("DATA:", JSON.stringify(data, null, 2));
       setGroups(data);
     } catch (err) {
       setError(err as Error);
