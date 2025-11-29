@@ -21,6 +21,18 @@ class GroupMembershipController {
     return res.status(HttpStatus.OK).json(members);
   }
 
+  async listAllAdminMembersByUserId(req: Request, res: Response) {
+    const { id: userId } = req.params;
+    if (!userId) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: "ID do usuário é obrigatório" });
+    }
+
+    const members = await groupMembershipService.findAdminMemberByUserId(userId);
+    return res.status(HttpStatus.OK).json(members);
+  }
+
   async listAllMembersFromGroupId(req: Request, res: Response) {
     const { id: gropuId } = req.params;
     if (!gropuId) {
