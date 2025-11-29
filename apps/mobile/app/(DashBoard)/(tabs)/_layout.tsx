@@ -150,14 +150,21 @@ export default function DashboardTabsLayout() {
         }} // Esconde da Navbar
       />
 
-        <Tabs.Screen
+      <Tabs.Screen
         name="(create)/gerenciarPost"
         options={{
-          title: "gerenciarPost",
+          title: "Gerenciar Post",
           href: null,
         }} // Esconde da Navbar
       />
 
+      <Tabs.Screen
+        name="perfilGrupo"
+        options={{
+          title: "Perfil do Grupo",
+          href: null,
+        }} // Esconde da Navbar
+      />
       <Tabs.Screen
         name="Solicitacoes"
         options={{
@@ -167,5 +174,7 @@ export default function DashboardTabsLayout() {
       />
 
     </Tabs>
+
+
   );
 }
