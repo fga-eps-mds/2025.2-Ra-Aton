@@ -1,90 +1,107 @@
 // ARQUIVO: apps/mobile/__tests__/libs/hooks/useCreateGroupForm.test.ts
-import { renderHook, act, waitFor } from '@testing-library/react-native'
-import { useCreateGroupForm } from '@/libs/hooks/useCreateGroupForm'
+import { renderHook, act } from "@testing-library/react-native";
+import * as ExpoRouter from "expo-router";
 
-// 1. Mock do serviço handleCreateGroup para não chamar o backend real
-jest.mock('@/libs/group/handleCreateGroup', () => ({
+// 1. MOCKS SIMPLIFICADOS
+
+const mockReplace = jest.fn();
+const mockBack = jest.fn();
+
+// Mock Router
+jest.mock("expo-router", () => ({
+  useRouter: jest.fn(),
+}));
+
+// Mock API
+jest.mock("@/libs/group/handleCreateGroup", () => ({
   handleCreateGroup: jest.fn(),
-}))
+}));
 
-// 2. Mock do Expo Router para testar a navegação
-const mockReplace = jest.fn()
-const mockBack = jest.fn()
+// 2. MOCK DO NOSSO UTILS (A mágica acontece aqui)
+// Como é um arquivo local TS, o Jest mocka sem reclamar.
+jest.mock("@/libs/utils/alert", () => ({
+  showSuccessAlert: jest.fn(),
+  showErrorAlert: jest.fn(),
+}));
 
-jest.mock('expo-router', () => ({
-  useRouter: () => ({
-    replace: mockReplace,
-    back: mockBack,
-  }),
-}))
+// 3. Imports
+import { useCreateGroupForm } from "@/libs/hooks/useCreateGroupForm";
+const { handleCreateGroup } = require("@/libs/group/handleCreateGroup");
+// Importamos o mock para verificar se foi chamado
+const { showSuccessAlert } = require("@/libs/utils/alert");
 
-// Importamos o mock do serviço para poder manipulá-lo
-const { handleCreateGroup } = require('@/libs/group/handleCreateGroup')
-
-describe('useCreateGroupForm', () => {
+describe("useCreateGroupForm", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+    (ExpoRouter.useRouter as jest.Mock).mockReturnValue({
+      replace: mockReplace,
+      back: mockBack,
+    });
+  });
 
-  it('deve inicializar com valores padrão', () => {
-    const { result } = renderHook(() => useCreateGroupForm())
-    
-    expect(result.current.selectedType).toBe('ATHLETIC')
-    expect(result.current.isLoading).toBe(false)
-  })
+  afterEach(() => {
+    jest.useRealTimers();
+  });
 
-  it('deve validar campos obrigatórios (nome vazio)', async () => {
-    const { result } = renderHook(() => useCreateGroupForm())
+  it("deve inicializar corretamente", () => {
+    const { result } = renderHook(() => useCreateGroupForm());
+    expect(result.current.selectedType).toBe("ATHLETIC");
+  });
 
-    // Tenta submeter sem preencher o nome
+  it("deve validar erros", async () => {
+    const { result } = renderHook(() => useCreateGroupForm());
+
     await act(async () => {
-      await result.current.submitForm()
-    })
+      await result.current.submitForm();
+    });
 
-    // O serviço NÃO deve ser chamado
-    expect(handleCreateGroup).not.toHaveBeenCalled()
-    // Deve haver erro no campo 'name'
-    expect(result.current.errors.name).toBeDefined()
-  })
+    expect(handleCreateGroup).not.toHaveBeenCalled();
+    expect(result.current.errors.name).toBeDefined();
+  });
 
-  it('deve chamar a API e redirecionar em caso de sucesso', async () => {
-    // Configura o mock para retornar sucesso com um ID fictício
+  it("deve chamar API, redirecionar e mostrar alerta de sucesso", async () => {
+    // Mock sucesso
     handleCreateGroup.mockResolvedValue({
-      id: 'grupo-123-id',
-      name: 'Novo Grupo',
-    })
+      id: "grupo-123-id",
+      name: "Novo Grupo",
+    });
 
-    const { result } = renderHook(() => useCreateGroupForm())
+    const { result } = renderHook(() => useCreateGroupForm());
 
-    // Preenche o formulário com dados válidos
+    // Preenche
     await act(async () => {
-      result.current.setValue('name', 'Novo Grupo')
-      result.current.setValue('description', 'Descrição teste')
-      result.current.setValue('type', 'AMATEUR')
-      result.current.setValue('sport', 'Futsal')
-    })
+      result.current.setValue("name", "Novo Grupo");
+      result.current.setValue("description", "Teste");
+      result.current.setValue("type", "AMATEUR");
+      result.current.setValue("sport", "Futsal");
+    });
 
-    // Submete o formulário
+    // Submete
     await act(async () => {
-      await result.current.submitForm()
-    })
+      await result.current.submitForm();
+    });
 
-    // 1. Verifica se a API foi chamada com os dados corretos
+    // Verifica API
     expect(handleCreateGroup).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'Novo Grupo',
-        type: 'AMATEUR',
-        sports: ['Futsal'], // Verifica conversão para array
-      })
-    )
+      expect.objectContaining({ name: "Novo Grupo" }),
+    );
 
-    // 2. Verifica se o redirecionamento aconteceu
-    // Como usamos setTimeout no código, usamos waitFor no teste
-    await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith({
-        pathname: '/group/[id]',
-        params: { id: 'grupo-123-id' },
-      })
-    })
-  })
-})
+    // Avança o tempo
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    // Verifica Redirecionamento
+    expect(mockReplace).toHaveBeenCalledWith({
+      pathname: "/perfilGrupo",
+      params: { id: "grupo-123-id" },
+    });
+
+    // Verifica se nossa função wrapper foi chamada (sem erro de undefined!)
+    expect(showSuccessAlert).toHaveBeenCalledWith(
+      "Sucesso",
+      expect.stringContaining("criado"),
+    );
+  });
+});

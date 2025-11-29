@@ -1,11 +1,14 @@
+// ARQUIVO: apps/mobile/libs/hooks/useCreateGroupForm.ts
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Alert } from "react-native";
+import { useRouter } from "expo-router";
 import {
   handleCreateGroup,
   CreateGroupPayload,
 } from "@/libs/group/handleCreateGroup";
-import { router } from "expo-router";
+
+// 1. Importamos nosso wrapper (fácil de testar)
+import { showSuccessAlert, showErrorAlert } from "@/libs/utils/alert";
 
 export interface CreateGroupFormData {
   name: string;
@@ -15,8 +18,8 @@ export interface CreateGroupFormData {
 }
 
 export function useCreateGroupForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  // NOVO ESTADO: Armazena o ID do grupo criado com sucesso
   const [createdGroupId, setCreatedGroupId] = useState<string | null>(null);
 
   const {
@@ -62,15 +65,18 @@ export function useCreateGroupForm() {
 
       const newGroup = await handleCreateGroup(payload);
 
-      // SUCESSO:
+      setCreatedGroupId(newGroup.id);
+
       setTimeout(() => {
         console.log("Navegando para perfilGrupo com ID:", newGroup.id);
+
         router.replace({
-          pathname: "/perfilGrupo", // Nome exato do arquivo na raiz
-          //params: { id: newGroup.id }, // Isso vira ?id=...
+          pathname: "/perfilGrupo",
+          params: { id: newGroup.id },
         });
 
-        Alert.alert("Sucesso", `Grupo "${newGroup.name}" criado!`);
+        // 2. Usamos nossa função wrapper
+        showSuccessAlert("Sucesso", `Grupo "${newGroup.name}" criado!`);
       }, 100);
     } catch (error: any) {
       const errorMessage = error.message || "";
@@ -83,7 +89,8 @@ export function useCreateGroupForm() {
           message: "Este nome já está em uso.",
         });
       } else {
-        Alert.alert("Erro", errorMessage);
+        // 3. Usamos nossa função wrapper
+        showErrorAlert("Erro", errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -99,6 +106,7 @@ export function useCreateGroupForm() {
     setValue,
     submitForm,
     isLoading,
-    createdGroupId, // Retornamos o ID para o componente usar
+    createdGroupId,
+    goBack: router.back,
   };
 }
