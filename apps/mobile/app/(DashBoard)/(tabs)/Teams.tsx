@@ -4,6 +4,7 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button1Comp from "../../../components/PrimaryButton";
@@ -11,7 +12,6 @@ import Button2Comp from "../../../components/SecondaryButton";
 import Spacer from "../../../components/SpacerComp";
 import BackGroundComp from "@/components/BackGroundComp";
 import AppText from "@/components/AppText";
-import TwoOptionButton from "@/components/TwoOptionButton";
 import TwoOptionSwitch from "@/components/TwoOptionButton";
 import { useTheme } from "../../../constants/Theme";
 import { Colors } from "../../../constants/Colors";
@@ -29,7 +29,7 @@ import { unfollowGroup } from "@/libs/group/unfollowGroup";
 import { GroupCard } from "@/components/findGroupCard";
 
 const Teams = () => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
   const router = useRouter();
@@ -38,7 +38,6 @@ const Teams = () => {
   const {
     groups,
     myGroups,
-    otherGroups,
     filtered: filteredFinal,
     loading,
     error,
@@ -50,8 +49,6 @@ const Teams = () => {
     updateGroup,
   } = useGroups();
 
-  const [type, setType] = useState<"LEFT" | "RIGHT">("LEFT");
-
   const [messages, setMessages] = useState<{ [groupId: string]: string }>({});
   const setGroupMessage = (groupId: string, message: string) => {
     setMessages((prev) => ({ ...prev, [groupId]: message }));
@@ -59,134 +56,109 @@ const Teams = () => {
 
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-
-
   return (
     <BackGroundComp style={styles.container}>
-      <ScrollView
+      <FlatList
+        data={filteredFinal}
+        numColumns={2}
+        keyExtractor={(item) => item.id}
+        columnWrapperStyle={{ justifyContent: "space-evenly" }}
         contentContainerStyle={{
-          padding: 0,
-          paddingBottom: 0,
+          paddingBottom: 100,
           paddingHorizontal: 20,
-          backgroundColor: theme.background,
-          alignItems: "center",
-          flex: 1,
         }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Spacer height={"5%"} />
-        <SafeAreaView
-          style={[
-            {
-              height: "30%",
-              width: "100%",
-            },
-          ]}
-        >
-          <AppText
-            style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}
-          >
-            Seus times
-          </AppText>
-          <ScrollView
-            contentContainerStyle={{
-              width: "100%",
-              height: "100%",
-              alignItems: "center",
-              paddingHorizontal: 20,
-            }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <CreateGroupComp></CreateGroupComp>
-            {myGroups.length === 0 ? (
-              <AppText style={[{ textAlign: "center" }, styles.txt]}>
-                Você ainda não faz parte de nenhum time.
-              </AppText>
-            ) : (
-              myGroups.map(g => (
-                <JoinedGroupsComp key={g.id} name={g.name} />
-              ))
-            )}
+        
+        ListHeaderComponent={
+          <View>
+            <Spacer height={"2%"} />
 
-          </ScrollView>
-        </SafeAreaView>
-
-        <Spacer height={"5%"} />
-
-        <TwoOptionSwitch
-          optionLeft="Amadores"
-          optionRight="Atléticas"
-          selected={selectedType === "AMATEUR" ? "LEFT" : "RIGHT"}
-          onChange={(side) =>
-            setSelectedType(side === "LEFT" ? "AMATEUR" : "ATHLETIC")
-          }
-        />
-
-        <Button2Comp
-          style={{ width: "60%", height: 40, marginTop: 10 }}
-          onPress={() => setAcceptingOnly(!acceptingOnly)}
-        >
-          {acceptingOnly ? "Aceitando ✔" : "Apenas aceitando"}
-        </Button2Comp>
-        <Spacer height={"5%"} />
-
-        <SafeAreaView
-          style={[
-            {
-              height: "80%",
-              width: "100%",
-            },
-          ]}
-        >
-          <AppText style={[{ alignSelf: "center" }, styles.txt]}>
-            outras equipes
-          </AppText>
-          {globalError && (
             <AppText
-              style={{
-                color: "red",
-                marginTop: 0,
-                marginBottom: 0,
-                fontSize: 22,
-                textAlign: "center",
-              }}
+              style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}
             >
-              {globalError}
+              Seus times
             </AppText>
-          )}
 
-          <ScrollView
-            contentContainerStyle={{
-              width: "100%",
-              padding: 0,
-              flexDirection: "row",
-              flexWrap: "wrap",
-              justifyContent: "space-evenly",
-            }}
-            keyboardShouldPersistTaps="handled"
-          >
-            {filteredFinal.map((g) => (
-          <GroupCard
-  key={g.id}
-  group={g}
-  user={user}
-  onReload={reload}
-  followGroup={followGroup}
-  unfollowGroup={unfollowGroup}
-  updateGroup={updateGroup}
-  requestJoinGroup={requestJoinGroup}
-  setGroupMessage={setGroupMessage}
-  setGlobalError={setGlobalError}
+            <CreateGroupComp
+            onPrimaryPress={() => router.replace("/criarGrupo")} />
+
+<FlatList
+  data={myGroups}
+  keyExtractor={(g) => g.id}
+  scrollEnabled={false}               
+  contentContainerStyle={{ gap: 10 }} 
+  ListEmptyComponent={
+    <AppText
+      style={[
+        { textAlign: "center", alignSelf: "center", width: "100%" },
+        styles.txt,
+      ]}
+    >
+      Você ainda não faz parte de nenhum time.
+    </AppText>
+  }
+  renderItem={({ item }) => (
+    <JoinedGroupsComp name={item.name} />
+  )}
 />
 
 
-            ))}
-          </ScrollView>
-        </SafeAreaView>
+            <Spacer height={"2%"} />
 
-        <Spacer height={20} />
+            <TwoOptionSwitch
+              optionLeft="Amadores"
+              optionRight="Atléticas"
+              selected={selectedType === "AMATEUR" ? "LEFT" : "RIGHT"}
+              onChange={(side) =>
+                setSelectedType(side === "LEFT" ? "AMATEUR" : "ATHLETIC")
+              }
+              style={[{ alignSelf: "center" }]}
+            />
 
-      </ScrollView>
+            <Button2Comp
+              style={{ width: "60%", height: 40, marginTop: 10, alignSelf: 'center' }}
+              onPress={() => setAcceptingOnly(!acceptingOnly)}
+            >
+              {acceptingOnly ? "Aceitando ✔" : "Apenas aceitando"}
+            </Button2Comp>
+
+            <AppText
+              style={[{ alignSelf: "center", marginTop: 20 }, styles.txt]}
+            >
+              Outras equipes
+            </AppText>
+
+            <Spacer height={60}></Spacer>
+
+            {globalError && (
+              <AppText
+                style={{
+                  color: "red",
+                  marginTop: 0,
+                  marginBottom: 10,
+                  fontSize: 22,
+                  textAlign: "center",
+                }}
+              >
+                {globalError}
+              </AppText>
+            )}
+          </View>
+        }
+
+        renderItem={({ item }) => (
+          <GroupCard
+            group={item}
+            user={user}
+            onReload={reload}
+            followGroup={followGroup}
+            unfollowGroup={unfollowGroup}
+            updateGroup={updateGroup}
+            requestJoinGroup={requestJoinGroup}
+            setGroupMessage={setGroupMessage}
+            setGlobalError={setGlobalError}
+          />
+        )}
+      />
     </BackGroundComp>
   );
 };
@@ -204,7 +176,6 @@ const makeStyles = (theme: any) =>
       fontWeight: "500",
       fontSize: 24,
     },
-
     inputBox: {
       width: "100%",
       height: 40,
