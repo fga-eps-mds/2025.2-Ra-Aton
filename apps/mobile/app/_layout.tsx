@@ -30,7 +30,17 @@ function AppContent() {
   }, [notification]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }} />
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      {/* Rotas principais */}
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(Auth)" />
+      <Stack.Screen name="(DashBoard)" />
+      <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
+    </Stack>
   );
 }
 
