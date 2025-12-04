@@ -287,7 +287,7 @@ describe("MatchRepository", () => {
         include: { _count: { select: { players: true } } },
       });
       expect(prismaMock.match.count).toHaveBeenCalled();
-      
+
       expect(result).toEqual({
         matches: mockMatches,
         totalCount: totalCount,
@@ -304,6 +304,44 @@ describe("MatchRepository", () => {
       await expect(matchRepository.findAll(10, 0)).rejects.toThrow("DB Error");
     });
   });
+
+  describe("findAllMatchesByUserId", () => {
+    it("Deve retornar uma lista com todas as partidas que o usuário logado for autor", async () => {
+      const matches = [
+        {
+          userId: "author-id",
+          title: "Match 1",
+          description: "Description for Match 1",
+          MatchDate: new Date(),
+          teamNameA: "Team A",
+          teamNameB: "Team B",
+          location: "Stadium A",
+          maxPlayers: 22,
+        },
+        {
+          userId: "author-id",
+          title: "Match 2",
+          description: "Description for Match 2",
+          MatchDate: new Date(),
+          teamNameA: "Team A",
+          teamNameB: "Team B",
+          location: "Stadium A",
+          maxPlayers: 22,
+        }
+      ];
+
+      (prismaMock.match.findMany as jest.Mock).mockResolvedValue(matches);
+
+      const matchesFound = await matchRepository.findAllMatchesByUserId("author-id")
+      expect(matchesFound).toEqual(matches);
+      expect(prismaMock.match.findMany).toHaveBeenCalledWith({
+        where: { authorId: "author-id" },
+        orderBy: {
+          MatchDate: "desc",
+        }
+      })
+    })
+  })
 
   // ======================================================
   // FIND BY ID
