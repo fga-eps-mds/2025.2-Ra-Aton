@@ -5,7 +5,6 @@ import httpStatus from "http-status";
 
 jest.mock("../../../modules/match/match.repository");
 
-
 describe("matchService.updateMatch", () => {
   const mockMatchId = "match-id-123";
   const mockAuthUserId = "user-id-456";
@@ -14,8 +13,11 @@ describe("matchService.updateMatch", () => {
     description: "Updated Description",
     MatchDate: new Date(),
     teamNameA: "Updated Team A",
-    teamNameB: "Updated Team B",
+    teamAScore: 3,
+    teamNameB: "Updatable Team B",
+    teamBScore: 2,
     location: "Updated Location",
+    sport: "futsal",
     maxPlayers: 20,
   };
 
@@ -36,7 +38,9 @@ describe("matchService.updateMatch", () => {
     };
 
     (matchRepository.findById as jest.Mock).mockResolvedValue(mockMatchFound);
-    (matchRepository.updateMatch as jest.Mock).mockResolvedValue(mockUpdatedMatch);
+    (matchRepository.updateMatch as jest.Mock).mockResolvedValue(
+      mockUpdatedMatch,
+    );
 
     // Act
     const result = await matchService.updateMatch(
@@ -58,14 +62,12 @@ describe("matchService.updateMatch", () => {
     (matchRepository.findById as jest.Mock).mockResolvedValue(null);
 
     await expect(
-      matchService.updateMatch(
-        mockMatchId,
-        mockAuthUserId,
-        mockMatchData,
-      ),
-    ).rejects.toThrow(new ApiError(httpStatus.NOT_FOUND, "Partida não encontrada"));
+      matchService.updateMatch(mockMatchId, mockAuthUserId, mockMatchData),
+    ).rejects.toThrow(
+      new ApiError(httpStatus.NOT_FOUND, "Partida não encontrada"),
+    );
 
-    expect(matchRepository.findById).toHaveBeenCalledWith(mockMatchId);  
+    expect(matchRepository.findById).toHaveBeenCalledWith(mockMatchId);
     expect(matchRepository.updateMatch).not.toHaveBeenCalled();
   });
 
@@ -78,12 +80,13 @@ describe("matchService.updateMatch", () => {
     (matchRepository.findById as jest.Mock).mockResolvedValue(mockMatchFound);
 
     await expect(
-      matchService.updateMatch(
-        mockMatchId,
-        mockAuthUserId,
-        mockMatchData,
+      matchService.updateMatch(mockMatchId, mockAuthUserId, mockMatchData),
+    ).rejects.toThrow(
+      new ApiError(
+        httpStatus.FORBIDDEN,
+        "Usuário não possui permisão para editar partida",
       ),
-    ).rejects.toThrow(new ApiError(httpStatus.FORBIDDEN, "Usuário não possui permisão para editar partida"));
+    );
 
     expect(matchRepository.findById).toHaveBeenCalledWith(mockMatchId);
     expect(matchRepository.updateMatch).not.toHaveBeenCalled();

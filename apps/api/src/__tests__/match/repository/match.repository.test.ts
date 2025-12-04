@@ -69,6 +69,7 @@ describe("MatchRepository", () => {
         teamNameA: "Team A",
         teamNameB: "Team B",
         location: "Stadium A",
+        sport: "futsal",
         maxPlayers: 22,
       };
 
@@ -79,8 +80,11 @@ describe("MatchRepository", () => {
         description: "Description for Match 1",
         MatchDate: new Date(),
         teamNameA: "Team A",
+        teamAScore: 0,
         teamNameB: "Team B",
+        teamBScore: 0,
         location: "Stadium A",
+        sport: "futsal",
         maxPlayers: 22,
         MatchStatus: MatchStatus.EM_BREVE,
         createdAt: new Date(),
@@ -145,13 +149,37 @@ describe("MatchRepository", () => {
       const matchId = "match-id";
       const matchData = {
         title: "Updatable Match",
+<<<<<<< HEAD
+=======
+        description: "Updatable description",
+        MatchDate: new Date(),
+        teamNameA: "Updatable Team A",
+        teamAScore: 3,
+        teamNameB: "Updatable Team B",
+        teamBScore: 2,
+        location: "Updatable Stadium",
+        sport: "futsal",
+        maxPlayers: 22,
+>>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
       };
 
       const updatedMatch = {
         id: matchId,
         authorId: "author-id",
         title: "Updated Match",
+<<<<<<< HEAD
         // ... outros campos mockados se necessário
+=======
+        description: "Updated description",
+        MatchDate: new Date(),
+        teamNameA: "Updated Team A",
+        teamAScore: 3,
+        teamNameB: "Updatable Team B",
+        teamBScore: 2,
+        location: "Updated Stadium",
+        sport: "futsal",
+        maxPlayers: 22,
+>>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
         MatchStatus: MatchStatus.EM_BREVE,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -191,7 +219,23 @@ describe("MatchRepository", () => {
       const deletedMatch = {
         id: matchId,
         title: "Deleted Match",
+<<<<<<< HEAD
       } as any;
+=======
+        description: "This match has been deleted",
+        MatchDate: new Date(),
+        teamNameA: "Team A",
+        teamAScore: 3,
+        teamNameB: "Updatable Team B",
+        teamBScore: 2,
+        location: "Stadium A",
+        sport: "futsal",
+        maxPlayers: 22,
+        MatchStatus: MatchStatus.FINALIZADO,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+>>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
 
       prismaMock.match.delete.mockResolvedValue(deletedMatch);
 
