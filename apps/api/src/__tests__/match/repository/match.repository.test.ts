@@ -149,8 +149,6 @@ describe("MatchRepository", () => {
       const matchId = "match-id";
       const matchData = {
         title: "Updatable Match",
-<<<<<<< HEAD
-=======
         description: "Updatable description",
         MatchDate: new Date(),
         teamNameA: "Updatable Team A",
@@ -160,16 +158,12 @@ describe("MatchRepository", () => {
         location: "Updatable Stadium",
         sport: "futsal",
         maxPlayers: 22,
->>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
       };
 
       const updatedMatch = {
         id: matchId,
         authorId: "author-id",
         title: "Updated Match",
-<<<<<<< HEAD
-        // ... outros campos mockados se necessário
-=======
         description: "Updated description",
         MatchDate: new Date(),
         teamNameA: "Updated Team A",
@@ -179,7 +173,6 @@ describe("MatchRepository", () => {
         location: "Updated Stadium",
         sport: "futsal",
         maxPlayers: 22,
->>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
         MatchStatus: MatchStatus.EM_BREVE,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -219,9 +212,6 @@ describe("MatchRepository", () => {
       const deletedMatch = {
         id: matchId,
         title: "Deleted Match",
-<<<<<<< HEAD
-      } as any;
-=======
         description: "This match has been deleted",
         MatchDate: new Date(),
         teamNameA: "Team A",
@@ -235,7 +225,6 @@ describe("MatchRepository", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
->>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
 
       prismaMock.match.delete.mockResolvedValue(deletedMatch);
 
