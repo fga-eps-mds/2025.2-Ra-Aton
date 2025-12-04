@@ -93,12 +93,8 @@ model User {
   Comment         Comment[]
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
-<<<<<<< HEAD
   followedGroups GroupFollow[]
   notifications Notification[]
-=======
-  followedGroups  GroupFollow[]
->>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
 }
 
 model Post {
@@ -299,7 +295,6 @@ model GroupFollow {
 
   @@unique([userId, groupId])
 }
-<<<<<<< HEAD
 
 model Notification {
   id String @id @default(uuid())
@@ -316,5 +311,3 @@ model Notification {
   readAt DateTime?
   createdAt DateTime @default(now())
 }
-=======
->>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c
