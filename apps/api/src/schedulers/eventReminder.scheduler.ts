@@ -51,7 +51,7 @@ export const sendEventReminders = async () => {
       });
 
       console.log(
-        ` -> Lembretes enviados para o evento "${event.title}" (${notificationsData.length} usuários).`,
+        ` -> Lembretes enviados para o evento ${event.title} (${notificationsData.length} usuários).`,
       );
     }
   } catch (error) {
