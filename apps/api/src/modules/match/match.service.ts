@@ -192,6 +192,13 @@ class matchService {
     };
   }
 
+  async getAllMatchesByUserId(userId: string) {
+    const matches = await matchRepository.findAllMatchesByUserId(userId);
+    return matches.map((match) => {
+      return match;
+    })
+  }
+
   /**
    * Busca uma partida específica pelo ID.
    * Usa o formatador de detalhe com times.

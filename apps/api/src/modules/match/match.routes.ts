@@ -25,6 +25,22 @@ router.get(
   catchAsync(matchController.getMatch),
 );
 
+/*
+ * GET match/author
+ * Retorna todas as partidas que o usuário criou,
+ * ou seja, todas as partidas onde "authorId" é 
+ * igual ao id do usuário logado. 
+ * 
+ * Obs.: O id do usuário é pego automaticamente
+ * pelo auth.  
+*/
+
+router.get(
+  "/author",
+  auth,
+  catchAsync(matchController.listMatchesByUserId),
+);
+
 router.post(
   "/",
   auth,

@@ -128,6 +128,15 @@ class matchController {
     res.status(HttpStatus.OK).json(paginatedResult);
   }
 
+  async listMatchesByUserId(req: Request, res: Response) {
+    const authUser = (req as any).user;
+    if (!authUser || !authUser.id) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Usuário não está logado corretamente"})
+    }
+    const matches = await matchService.getAllMatchesByUserId(authUser.id);
+    res.status(HttpStatus.OK).json(matches);
+  }
+
   async getMatch(req: Request, res: Response) {
     const { id } = req.params;
 
