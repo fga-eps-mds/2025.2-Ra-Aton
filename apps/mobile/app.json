@@ -10,7 +10,6 @@
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/img/Logo_1_Atom.png",
-      "image": "./assets/img/Logo_1_Atom.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -24,7 +23,9 @@
       },
       "package": "com.ton.aton",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "usesCleartextTraffic": true,
+      "permissions": [ "INTERNET" ]
     },
     "web": {
       "bundler": "metro",
