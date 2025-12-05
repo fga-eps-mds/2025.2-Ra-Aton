@@ -1,9 +1,10 @@
-// apps/mobile/src/libs/api.ts
 import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 import { getUserData } from "@/libs/storage/getUserData";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000";
+
 export const api_route = axios.create({
-  baseURL: "http://192.168.3.187:4000",
+  baseURL: apiUrl,
   timeout: 5000,
 });
 
