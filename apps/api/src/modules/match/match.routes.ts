@@ -13,18 +13,6 @@ import {
 
 const router: RouterType = Router();
 
-router.get(
-  "/",
-  validateRequest(listMatchesSchema),
-  catchAsync(matchController.listMatches),
-);
-
-router.get(
-  "/:id",
-  validateRequest(getMatchSchema),
-  catchAsync(matchController.getMatch),
-);
-
 /*
  * GET match/author
  * Retorna todas as partidas que o usuário criou,
@@ -39,6 +27,18 @@ router.get(
   "/author",
   auth,
   catchAsync(matchController.listMatchesByUserId),
+);
+
+router.get(
+  "/",
+  validateRequest(listMatchesSchema),
+  catchAsync(matchController.listMatches),
+);
+
+router.get(
+  "/:id",
+  validateRequest(getMatchSchema),
+  catchAsync(matchController.getMatch),
 );
 
 router.post(

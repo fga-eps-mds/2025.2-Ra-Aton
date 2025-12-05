@@ -28,12 +28,9 @@ CREATE TYPE "JoinRequestStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 -- CreateEnum
 CREATE TYPE "MatchStatus" AS ENUM ('EM_BREVE', 'EM_ANDAMENTO', 'FINALIZADO');
 
-<<<<<<<< HEAD:apps/api/prisma/migrations/20251129075207_init/migration.sql
 -- CreateEnum
 CREATE TYPE "NotificationType" AS ENUM ('GROUP_JOIN_REQUEST', 'GROUP_JOIN_APPROVED', 'GROUP_JOIN_REJECTED', 'MATCH_REMINDER', 'SYSTEM');
 
-========
->>>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c:apps/api/prisma/migrations/20251128223112_init/migration.sql
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -44,10 +41,7 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "passwordHash" TEXT NOT NULL,
-<<<<<<<< HEAD:apps/api/prisma/migrations/20251129075207_init/migration.sql
     "notificationsAllowed" BOOLEAN NOT NULL DEFAULT true,
-========
->>>>>>>> 3c446bfca2fb551914ed23b8073301598851ab1c:apps/api/prisma/migrations/20251128223112_init/migration.sql
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -216,12 +210,6 @@ CREATE TABLE "Notification" (
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_userName_key" ON "User"("userName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
