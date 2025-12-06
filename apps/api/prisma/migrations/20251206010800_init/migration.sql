@@ -113,9 +113,9 @@ CREATE TABLE "Group" (
     "description" TEXT,
     "sports" TEXT[],
     "groupType" "GroupType" NOT NULL DEFAULT 'AMATEUR',
-    "acceptingNewMembers" BOOLEAN NOT NULL DEFAULT false,
     "verificationRequest" BOOLEAN NOT NULL DEFAULT false,
     "verificationStatus" "VerificationStatus",
+    "acceptingNewMembers" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -189,16 +189,6 @@ CREATE TABLE "UsersNotifyTokens" (
     CONSTRAINT "UsersNotifyTokens_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "GroupFollow" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "groupId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "GroupFollow_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "Attendance_userId_postId_key" ON "Attendance"("userId", "postId");
 
@@ -225,9 +215,6 @@ CREATE UNIQUE INDEX "UsersNotifyTokens_userId_key" ON "UsersNotifyTokens"("userI
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UsersNotifyTokens_token_key" ON "UsersNotifyTokens"("token");
-
--- CreateIndex
-CREATE UNIQUE INDEX "GroupFollow_userId_groupId_key" ON "GroupFollow"("userId", "groupId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_userName_key" ON "User"("userName");
@@ -288,9 +275,3 @@ ALTER TABLE "PlayerSubscription" ADD CONSTRAINT "PlayerSubscription_matchId_fkey
 
 -- AddForeignKey
 ALTER TABLE "UsersNotifyTokens" ADD CONSTRAINT "UsersNotifyTokens_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "GroupFollow" ADD CONSTRAINT "GroupFollow_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "GroupFollow" ADD CONSTRAINT "GroupFollow_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;

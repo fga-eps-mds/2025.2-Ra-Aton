@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Aton",
-    "slug": "mobile",
+    "slug": "aton",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/img/Logo_2_Atom.png",
@@ -60,7 +60,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "739501b9-c9bb-4387-9c22-f62486014d82"
+        "projectId": "5a53dc72-332d-4ef9-86be-aff9b26eaed3"
       }
     }
   }

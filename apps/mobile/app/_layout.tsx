@@ -1,6 +1,6 @@
 // app/_layout.tsx
 // Importa polyfills PRIMEIRO, antes de qualquer outro import
-import '../polyfills';
+import "../polyfills";
 
 import { ThemeProvider } from "@/constants/Theme";
 import { Stack } from "expo-router";
@@ -14,6 +14,9 @@ import { syncPushToken } from "@/libs/notifications/syncPushToken";
 // ⬇️ importa o React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+// ⬇️ importa o NotificationProvider
+import { NotificationProvider } from "@/libs/storage/NotificationContext";
+
 const queryClient = new QueryClient();
 
 function AppContent() {
@@ -23,14 +26,14 @@ function AppContent() {
   // Sincroniza token quando usuário está logado e token de notificação disponível
   useEffect(() => {
     if (expoPushToken && user?.token) {
-      console.log('📱 Sincronizando Expo Push Token com backend...');
+      console.log("📱 Sincronizando Expo Push Token com backend...");
       syncPushToken(expoPushToken, user.token);
     }
   }, [expoPushToken, user?.token]);
 
   useEffect(() => {
     if (notification) {
-      console.log('🔔 Notification received:', notification);
+      console.log("🔔 Notification received:", notification);
     }
   }, [notification]);
 
@@ -53,11 +56,11 @@ export default function RootLayout() {
   /* eslint-disable @typescript-eslint/no-require-imports */
 
   const [fontsLoaded, fontsError] = useFonts({
-    [Fonts.mainFont
-      .dongleRegular]: require("@/assets/fonts/Dongle-Regular.ttf"),
+    [Fonts.mainFont.dongleRegular]: require("@/assets/fonts/Dongle-Regular.ttf"),
     [Fonts.otherFonts.dongleBold]: require("@/assets/fonts/Dongle-Bold.ttf"),
     [Fonts.otherFonts.dongleLight]: require("@/assets/fonts/Dongle-Light.ttf"),
   });
+
   /* eslint-enable @typescript-eslint/no-require-imports */
 
   if (!fontsLoaded && !fontsError) {
@@ -69,18 +72,7 @@ export default function RootLayout() {
       <ThemeProvider>
         <UserProvider>
           <NotificationProvider>
-            {/* A Stack deve envolver TUDO o que é navegação */}
-            <Stack
-              screenOptions={{
-                headerShown: false, // Padrão: sem header
-              }}
-            >
-              {/* Rotas principais */}
-              <Stack.Screen name="index" />
-              <Stack.Screen name="(Auth)" />
-              <Stack.Screen name="(DashBoard)" />
-              <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
-            </Stack>
+            <AppContent />
           </NotificationProvider>
         </UserProvider>
       </ThemeProvider>

@@ -5,6 +5,17 @@ let Notifications: typeof import('expo-notifications') | null = null;
 let Device: typeof import('expo-device') | null = null;
 let Constants: typeof import('expo-constants').default | null = null;
 
+// Expo Constants é seguro para carregar na Web/Node, usamos para detectar Expo Go
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  Constants = require("expo-constants").default;
+} catch (e) {
+  Constants = null;
+}
+
+const isExpoGo = Constants?.appOwnership === "expo";
+
+
 if (Platform.OS !== 'web') {
   Notifications = require('expo-notifications');
   Device = require('expo-device');
