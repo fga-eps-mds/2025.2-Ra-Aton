@@ -342,7 +342,9 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       updatedAt: new Date(),
     };
 
+    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue(existing);
+    // @ts-ignore
     prismaMock.post.update.mockResolvedValue(updated);
 
     const response = await request(app)
@@ -405,11 +407,13 @@ describe("Testes de Integração Post (com prismaMock))", () => {
   it("deve excluir um post quando o usuário é o autor", async () => {
     const token = generateToken(AUTH_USER_ID);
 
+    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue({
       id: validUUID,
       authorId: AUTH_USER_ID,
     });
 
+    // @ts-ignore
     prismaMock.post.delete.mockResolvedValue({ id: validUUID });
 
     await request(app)
@@ -421,6 +425,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
   it("não deve excluir um post se o usuário não for o autor", async () => {
     const token = generateToken(OTHER_USER_ID);
 
+    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue({
       id: validUUID,
       authorId: AUTH_USER_ID,

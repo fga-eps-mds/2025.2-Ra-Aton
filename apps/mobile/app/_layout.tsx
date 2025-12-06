@@ -1,9 +1,15 @@
-//ARQUIVO: apps/mobile/app/_layout.tsx
+// app/_layout.tsx
+// Importa polyfills PRIMEIRO, antes de qualquer outro import
+import "../polyfills";
+
 import { ThemeProvider } from "@/constants/Theme";
 import { Stack } from "expo-router";
 import { Fonts } from "@/constants/Fonts";
 import { useFonts } from "expo-font";
-import { UserProvider } from "@/libs/storage/UserContext";
+import { UserProvider, useUser } from "@/libs/storage/UserContext";
+import { useNotifications } from "@/libs/notifications/useNotifications";
+import { useEffect } from "react";
+import { syncPushToken } from "@/libs/notifications/syncPushToken";
 
 // ⬇️ importa o React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,6 +18,39 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NotificationProvider } from "@/libs/storage/NotificationContext";
 
 const queryClient = new QueryClient();
+
+function AppContent() {
+  const { expoPushToken, notification } = useNotifications();
+  const { user } = useUser();
+
+  // Sincroniza token quando usuário está logado e token de notificação disponível
+  useEffect(() => {
+    if (expoPushToken && user?.token) {
+      console.log("📱 Sincronizando Expo Push Token com backend...");
+      syncPushToken(expoPushToken, user.token);
+    }
+  }, [expoPushToken, user?.token]);
+
+  useEffect(() => {
+    if (notification) {
+      console.log("🔔 Notification received:", notification);
+    }
+  }, [notification]);
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      {/* Rotas principais */}
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(Auth)" />
+      <Stack.Screen name="(DashBoard)" />
+      <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   /* eslint-disable @typescript-eslint/no-require-imports */
@@ -32,20 +71,8 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <UserProvider>
-          {/* A Stack deve envolver TUDO o que é navegação */}
-          <Stack
-            screenOptions={{
-              headerShown: false, // Padrão: sem header
-            }}
-          >
-            {/* Rotas principais */}
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(Auth)" />
-            <Stack.Screen name="(DashBoard)" />
-            <Stack.Screen name="perfilGrupo" options={{ presentation: 'card' }} />
-          </Stack>
           <NotificationProvider>
-            <Stack screenOptions={{ headerShown: false }} />
+            <AppContent />
           </NotificationProvider>
         </UserProvider>
       </ThemeProvider>

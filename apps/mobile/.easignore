@@ -1,0 +1,12 @@
+# EAS Build Ignore
+# Ignore monorepo root files to prevent workspace detection
+
+../../node_modules
+../../pnpm-lock.yaml
+../../pnpm-workspace.yaml
+../../package.json
+../../turbo.json
+../../packages
+../../apps/api
+pnpm-lock.yaml
+package-lock.json

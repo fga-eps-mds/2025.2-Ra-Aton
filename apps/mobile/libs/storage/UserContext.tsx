@@ -8,6 +8,7 @@ import React, {
 import * as SecureStore from "expo-secure-store";
 import { Alert, Platform } from "react-native";
 import { router } from "expo-router";
+import { removePushToken } from "@/libs/notifications/syncPushToken";
 import { api_route } from "../auth/api";
 
 export type User = {
@@ -63,6 +64,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
+    // Remove token de notificação do backend antes de fazer logout
+    if (user?.token) {
+      await removePushToken(user.token);
+    }
+
     if (Platform.OS === "web") {
       localStorage.removeItem("userData");
       console.log("Apagando os dados do [localStorage]");
