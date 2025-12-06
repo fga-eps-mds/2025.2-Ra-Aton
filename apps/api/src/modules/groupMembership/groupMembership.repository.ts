@@ -65,6 +65,20 @@ class GroupMembershipRepository {
     });
   }
 
+  async findAdminsByGroupId(groupId: string): Promise<GroupMembership[]> {
+    return prisma.groupMembership.findMany({
+      where: {
+        groupId: groupId,
+        role: 'ADMIN',
+      },
+      include: {
+        user: {
+          select: { id: true, userName: true, email: true},
+        },
+      },
+    });
+  }
+
   async createMembership(
     data: Prisma.GroupMembershipCreateInput,
     userId: string,

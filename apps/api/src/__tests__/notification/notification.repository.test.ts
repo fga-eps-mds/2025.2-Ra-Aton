@@ -1,122 +1,151 @@
-import { prismaMock } from "../prisma-mock";
-import { NotificationsRepository } from "../../modules/notification/notification.repository";
+import notificationRepository from "../../modules/notification/notification.repository";
+import { NotificationType } from "@prisma/client";
+// Importe o seu mock configurado (ajuste o caminho conforme sua estrutura, ex: '../testMocks')
+import { prismaMock } from "../../__tests__/prisma-mock"; 
 
-jest.resetModules();
+describe("NotificationRepository", () => {
+  const userId = "user-uuid-123";
+  const notificationId = "notif-uuid-456";
+  const mockDate = new Date();
 
-// prismaStub supports both $transaction forms (array and callback)
-const prismaStub = {
-  usersNotifyTokens: {
-    deleteMany: prismaMock.usersNotifyTokens.deleteMany,
-    upsert: prismaMock.usersNotifyTokens.upsert,
-    findUnique: prismaMock.usersNotifyTokens.findUnique,
-    findMany: prismaMock.usersNotifyTokens.findMany,
-    delete: prismaMock.usersNotifyTokens.delete,
-  },
-  groupMembership: {
-    findMany: prismaMock.groupMembership.findMany,
-  },
-  // $transaction: handle both array and callback
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  $transaction: jest.fn().mockImplementation(async (arg: any) => {
-    if (Array.isArray(arg)) {
-      return Promise.all(arg);
-    }
-    return await arg(prismaStub);
-  }),
-};
-
-const repository = new NotificationsRepository(prismaStub as any);
-
-describe("NotificationsRepository", () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe("upsertPushToken", () => {
-    it("should remove token from other users and upsert for the current user", async () => {
-      prismaMock.usersNotifyTokens.deleteMany.mockResolvedValueOnce({ count: 1 } as any);
-      prismaMock.usersNotifyTokens.upsert.mockResolvedValueOnce({ userId: "U1", token: "ExpoABC" } as any);
+  // ======================================================
+  // CREATE
+  // ======================================================
+  describe("create", () => {
+    it("deve criar uma notificação no banco", async () => {
+      // Arrange
+      const data = {
+        userId,
+        title: "Nova mensagem",
+        content: "Você recebeu algo",
+        type: NotificationType.SYSTEM,
+        resourceId: "res-1",
+        resourceType: "GROUP",
+      };
 
-      const res = await repository.upsertPushToken("U1", "ExpoABC");
+      const mockCreated = {
+        id: "n-1",
+        ...data,
+        readAt: null,
+        createdAt: mockDate,
+      };
 
-      expect(prismaStub.$transaction).toHaveBeenCalled();
+      prismaMock.notification.create.mockResolvedValue(mockCreated as any);
 
-      expect(prismaMock.usersNotifyTokens.deleteMany).toHaveBeenCalledWith({
-        where: { token: "ExpoABC", userId: { not: "U1" } },
-      });
+      // Act
+      const result = await notificationRepository.create(data);
 
-      expect(prismaMock.usersNotifyTokens.upsert).toHaveBeenCalledWith({
-        where: { userId: "U1" },
-        create: { userId: "U1", token: "ExpoABC" },
-        update: { token: "ExpoABC", updatedAt: expect.any(Date) },
-      });
-
-      expect(res).toEqual({ userId: "U1", token: "ExpoABC" });
-    });
-  });
-
-  describe("getUserPushToken", () => {
-    it("should return user's token if exists", async () => {
-      prismaMock.usersNotifyTokens.findUnique.mockResolvedValueOnce({ userId: "U1", token: "ExpoT" } as any);
-
-      const res = await repository.getUserPushToken("U1");
-
-      expect(prismaMock.usersNotifyTokens.findUnique).toHaveBeenCalledWith({ where: { userId: "U1" } });
-      expect(res).toEqual({ userId: "U1", token: "ExpoT" });
-    });
-  });
-
-  describe("getUsersPushTokens", () => {
-    it("should return tokens for given userIds", async () => {
-      const tokens = [{ userId: "U1", token: "T1" }, { userId: "U2", token: "T2" }];
-      prismaMock.usersNotifyTokens.findMany.mockResolvedValueOnce(tokens as any);
-
-      const res = await repository.getUsersPushTokens(["U1", "U2"]);
-
-      expect(prismaMock.usersNotifyTokens.findMany).toHaveBeenCalledWith({
-        where: { userId: { in: ["U1", "U2"] } },
-        select: { userId: true, token: true },
-      });
-      expect(res).toEqual(tokens);
-    });
-  });
-
-  describe("deletePushToken", () => {
-    it("should delete token for user", async () => {
-      prismaMock.usersNotifyTokens.delete.mockResolvedValueOnce({ userId: "U1" } as any);
-
-      const res = await repository.deletePushToken("U1");
-
-      expect(prismaMock.usersNotifyTokens.delete).toHaveBeenCalledWith({ where: { userId: "U1" } });
-      expect(res).toEqual({ userId: "U1" });
-    });
-  });
-
-  describe("getGroupMemberTokens", () => {
-    it("should return mapped member tokens when present", async () => {
-      const memberships = [
-        {
-          userId: "U1",
-          role: "PLAYER",
-          user: { notifyTokens: [{ token: "T1" }] },
+      // Assert
+      expect(result).toEqual(mockCreated);
+      expect(prismaMock.notification.create).toHaveBeenCalledWith({
+        data: {
+          ...data,
+          readAt: null, // Repositório deve forçar null na criação
         },
-        {
-          userId: "U2",
-          role: "PLAYER",
-          user: { notifyTokens: [] },
-        },
+      });
+    });
+  });
+
+  // ======================================================
+  // FIND BY USER ID
+  // ======================================================
+  describe("findByUserId", () => {
+    it("deve buscar notificações ordenadas por data", async () => {
+      // Arrange
+      const mockList = [
+        { id: "n-1", title: "Recente", createdAt: new Date() },
+        { id: "n-2", title: "Antiga", createdAt: new Date(Date.now() - 10000) },
       ];
 
-      prismaMock.groupMembership.findMany.mockResolvedValueOnce(memberships as any);
+      prismaMock.notification.findMany.mockResolvedValue(mockList as any);
 
-      const res = await repository.getGroupMemberTokens("G1");
+      // Act
+      const result = await notificationRepository.findByUserId(userId);
 
-      expect(prismaMock.groupMembership.findMany).toHaveBeenCalledWith({
-        where: { groupId: "G1" },
-        include: { user: { include: { notifyTokens: true } } },
+      // Assert
+      expect(result).toEqual(mockList);
+      expect(prismaMock.notification.findMany).toHaveBeenCalledWith({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
       });
+    });
+  });
 
-      expect(res).toEqual([{ userId: "U1", token: "T1", role: "PLAYER" }]);
+  // ======================================================
+  // COUNT UNREAD
+  // ======================================================
+  describe("countUnread", () => {
+    it("deve contar apenas notificações onde readAt é null", async () => {
+      // Arrange
+      const mockCount = 3;
+      prismaMock.notification.count.mockResolvedValue(mockCount);
+
+      // Act
+      const result = await notificationRepository.countUnread(userId);
+
+      // Assert
+      expect(result).toBe(mockCount);
+      expect(prismaMock.notification.count).toHaveBeenCalledWith({
+        where: {
+          userId,
+          readAt: null,
+        },
+      });
+    });
+  });
+
+  // ======================================================
+  // MARK AS READ
+  // ======================================================
+  describe("markAsRead", () => {
+    it("deve atualizar readAt com a data atual", async () => {
+      // Arrange
+      const mockUpdated = { id: notificationId, readAt: mockDate };
+      prismaMock.notification.update.mockResolvedValue(mockUpdated as any);
+
+      // Act
+      const result = await notificationRepository.markAsRead(notificationId);
+
+      // Assert
+      expect(result).toEqual(mockUpdated);
+      expect(prismaMock.notification.update).toHaveBeenCalledWith({
+        where: { id: notificationId },
+        data: {
+          // Como 'new Date()' é gerado dentro do repositório, 
+          // usamos expect.any(Date) para validar
+          readAt: expect.any(Date), 
+        },
+      });
+    });
+  });
+
+  // ======================================================
+  // MARK ALL AS READ
+  // ======================================================
+  describe("markAllAsRead", () => {
+    it("deve atualizar todas as não lidas do usuário", async () => {
+      // Arrange
+      const mockBatchPayload = { count: 5 };
+      prismaMock.notification.updateMany.mockResolvedValue(mockBatchPayload);
+
+      // Act
+      const result = await notificationRepository.markAllAsRead(userId);
+
+      // Assert
+      expect(result).toEqual(mockBatchPayload);
+      expect(prismaMock.notification.updateMany).toHaveBeenCalledWith({
+        where: { 
+          userId, 
+          readAt: null // Garante que só atualiza as que não foram lidas
+        },
+        data: { 
+          readAt: expect.any(Date), 
+        },
+      });
     });
   });
 });

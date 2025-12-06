@@ -15,8 +15,8 @@ import matchRoutes from "./modules/match/match.routes";
 import { postLikeRoutes } from "./modules/postLike/postlike.routes";
 import { reportRoutes } from "./modules/report/report.routes";
 import { attendanceRoutes } from "./modules/attendance/attendance.routes";
-import notificationsRoutes from "./modules/notification/notification.routes";
-//import followRoutes from "./modules/follow/follow.routes";
+import followRoutes from "./modules/follow/follow.routes";
+import notificationRoutes from "./modules/notification/notification.routes";
 
 const app: Express = express();
 
@@ -45,7 +45,8 @@ app.use("/posts/:postId/comments", commentRoutes);
 app.use("/posts/:postId/like", postLikeRoutes);
 app.use("/posts/:postId/attendance", attendanceRoutes);
 app.use("/posts/:id/report", reportRoutes);
-app.use("/notifications", notificationsRoutes);
+app.use("/follow", followRoutes);
+app.use("/notifications", notificationRoutes);
 
 // --- TRATAMENTO DE ERROS ---
 // Middleware para rotas não encontradas (404)

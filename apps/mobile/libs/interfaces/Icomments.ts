@@ -5,4 +5,8 @@ export interface Icomment {
   postId: string;
   createdAt: string;
   updatedAt: string;
+  author?: {
+    id: string;
+    userName: string;
+  };
 }

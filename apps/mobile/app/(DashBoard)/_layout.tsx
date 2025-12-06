@@ -35,6 +35,7 @@ const DashboardLayout = () => {
           drawerItemStyle: { display: "none" }, // Esconde dos links automáticos
         }}
       />
+
     </Drawer>
   );
 };

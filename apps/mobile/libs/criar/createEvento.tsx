@@ -14,7 +14,7 @@ function convertToBackendDate(dateStr: string): string {
   if (isNaN(date.getTime())) {
     throw new Error("Data fornecida é inválida.");
   }
-
+  console.log("Data convertida para backend:", date.toISOString());
   return date.toISOString();
 }
 
@@ -67,8 +67,10 @@ export async function createEvent({
         type,
         content,
         eventDate: eventDateFormatted,
-        eventFinishDate: eventFinishDateFormatted,
+        eventFinishDate: eventFinishDateFormatted || undefined,
         location,
+        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
+        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
       },
       {
         headers: {

@@ -8,6 +8,7 @@ if (__DEV__) {
   logConfig();
 }
 
+
 const api = axios.create({
   baseURL: config.apiUrl,
   timeout: 10000, // 10 segundos

@@ -3,10 +3,32 @@ import HttpStatus from "http-status";
 import { userService } from "../user/user.service";
 import GroupService from "./group.service";
 import { ApiError } from "../../utils/ApiError";
+import jwt from "jsonwebtoken";
+import { config } from "../../config/env";
 
 class GroupController {
   async listGroups(req: Request, res: Response) {
-    const groups = await GroupService.getAllGroups();
+    let userId: string | undefined = undefined;
+
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      
+
+      if (token) {
+        try {
+          const decoded = jwt.verify(token, config.JWT_SECRET || "secret") as any;
+          if (decoded && decoded.id) {
+            userId = decoded.id;
+          }
+        } catch (error) {
+
+        }
+      }
+    }
+    // --------------------------------------
+
+    const groups = await GroupService.getAllGroups(userId);
     return res.status(HttpStatus.OK).json(groups);
   }
 
@@ -22,7 +44,21 @@ class GroupController {
         .status(HttpStatus.NOT_FOUND)
         .json({ message: "Nome do grupo é obrigatorio" });
     }
-    const groupFound = await GroupService.getGroupByName(groupName);
+
+    let currentUserId: string | undefined = undefined;
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+       const token = authHeader.split(" ")[1];
+       if (token) {
+         try {
+           const decoded = jwt.verify(token, config.JWT_SECRET || "secret") as any;
+           currentUserId = decoded.id;
+         } catch (e) {}
+       }
+    }
+
+    const groupFound = await GroupService.getGroupByName(groupName, currentUserId);
     return res.status(HttpStatus.FOUND).json(groupFound);
   }
 

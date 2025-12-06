@@ -52,6 +52,7 @@ enum MadeBy {
   GROUP
 }
 
+
 enum JoinRequestStatus {
   PENDING
   APPROVED
@@ -62,6 +63,13 @@ enum MatchStatus {
   EM_BREVE
   EM_ANDAMENTO
   FINALIZADO
+}
+enum NotificationType {
+  GROUP_JOIN_REQUEST
+  GROUP_JOIN_APPROVED
+  GROUP_JOIN_REJECTED
+  MATCH_REMINDER
+  SYSTEM
 }
 
 // Models
@@ -74,6 +82,7 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   passwordHash String
+  notificationsAllowed Boolean @default(true)
 
   // Relationships
   subscription PlayerSubscription[]
@@ -86,6 +95,8 @@ model User {
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
   notifyTokens    UsersNotifyTokens[]
+  followedGroups GroupFollow[]
+  notifications Notification[]
 }
 
 model Post {
@@ -184,9 +195,9 @@ model Group {
   sports      String[]
   groupType   GroupType @default(AMATEUR)
 
+  acceptingNewMembers Boolean             @default(false)
   verificationRequest Boolean             @default(false)
   verificationStatus  VerificationStatus?
-  acceptingNewMembers Boolean             @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -195,7 +206,7 @@ model Group {
   joinRequests GroupJoinRequest[]
   posts        Post[]
   memberships  GroupMembership[]
-  // follows Follow[]
+  followers GroupFollow[]
 }
 
 model GroupMembership {
@@ -210,17 +221,6 @@ model GroupMembership {
 
   @@unique([userId, groupId])
 }
-
-// model Follow {
-//   id        String   @id @default(uuid())
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   userId    String
-//   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//   groupId   String
-//   createdAt DateTime @default(now())
-
-//   @@unique([userId, groupId])
-// }
 
 model GroupJoinRequest {
   id        String            @id @default(uuid())
@@ -251,6 +251,7 @@ model Match {
   updatedAt   DateTime             @updatedAt
   MatchDate   DateTime
   MatchStatus MatchStatus
+  reminderSent Boolean @default(false)
   location    String
   sport       String
 }
@@ -274,4 +275,33 @@ model UsersNotifyTokens {
   token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+model GroupFollow {
+  id String @id @default(uuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  groupId String
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, groupId])
+}
+
+model Notification {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title String
+  content String
+  type NotificationType
+
+  resourceId String?
+  resourceType String? // "GROUP", "MATCH"
+
+  readAt DateTime?
+  createdAt DateTime @default(now())
 }

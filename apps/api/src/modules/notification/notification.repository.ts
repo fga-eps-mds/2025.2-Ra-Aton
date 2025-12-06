@@ -1,4 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../database/prisma.client";
+import { NotificationType } from "@prisma/client";
 
 export class NotificationsRepository {
   constructor(private prismaClient: PrismaClient) {}
@@ -81,11 +83,59 @@ export class NotificationsRepository {
     });
 
     return memberships
-      .filter(m => m.user.notifyTokens.length > 0 && m.user.notifyTokens[0])
-      .map(m => ({
+      .filter((m) => m.user.notifyTokens.length > 0 && m.user.notifyTokens[0])
+      .map((m) => ({
         userId: m.userId,
         token: m.user.notifyTokens[0]!.token,
         role: m.role,
       }));
   }
+  async create(data: {
+    userId: string;
+    title: string;
+    content: string;
+    type: NotificationType;
+    resourceId?: string;
+    resourceType?: string;
+  }) {
+    return this.prismaClient.notification.create({
+      data: {
+        ...data,
+        readAt: null,
+      },
+    });
+  }
+
+  async findByUserId(userId: string) {
+    return this.prismaClient.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  async countUnread(userId: string): Promise<number> {
+    return this.prismaClient.notification.count({
+      where: {
+        userId,
+        readAt: null,
+      },
+    });
+  }
+
+  async markAsRead(notificationId: string) {
+    return this.prismaClient.notification.update({
+      where: { id: notificationId },
+      data: { readAt: new Date() },
+    });
+  }
+
+  async markAllAsRead(userId: string) {
+    return this.prismaClient.notification.updateMany({
+      where: { userId, readAt: null },
+      data: { readAt: new Date() },
+    });
+  }
 }
+
+// Export singleton instance for backward compatibility
+export default new NotificationsRepository(prisma);
