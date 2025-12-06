@@ -1,0 +1,39 @@
+{
+  "cli": {
+    "version": ">= 14.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "node": "22.11.0",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "simulator": true
+      },
+      "cache": {
+        "disabled": false
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "node": "22.11.0",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "node": "22.11.0"
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

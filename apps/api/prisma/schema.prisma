@@ -94,6 +94,7 @@ model User {
   Comment         Comment[]
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
+  notifyTokens    UsersNotifyTokens[]
   followedGroups GroupFollow[]
   notifications Notification[]
 }
@@ -221,17 +222,6 @@ model GroupMembership {
   @@unique([userId, groupId])
 }
 
-// model Follow {
-//   id        String   @id @default(uuid())
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   userId    String
-//   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//   groupId   String
-//   createdAt DateTime @default(now())
-
-//   @@unique([userId, groupId])
-// }
-
 model GroupJoinRequest {
   id        String            @id @default(uuid())
   user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -278,6 +268,14 @@ model PlayerSubscription {
   @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
 
+model UsersNotifyTokens {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 model GroupFollow {
   id String @id @default(uuid())
 

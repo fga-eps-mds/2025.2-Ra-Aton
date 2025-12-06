@@ -24,4 +24,8 @@ module.exports = {
 
   setupFiles: ["<rootDir>/jest-setup.js"],
   setupFilesAfterEnv: ["@testing-library/jest-native/extend-expect"],
+  // Remove tests/jest-mocks.js from coverage calculation
+  coveragePathIgnorePatterns: [
+    "<rootDir>/test/jest-mocks.js",
+  ],
 };
