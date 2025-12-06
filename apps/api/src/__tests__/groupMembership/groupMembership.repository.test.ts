@@ -108,7 +108,13 @@ describe("GroupMembershipRepository", () => {
           user: {
             select: { id: true, userName: true, email: true },
           },
-          group: true,
+          group: {
+            select: {
+              groupType: true,
+              id: true,
+              name: true,
+            }
+          }
         },
       });
     });
@@ -139,12 +145,18 @@ describe("GroupMembershipRepository", () => {
       const members = await groupMembershipRepository.findAdminMemberByUserId("U1");
       expect(members).toEqual(mockMembers);
       expect(prismaMock.groupMembership.findMany).toHaveBeenCalledWith({
-        where: { userId: "U1" },
+        where: { userId: "U1", role: "ADMIN" },
         include: {
           user: {
             select: { id: true, userName: true, email: true },
           },
-          group: true,
+          group: {
+            select: {
+              groupType: true,
+              id: true,
+              name: true,
+            }
+          }
         },
       });
     });
