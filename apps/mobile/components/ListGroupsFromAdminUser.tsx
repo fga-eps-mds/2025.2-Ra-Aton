@@ -216,7 +216,7 @@ const makeStyles = (theme: any) =>
       paddingHorizontal: 5,
     },
     groupCard: {
-      backgroundColor: theme.card || '#f0f0f0',
+      backgroundColor: theme.groupcards || '#f0f0f0',
       borderRadius: 12,
       paddingVertical: 12,
       paddingHorizontal: 16,

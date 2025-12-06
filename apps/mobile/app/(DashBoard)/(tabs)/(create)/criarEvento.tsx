@@ -122,6 +122,7 @@ const makeStyles = (theme: any) =>
     },
     sectionTitle: {
       fontSize: 18,
+      color: theme.text,
       fontWeight: "600",
       marginBottom: 10,
       fontFamily: Fonts.otherFonts.dongleBold,
