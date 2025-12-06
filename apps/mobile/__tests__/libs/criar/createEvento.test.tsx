@@ -24,6 +24,7 @@ describe("createEvent", () => {
     eventFinishDate: "25/12/2025 18:00",
     location: "Ginásio Central",
     token: "fake-jwt-token",
+    groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
   };
 
   // --- Teste de Sucesso ---
@@ -54,8 +55,7 @@ describe("createEvent", () => {
         eventDate: expectedStartDate,
         eventFinishDate: expectedFinishDate,
         location: validParams.location,
-        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
+        groupId: validParams.groupId,
       },
       {
         headers: {
