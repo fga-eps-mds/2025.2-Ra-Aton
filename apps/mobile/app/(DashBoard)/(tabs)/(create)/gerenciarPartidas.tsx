@@ -249,16 +249,16 @@ export default function gerenciarPartidas() {
             >
               <SecondaryButton
                 onPress={() => setDeleteModalVisible(false)}
-                textSize={22}
-                fontWeight={"500"}
+                textSize={26}
+                textWeight={"600"}
                 style={{ height: 60, width: "45%" }}
               >
                 Cancelar
               </SecondaryButton>
 
               <PrimaryButton
-                textSize={22}
-                fontWeight={"500"}
+                textSize={26}
+                textWeight={"600"}
                 style={{ height: 60, width: "45%" }}
                 onPress={() => {
                   setDeleteModalVisible(false);

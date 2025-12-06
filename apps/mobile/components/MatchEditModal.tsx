@@ -249,7 +249,8 @@ export function MatchEditModal({
               onPress={onClose}
               disabled={isLoading}
               style={styles.button}
-              textSize={22}
+              textSize={26}
+              textWeight={"600"}
             >
               Cancelar
             </SecondaryButton>
@@ -257,7 +258,8 @@ export function MatchEditModal({
               onPress={handleSave}
               disabled={isLoading}
               style={styles.button}
-              textSize={22}
+              textSize={26}
+              textWeight={"600"}
             >
               {isLoading ? "Salvando..." : "Salvar"}
             </PrimaryButton>
@@ -283,7 +285,7 @@ const makeStyles = (theme: any) =>
     },
     modalContainer: {
       width: "90%",
-      maxHeight: "85%",
+      height: "85%",
       backgroundColor: theme.background,
       borderRadius: 20,
       zIndex: 2,
@@ -328,7 +330,7 @@ const makeStyles = (theme: any) =>
       borderTopColor: Colors.light.orange,
     },
     button: {
-      height: "100%",
+      height: 50,
       width: "45%",
       paddingVertical: 12,
       borderRadius: 8,
