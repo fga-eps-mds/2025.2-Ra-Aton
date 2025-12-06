@@ -5,11 +5,16 @@ export const UseModalEditMatchs = () => {
   const initialState = false;
   const [visibleConfirmCard, setVisibleConfirmCard] = useState(initialState);
   const [visible, setVisible] = useState(initialState);
-  const [visibleDetailsHandle, setVisibleDetailsHandle] = useState(initialState);
-  const [visibleInfosHandleMatch, setVisibleInfosHandleMatch] = useState(initialState);
+  const [visibleDetailsHandle, setVisibleDetailsHandle] =
+    useState(initialState);
+  const [visibleInfosHandleMatch, setVisibleInfosHandleMatch] =
+    useState(initialState);
   const [visibleReportMatch, setVisibleReportMatch] = useState(initialState);
-  const [visibleDescriptionMatch, setVisibleDescriptionMatch] = useState(initialState);
-  const [detailsOrigin, setDetailsOrigin] = useState<"card" | "handle" | null>(null);
+  const [visibleDescriptionMatch, setVisibleDescriptionMatch] =
+    useState(initialState);
+  const [detailsOrigin, setDetailsOrigin] = useState<"card" | "handle" | null>(
+    null,
+  );
 
   const [selectedMatch, setSelectedMatch] = useState<Imatches | null>(null);
 
@@ -45,7 +50,7 @@ export const UseModalEditMatchs = () => {
     setVisibleDetailsHandle(false);
   };
 
-  // abrir modal do handle (confirmação) vindo do CARD
+  // abrir modal de jogadores
   const openModalConfirmCard = (match: Imatches) => {
     setSelectedMatch(match);
     setVisibleConfirmCard(true);
@@ -71,16 +76,13 @@ export const UseModalEditMatchs = () => {
     setVisibleReportMatch(false);
   };
 
+  const openDescriptionMatchModal = () => {
+    setVisibleDescriptionMatch(true);
+  };
 
-const openDescriptionMatchModal = () => {
-  setVisibleDescriptionMatch(true);
-};
-
-const closeDescriptionMatchModal = () => {
-  setVisibleDescriptionMatch(false);
-};
-
-
+  const closeDescriptionMatchModal = () => {
+    setVisibleDescriptionMatch(false);
+  };
 
   return {
     visibleConfirmCard,
@@ -89,7 +91,7 @@ const closeDescriptionMatchModal = () => {
     visibleInfosHandleMatch,
     visibleReportMatch,
     visibleDescriptionMatch,
-    
+
     selectedMatch,
 
     useModal,

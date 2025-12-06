@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect } from "react";
-import { View, StyleSheet, FlatList, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import BackGroundComp from "@/components/BackGroundComp";
@@ -14,6 +20,7 @@ import { Imatches } from "@/libs/interfaces/Imatches";
 import { ModalDescription } from "@/components/ModalDescription";
 import { useMyMatches } from "@/libs/hooks/useMyMatches";
 import { updateMatch } from "@/libs/auth/handleMyMatches";
+import { getMatchById } from "@/libs/auth/handleMatch";
 
 export default function gerenciarPartidas() {
   const { isDarkMode } = useTheme();
@@ -50,40 +57,38 @@ export default function gerenciarPartidas() {
     closeDescriptionMatchModal,
   } = UseModalEditMatchs();
 
-  const {
-    matches,
-    isLoading,
-    isRefreshing,
-    onRefresh,
-    reloadFeed,
-  } = useMyMatches();
+  const { matches, isLoading, isRefreshing, onRefresh, reloadFeed } =
+    useMyMatches();
 
   const handleSaveMatch = async (updatedMatch: any) => {
     try {
-      
       const dataToSend: any = {};
-      
+
       if (updatedMatch.title) dataToSend.title = updatedMatch.title;
-      if (updatedMatch.description) dataToSend.description = updatedMatch.description;
+      if (updatedMatch.description)
+        dataToSend.description = updatedMatch.description;
       if (updatedMatch.sport) dataToSend.sport = updatedMatch.sport;
-      if (updatedMatch.maxPlayers) dataToSend.maxPlayers = Number(updatedMatch.maxPlayers);
+      if (updatedMatch.maxPlayers)
+        dataToSend.maxPlayers = Number(updatedMatch.maxPlayers);
       if (updatedMatch.teamNameA) dataToSend.teamNameA = updatedMatch.teamNameA;
       if (updatedMatch.teamNameB) dataToSend.teamNameB = updatedMatch.teamNameB;
       if (updatedMatch.location) dataToSend.location = updatedMatch.location;
-      
+
       const dateValue = updatedMatch.matchDate || updatedMatch.MatchDate;
       if (dateValue) {
         const toISO = (str) => {
           if (!str) return str;
-          const match = str.match(/(\d{2})\/(\d{2})\/(\d{4})\s*:?\s*(\d{2}):(\d{2})/);
+          const match = str.match(
+            /(\d{2})\/(\d{2})\/(\d{4})\s*:?\s*(\d{2}):(\d{2})/,
+          );
           if (!match) return str;
-          const [ , dia, mes, ano, hora, minuto ] = match;
+          const [, dia, mes, ano, hora, minuto] = match;
           const dateObj = new Date(
             Number(ano),
             Number(mes) - 1,
             Number(dia),
             Number(hora),
-            Number(minuto)
+            Number(minuto),
           );
           if (isNaN(dateObj.getTime())) return str;
           return dateObj.toISOString();
@@ -91,15 +96,20 @@ export default function gerenciarPartidas() {
         const isoDate = toISO(dateValue);
         dataToSend.MatchDate = isoDate;
       }
-      
-      if (updatedMatch.teamAScore !== undefined && updatedMatch.teamAScore !== null) {
+
+      if (
+        updatedMatch.teamAScore !== undefined &&
+        updatedMatch.teamAScore !== null
+      ) {
         dataToSend.teamAScore = Number(updatedMatch.teamAScore) || 0;
       }
-      if (updatedMatch.teamBScore !== undefined && updatedMatch.teamBScore !== null) {
+      if (
+        updatedMatch.teamBScore !== undefined &&
+        updatedMatch.teamBScore !== null
+      ) {
         dataToSend.teamBScore = Number(updatedMatch.teamBScore) || 0;
       }
 
-      
       await updateMatch(updatedMatch.id, dataToSend);
       Alert.alert("Sucesso", "Partida atualizada com sucesso!");
       reloadFeed();
@@ -128,6 +138,17 @@ export default function gerenciarPartidas() {
             renderItem={({ item }) => (
               <EditMatchesCard
                 match={item}
+                onPressJoinMatch={async () => {
+                  try {
+                    const matchDetail = await getMatchById(item.id);
+                    openModalConfirmCard(matchDetail);
+                  } catch (e) {
+                    Alert.alert(
+                      "Erro",
+                      "Não foi possível carregar os jogadores da partida.",
+                    );
+                  }
+                }}
                 onPressInfos={() => useModal(item)}
                 onReloadFeed={reloadFeed}
               />
