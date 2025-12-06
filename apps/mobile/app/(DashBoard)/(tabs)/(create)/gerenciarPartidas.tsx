@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
   FlatList,
   ActivityIndicator,
   Alert,
+  Modal,
 } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
@@ -15,15 +16,20 @@ import { UseModalEditMatchs } from "@/libs/hooks/useEditMatchs";
 import { MatchEditModal } from "@/components/MatchEditModal";
 import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
 import ReportReasonModal from "@/components/ReportReasonModal";
+import PrimaryButton from "@/components/PrimaryButton";
+import SecondaryButton from "@/components/SecondaryButton";
+import AppText from "@/components/AppText";
 import { useFocusEffect } from "@react-navigation/native";
 import { Imatches } from "@/libs/interfaces/Imatches";
 import { ModalDescription } from "@/components/ModalDescription";
 import { useMyMatches } from "@/libs/hooks/useMyMatches";
-import { updateMatch } from "@/libs/auth/handleMyMatches";
+import { updateMatch, deleteMatch } from "@/libs/auth/handleMyMatches";
 import { getMatchById } from "@/libs/auth/handleMatch";
-
+import { useUser } from "@/libs/storage/UserContext";
 export default function gerenciarPartidas() {
   const { isDarkMode } = useTheme();
+
+  const colors = isDarkMode ? Colors.dark.background : Colors.light.background;
   const themeStyles = StyleSheet.create({
     container: {
       flex: 1,
@@ -33,6 +39,10 @@ export default function gerenciarPartidas() {
         : Colors.light.background,
     },
   });
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [matchToDelete, setMatchToDelete] = useState<Imatches | null>(null);
+  const { user } = useUser();
 
   const {
     visibleConfirmCard,
@@ -149,6 +159,10 @@ export default function gerenciarPartidas() {
                     );
                   }
                 }}
+                onPressDelete={() => {
+                  setMatchToDelete(item);
+                  setDeleteModalVisible(true);
+                }}
                 onPressInfos={() => useModal(item)}
                 onReloadFeed={reloadFeed}
               />
@@ -191,6 +205,85 @@ export default function gerenciarPartidas() {
           description={selectedMatch?.description}
         ></ModalDescription>
       </View>
+      {/* Modal de confirmação de exclusão */}
+      <Modal
+        visible={deleteModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDeleteModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.7)",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: colors,
+              padding: 24,
+              borderRadius: 12,
+              alignItems: "center",
+              width: "80%",
+              paddingVertical: 36,
+            }}
+          >
+            <AppText
+              style={{
+                fontSize: 22,
+                marginBottom: 16,
+                color: "white",
+                textAlign: "center",
+              }}
+            >
+              Deseja realmente apagar esta partida?
+            </AppText>
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "space-between",
+              }}
+            >
+              <SecondaryButton
+                onPress={() => setDeleteModalVisible(false)}
+                textSize={22}
+                fontWeight={"500"}
+                style={{ height: 60, width: "45%" }}
+              >
+                Cancelar
+              </SecondaryButton>
+
+              <PrimaryButton
+                textSize={22}
+                fontWeight={"500"}
+                style={{ height: 60, width: "45%" }}
+                onPress={() => {
+                  setDeleteModalVisible(false);
+
+                  if (!matchToDelete) return;
+                  if (!user || !user.token) {
+                    Alert.alert("Erro", "Usuário não autenticado.");
+                    return;
+                  }
+                  deleteMatch(matchToDelete.id, user.token)
+                    .then(() => reloadFeed())
+                    .catch(() => {
+                      Alert.alert(
+                        "Erro",
+                        "Não foi possível deletar a partida.",
+                      );
+                    });
+                }}
+              >
+                Apagar
+              </PrimaryButton>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </BackGroundComp>
   );
 }

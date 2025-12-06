@@ -28,13 +28,12 @@ export async function getAllMatchesByUserId(
     params: { page: 1, limit: 100 },
     signal,
   });
-  
+
   const dataArray = Array.isArray(res.data) ? res.data : res.data.data;
   console.log("getAllMatchesByUserId data array:", dataArray);
-  
+
   return dataArray;
 }
-
 
 export async function updateMatch(
   id: string,
@@ -55,3 +54,11 @@ export async function updateMatch(
   return res.data;
 }
 
+export async function deleteMatch(
+  matchId: string,
+  Token: string,
+): Promise<void> {
+  await api_route.delete(`/match/${matchId}`, {
+    headers: { Authorization: `Bearer ${Token}` },
+  });
+}

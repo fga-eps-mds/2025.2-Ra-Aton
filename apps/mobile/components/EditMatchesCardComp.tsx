@@ -11,6 +11,7 @@ interface EditCardMatchesProps {
   match?: Imatches;
   onPressJoinMatch?: () => void;
   onPressInfos?: () => void;
+  onPressDelete?: () => void;
   onReloadFeed?: () => void | Promise<void>;
   isUserSubscriped?: boolean;
 }
@@ -19,6 +20,7 @@ export const EditMatchesCard: React.FC<EditCardMatchesProps> = ({
   match,
   onPressJoinMatch,
   onPressInfos,
+  onPressDelete,
   onReloadFeed,
   isUserSubscriped,
 }) => {
@@ -29,7 +31,11 @@ export const EditMatchesCard: React.FC<EditCardMatchesProps> = ({
           {match?.title ?? ""}
         </Text>
 
-        <TouchableOpacity onPress={onPressInfos} style={styles.iconBtn}>
+        <TouchableOpacity onPress={onPressDelete} style={styles.iconBtnL}>
+          <Ionicons name="trash" color={Colors.input.iconColor} size={25} />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={onPressInfos} style={styles.iconBtnR}>
           <Ionicons name="pencil" color={Colors.input.iconColor} size={25} />
         </TouchableOpacity>
       </View>
@@ -113,7 +119,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     paddingHorizontal: 40,
   },
-  iconBtn: {
+  iconBtnL: {
+    position: "absolute",
+    left: 10,
+    padding: 5,
+    height: "100%",
+    justifyContent: "center",
+  },
+  iconBtnR: {
     position: "absolute",
     right: 10,
     padding: 5,
