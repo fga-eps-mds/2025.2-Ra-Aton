@@ -45,7 +45,7 @@ export const postService = {
       );
     }
 
-    if (!data.group || !data.groupId) {
+    if (!data.groupId) {
       throw new ApiError(
         httpStatus.NOT_FOUND,
         "Grupo não encontrado, somente grupos podem fazer postagens",

@@ -27,6 +27,7 @@ interface createEventParams {
   eventFinishDate: string;
   location: string;
   token: string;
+  groupId: string;
 }
 
 interface CreateEventResponse {
@@ -43,6 +44,7 @@ export async function createEvent({
   eventFinishDate,
   location,
   token,
+  groupId,
 }: createEventParams): Promise<CreateEventResponse> {
   let eventDateFormatted = "";
   let eventFinishDateFormatted = "";
@@ -56,22 +58,32 @@ export async function createEvent({
     return { error: error.message };
   }
 
-  console.log(
-    `Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\nData ==>${eventDate} até ${eventFinishDate}\nLocalização ==> ${location}`,
-  );
+  console.log('[createEvent] Parâmetros recebidos:');
+  console.log('  - title:', title);
+  console.log('  - type:', type);
+  console.log('  - content:', content);
+  console.log('  - eventDate:', eventDate);
+  console.log('  - eventFinishDate:', eventFinishDate);
+  console.log('  - location:', location);
+  console.log('  - groupId:', groupId);
+  console.log('  - groupId type:', typeof groupId);
+  console.log('  - groupId is null?', groupId === null);
+  console.log('  - groupId is undefined?', groupId === undefined);
   try {
+    const payload = {
+      title,
+      type,
+      content,
+      eventDate: eventDateFormatted,
+      eventFinishDate: eventFinishDateFormatted || undefined,
+      location,
+      groupId,
+    };
+    console.log('[createEvent] Payload sendo enviado:', JSON.stringify(payload, null, 2));
+    
     const response = await api_route.post(
       "/posts",
-      {
-        title,
-        type,
-        content,
-        eventDate: eventDateFormatted,
-        eventFinishDate: eventFinishDateFormatted || undefined,
-        location,
-        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${token}`,

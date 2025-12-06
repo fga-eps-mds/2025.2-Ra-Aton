@@ -27,8 +27,14 @@ router.get(
 
 router.get(
   "/user/:id",
-  // validateRequest(findMemberSchema),
+  validateRequest(findMemberSchema),
   catchAsync(GroupMembershipController.listAllMembersByUserId),
+);
+
+router.get(
+  "/admin/:id",
+  validateRequest(findMemberSchema),
+  catchAsync(GroupMembershipController.listAllAdminMembersByUserId),
 );
 
 router.post(

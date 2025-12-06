@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -18,6 +18,7 @@ import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import AppText from "@/components/AppText";
 import { PostFormComponent } from "@/components/PostFormComponent";
+import ListGroupsFromAdminUser from "@/components/ListGroupsFromAdminUser";
 
 // Libs
 import { postForms } from "@/libs/hooks/postForms";
@@ -31,6 +32,7 @@ const CriarPostInner: React.FC = () => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   const {
     formsData,
@@ -39,7 +41,7 @@ const CriarPostInner: React.FC = () => {
     handleSubmit,
     comebackPage,
     formError,
-  } = postForms();
+  } = postForms(selectedGroupId);
 
   return (
     <BackGroundComp>
@@ -47,6 +49,24 @@ const CriarPostInner: React.FC = () => {
         style={[{ flex: 1 }]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
+        <ScrollView
+          contentContainerStyle={{
+            padding: 20,
+            paddingBottom: 20,
+            backgroundColor: theme.background,
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.containerInfos}>
+            <View style={styles.inputContainer}>
+              <AppText style={styles.sectionTitle}>Selecione o grupo para o post</AppText>
+              <ListGroupsFromAdminUser 
+                onSelect={(id) => setSelectedGroupId(id)} 
+                selectedGroupId={selectedGroupId}
+              />
+            </View>
+          </View>
+        </ScrollView>
         <ScrollView
           contentContainerStyle={{
             padding: 20,
@@ -111,5 +131,12 @@ const makeStyles = (theme: any) =>
       alignItems: "center",
       width: "100%",
       marginTop: 10,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      color: theme.text,
+      fontWeight: "600",
+      marginBottom: 10,
+      fontFamily: Fonts.otherFonts.dongleBold,
     },
   });

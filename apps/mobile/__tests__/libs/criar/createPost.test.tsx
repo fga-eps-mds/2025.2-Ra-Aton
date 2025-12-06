@@ -21,6 +21,7 @@ describe("createPost", () => {
     type: "Aviso",
     content: "Este é o conteúdo do post",
     token: "fake-jwt-token",
+    groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
   };
 
   // --- Teste de Sucesso ---
@@ -42,8 +43,7 @@ describe("createPost", () => {
         title: validParams.title,
         type: validParams.type,
         content: validParams.content,
-        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
+        groupId: validParams.groupId,
       },
       {
         headers: {

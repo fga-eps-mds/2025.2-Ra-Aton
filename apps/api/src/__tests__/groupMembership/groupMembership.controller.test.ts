@@ -146,6 +146,55 @@ describe("GroupMembershipController", () => {
     });
   });
 
+  describe("listAllAdminMemberByUserId", () => {
+    it("Deve retornar uma lista com todos os Admins com base em um userId e o status 200", async () => {
+      const mockMembers = [
+        {
+          id: "M1",
+          userId: "U1",
+          groupId: "G1",
+          role: GroupRole.ADMIN,
+          isCreator: true,
+          createdAt: new Date("2023-01-01T00:00:00Z"),
+        },
+        {
+          id: "M2",
+          userId: "U2",
+          groupId: "G2",
+          role: GroupRole.MEMBER,
+          isCreator: false,
+          createdAt: new Date("2023-02-01T00:00:00Z"),
+        },
+      ];
+
+      req.params = { id: "U1" };
+      (
+        groupMembershipService.findAdminMemberByUserId as jest.Mock
+      ).mockResolvedValue(mockMembers);
+
+      await groupMembershipController.listAllAdminMembersByUserId(
+        req as Request,
+        res as Response,
+      );
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(mockMembers);
+    });
+    it("Deve retornar 400 caso o id não seja fornecido", async () => {
+      req.params = {};
+
+      await groupMembershipController.listAllMembersByUserId(
+        req as Request,
+        res as Response,
+      );
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "ID do usuário é obrigatório",
+      });
+    });
+  });
+
   describe("listAllMembersFromGroupId", () => {
     it("Deve retornar uma lista com todos os membros com base em um groupId e o status 200", async () => {
       const mockInvites = [{ id: "1" }, { id: "2" }];

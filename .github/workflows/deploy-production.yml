@@ -1,0 +1,52 @@
+name: Deploy Production (Droplet)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'prisma/**'
+
+jobs:
+  deploy:
+    name: Deploy para o DigitalOcean
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Executando comandos de SSH remoto
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.ATON_DROPLET_HOST }}
+        username: ${{ secrets.ATON_DROPLET_USERNAME }}
+        password: ${{ secrets.ATON_DROPLET_PASSWORD }}
+        port: 22
+        script: |
+          # 1. Carregar variáveis de ambiente do usuário (para o Node/NVM funcionar)
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+          # 2. Ir para a pasta do projeto
+          cd /home/aton
+          
+          echo "Baixando atualizações do Git..."
+          git pull origin main
+          
+          echo "Instalando dependências..."
+          pnpm install --frozen-lockfile
+          
+          echo "Atualizando Banco de Dados (Migrations)..."
+          pnpm --filter ./apps/api exec prisma migrate deploy
+          
+          echo "Gerando Cliente Prisma..."
+          pnpm --filter ./apps/api exec prisma generate
+
+          echo "Buildando a API..."
+          pnpm --filter ./apps/api run build
+          
+          echo "Reiniciando o Servidor..."
+          pm2 restart aton-api
+          
+          echo "Deploy Finalizado com Sucesso!"
