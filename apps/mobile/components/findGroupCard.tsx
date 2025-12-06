@@ -75,6 +75,7 @@ const handleFollow = async () => {
 
       <View style={styles.buttons}>
         <PrimaryButton
+         textWeight={500} textSize={20} 
           style={styles.button}
           onPress={async () => {
             try {

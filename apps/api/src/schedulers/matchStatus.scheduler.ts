@@ -6,7 +6,7 @@ import { prisma } from "../database/prisma.client";
  * Encontra todas as partidas que deveriam estar "EM_ANDAMENTO"
  * mas ainda estão marcadas como "EM_BREVE" e as atualiza.
  */
-const updateMatchesToOngoing = async () => {
+export const updateMatchesToOngoing = async () => {
   const now = new Date();
 
   console.log(

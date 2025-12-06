@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, ViewStyle, StyleProp } from "react-native";
 import AppText from "./AppText";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
@@ -7,12 +7,14 @@ import { Colors } from "@/constants/Colors";
 type Props = {
   optionLeft: string;
   optionRight: string;
+  style?: StyleProp<ViewStyle>;
   selected: "LEFT" | "RIGHT";
   onChange: (value: "LEFT" | "RIGHT") => void;
 };
 
 export default function TwoOptionSwitch({
   optionLeft,
+  style,
   optionRight,
   selected,
   onChange,
@@ -22,7 +24,7 @@ export default function TwoOptionSwitch({
 
   return (
     <View
-      style={{
+      style={[{
         flexDirection: "row",
         width: "90%",
         height: 50,
@@ -37,9 +39,8 @@ export default function TwoOptionSwitch({
                   shadowOpacity: 0.55,
                   shadowRadius: 3.5,
                   elevation: 5,
-      }}
+      }, style,]}
     >
-      {/* LEFT */}
       <TouchableOpacity
         style={{
           flex: 1,
@@ -61,7 +62,6 @@ export default function TwoOptionSwitch({
         </AppText>
       </TouchableOpacity>
 
-      {/* RIGHT */}
       <TouchableOpacity
         style={{
           flex: 1,

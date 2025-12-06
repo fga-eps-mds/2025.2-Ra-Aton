@@ -1,10 +1,13 @@
+// Importa polyfills PRIMEIRO
+import "../polyfills";
+
 import { useEffect, useState } from "react";
 import { Redirect, useRouter } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/constants/Theme";
 import { useUser } from "@/libs/storage/UserContext";
-
+import { Link } from "expo-router";
 function IndexInner() {
   const [isLoading, setIsLoading] = useState(true);
   const [tela, setTela] = useState<string | null>(null);

@@ -41,7 +41,7 @@ export const auth = catchAsync(
     // ----------------------------------------------------
 
     // Anexa o ID de forma segura
-    (req as any).user = { id: decoded.id };
+    (req as any).user = { id: decoded.id, userId: decoded.id };
     next();
   },
 );

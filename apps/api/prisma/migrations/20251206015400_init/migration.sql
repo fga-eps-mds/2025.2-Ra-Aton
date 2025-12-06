@@ -1,11 +1,3 @@
-/*
-  Warnings:
-
-  - A unique constraint covering the columns `[userName]` on the table `User` will be added. If there are existing duplicate values, this will fail.
-  - Added the required column `passwordHash` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `userName` to the `User` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- CreateEnum
 CREATE TYPE "ProfileType" AS ENUM ('JOGADOR', 'TORCEDOR', 'ATLETICA');
 
@@ -36,10 +28,23 @@ CREATE TYPE "JoinRequestStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 -- CreateEnum
 CREATE TYPE "MatchStatus" AS ENUM ('EM_BREVE', 'EM_ANDAMENTO', 'FINALIZADO');
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "passwordHash" TEXT NOT NULL,
-ADD COLUMN     "profileType" "ProfileType",
-ADD COLUMN     "userName" TEXT NOT NULL;
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('GROUP_JOIN_REQUEST', 'GROUP_JOIN_APPROVED', 'GROUP_JOIN_REJECTED', 'MATCH_REMINDER', 'SYSTEM');
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
+    "profileType" "ProfileType",
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "notificationsAllowed" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Post" (
@@ -161,6 +166,7 @@ CREATE TABLE "Match" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "MatchDate" TIMESTAMP(3) NOT NULL,
     "MatchStatus" "MatchStatus" NOT NULL,
+    "reminderSent" BOOLEAN NOT NULL DEFAULT false,
     "location" TEXT NOT NULL,
     "sport" TEXT NOT NULL,
 
@@ -179,6 +185,17 @@ CREATE TABLE "PlayerSubscription" (
 );
 
 -- CreateTable
+CREATE TABLE "UsersNotifyTokens" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UsersNotifyTokens_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "GroupFollow" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -187,6 +204,27 @@ CREATE TABLE "GroupFollow" (
 
     CONSTRAINT "GroupFollow_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "type" "NotificationType" NOT NULL,
+    "resourceId" TEXT,
+    "resourceType" TEXT,
+    "readAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_userName_key" ON "User"("userName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Attendance_userId_postId_key" ON "Attendance"("userId", "postId");
@@ -210,10 +248,13 @@ CREATE UNIQUE INDEX "GroupJoinRequest_userId_groupId_key" ON "GroupJoinRequest"(
 CREATE UNIQUE INDEX "PlayerSubscription_userId_matchId_key" ON "PlayerSubscription"("userId", "matchId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "GroupFollow_userId_groupId_key" ON "GroupFollow"("userId", "groupId");
+CREATE UNIQUE INDEX "UsersNotifyTokens_userId_key" ON "UsersNotifyTokens"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_userName_key" ON "User"("userName");
+CREATE UNIQUE INDEX "UsersNotifyTokens_token_key" ON "UsersNotifyTokens"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GroupFollow_userId_groupId_key" ON "GroupFollow"("userId", "groupId");
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -270,7 +311,13 @@ ALTER TABLE "PlayerSubscription" ADD CONSTRAINT "PlayerSubscription_userId_fkey"
 ALTER TABLE "PlayerSubscription" ADD CONSTRAINT "PlayerSubscription_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "UsersNotifyTokens" ADD CONSTRAINT "UsersNotifyTokens_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "GroupFollow" ADD CONSTRAINT "GroupFollow_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "GroupFollow" ADD CONSTRAINT "GroupFollow_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
