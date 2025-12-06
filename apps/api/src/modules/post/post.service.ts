@@ -2,7 +2,7 @@ import { postRepository } from "./post.repository";
 import { Post } from "@prisma/client";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
-import da from "zod/v4/locales/da.js";
+import groupRepository from "../group/group.repository";
 
 export const postService = {
   listPosts: async (limit: number, page: number, userId: string) => {
@@ -47,9 +47,17 @@ export const postService = {
 
     if (!data.groupId) {
       throw new ApiError(
-        httpStatus.NOT_FOUND,
-        "Grupo não encontrado, somente grupos podem fazer postagens",
+        httpStatus.BAD_REQUEST,
+        "O id do grupo não foi passado corretamente",
       );
+    }
+
+    const groupFound = await groupRepository.findGroupById(data.groupId);
+    if (!groupFound) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "Grupo não encontrado, somente grupos podem fazer postagens"
+      )
     }
 
     if (data.type === "EVENT") {
@@ -59,13 +67,13 @@ export const postService = {
           "Data de inicio, Data de termino e Localização do evento são obrigatórios em postagens do tipo evento",
         );
       }
-      else if(new Date(data.eventDate) > new Date(data.eventFinishDate)) {
+      else if (new Date(data.eventDate) > new Date(data.eventFinishDate)) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
           "Data de término do evento deve ser maior que a data de início",
         );
       }
-      else if(new Date(data.eventDate) < new Date()) {
+      else if (new Date(data.eventDate) < new Date()) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
           "Data de início do evento deve ser uma data futura",
