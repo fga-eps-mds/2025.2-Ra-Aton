@@ -143,6 +143,13 @@ class matchService {
       );
     }
 
+    if(new Date(data.MatchDate) <= new Date()) {
+      throw new ApiError(
+        HttpStatus.BAD_REQUEST,
+        "Data da partida deve ser uma data futura",
+      );
+    }
+
     const updatedMatch = await matchRepository.updateMatch(matchFound.id, data);
     return updatedMatch;
   };
