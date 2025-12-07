@@ -8,7 +8,9 @@ import {
   ScrollView,
   ActivityIndicator,
   Button,
+  Platform,
 } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { Imatches } from "@/libs/interfaces/Imatches";
 import { Fonts } from "@/constants/Fonts";
@@ -19,12 +21,17 @@ import { DescricaoInput } from "./DescricaoInput";
 import PrimaryButton from "./PrimaryButton";
 import AppText from "./AppText";
 import SecondaryButton from "@/components/SecondaryButton";
+import InputDateComp from "./InputDateComp";
 
 type MatchEditModalProps = {
   visible: boolean;
   onClose: () => void;
   match?: Imatches | any;
-  onSave?: (updatedMatch: any) => Promise<void>;
+  onSave?: (updatedMatch: any) => Promise<{
+    success: boolean;
+    error?: string;
+    field?: string | null;
+  }>;
 };
 
 export function MatchEditModal({
@@ -35,11 +42,59 @@ export function MatchEditModal({
 }: MatchEditModalProps) {
   const [editData, setEditData] = useState<any>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
   const [dataInputValue, setDataInputValue] = useState("");
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [tempDate, setTempDate] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
+
+  const handleChangeDate = (event: any, selectedDate?: Date) => {
+    if (event.type === "dismissed") {
+      setShowPicker(false);
+      return;
+    }
+
+    const currentDate = selectedDate || tempDate;
+    setTempDate(currentDate);
+    setShowPicker(false);
+    setShowTimePicker(true);
+  };
+
+  const handleChangeTime = (event: any, selectedTime?: Date) => {
+    if (event.type === "dismissed") {
+      setShowTimePicker(false);
+      return;
+    }
+
+    const finalDate = new Date(tempDate);
+
+    if (selectedTime) {
+      finalDate.setHours(selectedTime.getHours());
+      finalDate.setMinutes(selectedTime.getMinutes());
+    }
+
+    setShowTimePicker(false);
+
+    setEditData((prev: any) => ({
+      ...prev,
+      MatchDate: finalDate.toISOString(),
+    }));
+
+    const dia = String(finalDate.getDate()).padStart(2, "0");
+    const mes = String(finalDate.getMonth() + 1).padStart(2, "0");
+    const ano = finalDate.getFullYear();
+    const horas = String(finalDate.getHours()).padStart(2, "0");
+    const minutos = String(finalDate.getMinutes()).padStart(2, "0");
+
+    setDataInputValue(`${dia}/${mes}/${ano} ${horas}:${minutos}`);
+  };
 
   const formatarData = (dataISO: string | undefined) => {
     if (!dataISO) return "";
@@ -54,30 +109,23 @@ export function MatchEditModal({
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
-  const desformatarDataParaISO = (str: string) => {
-    if (!str || !str.includes(" ")) return "";
-    const [datePart, timePart] = str.split(" ");
-    const [day, month, year] = datePart.split("/");
-    const date = new Date(`${year}-${month}-${day}T${timePart}:00`);
-    if (isNaN(date.getTime())) return "";
-    return date.toISOString();
-  };
-
   useEffect(() => {
     if (match) {
+      setFormErrors({});
       setEditData({
         title: match.title || "",
         description: match.description || "",
         sport: match.sport || "",
         maxPlayers: String(match.maxPlayers || ""),
-        teamNameA: match.teamNameA || "Time A",
-        teamNameB: match.teamNameB || "Time B",
+        teamNameA: match.teamNameA || "",
+        teamNameB: match.teamNameB || "",
         location: match.location || "",
         MatchDate: match.MatchDate || "",
         teamAScore: String(match.teamAScore || 0),
         teamBScore: String(match.teamBScore || 0),
       });
-      setDataInputValue(formatarData(match.MatchDate) || "");
+
+      setDataInputValue(formatarData(match.MatchDate));
     }
   }, [match, visible]);
 
@@ -85,27 +133,27 @@ export function MatchEditModal({
     if (!onSave) return;
 
     setIsLoading(true);
-    try {
-      await onSave({
-        ...match,
-        ...editData,
-        maxPlayers: Number(editData.maxPlayers),
+    setFormErrors({});
+
+    const result = await onSave({
+      ...match,
+      ...editData,
+      maxPlayers: Number(editData.maxPlayers),
+    });
+
+    if (!result.success) {
+      setFormErrors({
+        [result.field ?? "general"]: result.error ?? "Erro desconhecido",
       });
-      onClose();
-    } catch (error) {
-      console.error("Erro ao salvar partida:", error);
-    } finally {
       setIsLoading(false);
+      return;
     }
+
+    setIsLoading(false);
+    onClose();
   };
 
   if (!match) return null;
-
-  const handleDataChange = (text: string) => {
-    setDataInputValue(text);
-    const isoData = desformatarDataParaISO(text);
-    setEditData((prev: any) => ({ ...prev, MatchDate: isoData }));
-  };
 
   return (
     <Modal
@@ -129,6 +177,7 @@ export function MatchEditModal({
             style={styles.content}
             contentContainerStyle={styles.contentContainer}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="always"
           >
             <InputComp
               label="Título"
@@ -195,12 +244,12 @@ export function MatchEditModal({
               placeholder="Equipe 2"
             />
 
-            <InputComp
+            <InputDateComp
               label="Data de Início"
-              iconName="calendar"
               value={dataInputValue}
-              onChangeText={handleDataChange}
-              placeholder="dd/mm/aaaa : hh/mm"
+              onPress={() => setShowPicker(true)}
+              status={!!formErrors.MatchDate}
+              statusText={formErrors.MatchDate}
             />
 
             <InputComp
@@ -250,7 +299,7 @@ export function MatchEditModal({
               disabled={isLoading}
               style={styles.button}
               textSize={26}
-              textWeight={"600"}
+              textWeight={600}
             >
               Cancelar
             </SecondaryButton>
@@ -259,11 +308,29 @@ export function MatchEditModal({
               disabled={isLoading}
               style={styles.button}
               textSize={26}
-              textWeight={"600"}
+              textWeight={600}
             >
               {isLoading ? "Salvando..." : "Salvar"}
             </PrimaryButton>
           </View>
+          {showPicker && (
+            <DateTimePicker
+              value={tempDate}
+              mode="date"
+              display={Platform.OS === "ios" ? "inline" : "default"}
+              onChange={handleChangeDate}
+            />
+          )}
+
+          {showTimePicker && (
+            <DateTimePicker
+              value={tempDate}
+              mode="time"
+              is24Hour={true}
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={handleChangeTime}
+            />
+          )}
         </View>
       </View>
     </Modal>

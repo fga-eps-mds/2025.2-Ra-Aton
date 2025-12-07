@@ -26,7 +26,7 @@ import { useMyMatches } from "@/libs/hooks/useMyMatches";
 import { updateMatch, deleteMatch } from "@/libs/auth/handleMyMatches";
 import { getMatchById } from "@/libs/auth/handleMatch";
 import { useUser } from "@/libs/storage/UserContext";
-export default function gerenciarPartidas() {
+export default function GerenciarPartidas() {
   const { isDarkMode } = useTheme();
 
   const colors = isDarkMode ? Colors.dark.background : Colors.light.background;
@@ -84,48 +84,54 @@ export default function gerenciarPartidas() {
       if (updatedMatch.teamNameB) dataToSend.teamNameB = updatedMatch.teamNameB;
       if (updatedMatch.location) dataToSend.location = updatedMatch.location;
 
-      const dateValue = updatedMatch.matchDate || updatedMatch.MatchDate;
-      if (dateValue) {
-        const toISO = (str) => {
-          if (!str) return str;
-          const match = str.match(
-            /(\d{2})\/(\d{2})\/(\d{4})\s*:?\s*(\d{2}):(\d{2})/,
-          );
-          if (!match) return str;
-          const [, dia, mes, ano, hora, minuto] = match;
-          const dateObj = new Date(
-            Number(ano),
-            Number(mes) - 1,
-            Number(dia),
-            Number(hora),
-            Number(minuto),
-          );
-          if (isNaN(dateObj.getTime())) return str;
-          return dateObj.toISOString();
-        };
-        const isoDate = toISO(dateValue);
-        dataToSend.MatchDate = isoDate;
-      }
+      const dateValue = updatedMatch.MatchDate || updatedMatch.matchDate;
+      if (dateValue) dataToSend.MatchDate = dateValue;
 
-      if (
-        updatedMatch.teamAScore !== undefined &&
-        updatedMatch.teamAScore !== null
-      ) {
+      if (updatedMatch.teamAScore != null)
         dataToSend.teamAScore = Number(updatedMatch.teamAScore) || 0;
-      }
-      if (
-        updatedMatch.teamBScore !== undefined &&
-        updatedMatch.teamBScore !== null
-      ) {
+
+      if (updatedMatch.teamBScore != null)
         dataToSend.teamBScore = Number(updatedMatch.teamBScore) || 0;
-      }
 
       await updateMatch(updatedMatch.id, dataToSend);
-      Alert.alert("Sucesso", "Partida atualizada com sucesso!");
       reloadFeed();
-    } catch (error) {
-      console.error("Erro ao salvar partida:", error);
-      Alert.alert("Erro", "Erro ao atualizar a partida. Tente novamente.");
+
+      return { success: true };
+    } catch (error: any) {
+      console.log("DEBUG RAW ERROR:", error);
+
+      const responseData = error?.response?.data;
+      console.log("DEBUG BACKEND DATA:", responseData);
+
+      if (responseData?.message) {
+        if (responseData.message.toLowerCase().includes("data")) {
+          return {
+            success: false,
+            field: "MatchDate",
+            error: responseData.message,
+          };
+        }
+
+        return {
+          success: false,
+          field: "general",
+          error: responseData.message,
+        };
+      }
+
+      if (String(error).toLowerCase().includes("date")) {
+        return {
+          success: false,
+          field: "MatchDate",
+          error: "Data inválida.",
+        };
+      }
+
+      return {
+        success: false,
+        field: "general",
+        error: "Não foi possível atualizar a partida.",
+      };
     }
   };
 
@@ -205,7 +211,6 @@ export default function gerenciarPartidas() {
           description={selectedMatch?.description}
         ></ModalDescription>
       </View>
-      {/* Modal de confirmação de exclusão */}
       <Modal
         visible={deleteModalVisible}
         transparent
@@ -250,7 +255,7 @@ export default function gerenciarPartidas() {
               <SecondaryButton
                 onPress={() => setDeleteModalVisible(false)}
                 textSize={26}
-                textWeight={"600"}
+                textWeight={600}
                 style={{ height: 60, width: "45%" }}
               >
                 Cancelar
@@ -258,7 +263,7 @@ export default function gerenciarPartidas() {
 
               <PrimaryButton
                 textSize={26}
-                textWeight={"600"}
+                textWeight={600}
                 style={{ height: 60, width: "45%" }}
                 onPress={() => {
                   setDeleteModalVisible(false);
