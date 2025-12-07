@@ -173,6 +173,14 @@ export default function DashboardTabsLayout() {
         }} // Esconde da Navbar
       />
 
+      <Tabs.Screen
+        name="(create)/gerenciarPartidas"
+        options={{
+          title: "Solicitacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
     </Tabs>
 
 

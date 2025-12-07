@@ -6,7 +6,7 @@ export type Imatches = {
     description: string,
     authorId: string,
     matchDate: string,
-    matchStatus: string,
+    MatchStatus: string,
     location: string,
     sport: string,
     maxPlayers: number,
