@@ -11,7 +11,7 @@ describe("matchService.updateMatch", () => {
   const mockMatchData = {
     title: "Updated Match Title",
     description: "Updated Description",
-    MatchDate: new Date(),
+    MatchDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // 7 dias na frente pra nao dar erro de data invalida
     teamNameA: "Updated Team A",
     teamAScore: 3,
     teamNameB: "Updatable Team B",
