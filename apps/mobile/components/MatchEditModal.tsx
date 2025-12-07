@@ -129,31 +129,57 @@ export function MatchEditModal({
     }
   }, [match, visible]);
 
+  const validate = () => {
+    const errors: Record<string, string> = {};
+
+    if (!editData.title || editData.title.length < 2) {
+      errors.title = "Título deve ter no mínimo 2 caracteres.";
+    }
+    if (!editData.sport) errors.sport = "Informe o esporte.";
+    if (!editData.location) errors.location = "Informe o local da partida.";
+    if (!editData.MatchDate) errors.MatchDate = "Informe a data da partida.";
+    if (editData.maxPlayers && Number(editData.maxPlayers) < 2) {
+      errors.maxPlayers = "O número de participantes deve ser >= 2.";
+    }
+    if (editData.description && editData.description.length < 3) {
+      errors.description = "Descrição deve ter no mínimo 3 caracteres.";
+    }
+
+    setFormErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSave = async () => {
     if (!onSave) return;
+
+    if (!validate()) return;
 
     setIsLoading(true);
     setFormErrors({});
 
-    const result = await onSave({
-      ...match,
-      ...editData,
-      maxPlayers: Number(editData.maxPlayers),
-    });
-
-    if (!result.success) {
-      setFormErrors({
-        [result.field ?? "general"]: result.error ?? "Erro desconhecido",
+    try {
+      const result = await onSave({
+        ...match,
+        ...editData,
+        maxPlayers: Number(editData.maxPlayers),
       });
+
+      if (!result.success) {
+        setFormErrors({
+          [result.field ?? "general"]: result.error ?? "Erro desconhecido",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(false);
-      return;
+      onClose();
+    } catch (err: any) {
+      setFormErrors({ general: "Erro ao salvar. Tente novamente." });
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-    onClose();
   };
-
-  if (!match) return null;
 
   return (
     <Modal
@@ -187,6 +213,8 @@ export function MatchEditModal({
                 setEditData((prev: any) => ({ ...prev, title: text }))
               }
               placeholder="Nome da partida"
+              status={!!formErrors.title}
+              statusText={formErrors.title}
             />
 
             <DescricaoInput
@@ -197,6 +225,8 @@ export function MatchEditModal({
               }
               placeholder="Descreva a partida..."
               height={100}
+              status={!!formErrors.description}
+              statusText={formErrors.description}
             />
 
             <InputComp
@@ -207,6 +237,8 @@ export function MatchEditModal({
                 setEditData((prev: any) => ({ ...prev, sport: text }))
               }
               placeholder="Ex: Futebol, Basquete"
+              status={!!formErrors.sport}
+              statusText={formErrors.sport}
             />
 
             <InputComp
@@ -222,6 +254,8 @@ export function MatchEditModal({
               }}
               placeholder="Ex: 10"
               keyboardType="numeric"
+              status={!!formErrors.maxPlayers}
+              statusText={formErrors.maxPlayers}
             />
 
             <InputComp
@@ -260,6 +294,8 @@ export function MatchEditModal({
                 setEditData((prev: any) => ({ ...prev, location: text }))
               }
               placeholder="Endereço da partida"
+              status={!!formErrors.location}
+              statusText={formErrors.location}
             />
 
             <InputComp
