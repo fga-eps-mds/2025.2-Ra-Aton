@@ -1,4 +1,3 @@
-// For tests we stub the heavy modal implementation and assert expected interactions.
 jest.mock("@/components/MatchEditModal", () => ({
   __esModule: true,
   MatchEditModal: ({ visible, onClose, match, onSave }: any) => {

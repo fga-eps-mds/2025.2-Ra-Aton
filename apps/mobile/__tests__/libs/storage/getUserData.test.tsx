@@ -1,8 +1,6 @@
-// Tests for libs/storage/getUserData.tsx
 describe("getUserData", () => {
   beforeEach(() => {
     jest.resetModules();
-    // simple in-memory localStorage shim
     (global as any).localStorage = (function () {
       const store: Record<string, string> = {};
       return {

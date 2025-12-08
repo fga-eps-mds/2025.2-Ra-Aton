@@ -98,10 +98,10 @@ export default function GerenciarPartidas() {
 
       return { success: true };
     } catch (error: any) {
-      console.log("DEBUG RAW ERROR:", error);
+      // console.log("DEBUG RAW ERROR:", error);
 
       const responseData = error?.response?.data;
-      console.log("DEBUG BACKEND DATA:", responseData);
+      // console.log("DEBUG BACKEND DATA:", responseData);
 
       if (responseData?.message) {
         if (responseData.message.toLowerCase().includes("data")) {

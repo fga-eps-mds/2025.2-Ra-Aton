@@ -1,4 +1,3 @@
-// Tests for libs/storage/UserContext.tsx
 jest.mock("expo-router", () => ({ router: { replace: jest.fn() } }));
 const router = require("expo-router").router;
 const React = require("react");
@@ -6,11 +5,8 @@ const { render, waitFor } = require("@testing-library/react-native");
 
 describe("UserContext and UserProvider", () => {
   beforeEach(() => {
-    // do not reset modules here to avoid multiple React instances
-    // ensure Alert exists
     const rn = require("react-native");
     rn.Alert = rn.Alert || { alert: jest.fn() };
-    // provide a simple localStorage shim for Node test environment
     (global as any).localStorage = (global as any).localStorage || {
       getItem: jest.fn(() => null),
       setItem: jest.fn(() => {}),
@@ -41,7 +37,6 @@ describe("UserContext and UserProvider", () => {
     };
 
     const { unmount } = render(React.createElement(UserProvider, null, React.createElement(Child)));
-    // ensure setItem was called with userData
     expect(localStorage.setItem).toHaveBeenCalledWith("userData", expect.stringContaining('"id":"u1"'));
     unmount();
   });
@@ -70,15 +65,12 @@ describe("UserContext and UserProvider", () => {
   it("deleteAccount success (204) shows success alert and logs out", async () => {
     const rn = require("react-native");
     rn.Platform = { OS: "web" };
-    // ensure the provider loads a user from storage on mount
     localStorage.getItem = jest.fn(() => JSON.stringify({ id: "u3", name: "nome", userName: "u3", email: "e", token: "t", notificationsAllowed: true }));
     const { UserProvider, useUser } = require("@/libs/storage/UserContext");
 
-    // mock api_route.delete to return 204
     const api = require("@/libs/auth/api");
     api.api_route.delete = jest.fn().mockResolvedValue({ status: 204 });
 
-    // mock Alert.alert so OK button triggers its onPress immediately
     const rnMod = require("react-native");
     rnMod.Alert = {
       alert: jest.fn((title: string, msg: string, buttons: any[]) => {
@@ -112,15 +104,12 @@ describe("UserContext and UserProvider", () => {
   it("deleteAccount failure shows backend message in alert", async () => {
     const rn = require("react-native");
     rn.Platform = { OS: "web" };
-    // ensure the provider loads a user from storage on mount
     localStorage.getItem = jest.fn(() => JSON.stringify({ id: "u4", name: "nome", userName: "u4", email: "e", token: "t", notificationsAllowed: true }));
     const { UserProvider, useUser } = require("@/libs/storage/UserContext");
 
-    // mock api_route.delete to reject with response.data.message
     const api = require("@/libs/auth/api");
     api.api_route.delete = jest.fn().mockRejectedValue({ response: { data: { message: "Não foi possível" } } });
 
-    // capture Alert calls
     const rnMod = require("react-native");
     rnMod.Alert = { alert: jest.fn() };
 

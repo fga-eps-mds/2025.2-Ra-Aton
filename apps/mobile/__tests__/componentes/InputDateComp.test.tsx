@@ -1,4 +1,3 @@
-// Mock theme and constants used by the component (must be before importing the component)
 jest.mock("@/constants/Theme", () => ({ useTheme: () => ({ isDarkMode: false }) }));
 jest.mock("@/constants/Colors", () => ({
   Colors: {

@@ -41,6 +41,18 @@ try {
 } catch (e) {
   // If jest isn't defined at this time, these mocks will be a no-op.
 }
+
+// Ensure 'expo-secure-store' is mocked early to avoid native module resolution errors
+try {
+  const j = typeof jest !== "undefined" ? jest : require("jest-mock");
+  j.mock("expo-secure-store", () => ({
+    getItemAsync: j.fn(async (key) => null),
+    setItemAsync: j.fn(async (key, value) => null),
+    deleteItemAsync: j.fn(async (key) => null),
+  }));
+} catch (e) {
+  // ignore when running outside jest
+}
 // Require centralized test mocks (shared, maintainable place)
 try {
   require("./test/jest-mocks");
