@@ -1,9 +1,15 @@
-// apps/mobile/src/libs/api.ts
 import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 import { getUserData } from "@/libs/storage/getUserData";
+import { config } from "@/libs/config/env";
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000";
 
 export const api_route = axios.create({
+<<<<<<< HEAD
   baseURL: "http://localhost:4000",
+=======
+  baseURL: config.apiUrl,
+>>>>>>> 8d457396e937d83a6c5216b18d78ca56117d3445
   timeout: 5000,
 });
 

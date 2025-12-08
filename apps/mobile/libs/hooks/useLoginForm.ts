@@ -4,6 +4,8 @@ import { handleLogin } from "@/libs/auth/handleLogin";
 import { useRouter } from "expo-router";
 import { useUser } from "@/libs/storage/UserContext";
 import { Alert } from "react-native";
+import { registerForPushNotificationsAsync } from "@/libs/notifications/registerNotifications";
+import { syncPushToken } from "@/libs/notifications/syncPushToken";
 
 interface LoginResponse {
   token: string;
@@ -67,6 +69,17 @@ export const useLoginForm = () => {
           token: data.token,
           profileType: data.user.profileType ?? null,
         });
+
+        // Sincroniza o token de notificação após login bem-sucedido
+        registerForPushNotificationsAsync()
+          .then((expoPushToken) => {
+            if (expoPushToken) {
+              syncPushToken(expoPushToken, data.token);
+            }
+          })
+          .catch((error) => {
+            console.log('⚠️ Não foi possível registrar notificações:', error);
+          });
 
         if (
           data.user.profileType === null ||

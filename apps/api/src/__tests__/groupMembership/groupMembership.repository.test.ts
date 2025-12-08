@@ -79,7 +79,7 @@ describe("GroupMembershipRepository", () => {
   });
 
   describe("findMemberByUserId", () => {
-    it("deve retornar todos os convites de um determinado usuário a partir de seu userId", async () => {
+    it("deve retornar todos os membro de um determinado usuário a partir de seu userId", async () => {
       const mockMembers: GroupMembership[] = [
         {
           id: "M1",
@@ -108,14 +108,62 @@ describe("GroupMembershipRepository", () => {
           user: {
             select: { id: true, userName: true, email: true },
           },
-          group: true,
+          group: {
+            select: {
+              groupType: true,
+              id: true,
+              name: true,
+            }
+          }
+        },
+      });
+    });
+  });
+
+  describe("findAdminMemberByUserId", () => {
+    it("deve retornar todos os admin de um determinado usuário a partir de seu userId", async () => {
+      const mockMembers: GroupMembership[] = [
+        {
+          id: "M1",
+          userId: "U1",
+          groupId: "G1",
+          role: GroupRole.ADMIN,
+          isCreator: true,
+          createdAt: new Date("2023-01-01T00:00:00Z"),
+        },
+        {
+          id: "M2",
+          userId: "U2",
+          groupId: "G2",
+          role: GroupRole.MEMBER,
+          isCreator: false,
+          createdAt: new Date("2023-02-01T00:00:00Z"),
+        },
+      ];
+      prismaMock.groupMembership.findMany.mockResolvedValue(mockMembers);
+
+      const members = await groupMembershipRepository.findAdminMemberByUserId("U1");
+      expect(members).toEqual(mockMembers);
+      expect(prismaMock.groupMembership.findMany).toHaveBeenCalledWith({
+        where: { userId: "U1", role: "ADMIN" },
+        include: {
+          user: {
+            select: { id: true, userName: true, email: true },
+          },
+          group: {
+            select: {
+              groupType: true,
+              id: true,
+              name: true,
+            }
+          }
         },
       });
     });
   });
 
   describe("findMemberByGroupId", () => {
-    it("deve retornar todos os convites de um determinado grupo a partir de seu userId", async () => {
+    it("deve retornar todos os membros de um determinado grupo a partir de seu userId", async () => {
       const mockMembers: GroupMembership[] = [
         {
           id: "M1",
@@ -151,7 +199,7 @@ describe("GroupMembershipRepository", () => {
   });
 
   describe("findMemberByUserIdAndGroupId", () => {
-    it("deve retornar o convite de um determinado membro a partir de seu userId e groupId", async () => {
+    it("deve retornar o membros de um determinado membro a partir de seu userId e groupId", async () => {
       const mockMember: GroupMembership = {
         id: "M1",
         userId: "U1",

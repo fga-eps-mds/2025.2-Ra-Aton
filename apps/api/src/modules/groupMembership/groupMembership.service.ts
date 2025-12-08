@@ -27,6 +27,13 @@ class GroupMembershipService {
     });
   };
 
+  findAdminMemberByUserId = async (userId: string): Promise<GroupMembership[]> => {
+    const members = await GroupMembershipRepository.findAdminMemberByUserId(userId);
+    return members.map((member) => {
+      return member;
+    });
+  };
+
   findMemberByGroupId = async (userId: string): Promise<GroupMembership[]> => {
     const members = await GroupMembershipRepository.findMemberByGroupId(userId);
     return members.map((member) => {

@@ -25,6 +25,9 @@ const envSchema = z.object({
   // Variáveis do JWT
   JWT_SECRET: z.string().min(1, "JWT_SECRET não pode estar vazio"),
   JWT_EXPIRES_IN: z.string().min(1, "JWT_EXPIRES_IN não pode estar vazio"),
+
+  // Expo Push Notifications
+  EXPO_ACCESS_TOKEN: z.string().optional(),
 });
 
 /**

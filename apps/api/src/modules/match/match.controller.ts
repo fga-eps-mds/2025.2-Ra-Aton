@@ -1,11 +1,11 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import { ApiError } from "../../utils/ApiError";
 import matchService from "./match.service";
 import { userService } from "../user/user.service";
 import HttpStatus from "http-status";
 
 class matchController {
-  async createMatch(req: Request, res: Response) {
+  async createMatch(req: Request, res: Response, next: NextFunction) {
     const authUser = (req as any).body.userId;
     if (!authUser) {
       return res
@@ -32,7 +32,16 @@ class matchController {
         .json({ message: "Erro ao criar partida." });
     }
 
-    return res.status(HttpStatus.CREATED).json(newMatch);
+    // Armazena informações para o middleware de notificação
+    res.locals.newMatchId = newMatch.id;
+    res.locals.matchTitle = newMatch.title;
+    res.locals.matchDate = newMatch.MatchDate;
+    res.locals.matchLocation = newMatch.location;
+    res.locals.matchSport = newMatch.sport;
+    res.locals.authorName = author.name;
+
+    res.status(HttpStatus.CREATED).json(newMatch);
+    return next();
   }
 
   async updateMatch(req: Request, res: Response) {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "635034050192",
+    "project_id": "aton-mobile-28280",
+    "storage_bucket": "aton-mobile-28280.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635034050192:android:af0f912014611cf4c20215",
+        "android_client_info": {
+          "package_name": "com.unb.aton"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQy4sPZcPkXY6XFihkoJ-ADKUJXB1Nlko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -18,6 +18,7 @@ import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import AppText from "@/components/AppText";
 import { EventoFormComponent } from "@/components/EventoFormComponent";
+import ListGroupsFromAdminUser from "@/components/ListGroupsFromAdminUser";
 
 // Libs
 import { eventoForms } from "@/libs/hooks/eventoForms";
@@ -31,6 +32,7 @@ const CriarEventoInner: React.FC = () => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   const {
     formsData,
@@ -39,7 +41,7 @@ const CriarEventoInner: React.FC = () => {
     handleSubmit,
     comebackPage,
     formError,
-  } = eventoForms();
+  } = eventoForms(selectedGroupId);
 
   return (
     <BackGroundComp>
@@ -58,6 +60,12 @@ const CriarEventoInner: React.FC = () => {
         >
           <View style={styles.containerInfos}>
             <View style={styles.inputContainer}>
+              <AppText style={styles.sectionTitle}>Selecione o grupo para o evento</AppText>
+              <ListGroupsFromAdminUser 
+                onSelect={(id) => setSelectedGroupId(id)} 
+                selectedGroupId={selectedGroupId}
+              />
+              <Spacer height={20} />
               <EventoFormComponent
                 formsData={formsData}
                 setFormData={setFormData}
@@ -111,5 +119,12 @@ const makeStyles = (theme: any) =>
       alignItems: "center",
       width: "100%",
       marginTop: 10,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      color: theme.text,
+      fontWeight: "600",
+      marginBottom: 10,
+      fontFamily: Fonts.otherFonts.dongleBold,
     },
   });
