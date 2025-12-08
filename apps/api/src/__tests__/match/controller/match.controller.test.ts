@@ -14,10 +14,7 @@ describe("matchController", () => {
   let res: Partial<Response>;
   let statusMock: jest.Mock;
   let jsonMock: jest.Mock;
-<<<<<<< HEAD
-=======
   let nextMock: jest.Mock;
->>>>>>> 8d457396e937d83a6c5216b18d78ca56117d3445
 
   beforeEach(() => {
     req = {};
@@ -27,7 +24,7 @@ describe("matchController", () => {
     };
     statusMock = res.status as jest.Mock;
     jsonMock = res.json as jest.Mock;
-<<<<<<< HEAD
+    nextMock = jest.fn();
   });
 
   describe("createMatch", () => {
@@ -39,11 +36,8 @@ describe("matchController", () => {
         description: "Description for Match 1",
         MatchDate: new Date(),
         teamNameA: "Team A",
-        teamAScore: 3,
-        teamNameB: "Updatable Team B",
-        teamBScore: 2,
+        teamNameB: "Team B",
         location: "Stadium A",
-        sport: "futsal",
         maxPlayers: 22,
       };
 
@@ -56,13 +50,14 @@ describe("matchController", () => {
         email: "author@example.com",
         passwordHash: "hashedpassword",
         profileType: null,
-        notificationsAllowed: true,
       };
 
-      const mockCreatedMatch = {
+      const mockCreatedMatch: Match = {
         ...mockMatchData,
         MatchStatus: "EM_BREVE",
         id: "1",
+        authorId: mockAuthor.id,
+        sport: "Soccer",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -74,8 +69,22 @@ describe("matchController", () => {
       (matchService.createMatch as jest.Mock).mockResolvedValue(mockCreatedMatch);
       (userService.getUserById as jest.Mock).mockResolvedValue(mockAuthor);
 
+      // Mockar as informações que vão para o middleware de notificação
+      res.locals = {
+        newMatchId: mockCreatedMatch.id,
+        matchTitle: mockCreatedMatch.title,
+        matchDate: mockCreatedMatch.MatchDate,
+        matchLocation: mockCreatedMatch.location,
+        matchSport: (mockCreatedMatch as Match).sport,
+        authorName: mockAuthor.name,
+      };
+
       // Act
-      await matchController.createMatch(req as Request, res as Response);
+      await matchController.createMatch(
+        req as Request,
+        res as Response,
+        nextMock as NextFunction,
+      );
 
       // Assert
       expect(statusMock).toHaveBeenCalledWith(HttpStatus.CREATED);
@@ -85,80 +94,8 @@ describe("matchController", () => {
       });
       expect(userService.getUserById).toHaveBeenCalledWith("author-1");
       expect(jsonMock).toHaveBeenCalledWith(mockCreatedMatch);
-=======
-    nextMock = jest.fn();
-  });
-
-  it("should create a match and return it with status 201", async () => {
-    // Arrange
-    const mockMatchData = {
-      userId: "author-1",
-      title: "Match 1",
-      description: "Description for Match 1",
-      MatchDate: new Date(),
-      teamNameA: "Team A",
-      teamNameB: "Team B",
-      location: "Stadium A",
-      maxPlayers: 22,
-    };
-
-    const mockAuthor: User = {
-      id: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      name: "Author Name",
-      userName: "authorusername",
-      email: "author@example.com",
-      passwordHash: "hashedpassword",
-      profileType: null,
-    };
-
-    const mockCreatedMatch: Match = {
-      ...mockMatchData,
-      MatchStatus: "EM_BREVE",
-      id: "1",
-      authorId: mockAuthor.id,
-      sport: "Soccer",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    req = {
-      body: mockMatchData,
-    };
-
-    (matchService.createMatch as jest.Mock).mockResolvedValue(mockCreatedMatch);
-    (userService.getUserById as jest.Mock).mockResolvedValue(mockAuthor);
-
-    // Mockar as informações que vão para o middleware de notificação
-    res.locals = {
-      newMatchId: mockCreatedMatch.id,
-      matchTitle: mockCreatedMatch.title,
-      matchDate: mockCreatedMatch.MatchDate,
-      matchLocation: mockCreatedMatch.location,
-      matchSport: (mockCreatedMatch as Match).sport,
-      authorName: mockAuthor.name,
-    };
-
-    // Act
-    await matchController.createMatch(
-      req as Request,
-      res as Response,
-      nextMock as NextFunction,
-    );
-
-    // Assert
-    expect(statusMock).toHaveBeenCalledWith(HttpStatus.CREATED);
-    expect(matchService.createMatch).toHaveBeenCalledWith({
-      ...mockMatchData,
-      author: mockAuthor,
->>>>>>> 8d457396e937d83a6c5216b18d78ca56117d3445
     });
-    expect(userService.getUserById).toHaveBeenCalledWith("author-1");
-    expect(jsonMock).toHaveBeenCalledWith(mockCreatedMatch);
-  });
 
-<<<<<<< HEAD
     it("should return 401 if user is not authorized when creating a match", async () => {
       // Arrange
       req = {
@@ -166,7 +103,7 @@ describe("matchController", () => {
       };
 
       // Act
-      await matchController.createMatch(req as Request, res as Response);
+      await matchController.createMatch(req as Request, res as Response, nextMock);
 
       // Assert
       expect(statusMock).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
@@ -186,7 +123,7 @@ describe("matchController", () => {
       (userService.getUserById as jest.Mock).mockResolvedValue(null);
 
       // Act
-      await matchController.createMatch(req as Request, res as Response);
+      await matchController.createMatch(req as Request, res as Response, nextMock);
 
       // Assert
       expect(statusMock).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
@@ -227,7 +164,7 @@ describe("matchController", () => {
         params: { id: mockMatchId },
         body: mockUpdateData,
         user: { id: mockAuthUserId },
-      } as Partial<Request>;
+      } as unknown as Partial<Request>;
 
       (matchService.updateMatch as jest.Mock).mockResolvedValue(mockUpdatedMatch);
 
@@ -288,7 +225,7 @@ describe("matchController", () => {
       req = {
         params: { id: mockMatchId },
         user: { id: mockAuthUserId },
-      } as Partial<Request>;
+      } as unknown as Partial<Request>;
 
       // Act
       await matchController.deleteMatch(req as Request, res as Response);
@@ -371,8 +308,7 @@ describe("matchController", () => {
       expect(res.status).toHaveBeenCalledWith(HttpStatus.OK)
     })
   })
-});
-=======
+
   it("should return 401 if user is not authorized when creating a match", async () => {
     // Arrange
     req = {
@@ -549,4 +485,3 @@ describe("matchController", () => {
     });
   });
 });
->>>>>>> 8d457396e937d83a6c5216b18d78ca56117d3445
