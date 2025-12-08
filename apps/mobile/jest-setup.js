@@ -126,6 +126,15 @@ try {
         React.createElement("ActivityIndicator", props),
     };
   });
+  jest.mock('expo-constants', () => ({
+  default: {
+    expoConfig: {
+      extra: {},
+    },
+    manifest: {},
+  },
+}));
+
 } catch {
   /* ignore if jest isn't available */
 }
