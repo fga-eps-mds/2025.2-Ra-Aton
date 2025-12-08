@@ -50,6 +50,7 @@ describe("matchController", () => {
         email: "author@example.com",
         passwordHash: "hashedpassword",
         profileType: null,
+        notificationsAllowed: true
       };
 
       const mockCreatedMatch: Match = {
@@ -60,6 +61,9 @@ describe("matchController", () => {
         sport: "Soccer",
         createdAt: new Date(),
         updatedAt: new Date(),
+        teamAScore: 0,
+        teamBScore: 0,
+        reminderSent: false
       };
 
       req = {
@@ -375,6 +379,9 @@ describe("matchController", () => {
       MatchStatus: "EM_BREVE",
       createdAt: new Date(),
       updatedAt: new Date(),
+      teamAScore: 0,
+      teamBScore: 0,
+      reminderSent: false
     };
 
     req = {

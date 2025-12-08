@@ -170,14 +170,10 @@ importers:
         version: 15.0.3(expo-font@14.0.9(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.2))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.2))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@hookform/resolvers':
         specifier: ^5.2.2
-<<<<<<< HEAD
         version: 5.2.2(react-hook-form@7.66.1(react@19.1.0))
       '@react-native-community/datetimepicker':
         specifier: ^8.5.1
         version: 8.5.1(expo@54.0.23)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.2))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-=======
-        version: 5.2.2(react-hook-form@7.68.0(react@19.1.0))
->>>>>>> 8d457396e937d83a6c5216b18d78ca56117d3445
       '@react-navigation/drawer':
         specifier: ^7.7.1
         version: 7.7.8(ab5af58da26af313abaeb48d47075d1a)
@@ -8745,11 +8741,7 @@ snapshots:
       wrap-ansi: 7.0.0
       ws: 8.18.3
     optionalDependencies:
-<<<<<<< HEAD
-      expo-router: 6.0.14(2aab5976c0b7ba3a054fcfef3d105cb5)
-=======
       expo-router: 6.0.15(ae19b45a920b65846143ea01d944aeae)
->>>>>>> 8d457396e937d83a6c5216b18d78ca56117d3445
       react-native: 0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.2))(@types/react@19.1.17)(react@19.1.0)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
@@ -12411,9 +12403,6 @@ snapshots:
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.2))(@types/react@19.1.17)(react@19.1.0)
 
-<<<<<<< HEAD
-  expo-router@6.0.14(2aab5976c0b7ba3a054fcfef3d105cb5):
-=======
   expo-notifications@0.32.13(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.2))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
     dependencies:
       '@expo/image-utils': 0.8.7
@@ -12430,7 +12419,6 @@ snapshots:
       - supports-color
 
   expo-router@6.0.15(ae19b45a920b65846143ea01d944aeae):
->>>>>>> 8d457396e937d83a6c5216b18d78ca56117d3445
     dependencies:
       '@expo/metro-runtime': 6.1.2(expo@54.0.25)(react-dom@19.1.0(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.2))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@expo/schema-utils': 0.1.7
