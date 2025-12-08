@@ -4,6 +4,7 @@ import { prismaMock } from "../../prisma-mock";
 import HttpStatus from "http-status";
 import jwt from "jsonwebtoken";
 import { config } from "../../../config/env";
+import { GroupType } from "@prisma/client";
 
 const AUTH_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
 const OTHER_USER_ID = "550e8400-e29b-41d4-a716-446655440111";
@@ -35,6 +36,22 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       group: { id: GROUP_ID },
       groupId: GROUP_ID,
     };
+
+    const mockGroup = {
+      id: GROUP_ID,
+      name: "teste",
+      sports: ["fut"],
+      groupType: GroupType.AMATEUR,
+      acceptingNewMembers: true,
+      verificationRequest: false,
+      verificationStatus: null,
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    prismaMock.group.create.mockResolvedValue(mockGroup)
+    prismaMock.group.findUnique.mockResolvedValue(mockGroup)
 
     prismaMock.user.findUnique.mockResolvedValue({
       id: AUTH_USER_ID,
@@ -85,6 +102,22 @@ describe("Testes de Integração Post (com prismaMock))", () => {
 
     const eventStart = new Date(Date.now() + 3600000).toISOString(); // Data futura
     const eventEnd = new Date(Date.now() + 7200000).toISOString(); // Data + futura ainda
+
+    const mockGroup = {
+      id: GROUP_ID,
+      name: "teste",
+      sports: ["fut"],
+      groupType: GroupType.AMATEUR,
+      acceptingNewMembers: true,
+      verificationRequest: false,
+      verificationStatus: null,
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    prismaMock.group.create.mockResolvedValue(mockGroup)
+    prismaMock.group.findUnique.mockResolvedValue(mockGroup)
 
     const body = {
       title: "Event Test",
@@ -142,6 +175,22 @@ describe("Testes de Integração Post (com prismaMock))", () => {
   it("deve retornar 400 ao criar um EVENT sem os campos obrigatórios", async () => {
     const token = generateToken(AUTH_USER_ID);
 
+    const mockGroup = {
+      id: GROUP_ID,
+      name: "teste",
+      sports: ["fut"],
+      groupType: GroupType.AMATEUR,
+      acceptingNewMembers: true,
+      verificationRequest: false,
+      verificationStatus: null,
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    prismaMock.group.create.mockResolvedValue(mockGroup)
+    prismaMock.group.findUnique.mockResolvedValue(mockGroup)
+    
     const body = {
       title: "Invalid Event",
       type: "EVENT",
@@ -342,9 +391,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       updatedAt: new Date(),
     };
 
-    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue(existing);
-    // @ts-ignore
     prismaMock.post.update.mockResolvedValue(updated);
 
     const response = await request(app)
@@ -407,13 +454,11 @@ describe("Testes de Integração Post (com prismaMock))", () => {
   it("deve excluir um post quando o usuário é o autor", async () => {
     const token = generateToken(AUTH_USER_ID);
 
-    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue({
       id: validUUID,
       authorId: AUTH_USER_ID,
     });
 
-    // @ts-ignore
     prismaMock.post.delete.mockResolvedValue({ id: validUUID });
 
     await request(app)
@@ -425,7 +470,6 @@ describe("Testes de Integração Post (com prismaMock))", () => {
   it("não deve excluir um post se o usuário não for o autor", async () => {
     const token = generateToken(OTHER_USER_ID);
 
-    // @ts-ignore
     prismaMock.post.findUnique.mockResolvedValue({
       id: validUUID,
       authorId: AUTH_USER_ID,

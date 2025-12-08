@@ -8,6 +8,7 @@ export const Colors = {
     input: "#1C1C1C",
     orange: "#F84B07",
     gray: "#2C2C2C",
+    groupcards: "#969696ff",
   },
   light: {
     text: "#121212",
