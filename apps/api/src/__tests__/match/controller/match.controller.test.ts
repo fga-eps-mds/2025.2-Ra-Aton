@@ -52,6 +52,7 @@ describe("matchController", () => {
         email: "author@example.com",
         passwordHash: "hashedpassword",
         profileType: null,
+        notificationsAllowed: true,
       };
 
       const mockCreatedMatch = {
