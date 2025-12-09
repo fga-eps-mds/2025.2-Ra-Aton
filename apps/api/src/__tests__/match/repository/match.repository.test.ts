@@ -69,6 +69,7 @@ describe("MatchRepository", () => {
         teamNameA: "Team A",
         teamNameB: "Team B",
         location: "Stadium A",
+        sport: "futsal",
         maxPlayers: 22,
       };
 
@@ -79,8 +80,11 @@ describe("MatchRepository", () => {
         description: "Description for Match 1",
         MatchDate: new Date(),
         teamNameA: "Team A",
+        teamAScore: 0,
         teamNameB: "Team B",
+        teamBScore: 0,
         location: "Stadium A",
+        sport: "futsal",
         maxPlayers: 22,
         MatchStatus: MatchStatus.EM_BREVE,
         createdAt: new Date(),
@@ -145,13 +149,30 @@ describe("MatchRepository", () => {
       const matchId = "match-id";
       const matchData = {
         title: "Updatable Match",
+        description: "Updatable description",
+        MatchDate: new Date(),
+        teamNameA: "Updatable Team A",
+        teamAScore: 3,
+        teamNameB: "Updatable Team B",
+        teamBScore: 2,
+        location: "Updatable Stadium",
+        sport: "futsal",
+        maxPlayers: 22,
       };
 
       const updatedMatch = {
         id: matchId,
         authorId: "author-id",
         title: "Updated Match",
-        // ... outros campos mockados se necessário
+        description: "Updated description",
+        MatchDate: new Date(),
+        teamNameA: "Updated Team A",
+        teamAScore: 3,
+        teamNameB: "Updatable Team B",
+        teamBScore: 2,
+        location: "Updated Stadium",
+        sport: "futsal",
+        maxPlayers: 22,
         MatchStatus: MatchStatus.EM_BREVE,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -191,7 +212,19 @@ describe("MatchRepository", () => {
       const deletedMatch = {
         id: matchId,
         title: "Deleted Match",
-      } as any;
+        description: "This match has been deleted",
+        MatchDate: new Date(),
+        teamNameA: "Team A",
+        teamAScore: 3,
+        teamNameB: "Updatable Team B",
+        teamBScore: 2,
+        location: "Stadium A",
+        sport: "futsal",
+        maxPlayers: 22,
+        MatchStatus: MatchStatus.FINALIZADO,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
       prismaMock.match.delete.mockResolvedValue(deletedMatch);
 
@@ -254,7 +287,7 @@ describe("MatchRepository", () => {
         include: { _count: { select: { players: true } } },
       });
       expect(prismaMock.match.count).toHaveBeenCalled();
-      
+
       expect(result).toEqual({
         matches: mockMatches,
         totalCount: totalCount,
@@ -271,6 +304,44 @@ describe("MatchRepository", () => {
       await expect(matchRepository.findAll(10, 0)).rejects.toThrow("DB Error");
     });
   });
+
+  describe("findAllMatchesByUserId", () => {
+    it("Deve retornar uma lista com todas as partidas que o usuário logado for autor", async () => {
+      const matches = [
+        {
+          userId: "author-id",
+          title: "Match 1",
+          description: "Description for Match 1",
+          MatchDate: new Date(),
+          teamNameA: "Team A",
+          teamNameB: "Team B",
+          location: "Stadium A",
+          maxPlayers: 22,
+        },
+        {
+          userId: "author-id",
+          title: "Match 2",
+          description: "Description for Match 2",
+          MatchDate: new Date(),
+          teamNameA: "Team A",
+          teamNameB: "Team B",
+          location: "Stadium A",
+          maxPlayers: 22,
+        }
+      ];
+
+      (prismaMock.match.findMany as jest.Mock).mockResolvedValue(matches);
+
+      const matchesFound = await matchRepository.findAllMatchesByUserId("author-id")
+      expect(matchesFound).toEqual(matches);
+      expect(prismaMock.match.findMany).toHaveBeenCalledWith({
+        where: { authorId: "author-id" },
+        orderBy: {
+          MatchDate: "desc",
+        }
+      })
+    })
+  })
 
   // ======================================================
   // FIND BY ID
