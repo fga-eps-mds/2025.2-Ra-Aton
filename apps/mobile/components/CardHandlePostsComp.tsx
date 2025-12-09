@@ -1,77 +1,94 @@
 import React from "react";
-import { View, Text ,StyleSheet, Pressable} from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { Fonts } from "@/constants/Fonts";
 import { Ionicons } from "@expo/vector-icons";
 import AppText from "./AppText";
 
 interface CardHandlePostsProps {
-    title?: string,
-
-    showInfos?: () => void,
-    showTotalAttendance?: () => void,
-    showComments?: () => void,
+    title?: string;
+    attendancesCount?: number;
+    onPressCard?: () => void;
+    onOpenMenu?: () => void;
 }
 
-export const CardHandlePostComp : React.FC<CardHandlePostsProps> = ({
+export const CardHandlePostComp: React.FC<CardHandlePostsProps> = ({
     title,
-    showInfos,
-    showTotalAttendance,
-    showComments,
+    attendancesCount = 0,
+    onPressCard,
+    onOpenMenu,
 }) => {
-    return(
-        <View style={styles.cardContainer}>
-           <View style={styles.headerCard}>
-            <AppText style={styles.txtTitle}>
-                TITULO DO EVENTO
-            </AppText>
-            <Pressable>
-            <Ionicons name="ellipsis-vertical-sharp" color={Colors.dark.orange} size={20}/>
-
-            </Pressable>
-            </View>
-           
-           <Pressable style={styles.btnCard}>
+    return (
+        <TouchableOpacity 
+            style={styles.cardContainer} 
+            onPress={onPressCard}
+            activeOpacity={0.7}
+        >
+            <View style={styles.headerCard}>
+                <AppText style={styles.txtTitle} numberOfLines={1}>
+                    {title || "Sem título"}
+                </AppText>
                 
-           </Pressable>
+                <TouchableOpacity 
+                    onPress={onOpenMenu} 
+                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                >
+                    <Ionicons name="ellipsis-vertical" color={Colors.dark.orange} size={20} />
+                </TouchableOpacity>
+            </View>
 
-        </View>
+            <View style={styles.footerCard}>
+                <View style={styles.attendanceBox}>
+                    <Ionicons name="checkmark-circle" size={18} color={Colors.dark.text} />
+                    <AppText style={styles.txtCount}>
+                        {attendancesCount} confirmações "Eu vou!"
+                    </AppText>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+};
 
-
-    )
-}
-
-
-const styles= StyleSheet.create({
-    
-    cardContainer:{
-        width:500,
-        height:100,
-
-        backgroundColor:Colors.dark.input,
-        borderRadius:15,
-        // borderRadius:10,
-
+const styles = StyleSheet.create({
+    cardContainer: {
+        width: '100%',
+        backgroundColor: Colors.dark.input,
+        borderRadius: 15,
+        marginBottom: 15,
+        paddingVertical: 15,
+        borderWidth: 1,
+        borderColor: '#333',
     },
-    txtTitle:{
-        fontSize:30,
-        color:Colors.dark.orange,
+    headerCard: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 15,
+        marginBottom: 10,
     },
-
-    headerCard:{
-        width:'100%',
-        height:40,
-        paddingHorizontal:15,
-        paddingVertical:10,
-        flexDirection:'row',
-        alignItems:'center',
-        justifyContent:'space-between',
-        
-
+    txtTitle: {
+        fontSize: 20,
+        color: Colors.dark.orange,
+        fontWeight: 'bold',
+        flex: 1,
+        marginRight: 10,
     },
-
-    btnCard:{
-
+    footerCard: {
+        paddingHorizontal: 15,
+        flexDirection: 'row',
+        justifyContent:'flex-end',
+    },
+    attendanceBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // justifyContent:'center',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 20,
+        gap: 8,
+    },
+    txtCount: {
+        color: Colors.dark.text,
+        fontSize: 14,
     }
-
-})
+});
