@@ -22,7 +22,7 @@ export default function GroupProfileScreen() {
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.container}>
                     <TouchableOpacity
-                        onPress={() => router.back()}
+                        onPress={() => router.replace("/(DashBoard)/(tabs)/Teams")}
                         style={styles.backButton}
                     >
                         <Ionicons name="arrow-back" size={24} color={theme.text} />
