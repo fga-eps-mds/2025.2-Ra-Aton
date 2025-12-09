@@ -4,62 +4,51 @@ import { Ionicons } from "@expo/vector-icons";
 import { Imatches } from "@/libs/interfaces/Imatches";
 import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
-import Spacer from "@/components/SpacerComp";
 import VsIconSvg from "@/assets/img/vs-icon.svg";
-import AppText from "./AppText";
+import Spacer from "./SpacerComp";
 
-interface CardMatchesProps {
+interface EditCardMatchesProps {
   match?: Imatches;
   onPressJoinMatch?: () => void;
   onPressInfos?: () => void;
+  onPressDelete?: () => void;
   onReloadFeed?: () => void | Promise<void>;
   isUserSubscriped?: boolean;
 }
-export const MatchesCard: React.FC<CardMatchesProps> = ({
+
+export const EditMatchesCard: React.FC<EditCardMatchesProps> = ({
   match,
   onPressJoinMatch,
   onPressInfos,
+  onPressDelete,
   onReloadFeed,
   isUserSubscriped,
 }) => {
   return (
     <View style={styles.container}>
       <View style={styles.BoxCardHeader}>
-        <View style={styles.headerSideItem}>
-          <View style={styles.BoxCardStatus}>
-            <AppText style={styles.txtStatus}>
-              {match?.MatchStatus || ""}
-            </AppText>
-          </View>
-        </View>
+        <Text style={styles.txtTitle} numberOfLines={1} ellipsizeMode="tail">
+          {match?.title ?? ""}
+        </Text>
 
-        <View style={styles.headerCenterItem}>
-          <Text style={styles.txtTitle} numberOfLines={1} ellipsizeMode="tail">
-            {match?.title ?? ""}
-          </Text>
-        </View>
+        <TouchableOpacity onPress={onPressDelete} style={styles.iconBtnL}>
+          <Ionicons name="trash" color={Colors.input.iconColor} size={25} />
+        </TouchableOpacity>
 
-        <View style={[styles.headerSideItem, { alignItems: "flex-end" }]}>
-          <TouchableOpacity onPress={onPressInfos}>
-            <Ionicons
-              name="information-circle"
-              color={Colors.input.iconColor}
-              size={25}
-            />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={onPressInfos} style={styles.iconBtnR}>
+          <Ionicons name="pencil" color={Colors.input.iconColor} size={25} />
+        </TouchableOpacity>
       </View>
       <View style={styles.MidCardBox}>
-        <Spacer height={20}></Spacer>
         <View style={styles.TeamNames}>
-          <View style={styles.NameResult}>
+          <View>
             <Text style={styles.txtNameTeam}>
               {match?.teamNameA ?? "Time A"}
             </Text>
             <Text style={styles.txtNameTeam}>{match.teamAScore}</Text>
           </View>
           <VsIconSvg height={25} width={20} />
-          <View style={styles.NameResult}>
+          <View>
             <Text style={styles.txtNameTeam}>
               {match?.teamNameB ?? "Time B"}
             </Text>
@@ -73,9 +62,7 @@ export const MatchesCard: React.FC<CardMatchesProps> = ({
             style={styles.btnConfirm}
             onPress={onPressJoinMatch}
           >
-            <Text style={styles.txtConfirm}>
-              {isUserSubscriped ? "VISUALIZAR" : "PARTICIPAR"}
-            </Text>
+            <Text style={styles.txtConfirm}>Jogadores</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -85,7 +72,7 @@ export const MatchesCard: React.FC<CardMatchesProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: 150,
+    minHeight: 150,
     width: 350,
     backgroundColor: Colors.cardGames.backgroundCard,
     borderRadius: 20,
@@ -96,18 +83,14 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     backgroundColor: Colors.cardGames.header,
     paddingHorizontal: 10,
-  },
-  NameResult: {
-    // backgroundColor: 'red',
   },
   headerSideItem: {
     minWidth: 40,
     justifyContent: "center",
   },
-  // Container do meio (Título)
   headerCenterItem: {
     flex: 1,
     paddingHorizontal: 5,
@@ -125,14 +108,30 @@ const styles = StyleSheet.create({
   txtStatus: {
     color: "white",
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 12,
     fontFamily: Fonts.mainFont.dongleRegular,
   },
   txtTitle: {
+    flex: 1,
     color: "white",
     textAlign: "center",
     fontFamily: Fonts.mainFont.dongleRegular,
     fontSize: 20,
+    paddingHorizontal: 40,
+  },
+  iconBtnL: {
+    position: "absolute",
+    left: 10,
+    padding: 5,
+    height: "100%",
+    justifyContent: "center",
+  },
+  iconBtnR: {
+    position: "absolute",
+    right: 10,
+    padding: 5,
+    height: "100%",
+    justifyContent: "center",
   },
 
   MidCardBox: {
@@ -142,15 +141,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
 
     backgroundColor: Colors.cardGames.backgroundCard,
-    // paddingHorizontal:40
   },
   TeamNames: {
-    height: 40,
+    height: 45,
     width: 230,
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
-    // backgroundColor: 'purple',
   },
   txtNameTeam: {
     color: "white",
@@ -159,13 +156,11 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   BoxConfirm: {
-    height: "100%",
     width: "100%",
     alignItems: "center",
-    // backgroundColor:'white',
+    justifyContent: "flex-end",
   },
   CardBtnConfirm: {
-    height: "100%",
     width: 120,
     alignItems: "center",
   },
@@ -174,13 +169,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderTopLeftRadius: 13,
     borderTopRightRadius: 13,
-    // textAlign:'center',
-
     backgroundColor: "green",
   },
   txtConfirm: {
     textAlign: "center",
-    // fontSize:18,
+    fontSize: 20,
     fontFamily: Fonts.mainFont.dongleRegular,
     color: "white",
   },

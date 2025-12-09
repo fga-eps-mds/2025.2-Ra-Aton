@@ -11,6 +11,9 @@ interface DescricaoInputProps {
   onChangeText: (text: string) => void;
   placeholder?: string;
   height?: number;
+  status?: boolean;
+  statusText?: string;
+
 }
 
 export const DescricaoInput: React.FC<DescricaoInputProps> = ({
@@ -19,10 +22,13 @@ export const DescricaoInput: React.FC<DescricaoInputProps> = ({
   onChangeText,
   placeholder = "Digite aqui...",
   height = 120,
+    status,
+  statusText,
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme, height);
+  const statusBorderColor = status ? Colors.warning : theme.orange;
 
   return (
     <View style={styles.container}>
@@ -37,6 +43,13 @@ export const DescricaoInput: React.FC<DescricaoInputProps> = ({
         numberOfLines={Math.ceil(height / 40)}
         textAlignVertical="top"
       />
+      {label && statusText ? (
+        <AppText
+          style={[styles.textStatusMessage, { color: statusBorderColor }]}
+        >
+          {statusText}
+        </AppText>
+      ) : null}
     </View>
   );
 };
@@ -67,5 +80,11 @@ const makeStyles = (theme: any, height: number) =>
       fontSize: 20,
       color: theme.text,
       fontFamily: Fonts.otherFonts.dongleBold,
+    },
+        textStatusMessage: {
+      marginLeft: 17,
+      alignSelf: "flex-start",
+      fontSize: 13,
+      color: Colors.warning,
     },
   });

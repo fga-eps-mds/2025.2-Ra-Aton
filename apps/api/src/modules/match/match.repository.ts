@@ -30,7 +30,7 @@ export type FindAllMatchesResponse = {
 };
 
 export class MatchRepository {
-  constructor(private prismaClient = prisma) {}
+  constructor(private prismaClient = prisma) { }
 
   async createMatch(data: any, author: User): Promise<Match> {
     return this.prismaClient.$transaction(async (tx) => {
@@ -119,6 +119,14 @@ export class MatchRepository {
       matches,
       totalCount,
     };
+  }
+
+  async findAllMatchesByUserId(userId: string): Promise<Match[]> {
+    return prisma.match.findMany({
+      where: { authorId: userId }, orderBy: {
+        MatchDate: "desc",
+      }
+    })
   }
 
   /**

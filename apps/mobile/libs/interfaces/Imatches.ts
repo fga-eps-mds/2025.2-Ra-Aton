@@ -8,9 +8,12 @@ export type Imatches = {
     matchDate: string,
     MatchStatus: string,
     location: string,
+    sport: string,
     maxPlayers: number,
     teamNameA: string,
     teamNameB: string,
+    teamAScore: number,
+    teamBScore: number,
     createdAt: string,
     isSubscriptionOpen: boolean,
     spots:{
