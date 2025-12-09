@@ -1,0 +1,115 @@
+import { useState } from 'react';
+import { Alert } from 'react-native';
+import { useMyPosts } from '@/libs/hooks/useMyPosts'; // Importe seu hook existente aqui
+import { getComments } from '@/libs/auth/handleComments';
+import { api_route } from '@/libs/auth/api';
+import { IPost } from '@/libs/interfaces/Ipost';
+import { Icomment } from '@/libs/interfaces/Icomments';
+
+export const useGerenciarPostsLogic = () => {
+    const { myPosts, isLoading, isRefreshing, onRefresh, handleDeletePost } = useMyPosts();
+    const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [commentsModalVisible, setCommentsModalVisible] = useState(false);
+    const [postComments, setPostComments] = useState<Icomment[]>([]);
+    const [loadingComments, setLoadingComments] = useState(false);
+
+    const [alertConfig, setAlertConfig] = useState({
+        visible: false,
+        title: "",
+        message: "",
+        type: 'default' as 'default' | 'danger',
+        onConfirm: undefined as (() => void) | undefined
+    });
+
+
+    const showAlert = (title: string, message: string, onConfirm?: () => void, type: 'default' | 'danger' = 'default') => {
+        setAlertConfig({ visible: true, title, message, onConfirm, type });
+    };
+
+    const closeAlert = () => {
+        setAlertConfig(prev => ({ ...prev, visible: false }));
+    };
+
+
+    const openActionMenu = (post: IPost) => {
+        setSelectedPost(post);
+        setMenuVisible(true);
+    };
+
+    const handleEditPost = (post: IPost) => {
+        setMenuVisible(false);
+        showAlert("Em breve", "Edição será implementada em breve.");
+    };
+
+    const confirmDeletePost = (postId: string) => {
+        setMenuVisible(false);
+        showAlert(
+            "Deletar Post",
+            "Tem certeza? Isso apagará todas as interações.",
+            () => handleDeletePost(postId),
+            'danger'
+        );
+    };
+
+    const handleOpenManageComments = async (post: IPost) => {
+        setSelectedPost(post);
+        setCommentsModalVisible(true);
+        setLoadingComments(true);
+        try {
+            const data = await getComments(post.id);
+            setPostComments(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error(error);
+            showAlert("Erro", "Falha ao carregar comentários.");
+        } finally {
+            setLoadingComments(false);
+        }
+    };
+
+    const handleDeleteComment = async (commentId: string) => {
+        if (!selectedPost) return;
+
+        const deleteAction = async () => {
+            try {
+                await api_route.delete(`/posts/${selectedPost.id}/comments/${commentId}`);
+                setPostComments(prev => prev.filter(c => c.id !== commentId));
+            } catch (error) {
+                console.error(error);
+                setTimeout(() => showAlert("Erro", "Não foi possível deletar o comentário."), 300);
+            }
+        };
+
+        showAlert(
+            "Deletar Comentário",
+            "Deseja realmente apagar este comentário?",
+            deleteAction,
+            'danger'
+        );
+    };
+
+    return {
+        // Dados
+        myPosts,
+        selectedPost,
+        postComments,
+        
+        isLoading,
+        isRefreshing,
+        menuVisible,
+        commentsModalVisible,
+        loadingComments,
+        alertConfig,
+        
+        onRefresh,
+        setMenuVisible,
+        setCommentsModalVisible,
+        closeAlert,
+        
+        openActionMenu,
+        handleEditPost,
+        confirmDeletePost,
+        handleOpenManageComments,
+        handleDeleteComment
+    };
+};
