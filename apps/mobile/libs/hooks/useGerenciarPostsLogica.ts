@@ -52,7 +52,7 @@ export const useGerenciarPostsLogic = () => {
         setMenuVisible(false);
         showAlert(
             "Deletar Post",
-            "Tem certeza? Isso apagará todas as interações que foram feitas neste post",
+            "Tem certeza? Isso apagará todas as interações.",
             () => handleDeletePost(postId),
             'danger'
         );
@@ -62,9 +62,16 @@ export const useGerenciarPostsLogic = () => {
         setSelectedPost(post);
         setCommentsModalVisible(true);
         setLoadingComments(true);
+
+        //* filtrando os comentários 
         try {
             const data = await getComments(post.id);
-            setPostComments(Array.isArray(data) ? data : []);
+            
+            const filteredData = Array.isArray(data) 
+                ? data.filter(c => c.postId === post.id) 
+                : [];
+            
+            setPostComments(filteredData);
         } catch (error) {
             console.error(error);
             showAlert("Erro", "Falha ao carregar comentários.");
