@@ -8,11 +8,9 @@ import { Ionicons } from '@expo/vector-icons';
 import CommentsModalComp from '@/components/CommentsModalComp';
 import { CustomAlertModalComp } from '@/components/CustomAlertModalComp';
 
-// Importa apenas o hook de lógica
 import { useGerenciarPostsLogic } from '@/libs/hooks/useGerenciarPostsLogica';
 
 export default function GerenciarPostScreen() {
-    // Destrutura tudo que vem da lógica
     const {
         myPosts,
         selectedPost,
@@ -37,7 +35,7 @@ export default function GerenciarPostScreen() {
     return (
         <BackGroundComp>
             <AppText style={{ textAlign: 'center', fontSize: 24, marginTop: 10, color: Colors.dark.orange }}>
-                Gerenciar Meus Posts
+                Seus Posts
             </AppText>
             
             {isLoading ? (
@@ -48,12 +46,14 @@ export default function GerenciarPostScreen() {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={{ padding: 20 }}
                     refreshing={isRefreshing}
+                    showsVerticalScrollIndicator={false}
                     onRefresh={onRefresh}
-                    ListEmptyComponent={<AppText style={{textAlign: 'center', marginTop: 20}}>Você não tem posts.</AppText>}
+                    ListEmptyComponent={<AppText style={{textAlign: 'center', marginTop: 20, color:Colors.dark.input}}>Nada por aqui ainda...</AppText>}
                     renderItem={({ item }) => (
                         <CardHandlePostComp 
                             title={item.title}
                             attendancesCount={item.attendancesCount}
+                            post={item} 
                             onOpenMenu={() => openActionMenu(item)}
                             onPressCard={() => handleOpenManageComments(item)}
                         />
