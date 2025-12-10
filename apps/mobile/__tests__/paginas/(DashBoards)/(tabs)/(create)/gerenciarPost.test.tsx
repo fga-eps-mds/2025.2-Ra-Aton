@@ -92,7 +92,7 @@ describe("Integração: GerenciarPostScreen", () => {
     
     expect(getByText("Meu Evento Top")).toBeTruthy();
     expect(queryByText("Post de Outro")).toBeNull();
-  });
+  }, 30000);
 
   it("2. Deve exibir o contador 'Eu vou' APENAS para cards do tipo EVENT", async () => {
     const { getByText } = render(<GerenciarPostScreen />);

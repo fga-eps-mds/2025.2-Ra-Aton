@@ -6,7 +6,7 @@ module.exports = {
   // Adicionamos '.*' antes dos nomes das bibliotecas.
   // Isso diz: "Não ignore node_modules se, em qualquer lugar do caminho, tiver react-native, expo, etc"
   transformIgnorePatterns: [
-    "node_modules/(?!.*((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@expo-router|expo-router))"
+    "node_modules/(?!.*((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@expo-router|expo-router|expo-modules-core|expo-constants))"
   ],
   // -----------------------------
 

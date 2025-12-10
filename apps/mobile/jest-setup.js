@@ -42,6 +42,23 @@ try {
     },
     NativeModulesProxy: {},
   }));
+  
+  jestRequire.mock('expo-constants', () => {
+  return {
+    __esModule: true,
+    default: {
+      deviceName: 'Jest',
+      appOwnership: 'expo',
+      manifest: {},
+      expoConfig: {
+        extra: {
+          // Adicione aqui as variáveis que seu env.ts espera
+          apiUrl: 'http://localhost:4000',
+        },
+      },
+    },
+  };
+});
 
   jestRequire.mock("expo-font", () => ({
     loadAsync: jestRequire.fn().mockResolvedValue(undefined),
