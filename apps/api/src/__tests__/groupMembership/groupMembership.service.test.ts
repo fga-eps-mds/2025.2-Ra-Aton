@@ -99,6 +99,39 @@ describe("GroupMembershipService", () => {
     });
   });
 
+  describe("findAdminMemberByUserId", () => {
+    it("Deve retornar uma lista com todos os Admin com base em um userId", async () => {
+      const mockMembers = [
+        {
+          id: "M1",
+          userId: "U1",
+          groupId: "G1",
+          role: GroupRole.ADMIN,
+          isCreator: true,
+          createdAt: new Date("2023-01-01T00:00:00Z"),
+        },
+        {
+          id: "M2",
+          userId: "U2",
+          groupId: "G2",
+          role: GroupRole.MEMBER,
+          isCreator: false,
+          createdAt: new Date("2023-02-01T00:00:00Z"),
+        },
+      ];
+      (
+        groupMembershipRepository.findAdminMemberByUserId as jest.Mock
+      ).mockResolvedValue(mockMembers);
+
+      const members = await groupMembershipService.findAdminMemberByUserId("U1");
+
+      expect(members).toEqual(mockMembers);
+      expect(groupMembershipRepository.findAdminMemberByUserId).toHaveBeenCalledWith(
+        "U1",
+      );
+    });
+  });
+
   describe("findMemberByGroupId", () => {
     it("Deve retornar uma lista com todos os membros com base em um groupId", async () => {
       const mockMembers = [

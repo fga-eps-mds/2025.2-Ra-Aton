@@ -52,7 +52,6 @@ enum MadeBy {
   GROUP
 }
 
-
 enum JoinRequestStatus {
   PENDING
   APPROVED
@@ -86,7 +85,7 @@ model User {
   notificationsAllowed Boolean @default(true)
 
   // Relationships
-  subscription PlayerSubscription[]
+  subscription    PlayerSubscription[]
   posts           Post[]
   matchs          Match[]
   Attendance      Attendance[]
@@ -95,6 +94,7 @@ model User {
   Comment         Comment[]
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
+  notifyTokens    UsersNotifyTokens[]
   followedGroups GroupFollow[]
   notifications Notification[]
 }
@@ -207,7 +207,7 @@ model Group {
   joinRequests GroupJoinRequest[]
   posts        Post[]
   memberships  GroupMembership[]
-  followers GroupFollow[]
+  followers    GroupFollow[]
 }
 
 model GroupMembership {
@@ -222,17 +222,6 @@ model GroupMembership {
 
   @@unique([userId, groupId])
 }
-
-// model Follow {
-//   id        String   @id @default(uuid())
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   userId    String
-//   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//   groupId   String
-//   createdAt DateTime @default(now())
-
-//   @@unique([userId, groupId])
-// }
 
 model GroupJoinRequest {
   id        String            @id @default(uuid())
@@ -250,17 +239,22 @@ model GroupJoinRequest {
 }
 
 model Match {
-  id          String               @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
   description String? // descrição (opcional)
-  teamNameA   String?              @default("TIME_A") // nome do time A
-  teamNameB   String?              @default("TIME_B") // nome do time B
-  author      User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    String
-  maxPlayers  Int // numero max de jogadores
-  players     PlayerSubscription[] // jogadores inscritos
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+
+  teamNameA  String? @default("TIME_A") // nome do time A
+  teamAScore Int     @default(0)
+  teamNameB  String? @default("TIME_B") // nome do time B
+  teamBScore Int     @default(0)
+
+  maxPlayers Int // numero max de jogadores
+  players    PlayerSubscription[] // jogadores inscritos
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   MatchDate   DateTime
   MatchStatus MatchStatus
   reminderSent Boolean @default(false)
@@ -280,14 +274,22 @@ model PlayerSubscription {
   @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
 
+model UsersNotifyTokens {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 model GroupFollow {
   id String @id @default(uuid())
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   groupId String
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 

@@ -42,6 +42,10 @@ describe("UserController", () => {
       const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
+        locals: {
+          newUserId: undefined,
+          newUserName: undefined,
+        },
       } as unknown as Response;
 
       (userService.createUser as jest.Mock).mockResolvedValue(mockUserResponse);

@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "ac3aa1fc-7feb-4633-b64b-f1627a9963ff"
+      }
+    },
+    "android": {
+      "package": "com.codebugging3000.aton"
+    }
+  }
+}

@@ -1,7 +1,9 @@
 import { postService } from "../../modules/post/post.service";
 import { postRepository } from "../../modules/post/post.repository";
+import { prismaMock } from "../prisma-mock";
 import { ApiError } from "../../utils/ApiError";
 import HttpStatus from "http-status";
+import { GroupType } from "@prisma/client";
 
 // 1. Mock do post.repository.ts
 jest.mock("../../modules/post/post.repository", () => ({
@@ -18,7 +20,18 @@ jest.mock("../../modules/post/post.repository", () => ({
 const MOCK_AUTHOR_ID = "author-uuid-123";
 const MOCK_POST_ID = "post-uuid-456";
 const GROUP_ID = "group-id";
-const mockGroup = { id: GROUP_ID, name: "Pesadelo" };
+const mockGroup = {
+  id: GROUP_ID,
+  name: "teste",
+  sports: ["fut"],
+  groupType: GroupType.AMATEUR,
+  acceptingNewMembers: true,
+  verificationRequest: false,
+  verificationStatus: null,
+  description: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
 
 const mockPost = {
   id: MOCK_POST_ID,
@@ -130,6 +143,9 @@ describe("PostService", () => {
       };
       mockCreate.mockResolvedValue(mockPost);
 
+      prismaMock.group.create.mockResolvedValue(mockGroup)
+      prismaMock.group.findUnique.mockResolvedValue(mockGroup)
+
       const result = await postService.createPost(data);
 
       expect(result).toEqual(mockPost);
@@ -167,7 +183,7 @@ describe("PostService", () => {
     it("deve lançar ApiError 404 se o objeto group ou groupId estiver faltando", async () => {
       const expectedError = new ApiError(
         HttpStatus.NOT_FOUND,
-        "Grupo não encontrado, somente grupos podem fazer postagens",
+        "O id do grupo não foi passado corretamente",
       );
 
       const data1 = {
@@ -201,6 +217,9 @@ describe("PostService", () => {
         ...mockEventPostData,
       });
 
+      prismaMock.group.create.mockResolvedValue(mockGroup)
+      prismaMock.group.findUnique.mockResolvedValue(mockGroup)
+
       const result = await postService.createPost(mockEventPostData);
 
       expect(result.type).toBe("EVENT");
@@ -212,6 +231,9 @@ describe("PostService", () => {
         HttpStatus.BAD_REQUEST,
         "Data de inicio, Data de termino e Localização do evento são obrigatórios em postagens do tipo evento",
       );
+
+      prismaMock.group.create.mockResolvedValue(mockGroup)
+      prismaMock.group.findUnique.mockResolvedValue(mockGroup)
 
       // Caso 1: eventDate faltando
       const invalidData1 = { ...mockEventPostData, eventDate: undefined };

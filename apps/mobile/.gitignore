@@ -26,6 +26,11 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# lockfiles (monorepo uses pnpm, EAS generates yarn.lock)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
 # macOS
 .DS_Store
 *.pem

@@ -158,9 +158,11 @@ CREATE TABLE "Match" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
-    "teamNameA" TEXT DEFAULT 'TIME_A',
-    "teamNameB" TEXT DEFAULT 'TIME_B',
     "authorId" TEXT NOT NULL,
+    "teamNameA" TEXT DEFAULT 'TIME_A',
+    "teamAScore" INTEGER NOT NULL DEFAULT 0,
+    "teamNameB" TEXT DEFAULT 'TIME_B',
+    "teamBScore" INTEGER NOT NULL DEFAULT 0,
     "maxPlayers" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -182,6 +184,17 @@ CREATE TABLE "PlayerSubscription" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "PlayerSubscription_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UsersNotifyTokens" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UsersNotifyTokens_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -235,6 +248,12 @@ CREATE UNIQUE INDEX "GroupJoinRequest_userId_groupId_key" ON "GroupJoinRequest"(
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PlayerSubscription_userId_matchId_key" ON "PlayerSubscription"("userId", "matchId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UsersNotifyTokens_userId_key" ON "UsersNotifyTokens"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UsersNotifyTokens_token_key" ON "UsersNotifyTokens"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "GroupFollow_userId_groupId_key" ON "GroupFollow"("userId", "groupId");
@@ -292,6 +311,9 @@ ALTER TABLE "PlayerSubscription" ADD CONSTRAINT "PlayerSubscription_userId_fkey"
 
 -- AddForeignKey
 ALTER TABLE "PlayerSubscription" ADD CONSTRAINT "PlayerSubscription_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UsersNotifyTokens" ADD CONSTRAINT "UsersNotifyTokens_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "GroupFollow" ADD CONSTRAINT "GroupFollow_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

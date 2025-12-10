@@ -22,6 +22,11 @@ class UserController {
 
   async createUser(req: Request, res: Response) {
     const newUser = await userService.createUser(req.body);
+    
+    // Armazena informações para o middleware de notificação
+    res.locals.newUserId = newUser.id;
+    res.locals.newUserName = newUser.name;
+    
     res.status(HttpStatus.CREATED).json(newUser);
   }
 

@@ -42,3 +42,6 @@ yarn-error.log*
 *.pem
 
 .expo/
+
+# Firebase Config (Sensitive - Never commit!)
+GoogleService-Info.plist

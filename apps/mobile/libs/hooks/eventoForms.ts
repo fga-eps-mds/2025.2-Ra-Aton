@@ -4,7 +4,7 @@ import { useUser } from "@/libs/storage/UserContext";
 import { useRouter } from "expo-router";
 import { createEvent } from "@/libs/criar/createEvento";
 
-export const eventoForms = () => {
+export const eventoForms = (selectedGroupId: string | null) => {
   const router = useRouter();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
@@ -23,6 +23,7 @@ export const eventoForms = () => {
     try {
       setLoading(true);
       setFormError("");
+      console.log('[eventoForms] handleSubmit - selectedGroupId:', selectedGroupId);
       if (!user) {
         Alert.alert("Erro", "Usuário não encontrado, faça login novamente.");
         router.replace("/(Auth)/login");
@@ -38,7 +39,13 @@ export const eventoForms = () => {
         return;
       }
 
+      if (!selectedGroupId) {
+        Alert.alert("Erro", "Selecione um grupo para criar o evento");
+        return;
+      }
+
       // Envia ao backend
+      console.log('[eventoForms] Chamando createEvent com groupId:', selectedGroupId);
       const result = await createEvent({
         title: formsData.titulo,
         type: "EVENT",
@@ -47,6 +54,7 @@ export const eventoForms = () => {
         eventFinishDate: formsData.dataFim?.trim() || undefined,
         location: formsData.local,
         token: user.token,
+        groupId: selectedGroupId,
       });
 
       if (result.error) {
@@ -81,7 +89,7 @@ export const eventoForms = () => {
   };
 
   const isDisabled =
-    loading || !formsData.titulo || !formsData.dataInicio || !formsData.local;
+    loading || !formsData.titulo || !formsData.dataInicio || !formsData.local || !selectedGroupId;
 
   return {
     formsData,
