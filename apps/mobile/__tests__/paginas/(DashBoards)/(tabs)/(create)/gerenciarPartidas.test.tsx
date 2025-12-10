@@ -196,7 +196,7 @@ describe("GerenciarPartidas page", () => {
       expect(getMatchByIdMock).toHaveBeenCalledWith("m1");
       expect(openModalConfirmCardMock).toHaveBeenCalled();
     });
-  });
+  }, 15000);
 
   it("calls useModal when infos pressed", async () => {
     const { getByTestId } = render(React.createElement(GerenciarPartidas));

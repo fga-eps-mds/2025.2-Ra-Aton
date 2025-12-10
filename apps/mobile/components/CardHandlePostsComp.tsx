@@ -34,6 +34,7 @@ export const CardHandlePostComp: React.FC<CardHandlePostsProps> = ({
                 </AppText>
                 
                 <TouchableOpacity 
+                    testID={`menu-btn-${title}`}
                     onPress={onOpenMenu} 
                     hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
                 >
