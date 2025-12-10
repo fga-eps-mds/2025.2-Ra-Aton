@@ -1,4 +1,4 @@
-import React from "react";
+    import React from "react";
 import {
   StyleSheet,
   View,
@@ -11,16 +11,16 @@ import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/constants/Theme";
 import { Fonts } from "@/constants/Fonts";
 
-// Componentes
 import BackGroundComp from "@/components/BackGroundComp";
 import Spacer from "@/components/SpacerComp";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import AppText from "@/components/AppText";
-import { PostFormComponent } from "@/components/PostFormComponent";
-import { useEditarPostLogic } from "@/libs/hooks/libs/EditHooks/useEditarPostLogic";
+import { CustomAlertModalComp } from "@/components/CustomAlertModalComp";
+import { EventoFormComponent } from "@/components/EventoFormComponent";
+import { useEditarEventoLogic } from "@/libs/hooks/libs/EditHooks/useEditarEventLogic";
 
-export default function EditarPost() {
+export default function EditarEventoScreen() {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const styles = makeStyles(theme);
@@ -31,31 +31,32 @@ export default function EditarPost() {
     formError,
     loading,
     isDisabled,
+    alertConfig,
+    closeAlert,
     handleUpdate,
     handleCancel
-  } = useEditarPostLogic();
+  } = useEditarEventoLogic();
 
   return (
     <BackGroundComp>
       <KeyboardAvoidingView
-        style={[{ flex: 1 }]}
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
           contentContainerStyle={{
             padding: 20,
             paddingBottom: 80,
-            backgroundColor: theme.background,
             flexGrow: 1,
           }}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.containerInfos}>
-            <AppText style={styles.pageTitle}>Editar Post</AppText>
+            <AppText style={styles.pageTitle}>Editar Evento</AppText>
             <Spacer height={20} />
 
             <View style={styles.inputContainer}>
-              <PostFormComponent
+              <EventoFormComponent
                 formsData={formsData}
                 setFormData={setFormData}
                 formError={formError}
@@ -69,11 +70,11 @@ export default function EditarPost() {
                   <ActivityIndicator size="large" color={theme.orange} />
               ) : (
                   <PrimaryButton disabled={isDisabled} onPress={handleUpdate}>
-                    Salvar Alterações
+                    Salvar Evento
                   </PrimaryButton>
               )}
               
-              <Spacer height={30} />
+              <Spacer height={20} />
               
               <SecondaryButton onPress={handleCancel}>
                 Cancelar
@@ -82,6 +83,15 @@ export default function EditarPost() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <CustomAlertModalComp
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onConfirm={alertConfig.onConfirm}
+        type={alertConfig.type}
+        onClose={closeAlert}
+      />
     </BackGroundComp>
   );
 };
@@ -89,24 +99,21 @@ export default function EditarPost() {
 const makeStyles = (theme: any) =>
   StyleSheet.create({
     pageTitle: {
-      fontSize: 24,
+      fontSize: 32,
       color: theme.orange,
-      fontWeight: "bold",
       textAlign: "center",
       fontFamily: Fonts.mainFont.dongleRegular,
+      marginBottom: 10
     },
     containerInfos: {
       width: "100%",
     },
     inputContainer: {
-      flexDirection: "column",
-      alignItems: "center",
       width: "100%",
     },
     redirectInfos: {
-      flexDirection: "column",
-      alignItems: "center",
       width: "100%",
+      alignItems: "center",
       marginTop: 10,
     },
   });
