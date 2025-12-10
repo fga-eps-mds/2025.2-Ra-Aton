@@ -35,12 +35,14 @@ export default function CriarGrupoScreen() {
         setValue,
         submitForm,
         isLoading,
-        createdGroupId // 2. PEGUE O ID AQUI
+        createdGroupId,
+        createdGroupName,
     } = useCreateGroupForm();
 
-    if (createdGroupId) {
-        return <Redirect href={`/group/${createdGroupId}`} />;
-    }
+    // if (createdGroupName) {
+    //     return <Redirect href={`/Perfil?id=${createdGroupName}`} />;
+    // }
+
     return (
         <BackGroundComp>
             {/* BOTÃO DE TESTE DE NAVEGAÇÃO */}
