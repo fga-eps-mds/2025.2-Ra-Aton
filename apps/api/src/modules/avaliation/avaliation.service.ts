@@ -38,6 +38,13 @@ class AvaliationService {
             )
         }
 
+        if (data.score > 5 || data.score < 0) {
+            throw new ApiError(
+                HttpStatus.BAD_REQUEST,
+                "A pontuação precisa ser um valor entre 0 e 5"
+            )
+        }
+
         const newAval = AvaliationRepository.createAval(data, userId)
         return newAval;
     }
@@ -46,7 +53,7 @@ class AvaliationService {
         if (!id) {
             throw new ApiError(
                 HttpStatus.BAD_REQUEST,
-                "O id da avaliação não for recebido corretamente"
+                "O id da avaliação não foi recebido corretamente"
             )
         }
         const updatedAval = await avaliationRepository.updateAval(id, data);
