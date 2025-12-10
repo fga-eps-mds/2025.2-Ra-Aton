@@ -3,20 +3,25 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import AppText from "./AppText";
+import { IPost } from "@/libs/interfaces/Ipost";
 
 interface CardHandlePostsProps {
     title?: string;
     attendancesCount?: number;
+    type?: string; 
     onPressCard?: () => void;
     onOpenMenu?: () => void;
+    post?: IPost,
 }
 
 export const CardHandlePostComp: React.FC<CardHandlePostsProps> = ({
     title,
-    attendancesCount = 0,
+    // type,
     onPressCard,
+    post,
     onOpenMenu,
 }) => {
+    const isEvent = post?.type == "EVENT";
     return (
         <TouchableOpacity 
             style={styles.cardContainer} 
@@ -36,14 +41,17 @@ export const CardHandlePostComp: React.FC<CardHandlePostsProps> = ({
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.footerCard}>
-                <View style={styles.attendanceBox}>
-                    <Ionicons name="checkmark-circle" size={18} color={Colors.dark.text} />
-                    <AppText style={styles.txtCount}>
-                        {attendancesCount} confirmações "Eu vou!"
-                    </AppText>
+            {isEvent && (
+                <View style={styles.footerCard}>
+                    <View style={styles.attendanceBox}>
+                        <Ionicons name="checkmark-circle" size={18} color={Colors.dark.text} />
+                        <AppText style={styles.txtCount}>
+                            {post?.attendancesCount ?? 0} confirmações "Eu vou!"
+                            {/* 0 */}
+                        </AppText>
+                    </View>
                 </View>
-            </View>
+            )}
         </TouchableOpacity>
     );
 };
@@ -75,12 +83,10 @@ const styles = StyleSheet.create({
     footerCard: {
         paddingHorizontal: 15,
         flexDirection: 'row',
-        justifyContent:'flex-end',
     },
     attendanceBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        // justifyContent:'center',
         backgroundColor: 'rgba(255,255,255,0.1)',
         paddingHorizontal: 10,
         paddingVertical: 5,
