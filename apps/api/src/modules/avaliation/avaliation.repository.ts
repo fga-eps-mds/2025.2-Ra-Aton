@@ -15,7 +15,7 @@ class AvaliationRepository {
 
     async findAllAvalsByUserId(userId: string): Promise<Avaliation[]> {
         return prisma.avaliation.findMany({
-            where: { id: userId },
+            where: { userId },
             orderBy: { createdAt: "desc" },
             include: {
                 user: {
