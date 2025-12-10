@@ -1,7 +1,6 @@
 // jest-setup.js — ORDEM IMPORTA!
 
-// 1) AUMENTAR TIMEOUT GLOBAL (Essencial para CI)
-// O padrão é 5000ms, o que falha frequentemente em ambientes de CI lentos (GitHub Actions)
+// 1) AUMENTAR TIMEOUT GLOBAL (Essencial para CI lento)
 if (typeof jest !== 'undefined') {
   jest.setTimeout(30000); // 30 segundos
 }
@@ -11,54 +10,42 @@ globalThis.__DEV__ = true;
 globalThis.__fbBatchedBridgeConfig = {};
 process.env.EXPO_OS = process.env.EXPO_OS || "web";
 
-// 3) Mock Global do Expo Router (Evita falhas em componentes que importam Link/router)
-try {
-  const jestRequire = typeof jest !== "undefined" ? jest : require("jest-mock");
-  jestRequire.mock("expo-router", () => ({
-    useRouter: () => ({
-      push: jestRequire.fn(),
-      replace: jestRequire.fn(),
-      back: jestRequire.fn(),
-    }),
-    useLocalSearchParams: () => ({}),
-    useFocusEffect: (cb) => cb(), // Executa direto para não travar
-    Link: ({ children }) => children,
-    Stack: { Screen: () => null },
-    Tabs: { Screen: () => null },
-  }));
-} catch (e) {
-  // ignore
-}
-
-// 4) Early mocks for Expo native modules
+// 3) MOCKS DE INFRAESTRUTURA (Expo Modules Core & Constants)
+// Estes precisam vir ANTES de qualquer outra coisa para evitar o erro "requireOptionalNativeModule"
 try {
   const jestRequire = typeof jest !== "undefined" ? jest : require("jest-mock");
 
-  jestRequire.mock("expo-modules-core", () => ({
-    eventEmitter: () => ({ addListener: () => ({ remove: () => {} }) }),
-    EventEmitter: class {
-      addListener() { return { remove: () => {} }; }
-      removeAllListeners() {}
-    },
-    NativeModulesProxy: {},
-  }));
-  
-  jestRequire.mock('expo-constants', () => {
-  return {
+  // --- MOCK CRÍTICO CORRIGIDO ---
+  jestRequire.mock("expo-modules-core", () => {
+    const React = require("react");
+    return {
+      requireNativeModule: jestRequire.fn(() => ({})),
+      requireOptionalNativeModule: jestRequire.fn(() => ({})), // <--- A CORREÇÃO DO ERRO
+      eventEmitter: () => ({ addListener: () => ({ remove: () => {} }) }),
+      EventEmitter: class {
+        addListener() { return { remove: () => {} }; }
+        removeAllListeners() {}
+        emit() {}
+      },
+      NativeModulesProxy: {},
+      ProxyNativeModule: {},
+    };
+  });
+
+  // Mock do Expo Constants (usado no env.ts)
+  jestRequire.mock("expo-constants", () => ({
     __esModule: true,
     default: {
-      deviceName: 'Jest',
-      appOwnership: 'expo',
-      manifest: {},
       expoConfig: {
         extra: {
-          // Adicione aqui as variáveis que seu env.ts espera
-          apiUrl: 'http://localhost:4000',
+          apiUrl: 'http://localhost:4000', // Valor dummy para testes
         },
       },
+      manifest: {},
+      appOwnership: 'expo',
+      deviceName: 'Jest',
     },
-  };
-});
+  }));
 
   jestRequire.mock("expo-font", () => ({
     loadAsync: jestRequire.fn().mockResolvedValue(undefined),
@@ -72,9 +59,27 @@ try {
   });
 
   jestRequire.mock("expo", () => ({}));
-} catch (e) {}
+  
+  // Mock do Expo Router Global
+  jestRequire.mock("expo-router", () => ({
+    useRouter: () => ({
+      push: jestRequire.fn(),
+      replace: jestRequire.fn(),
+      back: jestRequire.fn(),
+      setParams: jestRequire.fn(),
+    }),
+    useLocalSearchParams: () => ({}),
+    useFocusEffect: (cb) => cb(), // Executa direto para não travar
+    Link: ({ children }) => children,
+    Stack: { Screen: () => null },
+    Tabs: { Screen: () => null },
+  }));
 
-// 5) Ensure 'expo-secure-store' is mocked early
+} catch (e) {
+  // ignore
+}
+
+// 4) Mock do Secure Store
 try {
   const j = typeof jest !== "undefined" ? jest : require("jest-mock");
   j.mock("expo-secure-store", () => ({
@@ -84,16 +89,16 @@ try {
   }));
 } catch (e) {}
 
-// 6) Require centralized test mocks
+// 5) Carrega mocks centralizados (se existirem)
 try {
   require("./test/jest-mocks");
 } catch (e) {}
 
-// 7) Mock top-level 'react-native'
-// MANTIDO conforme seu arquivo original, mas saiba que isso fixa o OS em 'ios' por padrão
+// 6) Mock do React Native (Top Level)
 try {
   jest.mock("react-native", () => {
     const React = require("react");
+
     const View = (props) => React.createElement("View", props, props.children);
     const Text = (props) => React.createElement("Text", props, props.children);
     const Image = (props) => React.createElement("Image", props);
@@ -104,6 +109,7 @@ try {
     const Modal = ({ visible, children }) => visible ? React.createElement(React.Fragment, null, children) : null;
     const ActivityIndicator = (props) => React.createElement("ActivityIndicator", props);
 
+    // Mock simples de FlatList
     const FlatList = ({ data, renderItem, keyExtractor, ListEmptyComponent, style }) => {
       if (!data || data.length === 0) {
         return ListEmptyComponent ? React.createElement(ListEmptyComponent) : null;
@@ -123,7 +129,7 @@ try {
 
     return {
       Platform: {
-        OS: "ios",
+        OS: "ios", // Default para iOS, mas testes específicos podem usar jest.doMock
         select: (obj) => (obj && obj.ios) || obj?.default,
       },
       View, Text, Image, TouchableOpacity, TextInput, Pressable, SafeAreaView, FlatList, Modal, ActivityIndicator,
@@ -131,26 +137,27 @@ try {
         create: (s) => s,
         flatten: (s) => (Array.isArray(s) ? Object.assign({}, ...s) : s),
       },
-      Alert: { alert: jest.fn() } // Adicionei mock básico do Alert
+      Alert: { alert: jest.fn() },
+      Animated: {
+         View: View,
+         Text: Text,
+         createAnimatedComponent: (c) => c,
+         timing: () => ({ start: (cb) => cb && cb() }),
+      }
     };
   });
-
-  jest.mock('expo-constants', () => ({
-    default: {
-      expoConfig: { extra: {} },
-      manifest: {},
-    },
-  }));
 } catch {}
 
-// 8) Utilitários
+// 7) Utilitários Globais
 if (typeof TextEncoder === "undefined") {
   const { TextEncoder, TextDecoder } = require("util");
   global.TextEncoder = TextEncoder;
   global.TextDecoder = TextDecoder;
 }
 
-// 9) Mocks críticos do RN internals
+global.alert = () => {};
+
+// 8) Mocks Críticos Internos do RN
 jest.mock("react-native/Libraries/Utilities/Platform", () => ({
   OS: "ios",
   isTV: false,
@@ -168,18 +175,6 @@ jest.mock("react-native/Libraries/TurboModule/TurboModuleRegistry", () => {
   const create = (name) => {
     if (name === "SourceCode") return { scriptURL: "http://localhost" };
     if (name === "ReactNativeFeatureFlags") return {};
-    if (name === "DeviceInfo") {
-      return {
-        getConstants: () => ({
-          isTesting: true,
-          reactNativeVersion: { major: 0, minor: 0, patch: 0 },
-          Dimensions: {
-            window: { width: 393, height: 852, scale: 2, fontScale: 1, densityDpi: 320 },
-            screen: { width: 393, height: 852, scale: 2, fontScale: 1, densityDpi: 320 },
-          },
-        }),
-      };
-    }
     return {};
   };
   return { get: create, getEnforcing: create };
@@ -196,8 +191,7 @@ try {
 try {
   jest.mock("react-native/Libraries/Modal/Modal", () => {
     const React = require("react");
-    const MockModal = ({ visible, children }) => visible ? React.createElement(React.Fragment, null, children) : null;
-    return MockModal;
+    return ({ visible, children }) => visible ? React.createElement(React.Fragment, null, children) : null;
   });
 } catch {}
 
