@@ -1,5 +1,6 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Alert } from "react-native";
+import { useFocusEffect } from "expo-router";
 import { api_route } from "@/libs/auth/api";
 import { IPost } from "@/libs/interfaces/Ipost";
 import { useUser } from "@/libs/storage/UserContext";
@@ -44,9 +45,11 @@ export const useMyPosts = () => {
     }
   };
 
-  useEffect(() => {
-    fetchMyPosts();
-  }, [fetchMyPosts]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyPosts();
+    }, [fetchMyPosts])
+  );
 
   const onRefresh = () => {
     setIsRefreshing(true);
