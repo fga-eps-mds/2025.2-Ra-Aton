@@ -83,6 +83,12 @@ model User {
   passwordHash String
   notificationsAllowed Boolean @default(true)
 
+  bio              String?  // Bio do usuário
+  profileImageUrl  String?  // URL da imagem de perfil no Cloudinary
+  bannerImageUrl   String?  // URL do banner no Cloudinary
+  profileImageId   String?  // Public ID do Cloudinary (para deletar)
+  bannerImageId    String?  // Public ID do Cloudinary (para deletar)
+
   // Relationships
   subscription    PlayerSubscription[]
   posts           Post[]
@@ -96,6 +102,8 @@ model User {
   notifyTokens    UsersNotifyTokens[]
   followedGroups GroupFollow[]
   notifications Notification[]
+  followers UserFollow[] @relation("UserFollowers")
+  following UserFollow[] @relation("UserFollowing")
 }
 
 model Post {
@@ -198,6 +206,12 @@ model Group {
   verificationRequest Boolean             @default(false)
   verificationStatus  VerificationStatus?
 
+  bio         String?  // Bio do grupo
+  logoUrl     String?  // URL do logo no Cloudinary
+  bannerUrl   String?  // URL do banner no Cloudinary
+  logoId      String?  // Public ID do Cloudinary
+  bannerId    String?  // Public ID do Cloudinary
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -292,6 +306,22 @@ model GroupFollow {
   createdAt DateTime @default(now())
 
   @@unique([userId, groupId])
+}
+
+model UserFollow {
+  id String @id @default(uuid())
+
+  followerId String
+  follower User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+
+  followingId String
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model Notification {

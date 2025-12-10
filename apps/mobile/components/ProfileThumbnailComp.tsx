@@ -1,13 +1,17 @@
 import React from "react";
 import { Image, TouchableOpacity, StyleSheet, ViewStyle } from "react-native";
+import { useRouter } from "expo-router";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
+import { useUser } from "@/libs/storage/UserContext";
 
 interface ProfileThumbnailProps {
   imageUrl?: string | null;
   size?: number;
   onPress?: () => void;
   style?: ViewStyle;
+  userName?: string; // userName do usuário para navegar ao perfil
+  userId?: string; // Alternativa caso tenha apenas o ID
 }
 
 const ProfileThumbnailComp: React.FC<ProfileThumbnailProps> = ({
@@ -15,20 +19,39 @@ const ProfileThumbnailComp: React.FC<ProfileThumbnailProps> = ({
   size = 50,
   onPress,
   style,
+  userName,
+  userId,
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
+  const router = useRouter();
+  const { user } = useUser();
 
-  // TODO: Criar requisição na pasta libs/user, importar, usar neste componente e testá-la. (CA5)
-  // Esta requisição deve buscar a URL da imagem do usuário logado.
-  // Por enquanto, usamos uma imagem padrão se 'imageUrl' for nula.
+  const handlePress = () => {
+    if (onPress) {
+      // Se onPress foi passado, usa ele
+      onPress();
+    } else {
+      // Usa o userName fornecido ou o do usuário logado
+      const targetUserName = userName || user?.userName;
+      
+      if (targetUserName) {
+        // Navega para o perfil usando o userName
+        router.push({
+          pathname: "/(DashBoard)/(tabs)/Perfil",
+          params: { identifier: targetUserName, type: "user" },
+        });
+      }
+    }
+  };
+
   const source = imageUrl
     ? { uri: imageUrl }
     : require("@/assets/img/logo1.png"); // Usando um asset local como fallback
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handlePress}
       style={[
         styles.container,
         {

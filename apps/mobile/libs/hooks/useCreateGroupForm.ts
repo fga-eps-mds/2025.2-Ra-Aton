@@ -73,9 +73,9 @@ export function useCreateGroupForm() {
       setTimeout(() => {
         console.log("Navegando para perfilGrupo com ID:", newGroup.id);
 
-        router.replace({
-          pathname: `/Perfil`,
-          params: { name: newGroup.name },
+        router.push({
+          pathname: `/(DashBoard)/(tabs)/Perfil`,
+          params: { identifier: newGroup.name, type: "group" },
         });
 
         // 2. Usamos nossa função wrapper

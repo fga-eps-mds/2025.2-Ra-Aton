@@ -19,6 +19,8 @@ export type User = {
   token: string;
   profileType?: string | null;
   notificationsAllowed: boolean;
+  profilePicture?: string | null;
+  bannerImage?: string | null;
 };
 
 interface UserContextType {

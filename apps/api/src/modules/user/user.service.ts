@@ -3,6 +3,7 @@ import userRepository from "./user.repository";
 import { ApiError } from "../../utils/ApiError"; // Classe de erro customizada
 import httpStatus from "http-status";
 import bcrypt from "bcryptjs"; // (instale: npm install bcryptjs @types/bcryptjs)
+import { uploadService } from "./upload.service";
 
 // Omitir a senha da resposta é uma boa prática
 type UserResponse = Omit<User, "passwordHash">;
@@ -24,7 +25,7 @@ export const userService = {
         "Senha é obrigatória e deve ser uma string",
       );
     }
-    
+
     // Hash da senha
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
@@ -120,5 +121,107 @@ export const userService = {
     }
 
     await userRepository.delete(userFound.id);
+  },
+
+  /**
+   * Atualiza imagem de perfil do usuário
+   */
+  updateProfileImage: async (
+    userId: string,
+    fileBuffer: Buffer,
+  ): Promise<UserResponse> => {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado");
+    }
+
+    // Upload da nova imagem
+    const { url, publicId } = await uploadService.uploadProfileImage(
+      fileBuffer,
+      userId,
+      user.profileImageId || undefined,
+    );
+
+    // Atualizar no banco
+    const updatedUser = await userRepository.update(userId, {
+      profileImageUrl: url,
+      profileImageId: publicId,
+    });
+
+    const { passwordHash, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+  },
+
+  /**
+   * Atualiza banner do usuário
+   */
+  updateBannerImage: async (
+    userId: string,
+    fileBuffer: Buffer,
+  ): Promise<UserResponse> => {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado");
+    }
+
+    // Upload do novo banner
+    const { url, publicId } = await uploadService.uploadBannerImage(
+      fileBuffer,
+      userId,
+      user.bannerImageId || undefined,
+    );
+
+    // Atualizar no banco
+    const updatedUser = await userRepository.update(userId, {
+      bannerImageUrl: url,
+      bannerImageId: publicId,
+    });
+
+    const { passwordHash, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+  },
+
+  /**
+   * Deleta imagem de perfil do usuário
+   */
+  deleteProfileImage: async (userId: string): Promise<UserResponse> => {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado");
+    }
+
+    if (user.profileImageId) {
+      await uploadService.deleteImage(user.profileImageId);
+    }
+
+    const updatedUser = await userRepository.update(userId, {
+      profileImageUrl: null,
+      profileImageId: null,
+    });
+
+    const { passwordHash, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+  },
+
+  /**
+   * Deleta banner do usuário
+   */
+  deleteBannerImage: async (userId: string): Promise<UserResponse> => {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado");
+    }
+
+    if (user.bannerImageId) {
+      await uploadService.deleteImage(user.bannerImageId);
+    }
+
+    const updatedUser = await userRepository.update(userId, {
+      bannerImageUrl: null,
+      bannerImageId: null,
+    });
+
+    const { passwordHash, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
   },
 };

@@ -17,6 +17,8 @@ import { reportRoutes } from "./modules/report/report.routes";
 import { attendanceRoutes } from "./modules/attendance/attendance.routes";
 import followRoutes from "./modules/follow/follow.routes";
 import notificationRoutes from "./modules/notification/notification.routes";
+import profileRoutes from "./modules/profile/profile.routes";
+
 
 const app: Express = express();
 
@@ -47,6 +49,7 @@ app.use("/posts/:postId/attendance", attendanceRoutes);
 app.use("/posts/:id/report", reportRoutes);
 app.use("/follow", followRoutes);
 app.use("/notifications", notificationRoutes);
+app.use("/profile", profileRoutes);
 
 // --- TRATAMENTO DE ERROS ---
 // Middleware para rotas não encontradas (404)
