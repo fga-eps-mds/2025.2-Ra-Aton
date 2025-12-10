@@ -66,12 +66,12 @@ export default function GerenciarPostScreen() {
                     <View style={styles.menuContainer}>
                         <AppText style={styles.menuTitle}>Opções do Post</AppText>
                         
-                        <TouchableOpacity style={styles.menuOption} onPress={() => selectedPost && handleEditPost(selectedPost)}>
+                        <TouchableOpacity testID="btn-edit-post" style={styles.menuOption} onPress={() => selectedPost && handleEditPost(selectedPost)}>
                             <Ionicons name="pencil" size={20} color={Colors.dark.text} />
                             <AppText style={{color:'white'}}>Editar Post</AppText>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.menuOption} onPress={() => selectedPost && confirmDeletePost(selectedPost.id)}>
+                        <TouchableOpacity testID="btn-delete-post" style={styles.menuOption} onPress={() => selectedPost && confirmDeletePost(selectedPost.id)}>
                             <Ionicons name="trash" size={20} color="red" />
                             <AppText style={{color: 'red'}}>Deletar Post</AppText>
                         </TouchableOpacity>
