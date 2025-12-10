@@ -25,7 +25,7 @@ class AvaliationController {
             return res.status(HttpStatus.BAD_REQUEST).json({ message: "O id da avaliação não foi recebido corretamente" })
         }
 
-        const aval = avaliationService.findAvalById(id);
+        const aval = await avaliationService.findAvalById(id);
         return res.status(HttpStatus.FOUND).json(aval);
     }
 
@@ -36,7 +36,7 @@ class AvaliationController {
         }
 
         const data = req.body;
-        const newAval = avaliationService.createAval(data, authUser.Id);
+        const newAval = await avaliationService.createAval(data, authUser.Id);
         return res.status(HttpStatus.CREATED).json(newAval);
     }
 
@@ -48,7 +48,7 @@ class AvaliationController {
         }
 
         try {
-            const updatedAval = avaliationService.updateAval(data, id);
+            const updatedAval = await avaliationService.updateAval(data, id);
             return res.status(HttpStatus.OK).json(updatedAval);
         } catch (error) {
             if (error instanceof ApiError) {

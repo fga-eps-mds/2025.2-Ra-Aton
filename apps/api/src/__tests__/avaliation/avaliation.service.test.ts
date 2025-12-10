@@ -173,4 +173,71 @@ describe("avaliationService", () => {
             expect(avaliationRepository.createAval).toHaveBeenCalledTimes(0)
         })
     })
+
+    describe("updateAval", () => {
+        it("Deve atualizar e retornar uma avaliação", async () => {
+            const mockAvalData = {
+                message: "gostei demais",
+            }
+
+            const updatedAvalData = {
+                id: "A1",
+                userId: "U1",
+                score: 5,
+                message: "gostei demais",
+                createdAt: new Date()
+            };
+
+            (avaliationRepository.updateAval as jest.Mock).mockResolvedValue(updatedAvalData);
+
+            const updatedAval = await avaliationService.updateAval(mockAvalData, "A1");
+
+            expect(updatedAval).toEqual(updatedAvalData);
+            expect(avaliationRepository.updateAval).toHaveBeenCalledWith("A1", mockAvalData)
+        })
+
+        it("Deve retornar 400 caso o id não seja passado corretamente", async () => {
+            const mockAvalData = {
+                message: "gostei demais",
+            }
+
+            const updatedAvalData = {
+                id: "A1",
+                userId: "U1",
+                score: 5,
+                message: "gostei demais",
+                createdAt: new Date()
+            };
+
+            (avaliationRepository.updateAval as jest.Mock).mockResolvedValue(updatedAvalData);
+
+            await expect(avaliationService.updateAval(mockAvalData, null)).rejects.toThrow(ApiError);
+            await expect(avaliationService.updateAval(mockAvalData, null)).rejects.toMatchObject({
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: "O id da avaliação não foi recebido corretamente"
+            });
+
+            expect(avaliationRepository.updateAval).toHaveBeenCalledTimes(0)
+        })
+    })
+
+    describe("deleteAval", () => {
+        it("Deve excluir a avaliação e não retornar nada", async () => {
+            (avaliationRepository.deleteAval as jest.Mock).mockResolvedValue(undefined);
+
+            await expect(avaliationService.deleteAval("A1")).resolves.toBeUndefined;
+            expect(avaliationRepository.deleteAval).toHaveBeenCalledWith("A1")
+        })
+
+        it("Deve retornar 400 caso o id não seja passado corretamente", async () => {
+            (avaliationRepository.deleteAval as jest.Mock).mockResolvedValue(undefined);
+
+            await expect(avaliationService.deleteAval(null)).rejects.toThrow(ApiError);
+            await expect(avaliationService.deleteAval(null)).rejects.toMatchObject({
+                statusCode: HttpStatus.BAD_REQUEST
+            });
+
+            expect(avaliationRepository.deleteAval).toHaveBeenCalledTimes(0);
+        })
+    })
 })
