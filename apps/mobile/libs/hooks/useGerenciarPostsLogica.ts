@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useMyPosts } from '@/libs/hooks/useMyPosts'; // Importe seu hook existente aqui
+import { useRouter } from "expo-router";
+import { useMyPosts } from '@/libs/hooks/useMyPosts';
 import { getComments } from '@/libs/auth/handleComments';
 import { api_route } from '@/libs/auth/api';
 import { IPost } from '@/libs/interfaces/Ipost';
 import { Icomment } from '@/libs/interfaces/Icomments';
 
 export const useGerenciarPostsLogic = () => {
+    const router = useRouter();
     const { myPosts, isLoading, isRefreshing, onRefresh, handleDeletePost } = useMyPosts();
+    
     const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
     const [menuVisible, setMenuVisible] = useState(false);
     const [commentsModalVisible, setCommentsModalVisible] = useState(false);
@@ -22,7 +24,6 @@ export const useGerenciarPostsLogic = () => {
         onConfirm: undefined as (() => void) | undefined
     });
 
-
     const showAlert = (title: string, message: string, onConfirm?: () => void, type: 'default' | 'danger' = 'default') => {
         setAlertConfig({ visible: true, title, message, onConfirm, type });
     };
@@ -31,7 +32,6 @@ export const useGerenciarPostsLogic = () => {
         setAlertConfig(prev => ({ ...prev, visible: false }));
     };
 
-
     const openActionMenu = (post: IPost) => {
         setSelectedPost(post);
         setMenuVisible(true);
@@ -39,7 +39,8 @@ export const useGerenciarPostsLogic = () => {
 
     const handleEditPost = (post: IPost) => {
         setMenuVisible(false);
-        showAlert("Em breve", "Edição será implementada em breve.");
+        const params = { postData: JSON.stringify(post) };
+        router.push({ pathname: "/(DashBoard)/(tabs)/(edit)/editarPost", params });
     };
 
     const confirmDeletePost = (postId: string) => {
@@ -89,7 +90,6 @@ export const useGerenciarPostsLogic = () => {
     };
 
     return {
-        // Dados
         myPosts,
         selectedPost,
         postComments,
