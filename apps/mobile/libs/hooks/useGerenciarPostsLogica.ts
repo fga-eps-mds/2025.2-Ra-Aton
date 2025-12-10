@@ -40,14 +40,19 @@ export const useGerenciarPostsLogic = () => {
     const handleEditPost = (post: IPost) => {
         setMenuVisible(false);
         const params = { postData: JSON.stringify(post) };
-        router.push({ pathname: "/(DashBoard)/(tabs)/(edit)/editarPost", params });
+        
+        if (post.type === "EVENT") {
+            router.push({ pathname: "/(DashBoard)/(tabs)/(edit)/editEvento", params });
+        } else {
+            router.push({ pathname: "/(DashBoard)/(tabs)/(edit)/editarPost", params });
+        }
     };
 
     const confirmDeletePost = (postId: string) => {
         setMenuVisible(false);
         showAlert(
             "Deletar Post",
-            "Tem certeza? Isso apagará todas as interações.",
+            "Tem certeza? Isso apagará todas as interações que foram feitas neste post",
             () => handleDeletePost(postId),
             'danger'
         );
@@ -93,19 +98,16 @@ export const useGerenciarPostsLogic = () => {
         myPosts,
         selectedPost,
         postComments,
-        
         isLoading,
         isRefreshing,
         menuVisible,
         commentsModalVisible,
         loadingComments,
         alertConfig,
-        
         onRefresh,
         setMenuVisible,
         setCommentsModalVisible,
         closeAlert,
-        
         openActionMenu,
         handleEditPost,
         confirmDeletePost,
