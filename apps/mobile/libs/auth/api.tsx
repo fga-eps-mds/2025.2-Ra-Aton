@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 import { getUserData } from "@/libs/storage/getUserData";
 import { config } from "@/libs/config/env";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000";
+// const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000";
 
 export const api_route = axios.create({
   baseURL: config.apiUrl,

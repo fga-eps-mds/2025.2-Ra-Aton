@@ -20,10 +20,14 @@ export const createMatchSchema = z.object({
       .string()
       .min(2, "Nome do time A precisa ter no mínimo 2 caracteres")
       .optional(),
+    teamAScore: z.number().int().min(0).optional(),
+
     teamNameB: z
       .string()
       .min(2, "Nome do time B precisa ter no mínimo 2 caracteres")
       .optional(),
+    teamBScore: z.number().int().min(0).optional(),
+
     maxPlayers: z
       .number()
       .min(2, "Quantidade de jogadores precisa ser maior que 1"),
@@ -60,11 +64,13 @@ export const updateMatchSchema = z.object({
       .string()
       .min(2, "Nome do time A precisa ter no mínimo 2 caracteres")
       .optional(),
+    teamAScore: z.number().int().min(0).optional(),
+
     teamNameB: z
       .string()
       .min(2, "Nome do time B precisa ter no mínimo 2 caracteres")
       .optional(),
-    // Adicionar validação de times para criar e atualizar
+    teamBScore: z.number().int().min(0).optional(),
 
     MatchDate: z
       .preprocess(
