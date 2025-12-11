@@ -12,6 +12,7 @@ interface ProfileThumbnailProps {
   style?: ViewStyle;
   userName?: string; // userName do usuário para navegar ao perfil
   userId?: string; // Alternativa caso tenha apenas o ID
+  profileType: "user" | "group";
 }
 
 const ProfileThumbnailComp: React.FC<ProfileThumbnailProps> = ({
@@ -21,6 +22,7 @@ const ProfileThumbnailComp: React.FC<ProfileThumbnailProps> = ({
   style,
   userName,
   userId,
+  profileType,
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
@@ -39,7 +41,7 @@ const ProfileThumbnailComp: React.FC<ProfileThumbnailProps> = ({
         // Navega para o perfil usando o userName
         router.push({
           pathname: "/(DashBoard)/(tabs)/Perfil",
-          params: { identifier: targetUserName, type: "user" },
+          params: { identifier: targetUserName, type: profileType || "user" },
         });
       }
     }

@@ -1,9 +1,26 @@
 import React from "react";
 import { render, fireEvent } from "../test-utils";
 import CommentsModalComp from "../../components/CommentsModalComp";
+import { Icomment } from "@/libs/interfaces/Icomments";
 
 describe("Componente: CommentsModalComp", () => {
   const mockOnClose = jest.fn();
+
+  // Dados simulados para o teste
+  const mockComments: Icomment[] = [
+    {
+      id: "1",
+      content: "Que legal!",
+      authorId: "user-1",
+      postId: "post-1",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: {
+        id: "user-1",
+        userName: "Usuário A",
+      },
+    },
+  ];
 
   it("1. Não deve renderizar nada se isVisible for false", () => {
     const { queryByText } = render(
@@ -13,15 +30,19 @@ describe("Componente: CommentsModalComp", () => {
     expect(queryByText("Comentários")).toBeNull();
   });
 
-  it("2. Deve renderizar o conteúdo se isVisible for true", () => {
+  it("2. Deve renderizar o conteúdo se isVisible for true e mostrar os comentários passados", () => {
     const { getByText, getByPlaceholderText } = render(
-      <CommentsModalComp isVisible={true} onClose={mockOnClose} postId="1" />,
+      <CommentsModalComp 
+        isVisible={true} 
+        onClose={mockOnClose} 
+        postId="1" 
+        comments={mockComments} 
+      />,
     );
 
     expect(getByText("Comentários")).toBeTruthy();
     expect(getByPlaceholderText("Escreva um comentário...")).toBeTruthy();
 
-    // Testa os dados mockados
     expect(getByText("Usuário A")).toBeTruthy();
     expect(getByText("Que legal!")).toBeTruthy();
   });

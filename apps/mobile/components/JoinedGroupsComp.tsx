@@ -4,9 +4,11 @@ import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
+import ProfileThumbnailComp from "./ProfileThumbnailComp";
 
 interface JoinedGroupsCompProps {
   name: string;
+  logourl?: string;
   onPrimaryPress?: () => void;
   onSecondaryPress?: () => void;
 }
@@ -43,14 +45,7 @@ export const JoinedGroupsComp = ({
                 elevation: 5,
               }}
             >
-              <View
-                style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 30,
-                  backgroundColor: "gray",
-                }}
-              ></View>
+        <ProfileThumbnailComp size={50} userName={name} imageUrl={undefined} profileType="group" />
               <View
                 style={{ flexDirection: "column", flex: 1, marginLeft: 15 }}
               >

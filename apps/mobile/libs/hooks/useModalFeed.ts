@@ -24,7 +24,12 @@ export const useFeedModals = ({ user, setPosts }: UseFeedModalsProps) => {
     try {
       setIsloadingComments(true);
       const data = await getComments(postId);
-      setComments(Array.isArray(data) ? data : []);
+      
+      const filterComments = Array.isArray(data) 
+        ? data.filter(c => c.postId === postId) 
+        : [];
+      
+      setComments(filterComments);
     } catch (err) {
       console.log("Erro ao carregar os comentários", err);
       setComments([]);

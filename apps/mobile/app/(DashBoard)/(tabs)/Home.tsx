@@ -71,6 +71,7 @@ export default function HomeScreen() {
               userName={user?.userName}
               imageUrl={user?.profilePicture}
             />
+            <Text>Ola, {user?.profilePicture}</Text>
             <View style={styles.boxSearchComp}>
               <InputComp
                 iconName="filter"

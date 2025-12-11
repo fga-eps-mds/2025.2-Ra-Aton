@@ -24,6 +24,7 @@ export const postRepository = {
             select: {
               id: true,
               userName: true,
+              profileImageUrl: true,
             },
           },
           group: {
