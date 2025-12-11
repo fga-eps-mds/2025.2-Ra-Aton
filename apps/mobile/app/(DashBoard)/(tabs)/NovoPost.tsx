@@ -56,6 +56,12 @@ export default function NovoPost() {
           </PrimaryButton>
 
           <Spacer height={40} />
+
+          <PrimaryButton onPress={() => router.push("/gerenciarPartidas")}>
+            Gerenciar Partidas
+          </PrimaryButton>
+
+          <Spacer height={40} />
         </View>
         <Spacer height={20} />
       </ScrollView>

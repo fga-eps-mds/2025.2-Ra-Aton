@@ -10,16 +10,25 @@ import {
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import AppText from "./AppText";
+import Ionicons from "@expo/vector-icons/build/Ionicons";
 type Button2CompProps = {
   style?: StyleProp<ViewStyle>;
-  decoration?: StyleProp<TextStyle>;
+  disabled?: boolean;
+  textSize?: number;
+  iconName?: keyof typeof Ionicons.glyphMap;
+  textWeight?: number;
+
 } & TouchableOpacityProps;
 
 const Button2Comp: React.FC<Button2CompProps> = ({
   style,
   children,
-  decoration,
+  iconName,
+  disabled,
+  textSize = 20,
+  textWeight = 500,
   ...props
+
 }) => {
   const { isDarkMode } = useTheme();
   const backgroundColor = isDarkMode ? Colors.dark.gray : Colors.light.gray;
@@ -40,21 +49,23 @@ const Button2Comp: React.FC<Button2CompProps> = ({
         },
         style,
       ]}
+      disabled={disabled}
       {...props}
     >
-      <AppText
-        style={[
-          {
+      {iconName ? (
+        <Ionicons name={iconName} size={24} color={theme.text} />
+      ) : (
+        <AppText
+          style={{
             color: theme.text,
             textAlign: "center",
-            fontSize: 20,
-            fontWeight: "500",
-          },
-          decoration,
-        ]}
-      >
-        {children}
-      </AppText>
+            fontWeight: String(textWeight) as any,
+            fontSize: textSize,
+          }}
+        >
+          {children}
+        </AppText>
+      )}
     </TouchableOpacity>
   );
 };

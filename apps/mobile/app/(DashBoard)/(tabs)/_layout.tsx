@@ -173,6 +173,29 @@ export default function DashboardTabsLayout() {
         }} // Esconde da Navbar
       />
 
+      <Tabs.Screen
+        name="(create)/gerenciarPartidas"
+        options={{
+          title: "Solicitacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(edit)/editarPost"
+        options={{
+          title: "Editar Post",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(edit)/editEvento"
+        options={{
+          title: "Editar Post",
+          href: null,
+        }} // Esconde da Navbar
+      />
     </Tabs>
 
 
