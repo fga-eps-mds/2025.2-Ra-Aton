@@ -27,26 +27,12 @@ export async function getGroupProfile(groupName: string): Promise<IGroupProfileR
  * Segue um grupo
  */
 export async function followGroup(groupId: string): Promise<void> {
-  await api_route.post(`/groups/${groupId}/follow`);
+  await api_route.post(`/follow/groups/${groupId}/follow`);
 }
 
 /**
  * Deixa de seguir um grupo
  */
 export async function unfollowGroup(groupId: string): Promise<void> {
-  await api_route.delete(`/groups/${groupId}/unfollow`);
-}
-
-/**
- * Segue um usuário
- */
-export async function followUser(userId: string): Promise<void> {
-  await api_route.post(`/users/${userId}/follow`);
-}
-
-/**
- * Deixa de seguir um usuário
- */
-export async function unfollowUser(userId: string): Promise<void> {
-  await api_route.delete(`/users/${userId}/unfollow`);
+  await api_route.delete(`/follow/groups/${groupId}/follow`);
 }

@@ -100,6 +100,11 @@ export default function ProfileScreen() {
   const userTabs = profileType === "user" ? (tabs as IUserProfileTabs) : null;
   const groupTabs = profileType === "group" ? (tabs as IGroupProfileTabs) : null;
 
+  // Debug: verificar o que está vindo do profile
+  console.log("Profile data:", profile);
+  console.log("Group profile:", groupProfile);
+  console.log("Is Leader?", groupProfile?.isLeader);
+
   return (
     <BackGroundComp>
       <SafeAreaView style={styles.safeArea}>
@@ -124,6 +129,23 @@ export default function ProfileScreen() {
               followersCount={profile.followersCount}
               isDarkMode={isDarkMode}
               onBack={() => router.back()}
+              showEditButton={
+                profileType === "group" && 
+                (groupProfile?.isLeader === true || (groupProfile as any)?.isOwner === true)
+              }
+              onEdit={() => {
+                if (groupProfile) {
+                  router.push({
+                    pathname: "/(DashBoard)/(tabs)/(edit)/editarGrupo",
+                    params: {
+                      groupId: groupProfile.id,
+                      groupName: groupProfile.name,
+                      logoUrl: groupProfile.logoUrl || "",
+                      bannerUrl: groupProfile.bannerUrl || "",
+                    },
+                  } as any);
+                }
+              }}
             />
 
             {/* Botão de seguir (apenas se não for o próprio perfil) */}

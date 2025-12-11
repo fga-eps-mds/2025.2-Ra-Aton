@@ -24,6 +24,8 @@ interface ProfileHeaderProps {
   followersCount?: number;
   isDarkMode: boolean;
   onBack: () => void;
+  showEditButton?: boolean;
+  onEdit?: () => void;
 }
 
 export const ProfileHeaderComp: React.FC<ProfileHeaderProps> = ({
@@ -35,6 +37,8 @@ export const ProfileHeaderComp: React.FC<ProfileHeaderProps> = ({
   followersCount = 0,
   isDarkMode,
   onBack,
+  showEditButton = false,
+  onEdit,
 }) => {
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
@@ -55,6 +59,16 @@ export const ProfileHeaderComp: React.FC<ProfileHeaderProps> = ({
         >
           <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
+
+        {/* Botão de editar (apenas se showEditButton for true) */}
+        {showEditButton && onEdit && (
+          <TouchableOpacity
+            onPress={onEdit}
+            style={[styles.editButton, { backgroundColor: theme.background }]}
+          >
+            <Ionicons name="create-outline" size={24} color={theme.orange} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Foto de perfil (sobreposta ao banner) */}
@@ -118,6 +132,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 16,
     left: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  editButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
     width: 40,
     height: 40,
     borderRadius: 20,

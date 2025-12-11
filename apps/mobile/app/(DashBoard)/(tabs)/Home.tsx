@@ -70,8 +70,8 @@ export default function HomeScreen() {
               size={40} 
               userName={user?.userName}
               imageUrl={user?.profilePicture}
+              profileType={"user"}
             />
-            <Text>Ola, {user?.profilePicture}</Text>
             <View style={styles.boxSearchComp}>
               <InputComp
                 iconName="filter"

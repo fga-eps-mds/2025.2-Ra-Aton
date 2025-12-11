@@ -4,9 +4,7 @@ import {
   getUserProfile,
   getGroupProfile,
   followGroup,
-  unfollowGroup,
-  followUser,
-  unfollowUser,
+  unfollowGroup
 } from "@/libs/auth/handleProfile";
 import {
   IUserProfile,
@@ -56,18 +54,10 @@ export function useProfile(identifier: string, type: ProfileType) {
     if (!profile) return;
 
     try {
-      if (type === "user") {
-        if (isFollowing) {
-          await unfollowUser(profile.id);
-        } else {
-          await followUser(profile.id);
-        }
+      if (isFollowing) {
+        await unfollowGroup(profile.name);
       } else {
-        if (isFollowing) {
-          await unfollowGroup(profile.id);
-        } else {
-          await followGroup(profile.id);
-        }
+        await followGroup(profile.name);
       }
       setIsFollowing(!isFollowing);
       
