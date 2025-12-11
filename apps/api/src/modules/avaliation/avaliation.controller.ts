@@ -36,7 +36,7 @@ class AvaliationController {
         }
 
         const data = req.body;
-        const newAval = await avaliationService.createAval(data, authUser.Id);
+        const newAval = await avaliationService.createAval(data, authUser.id);
         return res.status(HttpStatus.CREATED).json(newAval);
     }
 
