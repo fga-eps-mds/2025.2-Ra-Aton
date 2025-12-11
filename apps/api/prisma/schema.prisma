@@ -69,6 +69,7 @@ enum NotificationType {
   GROUP_JOIN_APPROVED
   GROUP_JOIN_REJECTED
   MATCH_REMINDER
+  EVENT_REMINDER
   SYSTEM
 }
 
@@ -116,6 +117,7 @@ model Post {
   eventDate       DateTime? // data/hora do evento
   eventFinishDate DateTime? // opcional no frontend
   location        String? // local do evento
+  reminderSent Boolean @default(false)
 
   // denormalized counters (optional, useful for real-time UI)
   likesCount       Int @default(0)
