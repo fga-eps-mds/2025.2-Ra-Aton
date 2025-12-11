@@ -8,6 +8,7 @@ export interface IPost {
   author: {
     userName: string;
     id: string;
+    profilePicture?: string | null;
   };
   authorId: string | null;
 

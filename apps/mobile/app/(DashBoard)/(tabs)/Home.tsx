@@ -66,7 +66,12 @@ export default function HomeScreen() {
         )}
         ListHeaderComponent={
           <View style={styles.containerHeader}>
-            <ProfileThumbnailComp size={40} />
+            <ProfileThumbnailComp 
+              size={40} 
+              userName={user?.userName}
+              imageUrl={user?.profilePicture}
+            />
+            <Text>Ola, {user?.profilePicture}</Text>
             <View style={styles.boxSearchComp}>
               <InputComp
                 iconName="filter"

@@ -159,12 +159,13 @@ export default function DashboardTabsLayout() {
       />
 
       <Tabs.Screen
-        name="perfilGrupo"
+        name="Perfil"
         options={{
-          title: "Perfil do Grupo",
+          title: "Perfil",
           href: null,
         }} // Esconde da Navbar
       />
+      
       <Tabs.Screen
         name="Solicitacoes"
         options={{
