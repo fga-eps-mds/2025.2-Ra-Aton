@@ -119,9 +119,10 @@ export default function SettingsScreen() {
             <Text style={themeStyles.text}>Receber Notificações</Text>
 
             {isLoading ? (
-              <ActivityIndicator color={Colors.dark.orange} />
+              <ActivityIndicator testID="loading-indicator" color={Colors.dark.orange} />
             ) : (
               <Switch
+                testID="switch-notifications"
                 trackColor={{ false: "#767577", true: Colors.dark.orange }}
                 thumbColor="#f4f3f4"
                 ios_backgroundColor="#3e3e3e"
@@ -132,10 +133,10 @@ export default function SettingsScreen() {
           </View>
 
           <Spacer height={40} />
-          <PrimaryButton onPress={logout}>Sair</PrimaryButton>
+          <PrimaryButton testID="btn-logout" onPress={logout}>Sair</PrimaryButton>
           <Spacer height={20} />
 
-          <PrimaryButton onPress={confirmDelete} style={{ backgroundColor: "red" }}>
+          <PrimaryButton testID="btn-delete" onPress={confirmDelete} style={{ backgroundColor: "red" }}>
             Excluir conta
           </PrimaryButton>
         </>
