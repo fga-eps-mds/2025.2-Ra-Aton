@@ -1,5 +1,9 @@
 import { ApiError } from "../../utils/ApiError";
 import profileRepository from "./profile.repository";
+import cloudinary from "../../config/cloudinary";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 class ProfileService {
     // Busca o perfil de um usuário pelo userName
@@ -61,6 +65,118 @@ class ProfileService {
                 members: membersData.members,
                 posts: postsData.posts,
             },
+        };
+    }
+
+    // Atualiza imagens do grupo (logo e banner)
+    async updateGroupImages(
+        groupId: string,
+        authUserId: string,
+        logoFile?: Express.Multer.File,
+        bannerFile?: Express.Multer.File
+    ) {
+        // Verificar se o grupo existe
+        const group = await prisma.group.findUnique({
+            where: { id: groupId },
+            include: {
+                memberships: {
+                    where: {
+                        userId: authUserId,
+                        OR: [
+                            { isCreator: true },
+                            { role: "ADMIN" }
+                        ]
+                    }
+                }
+            }
+        });
+
+        if (!group) {
+            throw new ApiError(404, "Grupo não encontrado");
+        }
+
+        // Verificar se o usuário é admin ou criador
+        if (group.memberships.length === 0) {
+            throw new ApiError(403, "Você não tem permissão para editar este grupo");
+        }
+
+        const updateData: any = {};
+
+        // Upload do logo
+        if (logoFile) {
+            // Deletar logo antigo se existir
+            if (group.logoId) {
+                try {
+                    await cloudinary.uploader.destroy(group.logoId);
+                } catch (error) {
+                    console.error("Erro ao deletar logo antigo:", error);
+                }
+            }
+
+            // Upload do novo logo
+            const logoResult = await new Promise<any>((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "groups/logos",
+                        resource_type: "image",
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                uploadStream.end(logoFile.buffer);
+            });
+
+            updateData.logoUrl = logoResult.secure_url;
+            updateData.logoId = logoResult.public_id;
+        }
+
+        // Upload do banner
+        if (bannerFile) {
+            // Deletar banner antigo se existir
+            if (group.bannerId) {
+                try {
+                    await cloudinary.uploader.destroy(group.bannerId);
+                } catch (error) {
+                    console.error("Erro ao deletar banner antigo:", error);
+                }
+            }
+
+            // Upload do novo banner
+            const bannerResult = await new Promise<any>((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "groups/banners",
+                        resource_type: "image",
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                uploadStream.end(bannerFile.buffer);
+            });
+
+            updateData.bannerUrl = bannerResult.secure_url;
+            updateData.bannerId = bannerResult.public_id;
+        }
+
+        // Atualizar no banco de dados
+        const updatedGroup = await prisma.group.update({
+            where: { id: groupId },
+            data: updateData,
+            select: {
+                id: true,
+                name: true,
+                logoUrl: true,
+                bannerUrl: true,
+            }
+        });
+
+        return {
+            message: "Imagens atualizadas com sucesso",
+            group: updatedGroup
         };
     }
 }
