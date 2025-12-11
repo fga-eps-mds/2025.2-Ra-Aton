@@ -14,7 +14,7 @@ export async function sendRatting({
 
   try {
     const payload = {
-        rating,
+        score: rating,
         message,
     };
     console.log('[sendRatting] Payload sendo enviado:', JSON.stringify(payload, null, 2));
