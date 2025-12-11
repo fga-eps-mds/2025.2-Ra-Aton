@@ -1,9 +1,11 @@
-import React from "react";
-import { View } from "react-native";
+import React, { useState } from "react";
+import { View, Platform } from "react-native";
 import InputComp from "@/components/InputComp";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { DescricaoInput } from "@/components/DescricaoInput";
 import AppText from "./AppText";
-
+import InputDateWebComp from "@/components/InputDateWebComp";
+import InputDateComp from "@/components/InputDateComp";
 interface PartidaFormProps {
   formsData: {
     titulo: string;
@@ -24,6 +26,59 @@ export const PartidaFormComponent: React.FC<PartidaFormProps> = ({
   setFormData,
   formError,
 }) => {
+    const [showPicker, setShowPicker] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
+    const [tempDate, setTempDate] = useState(new Date());
+    const [editingField, setEditingField] = useState<"inicio" | "fim" | null>(null);
+    
+    const formatarData = (dataISO: string) => {
+    if (!dataISO) return "";
+    const data = new Date(dataISO);
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const ano = data.getFullYear();
+    const h = String(data.getHours()).padStart(2, "0");
+    const m = String(data.getMinutes()).padStart(2, "0");
+    return `${dia}/${mes}/${ano} ${h}:${m}`;
+  };
+
+  const handleChangeDate = (event: any, selected?: Date) => {
+    if (event.type === "dismissed") {
+      setShowPicker(false);
+      return;
+    }
+
+    const date = selected || tempDate;
+    setTempDate(date);
+    setShowPicker(false);
+    setShowTimePicker(true);
+  };
+
+  const handleChangeTime = (event: any, selected?: Date) => {
+    if (event.type === "dismissed") {
+      setShowTimePicker(false);
+      return;
+    }
+
+    const finalDate = new Date(tempDate);
+
+    if (selected) {
+      finalDate.setHours(selected.getHours());
+      finalDate.setMinutes(selected.getMinutes());
+    }
+
+    const iso = finalDate.toISOString();
+
+    if (editingField === "inicio") {
+      setFormData((prev: any) => ({ ...prev, dataInicio: iso }));
+    }
+    if (editingField === "fim") {
+      setFormData((prev: any) => ({ ...prev, dataFim: iso }));
+    }
+
+    setShowTimePicker(false);
+  };
+    
   return (
     <View style={{ width: "100%" }}>
       <InputComp
@@ -89,15 +144,26 @@ export const PartidaFormComponent: React.FC<PartidaFormProps> = ({
         />
 
 
-      <InputComp
-        label="Data Início *"
-        iconName="calendar"
-        value={formsData.dataInicio}
-        onChangeText={(text) =>
-          setFormData((prev) => ({ ...prev, dataInicio: text }))
-        }
-        placeholder="31/12/2025 22:00"
-      />
+      {Platform.OS === "web" ? (
+              <InputDateWebComp
+                label="Data Início *"
+                value={formsData.dataInicio ? formsData.dataInicio.slice(0, 16) : ""}
+                onChange={(value) => {
+                  const iso = new Date(value).toISOString();
+                  setFormData((prev) => ({ ...prev, dataInicio: iso }));
+                }}
+              />
+            ) : (
+              <InputDateComp
+                label="Data Início *"
+                value={formatarData(formsData.dataInicio)}
+                onPress={() => {
+                  setEditingField("inicio");
+                  setTempDate(formsData.dataInicio ? new Date(formsData.dataInicio) : new Date());
+                  setShowPicker(true);
+                }}
+              />
+            )}
 
       <InputComp
         label="Local *"
@@ -113,6 +179,23 @@ export const PartidaFormComponent: React.FC<PartidaFormProps> = ({
           {formError}
         </AppText>
       ) : null}
+
+      {showPicker && (
+        <DateTimePicker
+          value={tempDate}
+          mode="date"
+          onChange={handleChangeDate}
+        />
+      )}
+
+      {showTimePicker && (
+        <DateTimePicker
+          value={tempDate}
+          mode="time"
+          is24Hour
+          onChange={handleChangeTime}
+        />
+      )}
     </View>
   );
 };

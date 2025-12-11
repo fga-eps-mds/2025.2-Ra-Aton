@@ -1,22 +1,22 @@
 import axios from "axios";
 import { api_route } from "../auth/api";
 
-function convertToBackendDate(dateStr: string): string {
-  if (!dateStr || !dateStr.includes(" ")) {
-    throw new Error("Formato de data inválido: DD/MM/AAAA HH:MM.");
-  }
+// function convertToBackendDate(dateStr: string): string {
+//   if (!dateStr || !dateStr.includes(" ")) {
+//     throw new Error("Formato de data inválido: DD/MM/AAAA HH:MM.");
+//   }
 
-  const [datePart, timePart] = dateStr.split(" ");
-  const [day, month, year] = datePart.split("/");
+//   const [datePart, timePart] = dateStr.split(" ");
+//   const [day, month, year] = datePart.split("/");
 
-  const date = new Date(`${year}-${month}-${day}T${timePart}:00`);
+//   const date = new Date(`${year}-${month}-${day}T${timePart}:00`);
 
-  if (isNaN(date.getTime())) {
-    throw new Error("Data fornecida é inválida.");
-  }
-  console.log("Data convertida para backend:", date.toISOString());
-  return date.toISOString();
-}
+//   if (isNaN(date.getTime())) {
+//     throw new Error("Data fornecida é inválida.");
+//   }
+//   console.log("Data convertida para backend:", date.toISOString());
+//   return date.toISOString();
+// }
 
 
 interface createPartidaParams {
@@ -56,7 +56,7 @@ export async function createPartida({
   let partidaFinishDateFormatted = "";
 
   try {
-    MatchDateFormatted = convertToBackendDate(MatchDate);
+    MatchDateFormatted = MatchDate;
   } catch (error: any) {
     return { error: error.message };
   }
