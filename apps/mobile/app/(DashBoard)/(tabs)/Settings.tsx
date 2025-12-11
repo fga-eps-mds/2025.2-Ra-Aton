@@ -10,49 +10,25 @@ import { api_route } from "@/libs/auth/api";
 import InputComp from "@/components/InputComp";
 import { DescricaoInput } from "@/components/DescricaoInput";
 
+import { useSettings } from "@/libs/hooks/useSettings";
+
 export default function SettingsScreen() {
+  const {
+    selectedTab,
+    setSelectedTab,
+    isLoading,
+    isEnabled,
+    toggleSwitch,
+    logout,
+    confirmDelete,
+    rating,
+    setRating,
+    message,
+    setmessage,
+    enviarAvaliacao,
+  } = useSettings();
+
   const { isDarkMode } = useTheme();
-  const { user, setUser, logout, confirmDelete } = useUser();
-
-  const [selectedTab, setSelectedTab] = useState<"perfil" | "feedback">("perfil");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(user?.notificationsAllowed ?? true);
-
-  // feedback
-  const [rating, setRating] = useState(0);
-  const [suggestion, setSuggestion] = useState("");
-
-  useEffect(() => {
-    if (user) {
-      setIsEnabled(user.notificationsAllowed ?? true);
-    }
-  }, [user]);
-
-  const toggleSwitch = async () => {
-    if (!user) return;
-
-    const newValue = !isEnabled;
-    setIsEnabled(newValue);
-    setIsLoading(true);
-
-    try {
-      await api_route.patch(`/users/${user.userName}`, {
-        notificationsAllowed: newValue,
-      });
-      setUser({ ...user, notificationsAllowed: newValue });
-    } catch (error) {
-      console.error("Erro ao mudar preferência de notificação:", error);
-      setIsEnabled(!newValue);
-      Alert.alert("Erro", "Não foi possível atualizar sua preferência.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const enviarAvaliacao  = () => {
-    console.log("vou enviar: ", rating, "\n", suggestion);
-    // Placeholder
-  }
 
   const themeStyles = StyleSheet.create({
     container: {
@@ -191,8 +167,8 @@ export default function SettingsScreen() {
               <DescricaoInput width={'70%'} 
               label=""
               placeholder="Digite sua avaliação"
-              value={suggestion}
-              onChangeText={setSuggestion}
+              value={message}
+              onChangeText={setmessage}
               />
               
               <PrimaryButton style = {{width: '25%'}} onPress={enviarAvaliacao}>
