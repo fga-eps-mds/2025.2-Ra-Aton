@@ -9,6 +9,8 @@ import {
   FlatList,
   TextInput,
   ActivityIndicator,
+  TouchableOpacity,
+  // Alert removido
 } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
@@ -16,6 +18,7 @@ import SpacerComp from "./SpacerComp";
 import PrimaryButton from "./PrimaryButton";
 import { Fonts } from "@/constants/Fonts";
 import { Icomment } from "@/libs/interfaces/Icomments";
+import { Ionicons } from "@expo/vector-icons";
 
 interface CommentsModalProps {
   isVisible: boolean;
@@ -24,6 +27,8 @@ interface CommentsModalProps {
   comments?: Icomment[];
   isLoading?: boolean;
   onSendComment?: (content: string) => void;
+  isAuthor?: boolean;
+  onDeleteComment?: (commentId: string) => void;
 }
 
 const CommentsModalComp: React.FC<CommentsModalProps> = ({
@@ -32,6 +37,8 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
   comments,
   isLoading = false,
   onSendComment,
+  isAuthor = false,
+  onDeleteComment
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
@@ -42,18 +49,7 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
   }
 
   const displayComments: Icomment[] =
-    comments && comments.length > 0
-      ? comments
-      : [
-          {
-            id: "1",
-            author: { userName: "Usuário A" },
-            content: "Que legal!",
-
-            postId: "1",
-            createdAt: new Date().toISOString(),
-          } as Icomment,
-        ];
+    comments && comments.length > 0 ? comments : [];
 
   const handlePostComment = () => {
     const trimmed = newComment.trim();
@@ -62,7 +58,6 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
     if (onSendComment) {
       onSendComment(trimmed);
     }
-
     setNewComment("");
   };
 
@@ -76,9 +71,18 @@ const CommentsModalComp: React.FC<CommentsModalProps> = ({
           {item.content}
         </Text>
       </View>
+
+      {isAuthor && onDeleteComment && (
+        <TouchableOpacity
+          onPress={() => onDeleteComment(item.id)}
+          style={styles.deleteButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="trash-outline" size={22} color="#ff4d4d" />
+        </TouchableOpacity>
+      )}
     </View>
   );
-console.log("COMMENTS RECEIVED: ", comments);
 
   return (
     <Modal
@@ -91,10 +95,16 @@ console.log("COMMENTS RECEIVED: ", comments);
         <SafeAreaView style={styles.safeArea}>
           <Pressable
             style={[styles.modalContainer, { backgroundColor: theme.input }]}
+            onPress={(e) => e.stopPropagation()}
           >
-            <Text style={[styles.title, { color: theme.text }]}>
-              Comentários
-            </Text>
+            <View style={styles.headerRow}>
+              <Text style={[styles.title, { color: theme.text }]}>
+                Comentários
+              </Text>
+              <TouchableOpacity onPress={onClose} style={{ position: 'absolute', right: 0, top: 0 }}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+            </View>
 
             {isLoading ? (
               <ActivityIndicator size="large" color={theme.orange} />
@@ -138,7 +148,6 @@ console.log("COMMENTS RECEIVED: ", comments);
                   width: 100,
                   height: 50,
                   paddingHorizontal: 5,
-                  flex: 1,
                 }}
               >
                 Enviar
@@ -159,7 +168,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     width: "100%",
-    maxHeight: "85%",
+    height: "85%",
   },
   modalContainer: {
     borderTopLeftRadius: 20,
@@ -167,11 +176,17 @@ const styles = StyleSheet.create({
     padding: 20,
     height: "100%",
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+    position: 'relative'
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 15,
   },
   list: {
     flex: 1,
@@ -181,10 +196,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.gray,
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   commentTextContainer: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 5,
+    marginRight: 10,
   },
   commentAuthor: {
     fontWeight: "bold",
@@ -192,6 +210,9 @@ const styles = StyleSheet.create({
   },
   commentText: {
     fontSize: 16,
+  },
+  deleteButton: {
+    padding: 5,
   },
   emptyText: {
     textAlign: "center",

@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
+import { useFocusEffect } from "expo-router"; // <--- Importante
 import { getFeed } from "@/libs/auth/handleFeed";
 import { IPost } from "@/libs/interfaces/Ipost";
 
@@ -66,10 +67,16 @@ export const useFeedEvents = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadPage(1, false);
-    return () => abortRequestWeb.current?.abort();
-  }, [loadPage]);
+  
+  useFocusEffect(
+    useCallback(() => {
+      loadPage(1, false);
+
+      return () => {
+        abortRequestWeb.current?.abort();
+      };
+    }, [loadPage])
+  );
 
   const onRefresh = useCallback(async () => {
     throttleRequest.current = 0;
