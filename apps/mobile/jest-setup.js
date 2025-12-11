@@ -11,16 +11,13 @@ globalThis.__fbBatchedBridgeConfig = {};
 process.env.EXPO_OS = process.env.EXPO_OS || "web";
 
 // 3) MOCKS DE INFRAESTRUTURA (Expo Modules Core & Constants)
-// Estes precisam vir ANTES de qualquer outra coisa para evitar o erro "requireOptionalNativeModule"
 try {
   const jestRequire = typeof jest !== "undefined" ? jest : require("jest-mock");
 
-  // --- MOCK CRÍTICO CORRIGIDO ---
   jestRequire.mock("expo-modules-core", () => {
-    const React = require("react");
     return {
       requireNativeModule: jestRequire.fn(() => ({})),
-      requireOptionalNativeModule: jestRequire.fn(() => ({})), // <--- A CORREÇÃO DO ERRO
+      requireOptionalNativeModule: jestRequire.fn(() => ({})),
       eventEmitter: () => ({ addListener: () => ({ remove: () => {} }) }),
       EventEmitter: class {
         addListener() { return { remove: () => {} }; }
@@ -32,13 +29,12 @@ try {
     };
   });
 
-  // Mock do Expo Constants (usado no env.ts)
   jestRequire.mock("expo-constants", () => ({
     __esModule: true,
     default: {
       expoConfig: {
         extra: {
-          apiUrl: 'http://localhost:4000', // Valor dummy para testes
+          apiUrl: 'http://localhost:4000',
         },
       },
       manifest: {},
@@ -60,7 +56,6 @@ try {
 
   jestRequire.mock("expo", () => ({}));
   
-  // Mock do Expo Router Global
   jestRequire.mock("expo-router", () => ({
     useRouter: () => ({
       push: jestRequire.fn(),
@@ -69,15 +64,12 @@ try {
       setParams: jestRequire.fn(),
     }),
     useLocalSearchParams: () => ({}),
-    useFocusEffect: (cb) => cb(), // Executa direto para não travar
+    useFocusEffect: (cb) => cb(),
     Link: ({ children }) => children,
     Stack: { Screen: () => null },
     Tabs: { Screen: () => null },
   }));
-
-} catch (e) {
-  // ignore
-}
+} catch (e) {}
 
 // 4) Mock do Secure Store
 try {
@@ -89,30 +81,45 @@ try {
   }));
 } catch (e) {}
 
-// 5) Carrega mocks centralizados (se existirem)
+// 5) Carrega mocks centralizados
 try {
   require("./test/jest-mocks");
 } catch (e) {}
 
-// 6) Mock do React Native (Top Level)
+// 6) Mock COMPLETO do React Native (Top Level)
+// Removemos os mocks de "Libraries/..." que causavam erro
 try {
   jest.mock("react-native", () => {
     const React = require("react");
+    const EventEmitter = require("events").EventEmitter;
 
-    const View = (props) => React.createElement("View", props, props.children);
-    const Text = (props) => React.createElement("Text", props, props.children);
-    const Image = (props) => React.createElement("Image", props);
-    const TouchableOpacity = (props) => React.createElement("TouchableOpacity", props, props.children);
-    const TextInput = (props) => React.createElement("TextInput", props);
-    const Pressable = (props) => React.createElement("Pressable", props, props.children);
-    const SafeAreaView = (props) => React.createElement("View", props, props.children);
-    const Modal = ({ visible, children }) => visible ? React.createElement(React.Fragment, null, children) : null;
-    const ActivityIndicator = (props) => React.createElement("ActivityIndicator", props);
+    const mockComponent = (name) => (props) => React.createElement(name, props, props.children);
 
-    // Mock simples de FlatList
+    const View = mockComponent("View");
+    const Text = mockComponent("Text");
+    const Image = mockComponent("Image");
+    const TouchableOpacity = mockComponent("TouchableOpacity");
+    const TextInput = mockComponent("TextInput");
+    const Pressable = mockComponent("Pressable");
+    const SafeAreaView = mockComponent("View");
+    const ScrollView = mockComponent("ScrollView");
+    const KeyboardAvoidingView = mockComponent("KeyboardAvoidingView");
+    const Switch = mockComponent("Switch");
+    const ActivityIndicator = mockComponent("ActivityIndicator");
+
+    const Modal = ({ visible, children }) => 
+      visible ? React.createElement(React.Fragment, null, children) : null;
+
+    // --- CORREÇÃO AQUI ---
     const FlatList = ({ data, renderItem, keyExtractor, ListEmptyComponent, style }) => {
       if (!data || data.length === 0) {
-        return ListEmptyComponent ? React.createElement(ListEmptyComponent) : null;
+        if (!ListEmptyComponent) return null;
+        // Se for um elemento React válido (ex: <Text />), retorna ele direto
+        if (React.isValidElement(ListEmptyComponent)) {
+          return ListEmptyComponent;
+        }
+        // Se for um componente (função/classe), cria o elemento
+        return React.createElement(ListEmptyComponent);
       }
       return React.createElement(
         "View",
@@ -126,29 +133,60 @@ try {
         ),
       );
     };
+    // ---------------------
+
+    class MockNativeEventEmitter extends EventEmitter {
+      constructor() { super(); }
+      addListener() { return { remove: () => {} }; }
+      removeListener() {}
+      removeAllListeners() {}
+    }
 
     return {
       Platform: {
-        OS: "ios", // Default para iOS, mas testes específicos podem usar jest.doMock
+        OS: "ios",
         select: (obj) => (obj && obj.ios) || obj?.default,
       },
-      View, Text, Image, TouchableOpacity, TextInput, Pressable, SafeAreaView, FlatList, Modal, ActivityIndicator,
+      View, Text, Image, TouchableOpacity, TextInput, Pressable, SafeAreaView, 
+      FlatList, Modal, ActivityIndicator, ScrollView, KeyboardAvoidingView, Switch,
       StyleSheet: {
         create: (s) => s,
         flatten: (s) => (Array.isArray(s) ? Object.assign({}, ...s) : s),
+        absoluteFill: {},
       },
       Alert: { alert: jest.fn() },
       Animated: {
          View: View,
          Text: Text,
+         Image: Image,
          createAnimatedComponent: (c) => c,
          timing: () => ({ start: (cb) => cb && cb() }),
-      }
+         Value: class { constructor(v) { this.v = v; } interpolate() {} setValue() {} },
+      },
+      Easing: { linear: () => {} },
+      NativeModules: {
+        UIManager: { RCTView: {} },
+        RNGestureHandlerModule: {
+          attachGestureHandler: jest.fn(),
+          createGestureHandler: jest.fn(),
+          dropGestureHandler: jest.fn(),
+          updateGestureHandler: jest.fn(),
+          State: {},
+          Directions: {},
+        },
+        PlatformConstants: { forceTouchAvailable: false },
+      },
+      NativeEventEmitter: MockNativeEventEmitter,
+      DeviceEventEmitter: new MockNativeEventEmitter(),
     };
   });
+
+  jest.mock('expo-constants', () => ({
+    default: { expoConfig: { extra: {} }, manifest: {} },
+  }));
 } catch {}
 
-// 7) Utilitários Globais
+// 7) Utilitários
 if (typeof TextEncoder === "undefined") {
   const { TextEncoder, TextDecoder } = require("util");
   global.TextEncoder = TextEncoder;
@@ -156,56 +194,5 @@ if (typeof TextEncoder === "undefined") {
 }
 
 global.alert = () => {};
-
-// 8) Mocks Críticos Internos do RN
-jest.mock("react-native/Libraries/Utilities/Platform", () => ({
-  OS: "ios",
-  isTV: false,
-  isTesting: true,
-  select: (obj) => obj && Object.prototype.hasOwnProperty.call(obj, "ios") ? obj.ios : obj?.default,
-}));
-
-jest.mock("react-native/Libraries/ReactNative/UIManager", () => ({
-  RCTView: {},
-  getViewManagerConfig: () => ({}),
-  hasViewManagerConfig: () => false,
-}));
-
-jest.mock("react-native/Libraries/TurboModule/TurboModuleRegistry", () => {
-  const create = (name) => {
-    if (name === "SourceCode") return { scriptURL: "http://localhost" };
-    if (name === "ReactNativeFeatureFlags") return {};
-    return {};
-  };
-  return { get: create, getEnforcing: create };
-});
-
-jest.mock("react-native/Libraries/Image/resolveAssetSource", () => (source) => source);
-
-try {
-  jest.mock("react-native/Libraries/ReactNative/NativeI18nManager", () => ({
-    getConstants: () => ({ isRTL: false }),
-  }));
-} catch {}
-
-try {
-  jest.mock("react-native/Libraries/Modal/Modal", () => {
-    const React = require("react");
-    return ({ visible, children }) => visible ? React.createElement(React.Fragment, null, children) : null;
-  });
-} catch {}
-
-try {
-  jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
-} catch {}
-
-jest.mock("react-native/Libraries/EventEmitter/NativeEventEmitter", () => {
-  const { EventEmitter } = require("events");
-  return class MockNativeEventEmitter extends EventEmitter {
-    addListener() { return { remove: () => {} }; }
-    removeListener() {}
-    removeAllListeners() {}
-  };
-});
 
 module.exports = {};

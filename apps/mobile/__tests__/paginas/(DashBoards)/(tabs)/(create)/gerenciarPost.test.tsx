@@ -3,17 +3,30 @@ import { render, waitFor, fireEvent } from "@testing-library/react-native";
 import GerenciarPostScreen from "@/app/(DashBoard)/(tabs)/(create)/gerenciarPost";
 import { api_route } from "@/libs/auth/api";
 
-// --- MOCKS VISUAIS ---
+// --- MOCKS VISUAIS (Estrutura Default Corrigida) ---
+
 jest.mock("@/components/BackGroundComp", () => ({
   __esModule: true,
-  default: ({ children }: any) => { const { View } = require("react-native"); return <View>{children}</View>; }
+  default: ({ children }: any) => {
+    const { View } = require("react-native");
+    return <View testID="background-mock">{children}</View>;
+  },
 }));
 
 jest.mock("@/components/AppText", () => ({
   __esModule: true,
-  default: (props: any) => { const { Text } = require("react-native"); return <Text {...props}>{props.children}</Text>; }
+  default: (props: any) => {
+    const { Text } = require("react-native");
+    return <Text {...props}>{props.children}</Text>;
+  },
 }));
 
+jest.mock("@/components/CommentsModalComp", () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+// Mock de Componentes Nomeados (export const)
 jest.mock("@/components/CardHandlePostsComp", () => ({
   CardHandlePostComp: ({ title, attendancesCount, onOpenMenu, onPressCard }: any) => {
     const { View, Text, TouchableOpacity } = require("react-native");
@@ -21,16 +34,15 @@ jest.mock("@/components/CardHandlePostsComp", () => ({
       <View>
         <Text>{title}</Text>
         {attendancesCount > 0 && <Text>{attendancesCount} confirmações "Eu vou!"</Text>}
-        <TouchableOpacity testID={`menu-btn-${title}`} onPress={onOpenMenu}><Text>Menu</Text></TouchableOpacity>
-        <TouchableOpacity onPress={onPressCard}><Text>Detalhes</Text></TouchableOpacity>
+        <TouchableOpacity testID={`menu-btn-${title}`} onPress={onOpenMenu}>
+          <Text>Menu</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPressCard}>
+          <Text>Detalhes</Text>
+        </TouchableOpacity>
       </View>
     );
   }
-}));
-
-jest.mock("@/components/CommentsModalComp", () => ({
-  __esModule: true,
-  default: () => null
 }));
 
 jest.mock("@/components/CustomAlertModalComp", () => ({
@@ -38,15 +50,17 @@ jest.mock("@/components/CustomAlertModalComp", () => ({
     const { View, Text, TouchableOpacity } = require("react-native");
     if (!visible) return null;
     return (
-      <View testID="custom-alert-mock">
+      <View>
         <Text>{title}</Text>
-        <TouchableOpacity testID="alert-confirm-btn" onPress={onConfirm}><Text>Confirmar</Text></TouchableOpacity>
+        <TouchableOpacity testID="alert-confirm-btn" onPress={onConfirm}>
+          <Text>Confirmar</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 }));
 
-// --- MOCKS LÓGICA ---
+// --- MOCKS DE LÓGICA ---
 const mockPush = jest.fn();
 jest.mock("expo-router", () => {
   const React = require("react");
@@ -87,12 +101,12 @@ describe("Integração: GerenciarPostScreen", () => {
   it("1. Deve carregar posts e exibir APENAS os do usuário logado", async () => {
     const { getByText, queryByText } = render(<GerenciarPostScreen />);
 
-    // CORREÇÃO: Espera o TEXTO aparecer, o que garante que o loading acabou
+    // Aguarda o texto aparecer
     await waitFor(() => expect(getByText("Meu Post Geral")).toBeTruthy());
     
     expect(getByText("Meu Evento Top")).toBeTruthy();
     expect(queryByText("Post de Outro")).toBeNull();
-  }, 30000);
+  });
 
   it("2. Deve exibir o contador 'Eu vou' APENAS para cards do tipo EVENT", async () => {
     const { getByText } = render(<GerenciarPostScreen />);
@@ -107,8 +121,8 @@ describe("Integração: GerenciarPostScreen", () => {
     const btnMenuEvento = getByTestId("menu-btn-Meu Evento Top");
     fireEvent.press(btnMenuEvento);
 
-    // Como o Modal é nativo/complexo, nosso mock pode simplificar ou usamos getByText se o modal renderizar texto simples
-    // Vamos assumir que o modal renderizou
+    // Encontra o botão "Editar Post" no modal mockado ou real
+    // Como o modal é uma View simples com Text e TouchableOpacity no código original:
     const btnEditar = getByText("Editar Post"); 
     fireEvent.press(btnEditar);
 
