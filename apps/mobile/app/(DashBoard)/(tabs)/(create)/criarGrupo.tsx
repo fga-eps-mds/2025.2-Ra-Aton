@@ -45,16 +45,6 @@ export default function CriarGrupoScreen() {
 
     return (
         <BackGroundComp>
-            {/* BOTÃO DE TESTE DE NAVEGAÇÃO */}
-            <TouchableOpacity
-                style={{ backgroundColor: 'red', padding: 20, marginBottom: 20 }}
-                onPress={() => {
-                    console.log("Botão de teste clicado");
-                    router.push({ pathname: "/group/[id]", params: { id: "teste-123" } });
-                }}
-            >
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>TESTAR REDIRECIONAMENTO AGORA</Text>
-            </TouchableOpacity>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}

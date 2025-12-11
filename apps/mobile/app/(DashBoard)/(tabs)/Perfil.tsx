@@ -5,9 +5,12 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
+  TouchableOpacity,
+  Text,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 import BackGroundComp from "@/components/BackGroundComp";
 import { ProfileHeaderComp } from "@/components/ProfileHeaderComp";
@@ -24,6 +27,27 @@ import {
   IGroupProfileTabs,
 } from "@/libs/interfaces/Iprofile";
 import { useUser } from "@/libs/storage/UserContext";
+import { removeMember } from "@/libs/groupMembership/removeMember";
+// --- INÍCIO DA SUA INSERÇÃO (LOGICA) ---
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+
+  // Lógica para saber se é Admin (ajuste conforme a regra do seu backend)
+  const isCurrentUserAdmin = 
+    profileType === "group" && 
+    currentUser &&
+    // Exemplo: se o ID do usuário logado bate com o dono do grupo
+    ((profile as IGroupProfile).id === currentUser.id);
+
+  const handleRemoveMember = async (membershipId: string) => {
+    try {
+      await removeMember(membershipId);
+      Alert.alert("Sucesso", "Membro removido.");
+      reloadProfile(); // Atualiza a tela
+    } catch (error: any) {
+      Alert.alert("Erro", error.message);
+    }
+  };
+  // --- FIM DA SUA INSERÇÃO ---
 
 export default function ProfileScreen() {
   const { identifier, type } = useLocalSearchParams<{
@@ -138,6 +162,31 @@ export default function ProfileScreen() {
               </View>
             )}
 
+            {/* --- INÍCIO DA SUA INSERÇÃO (BOTÃO) --- */}
+            {isCurrentUserAdmin && (
+              <View style={styles.followButtonContainer}>
+                <TouchableOpacity 
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: theme.orange,
+                    gap: 8,
+                  }}
+                  onPress={() => setInviteModalVisible(true)}
+                >
+                  <Ionicons name="person-add" size={20} color={theme.orange} />
+                  <Text style={{ fontWeight: "600", fontSize: 14, color: theme.orange }}>
+                    Convidar Membros
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            {/* --- FIM DA SUA INSERÇÃO --- */}
+
             {/* Abas com conteúdo */}
             <View style={styles.tabsContainer}>
               {userTabs ? (
@@ -160,10 +209,22 @@ export default function ProfileScreen() {
                   onPressOptions={(postId) =>
                     console.log("Opções post:", postId)
                   }
+                  isAdmin={isCurrentUserAdmin}
+                onRemoveMember={handleRemoveMember}
                 />
               ) : null}
             </View>
           </ScrollView>
+          {/* --- INÍCIO DA SUA INSERÇÃO (MODAL) --- */}
+          {/* Coloque isso ANTES de fechar a última <View> ou <SafeAreaView> */}
+          {profileType === "group" && (
+            <InviteMemberModal
+              visible={inviteModalVisible}
+              onClose={() => setInviteModalVisible(false)}
+              groupId={profileIdentifier} // Ou profile.id se estiver disponível
+            />
+          )}
+          {/* --- FIM DA SUA INSERÇÃO --- */}
         </View>
       </SafeAreaView>
     </BackGroundComp>
