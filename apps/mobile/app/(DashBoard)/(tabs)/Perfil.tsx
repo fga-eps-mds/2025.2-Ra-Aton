@@ -16,6 +16,7 @@ import BackGroundComp from "@/components/BackGroundComp";
 import { ProfileHeaderComp } from "@/components/ProfileHeaderComp";
 import { FollowButtonComp } from "@/components/FollowButtonComp";
 import { ProfileTabsComp } from "@/components/ProfileTabsComp";
+import  InviteMemberModal  from "@/components/InviteMemberModalComp";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { useProfile } from "@/libs/hooks/useProfile";
@@ -28,26 +29,6 @@ import {
 } from "@/libs/interfaces/Iprofile";
 import { useUser } from "@/libs/storage/UserContext";
 import { removeMember } from "@/libs/groupMembership/removeMember";
-// --- INÍCIO DA SUA INSERÇÃO (LOGICA) ---
-  const [inviteModalVisible, setInviteModalVisible] = useState(false);
-
-  // Lógica para saber se é Admin (ajuste conforme a regra do seu backend)
-  const isCurrentUserAdmin = 
-    profileType === "group" && 
-    currentUser &&
-    // Exemplo: se o ID do usuário logado bate com o dono do grupo
-    ((profile as IGroupProfile).id === currentUser.id);
-
-  const handleRemoveMember = async (membershipId: string) => {
-    try {
-      await removeMember(membershipId);
-      Alert.alert("Sucesso", "Membro removido.");
-      reloadProfile(); // Atualiza a tela
-    } catch (error: any) {
-      Alert.alert("Erro", error.message);
-    }
-  };
-  // --- FIM DA SUA INSERÇÃO ---
 
 export default function ProfileScreen() {
   const { identifier, type } = useLocalSearchParams<{
@@ -72,6 +53,29 @@ export default function ProfileScreen() {
     toggleFollow,
     reloadProfile,
   } = useProfile(profileIdentifier, profileType);
+
+
+  // --- INÍCIO DA SUA INSERÇÃO (LOGICA) ---
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+
+  // Lógica para saber se é Admin (ajuste conforme a regra do seu backend)
+  const isCurrentUserAdmin = 
+    profileType === "group" && 
+    currentUser &&
+    // Exemplo: se o ID do usuário logado bate com o dono do grupo
+    ((profile as IGroupProfile).id === currentUser.id);
+
+  const handleRemoveMember = async (membershipId: string) => {
+    try {
+      await removeMember(membershipId);
+      Alert.alert("Sucesso", "Membro removido.");
+      reloadProfile(); // Atualiza a tela
+    } catch (error: any) {
+      Alert.alert("Erro", error.message);
+    }
+  };
+  
+  // --- FIM DA SUA INSERÇÃO ---
 
   const [isFollowLoading, setIsFollowLoading] = useState(false);
 

@@ -34,6 +34,8 @@ interface GroupProfileTabsProps {
   isDarkMode: boolean;
   onPressComment?: (postId: string) => void;
   onPressOptions?: (postId: string) => void;
+  isAdmin?: boolean;
+  onRemoveMember?: (membershipId: string) => void;
 }
 
 type ProfileTabsProps = UserProfileTabsProps | GroupProfileTabsProps;
