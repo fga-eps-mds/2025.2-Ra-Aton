@@ -9,7 +9,8 @@ import {
     ScrollView,
     ActivityIndicator,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    Button,
 } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +20,7 @@ import BackGroundComp from '@/components/BackGroundComp';
 import PrimaryButton from '@/components/PrimaryButton';
 import InputComp from '@/components/InputComp';
 import { useRouter, Redirect } from 'expo-router';
+import * as Linking from 'expo-linking';
 
 // Importamos apenas o nosso hook customizado (agora sem Zod)
 import { useCreateGroupForm } from '@/libs/hooks/useCreateGroupForm';
@@ -159,7 +161,9 @@ export default function CriarGrupoScreen() {
                                 <Text style={styles.txtFormsAthletic}>
                                     Para criar uma atlética verificada é necessário enviar documentação comprobatória ao time Aton
                                     {"\n"}
-                                    {/* {"http://algo:porta"}  rodrigo: aqui a gente coloca o link do forms  */}
+                                    <View style={styles.txtFormsAthletic}>
+                                        <Button title="Forms" onPress={() => Linking.openURL('https://shre.ink/qIX9')} />
+                                    </View>
                                 </Text>
                             )}
                             {errors.type && <Text style={styles.errorText}>{errors.type.message}</Text>}
