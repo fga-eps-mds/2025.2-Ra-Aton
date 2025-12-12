@@ -11,10 +11,10 @@ export async function sendInvite(payload: IInvitePayload): Promise<void> {
         // Tenta buscar usuário pelo e-mail
         // Ajuste a rota de busca conforme seu backend (ex: /users/find-by-email ou query param)
         // Vou assumir uma busca genérica que já temos
-        const { data: users } = await api_route.get('/users', { 
-          params: { search: payload.targetEmail, limit: 1 } 
+        const { data: users } = await api_route.get("/users", {
+          params: { search: payload.targetEmail, limit: 1 },
         });
-        
+
         if (users && users.length > 0) {
           targetUserId = users[0].id;
         } else {
@@ -34,16 +34,23 @@ export async function sendInvite(payload: IInvitePayload): Promise<void> {
       userId: targetUserId,
       groupId: payload.groupId,
       madeBy: "GROUP", // Estamos no contexto de um grupo convidando alguém
-      message: payload.message || "Você foi convidado para o grupo!"
+      message: payload.message || "Você foi convidado para o grupo!",
     };
 
     console.log("Enviando convite:", body);
 
-    await api_route.post('/invite', body);
-
+    await api_route.post("/invite", body);
   } catch (error: any) {
     console.error("Erro no sendInvite:", error.response?.data || error.message);
-    const msg = error.response?.data?.message || error.message || "Erro ao enviar convite.";
-    throw new Error(msg);
+    const backendMsg =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Erro ao enviar convite.";
+    if (backendMsg) {
+      throw new Error(backendMsg);
+    }
+
+    throw new Error("Erro ao enviar convite. Verifique sua conexão.");
   }
 }

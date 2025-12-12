@@ -74,13 +74,17 @@ export default function InviteMemberModal({ visible, onClose, groupId }: InviteM
       const msg = error.message || "";
       
       // Se o erro for sobre usuário não encontrado, mostramos no input
-      if (msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("encontrado")) {
-        setEmailError("Nenhum usuário encontrado com este e-mail na plataforma.");
-      } else if (msg.toLowerCase().includes("already")) {
-        setEmailError("Este usuário já é membro ou já foi convidado.");
-      } else {
-        // Erros genéricos de servidor ainda vão para o Alert
-        Alert.alert("Erro no envio", msg);
+      // Tratamento específico para CONFLITO (409)
+      if (msg.includes("already") || msg.toLowerCase().includes("convidado")) {
+        setEmailError("Este usuário já foi convidado ou já é membro.");
+      } 
+      // Tratamento para NÃO ENCONTRADO (404)
+      else if (msg.includes("found") || msg.toLowerCase().includes("encontrado")) {
+        setEmailError("Nenhum usuário encontrado com este e-mail.");
+      } 
+      // Outros erros
+      else {
+        Alert.alert("Erro", msg);
       }
     } finally {
       setLoading(false);
