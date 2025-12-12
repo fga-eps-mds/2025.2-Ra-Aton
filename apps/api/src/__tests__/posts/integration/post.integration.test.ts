@@ -6,6 +6,26 @@ import jwt from "jsonwebtoken";
 import { config } from "../../../config/env";
 import { GroupType } from "@prisma/client";
 
+// MOCK DO AMBIENTE
+jest.mock("../../../config/env", () => ({
+  config: { 
+    DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+    NODE_ENV: "test",
+    JWT_SECRET: "test-secret",
+    JWT_EXPIRES_IN: "1h",
+    EXPO_ACCESS_TOKEN: "test-token",
+  },
+}));
+
+// MOCK DO CLOUDINARY
+jest.mock("../../../config/cloudinary", () => ({
+  uploader: {
+    upload_stream: jest.fn(),
+    destroy: jest.fn(),
+  },
+  config: jest.fn(),
+}));
+
 const AUTH_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
 const OTHER_USER_ID = "550e8400-e29b-41d4-a716-446655440111";
 const GROUP_ID = "550e8400-e29b-41d4-a716-446655440999";
@@ -190,7 +210,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
 
     prismaMock.group.create.mockResolvedValue(mockGroup)
     prismaMock.group.findUnique.mockResolvedValue(mockGroup)
-    
+
     const body = {
       title: "Invalid Event",
       type: "EVENT",
@@ -294,6 +314,23 @@ describe("Testes de Integração Post (com prismaMock))", () => {
         groupId: GROUP_ID,
         createdAt: now,
         updatedAt: now,
+        eventDate: null,
+        eventFinishDate: null,
+        location: null,
+        likesCount: 0,
+        commentsCount: 0,
+        attendancesCount: 0,
+        author: {
+          id: AUTH_USER_ID,
+          userName: "Teste User",
+          profileImageUrl: null, // O repositório tenta ler isso
+        },
+        group: {
+          id: GROUP_ID,
+          name: "Teste Group",
+          groupType: "GENERAL",
+          logoUrl: null,
+        },
       },
     ];
 
