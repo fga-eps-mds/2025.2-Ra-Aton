@@ -43,6 +43,7 @@ const config = {
     "<rootDir>/src/config/",
     "<rootDir>/src/database/",
     "<rootDir>/src/types/",
+    "<rootDir>/src/server.ts",
   ],
 };
 
