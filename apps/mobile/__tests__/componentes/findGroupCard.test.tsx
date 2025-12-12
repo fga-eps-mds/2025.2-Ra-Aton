@@ -55,6 +55,7 @@ describe('GroupCard', () => {
     name: 'Grupo dos Amigos',
     isFollowing: false,
     description: 'Desc',
+    acceptingNewMembers: 'true',
     // ...outras props de Group se necessário
   };
 

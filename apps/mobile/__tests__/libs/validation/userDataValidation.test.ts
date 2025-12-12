@@ -71,17 +71,17 @@ describe('Libs: Validation - User Data', () => {
       expect(verifyPassword(longPass)).toBe('A senha não pode ultrapassar 50 caracteres');
     });
 
-    it('deve retornar erro se for menor que 8 caracteres', () => {
-      expect(verifyPassword('Ab1')).toBe('Sua senha deve possuir no mínimo 8 caracteres');
+    it('deve retornar erro se for menor que 12 caracteres', () => {
+      expect(verifyPassword('Ab1')).toBe('Sua senha deve possuir no mínimo 12 caracteres');
     });
 
     it('deve retornar erro se não contiver letras e números (regex)', () => {
-      expect(verifyPassword('12345678')).toBe('Sua senha deve conter letras e números'); // Só números
-      expect(verifyPassword('abcdefgh')).toBe('Sua senha deve conter letras e números'); // Só letras
+      expect(verifyPassword('0123456789876543210')).toBe('A senha deve ter caracteres maiúsculos, minúsculos, números e símbolos'); // Só números
+      expect(verifyPassword('abcdefghijklmnopqrst')).toBe('A senha deve ter caracteres maiúsculos, minúsculos, números e símbolos'); // Só letras
     });
 
     it('deve retornar sucesso (string vazia) para senha válida', () => {
-      expect(verifyPassword('SenhaForte123')).toBe('');
+      expect(verifyPassword('SenhaForte123_321')).toBe('');
     });
   });
 
