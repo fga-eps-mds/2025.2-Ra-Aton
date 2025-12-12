@@ -15,6 +15,7 @@ import { IUserProfile } from "@/libs/interfaces/Iprofile";
 import { MatchesCard } from "./MatchesCardComp";
 import PostCardComp from "./PostCardComp";
 import MemberCard from "./MemberCardComp";
+import { Ionicons } from "@expo/vector-icons";
 
 type UserTabType = "matches" | "followedGroups" | "memberGroups";
 type GroupTabType = "posts" | "members";
@@ -47,6 +48,7 @@ interface GroupProfileTabsProps extends BaseProfileTabsProps {
   currentUserId?: string;
   isAdmin?: boolean;
   onRemoveMember?: (membershipId: string) => void;
+  onInvitePress?: () => void; // <--- NOVA PROP
 }
 
 type ProfileTabsProps = UserProfileTabsProps | GroupProfileTabsProps;
@@ -132,6 +134,7 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
               isAdminView={!!groupProps.isAdmin}
               onRemove={(id) => groupProps.onRemoveMember && groupProps.onRemoveMember(id)}
             />
+            
           );
       }
     }
@@ -163,47 +166,80 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
     else dataToRender = p.members;
   }
 
-  const RenderHeader = () => (
-    <View>
-      {ListHeaderComponent}
-      <View
-        style={[
-          styles.tabBar,
-          { borderBottomColor: theme.gray, backgroundColor: theme.background },
-        ]}
-      >
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab.key}
-            style={[
-              styles.tab,
-              activeTab === tab.key && {
-                borderBottomColor: theme.orange,
-                borderBottomWidth: 3,
-              },
-            ]}
-            onPress={() => setActiveTab(tab.key as any)}
-          >
-            <Text
+  const RenderHeader = () => {
+    // --- LÓGICA PARA EXIBIR O BOTÃO APENAS SE FOR GRUPO + ABA MEMBROS + ADMIN ---
+    const showInviteButton = 
+      type === "group" && 
+      activeTab === "members" && 
+      (props as GroupProfileTabsProps).isAdmin;
+
+    return (
+      <View>
+        {ListHeaderComponent}
+        <View
+          style={[
+            styles.tabBar,
+            { borderBottomColor: theme.gray, backgroundColor: theme.background },
+          ]}
+        >
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.key}
               style={[
-                styles.tabText,
-                {
-                  color: activeTab === tab.key ? theme.text : theme.gray,
-                  fontWeight: activeTab === tab.key ? "bold" : "normal",
+                styles.tab,
+                activeTab === tab.key && {
+                  borderBottomColor: theme.orange,
+                  borderBottomWidth: 3,
                 },
               ]}
+              onPress={() => setActiveTab(tab.key as any)}
             >
-              {tab.label}
-            </Text>
-            <Text style={[styles.tabCount, { color: theme.gray }]}>
-              {tab.count}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
+              <Text
+                style={[
+                  styles.tabText,
+                  {
+                    color: activeTab === tab.key ? theme.text : theme.gray,
+                    fontWeight: activeTab === tab.key ? "bold" : "normal",
+                  },
+                ]}
+              >
+                {tab.label}
+              </Text>
+              <Text style={[styles.tabCount, { color: theme.gray }]}>
+                {tab.count}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
+        {/* --- AQUI ENTRA O BOTÃO DE CONVIDAR --- */}
+        {showInviteButton && (
+          <View style={{ padding: 16, paddingBottom: 0, alignItems: 'center' }}>
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: 10,
+                paddingHorizontal: 20,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: theme.orange,
+                gap: 8,
+              }}
+              onPress={(props as GroupProfileTabsProps).onInvitePress}
+            >
+              <Ionicons name="person-add" size={20} color={theme.orange} />
+              <Text style={{ fontWeight: "600", fontSize: 14, color: theme.orange }}>
+                Convidar Membros
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {/* --- FIM DA INSERÇÃO --- */}
+
+      </View>
+    );
+  };
   return (
     <FlatList
       data={dataToRender}

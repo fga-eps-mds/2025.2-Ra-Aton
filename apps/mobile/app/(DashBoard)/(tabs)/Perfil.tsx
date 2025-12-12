@@ -367,6 +367,7 @@ export default function ProfileScreen() {
                 onPressComment={handleOpenComments}
                 onPressOptions={handleOpenOptions}
                 onPressMember={handleMemberPress}
+                onInvitePress={() => setInviteModalVisible(true)}
                 currentUserId={currentUser?.id}
                 isAdmin={isCurrentUserAdmin}
                 onRemoveMember={handleRemoveMember}
@@ -390,24 +391,7 @@ export default function ProfileScreen() {
 
           {isCurrentUserAdmin && (
             <View style={styles.followButtonContainer}>
-              <TouchableOpacity
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  borderColor: theme.orange,
-                  gap: 8,
-                }}
-                onPress={() => setInviteModalVisible(true)}
-              >
-                <Ionicons name="person-add" size={20} color={theme.orange} />
-                <Text style={{ fontWeight: "600", fontSize: 14, color: theme.orange }}>
-                  Convidar Membros
-                </Text>
-              </TouchableOpacity>
+              
             </View>
           )}
 

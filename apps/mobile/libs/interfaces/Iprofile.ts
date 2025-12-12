@@ -76,4 +76,6 @@ export interface IUserProfileResponse {
 export interface IGroupProfileResponse {
   profile: IGroupProfile;
   tabs: IGroupProfileTabs;
+
+  
 }
