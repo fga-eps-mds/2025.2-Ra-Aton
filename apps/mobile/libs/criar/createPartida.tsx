@@ -2,17 +2,18 @@ import axios from "axios";
 import { api_route } from "../auth/api";
 
 function validarData(dateStr: string): string | null {
-  const regex = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/;
+const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+  console.log("data testada = ",dateStr);
   if (!regex.test(dateStr)) {
-    return "Erro inesperado ao criar [partida].";
+    return "Formato da data inválido";
   }
 
-  const [datePart] = dateStr.split(" ");
-  const [day, month, year] = datePart.split("/").map(Number);
+  const [datePart] = dateStr.split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
 
-  if (day < 1 || day > 31) return "Data fornecida é inválida.";
-  if (month < 1 || month > 12) return "Data fornecida é inválida.";
-  if (year < 1900) return "Data fornecida é inválida.";
+  if (day < 1 || day > 31) return "Data impossível.";
+  if (month < 1 || month > 12) return "Data impossível.";
+  if (year < 1900) return "Data impossível.";
 
   return null;
 }
