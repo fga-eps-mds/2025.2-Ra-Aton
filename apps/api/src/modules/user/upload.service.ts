@@ -30,7 +30,7 @@ export const uploadService = {
           resource_type: "image",
           transformation: [{ quality: "auto", fetch_format: "auto" }],
         },
-        (error, result) => {
+        (error: any , result: any) => {
           if (error) {
             reject(
               new ApiError(
