@@ -135,7 +135,8 @@ export class NotificationsService {
     resourceId?: string,
     resourceType?: string,
   ) {
-    return notificationRepository.create({
+
+    const inAppNotification = await notificationRepository.create({
       userId,
       type,
       title,
@@ -143,6 +144,12 @@ export class NotificationsService {
       resourceId,
       resourceType,
     });
+
+    this.sendToUser(userId, { title, body: content }).catch((error) => {
+      console.error("Erro no envio de push: ", error);
+    });
+
+    return inAppNotification;
   }
 
   async getUserNotifications(userId: string) {
