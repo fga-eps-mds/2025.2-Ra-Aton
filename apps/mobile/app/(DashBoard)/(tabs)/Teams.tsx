@@ -97,7 +97,10 @@ const Teams = () => {
     </AppText>
   }
   renderItem={({ item }) => (
-    <JoinedGroupsComp name={item.name} />
+    <JoinedGroupsComp 
+      name={item.name} 
+      logoUrl={item.logoUrl} 
+    />
   )}
 />
 
