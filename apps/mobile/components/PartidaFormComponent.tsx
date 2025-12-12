@@ -20,6 +20,16 @@ interface PartidaFormProps {
   setFormData: (data: any) => void;
   formError?: string;
 }
+export const formatarData = (dataISO: string) => {
+if (!dataISO) return "";
+const data = new Date(dataISO);
+const dia = String(data.getDate()).padStart(2, "0");
+const mes = String(data.getMonth() + 1).padStart(2, "0");
+const ano = data.getFullYear();
+const h = String(data.getHours()).padStart(2, "0");
+const m = String(data.getMinutes()).padStart(2, "0");
+return `${dia}/${mes}/${ano} ${h}:${m}`;
+};
 
 export const PartidaFormComponent: React.FC<PartidaFormProps> = ({
   formsData,
@@ -31,16 +41,6 @@ export const PartidaFormComponent: React.FC<PartidaFormProps> = ({
     const [tempDate, setTempDate] = useState(new Date());
     const [editingField, setEditingField] = useState<"inicio" | "fim" | null>(null);
     
-    const formatarData = (dataISO: string) => {
-    if (!dataISO) return "";
-    const data = new Date(dataISO);
-    const dia = String(data.getDate()).padStart(2, "0");
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const ano = data.getFullYear();
-    const h = String(data.getHours()).padStart(2, "0");
-    const m = String(data.getMinutes()).padStart(2, "0");
-    return `${dia}/${mes}/${ano} ${h}:${m}`;
-  };
 
   const handleChangeDate = (event: any, selected?: Date) => {
     if (event.type === "dismissed") {
@@ -157,6 +157,7 @@ export const PartidaFormComponent: React.FC<PartidaFormProps> = ({
               <InputDateComp
                 label="Data Início *"
                 value={formatarData(formsData.dataInicio)}
+                placeholder="Selecionar data"
                 onPress={() => {
                   setEditingField("inicio");
                   setTempDate(formsData.dataInicio ? new Date(formsData.dataInicio) : new Date());
@@ -175,7 +176,7 @@ export const PartidaFormComponent: React.FC<PartidaFormProps> = ({
         placeholder="Local da partida"
       />
       {formError ? (
-        <AppText style={{ color: "red", marginTop: 10, fontSize: 20 }}>
+        <AppText testID="error-text" style={{ color: "red", marginTop: 10, fontSize: 20 }}>
           {formError}
         </AppText>
       ) : null}
