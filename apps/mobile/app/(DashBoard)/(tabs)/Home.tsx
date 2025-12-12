@@ -13,6 +13,7 @@ import ReportReasonModal from "@/components/ReportReasonModal";
 import { useFeedEvents } from "@/libs/hooks/useFeedEvents";
 import { useFeedModals } from "@/libs/hooks/useModalFeed";
 
+
 export default function HomeScreen() {
   const { user } = useUser();
 
@@ -68,7 +69,8 @@ export default function HomeScreen() {
           <View style={styles.containerHeader}>
             <ProfileThumbnailComp 
               size={40} 
-              userName={user?.userName}
+              // userName={user?.userName}
+              userName={user?.userName ?? "User"}
               imageUrl={user?.profilePicture}
               profileType={"user"}
             />

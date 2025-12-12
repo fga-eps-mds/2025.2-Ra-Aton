@@ -8,23 +8,23 @@ export const postRepository = {
     });
   },
 
+  // REMOVIDO: A tipagem de retorno explícita que causava conflito.
+  // Deixamos o TS inferir o retorno correto.
   findAll: async (
     limit: number,
     offset: number,
     userId: string,
-  ): Promise<{
-    posts: (Post & { userLiked: boolean })[];
-    totalCount: number;
-  }> => {
+  ) => {
     // Busca a página de posts e o total em uma única transação
-    const [posts, totalCount]: [Post[], number] = await prisma.$transaction([
+    // REMOVIDO: : [Post[], number] -> Deixa o Prisma inferir que 'posts' inclui 'author'
+    const [posts, totalCount] = await prisma.$transaction([
       prisma.post.findMany({
         include: {
           author: {
             select: {
               id: true,
               userName: true,
-              profileImageUrl: true,
+              profileImageUrl: true, // Pegamos a URL do banco
             },
           },
           group: {
@@ -50,7 +50,7 @@ export const postRepository = {
       return { posts: [], totalCount };
     }
 
-    // Verifica quais posts foram curtidos pelo usuário em uma única consulta
+    // Verifica quais posts foram curtidos pelo usuário
     const postIds = posts.map((p) => p.id);
     const likes = await prisma.postLike.findMany({
       where: {
@@ -62,7 +62,7 @@ export const postRepository = {
 
     const likedSet = new Set(likes.map((l) => l.postId));
 
-    // Verifica quais posts foram marcados com "Eu vou" pelo usuário em uma única consulta
+    // Verifica quais posts foram marcados com "Eu vou"
     const attendances = await prisma.attendance.findMany({
       where: {
         userId,
@@ -73,8 +73,14 @@ export const postRepository = {
 
     const attendanceSet = new Set(attendances.map((a) => a.postId));
 
+    // Mapeamento final
     const postsWithLike = posts.map((post) => ({
       ...post,
+      // O PULO DO GATO: Mapear 'profileImageUrl' (Banco) para 'profilePicture' (Front)
+      author: {
+        ...post.author,
+        profilePicture: post.author.profileImageUrl, 
+      },
       userLiked: likedSet.has(post.id),
       userGoing: attendanceSet.has(post.id),
     }));
@@ -99,6 +105,8 @@ export const postRepository = {
               select: {
                 id: true,
                 userName: true,
+                // Sugestão: adicione profileImageUrl aqui também se quiser foto nos comentários
+                profileImageUrl: true, 
               },
             },
           },

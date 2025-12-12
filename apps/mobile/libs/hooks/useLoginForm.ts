@@ -15,6 +15,9 @@ interface LoginResponse {
     userName: string;
     email: string;
     profileType: string | null;
+    profilePicture?: string | null;
+    bannerImage?: string | null;
+    notificationsAllowed?: boolean;
   };
 }
 
@@ -68,6 +71,9 @@ export const useLoginForm = () => {
           email: data.user.email,
           token: data.token,
           profileType: data.user.profileType ?? null,
+          profilePicture: data.user.profilePicture, 
+          bannerImage: data.user.bannerImage,
+          notificationsAllowed: true
         });
 
         // Sincroniza o token de notificação após login bem-sucedido
@@ -78,7 +84,7 @@ export const useLoginForm = () => {
             }
           })
           .catch((error) => {
-            console.log('⚠️ Não foi possível registrar notificações:', error);
+            console.log('Não foi possível registrar notificações:', error);
           });
 
         if (
