@@ -67,17 +67,14 @@ const Teams = () => {
           paddingBottom: 100,
           paddingHorizontal: 20,
         }}
-        
         ListHeaderComponent={
           <View>
             <Spacer height={"2%"} />
-
             <AppText
               style={[{ alignSelf: "center", marginBottom: 10 }, styles.txt]}
             >
               Seus times
             </AppText>
-
             <CreateGroupComp
             onPrimaryPress={() => router.replace("/criarGrupo")} />
 
@@ -106,7 +103,6 @@ const Teams = () => {
 
 
             <Spacer height={"2%"} />
-
             <TwoOptionSwitch
               optionLeft="Amadores"
               optionRight="Atléticas"
@@ -116,28 +112,29 @@ const Teams = () => {
               }
               style={[{ alignSelf: "center" }]}
             />
-
             <Button2Comp
-              style={{ width: "60%", height: 40, marginTop: 10, alignSelf: 'center' }}
+              style={{
+                width: "60%",
+                height: 40,
+                marginTop: 10,
+                alignSelf: "center",
+              }}
               onPress={() => setAcceptingOnly(!acceptingOnly)}
             >
-              {acceptingOnly ? "Aceitando ✔" : "Apenas aceitando"}
+              {acceptingOnly ? "Aceitando ✔" : "Aceitando"}
             </Button2Comp>
-
             <AppText
               style={[{ alignSelf: "center", marginTop: 20 }, styles.txt]}
             >
               Outras equipes
             </AppText>
-
             <Spacer height={60}></Spacer>
-
             {globalError && (
               <AppText
                 style={{
                   color: "red",
                   marginTop: 0,
-                  marginBottom: 10,
+                  marginBottom: 50,
                   fontSize: 22,
                   textAlign: "center",
                 }}
@@ -145,6 +142,7 @@ const Teams = () => {
                 {globalError}
               </AppText>
             )}
+            {/* <Spacer height={60}></Spacer> */}
           </View>
         }
 

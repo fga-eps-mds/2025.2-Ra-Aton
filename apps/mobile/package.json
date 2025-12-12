@@ -11,6 +11,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
+    "test:coverage": "turbo run test -- --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint . --ext .ts,.tsx --fix",
     "build:dev:android": "eas build --profile development --platform android",

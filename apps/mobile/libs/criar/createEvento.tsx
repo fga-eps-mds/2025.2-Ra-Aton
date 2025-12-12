@@ -2,21 +2,40 @@ import axios from "axios";
 import { api_route } from "../auth/api";
 
 function convertToBackendDate(dateStr: string): string {
-  if (!dateStr || !dateStr.includes(" ")) {
-    throw new Error("Formato de data inválido: DD/MM/AAAA HH:MM.");
+  if (!dateStr) {
+    throw new Error("Data não fornecida.");
   }
 
-  const [datePart, timePart] = dateStr.split(" ");
-  const [day, month, year] = datePart.split("/");
+  // formatando para WEB
+  if (dateStr.includes("T") && !dateStr.includes("/")) {
+    const d = new Date(dateStr);
 
-  const date = new Date(`${year}-${month}-${day}T${timePart}:00`);
+    if (isNaN(d.getTime())) {
+      throw new Error("Data inválida.");
+    }
 
-  if (isNaN(date.getTime())) {
-    throw new Error("Data fornecida é inválida.");
+    console.log("Data convertida (WEB):", d.toISOString());
+    return d.toISOString();
   }
-  console.log("Data convertida para backend:", date.toISOString());
-  return date.toISOString();
+
+  // formatando para MOBILE
+  if (dateStr.includes("/") && dateStr.includes(" ")) {
+    const [datePart, timePart] = dateStr.split(" ");
+    const [day, month, year] = datePart.split("/");
+
+    const d = new Date(`${year}-${month}-${day}T${timePart}:00`);
+
+    if (isNaN(d.getTime())) {
+      throw new Error("Data fornecida é inválida.");
+    }
+
+    console.log("Data convertida (MOBILE):", d.toISOString());
+    return d.toISOString();
+  }
+
+  throw new Error("Formato de data inválido.");
 }
+
 
 
 interface createEventParams {
