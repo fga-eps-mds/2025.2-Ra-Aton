@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,11 +22,12 @@ import { updateGroupImages } from "@/libs/group/handleGroupProfile";
 import { useUser } from "@/libs/storage/UserContext";
 
 export default function EditarGrupoScreen() {
-  const { groupId, groupName, logoUrl, bannerUrl } = useLocalSearchParams<{
+  const { groupId, groupName, logoUrl, bannerUrl, bio } = useLocalSearchParams<{
     groupId: string;
     groupName: string;
     logoUrl?: string;
     bannerUrl?: string;
+    bio?: string;
   }>();
   
   const router = useRouter();
@@ -37,6 +39,7 @@ export default function EditarGrupoScreen() {
   const [selectedBanner, setSelectedBanner] = useState<string | null>(bannerUrl || null);
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [bannerUri, setBannerUri] = useState<string | null>(null);
+  const [groupBio, setGroupBio] = useState<string>(bio || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const pickImage = async (type: "logo" | "banner") => {
@@ -67,24 +70,25 @@ export default function EditarGrupoScreen() {
   };
 
   const handleSave = async () => {
-    if (!logoUri && !bannerUri) {
-      Alert.alert("Atenção", "Selecione pelo menos uma imagem para atualizar");
+    if (!logoUri && !bannerUri && groupBio === (bio || "")) {
+      Alert.alert("Atenção", "Faça alguma alteração antes de salvar");
       return;
     }
 
     setIsLoading(true);
     try {
-      await updateGroupImages(groupId, logoUri, bannerUri, user?.token);
+      const bioToSend = groupBio !== (bio || "") ? groupBio : null;
+      await updateGroupImages(groupId, logoUri, bannerUri, bioToSend, user?.token);
       
-      Alert.alert("Sucesso", "Imagens atualizadas com sucesso!", [
+      Alert.alert("Sucesso", "Perfil atualizado com sucesso!", [
         {
           text: "OK",
           onPress: () => router.back(),
         },
       ]);
     } catch (error: any) {
-      console.error("Erro ao atualizar imagens:", error);
-      Alert.alert("Erro", error.message || "Erro ao atualizar imagens do grupo");
+      console.error("Erro ao atualizar perfil:", error);
+      Alert.alert("Erro", error.message || "Erro ao atualizar perfil do grupo");
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +114,34 @@ export default function EditarGrupoScreen() {
             <Text style={[styles.groupName, { color: theme.text }]}>
               {groupName}
             </Text>
+
+            {/* Bio do Grupo */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                Biografia
+              </Text>
+              <TextInput
+                style={[
+                  styles.bioInput,
+                  {
+                    color: theme.text,
+                    borderColor: theme.gray,
+                    backgroundColor: isDarkMode ? theme.gray + "20" : "#f5f5f5",
+                  },
+                ]}
+                placeholder="Escreva uma bio para o grupo..."
+                placeholderTextColor={theme.text + "80"}
+                value={groupBio}
+                onChangeText={setGroupBio}
+                multiline
+                maxLength={200}
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              <Text style={[styles.charCount, { color: theme.text + "80" }]}>
+                {groupBio.length}/200
+              </Text>
+            </View>
 
             {/* Banner */}
             <View style={styles.section}>
@@ -222,6 +254,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
+  },
+  bioInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 14,
+    minHeight: 100,
+    maxHeight: 150,
+  },
+  charCount: {
+    fontSize: 12,
+    textAlign: "right",
+    marginTop: 4,
   },
   bannerContainer: {
     width: "100%",

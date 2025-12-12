@@ -2,12 +2,13 @@
 import { api_route } from "@/libs/auth/api";
 
 /**
- * Atualiza imagens do usuário (foto de perfil e banner)
+ * Atualiza imagens do usuário (foto de perfil e banner) e bio
  */
 export async function updateUserImages(
   userId: string,
   profilePictureUri: string | null,
   bannerImageUri: string | null,
+  bio: string | null,
   authToken?: string
 ): Promise<void> {
   try {
@@ -37,6 +38,11 @@ export async function updateUserImages(
         name: bannerFilename,
         type: bannerType,
       } as any);
+    }
+
+    // Adicionar bio se foi fornecida
+    if (bio !== null) {
+      formData.append("bio", bio);
     }
 
     await api_route.patch(`/profile/user/${userId}/images`, formData, {

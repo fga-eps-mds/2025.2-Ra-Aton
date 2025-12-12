@@ -2,12 +2,13 @@
 import { api_route } from "@/libs/auth/api";
 
 /**
- * Atualiza imagens do grupo (logo e banner)
+ * Atualiza imagens do grupo (logo e banner) e bio
  */
 export async function updateGroupImages(
   groupId: string,
   logoUri: string | null,
   bannerUri: string | null,
+  bio: string | null,
   authToken?: string
 ): Promise<void> {
   try {
@@ -37,6 +38,11 @@ export async function updateGroupImages(
         name: bannerFilename,
         type: bannerType,
       } as any);
+    }
+
+    // Adicionar bio se foi fornecida
+    if (bio !== null) {
+      formData.append("bio", bio);
     }
 
     await api_route.patch(`/profile/group/${groupId}/images`, formData, {

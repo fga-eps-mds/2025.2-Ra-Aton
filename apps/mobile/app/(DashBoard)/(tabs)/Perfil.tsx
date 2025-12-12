@@ -144,6 +144,7 @@ export default function ProfileScreen() {
                       userName: userProfile.userName,
                       profilePicture: userProfile.profilePicture || "",
                       bannerImage: userProfile.bannerImage || "",
+                      bio: userProfile.bio || "",
                     },
                   } as any);
                 } else if (profileType === "group" && groupProfile) {
@@ -154,6 +155,7 @@ export default function ProfileScreen() {
                       groupName: groupProfile.name,
                       logoUrl: groupProfile.logoUrl || "",
                       bannerUrl: groupProfile.bannerUrl || "",
+                      bio: groupProfile.bio || "",
                     },
                   } as any);
                 }
