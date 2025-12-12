@@ -80,11 +80,20 @@ const CardNotificationComp: React.FC<CardNotificationCompProps> = ({
     {title === "Solicitação de Entrada" && (
       <>
 
-        <PrimaryButton onPress={() => rejeitarSolicitacao(inviteId)} style={{ width: "40%", height: 40 }}>
+        <PrimaryButton
+          onPress={async () => {
+            await rejeitarSolicitacao(inviteId);
+            onMarkAsRead(); 
+          }}
+          style={{ width: "40%", height: 40 }}
+        >
           Recusar
         </PrimaryButton>
 
-        <PrimaryButton onPress={() => aceitarSolicitacao(inviteId)} style={{ width: "40%", height: 40 }}>
+        <PrimaryButton onPress={async () => { await aceitarSolicitacao(inviteId);
+                                              onMarkAsRead();
+                                            }}
+                                             style={{ width: "40%", height: 40 }}>
           Aceitar
         </PrimaryButton>
       </>
