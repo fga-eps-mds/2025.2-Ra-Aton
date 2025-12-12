@@ -221,11 +221,11 @@ export default function ProfileScreen() {
           </ScrollView>
           {/* --- INÍCIO DA SUA INSERÇÃO (MODAL) --- */}
           {/* Coloque isso ANTES de fechar a última <View> ou <SafeAreaView> */}
-          {profileType === "group" && (
+          {profileType === "group" &&  (
             <InviteMemberModal
               visible={inviteModalVisible}
               onClose={() => setInviteModalVisible(false)}
-              groupId={profileIdentifier} // Ou profile.id se estiver disponível
+              groupId={profile?.id || groupProfile?.id || ""}
             />
           )}
           {/* --- FIM DA SUA INSERÇÃO --- */}
