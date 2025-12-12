@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { StyleSheet, View, FlatList, ActivityIndicator, Text } from "react-native";
 import { useUser } from "@/libs/storage/UserContext";
 import BackGroundComp from "@/components/BackGroundComp";
@@ -12,10 +12,18 @@ import Spacer from "@/components/SpacerComp";
 import ReportReasonModal from "@/components/ReportReasonModal";
 import { useFeedEvents } from "@/libs/hooks/useFeedEvents";
 import { useFeedModals } from "@/libs/hooks/useModalFeed";
-
+import { useFocusEffect } from "expo-router"; 
 
 export default function HomeScreen() {
-  const { user } = useUser();
+  const { user, refreshUser } = useUser();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (refreshUser) {
+        refreshUser();
+      }
+    }, [])
+  );
 
   const {
     posts,
@@ -67,9 +75,8 @@ export default function HomeScreen() {
         )}
         ListHeaderComponent={
           <View style={styles.containerHeader}>
-            <ProfileThumbnailComp 
-              size={50} 
-              // userName={user?.userName}
+            <ProfileThumbnailComp
+              size={50}
               userName={user?.userName ?? "User"}
               imageUrl={user?.profilePicture ?? null}
               profileType={"user"}
@@ -142,7 +149,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   containerHeader: {
-    flexDirection: "row",
+    flexDirection: "row"  ,
     alignItems: "center",
     paddingHorizontal: 15,
     paddingTop: 8,

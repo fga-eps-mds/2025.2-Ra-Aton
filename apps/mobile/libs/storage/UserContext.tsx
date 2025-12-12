@@ -10,6 +10,7 @@ import { Alert, Platform } from "react-native";
 import { router } from "expo-router";
 import { removePushToken } from "@/libs/notifications/syncPushToken";
 import { api_route } from "../auth/api";
+import { getUserProfile } from "@/libs/auth/handleProfile";
 
 export type User = {
   id: string;
@@ -30,6 +31,7 @@ interface UserContextType {
   loading: boolean;
   deleteAccount: () => void;
   confirmDelete: () => void;
+  refreshUser: () => Promise<void>; 
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -65,18 +67,37 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   };
 
+  // Função para recarregar dados do usuário (foto, nome, etc)
+  const refreshUser = async () => {
+    if (!user || !user.userName) return;
+
+    try {
+      const response = await getUserProfile(user.userName);
+      const profile = response.profile;
+
+      const updatedUser: User = {
+        ...user,
+        name: profile.name,
+        profilePicture: profile.profilePicture,
+        bannerImage: profile.bannerImage,
+      };
+      
+      setUser(updatedUser);
+      console.log("Dados do usuário atualizados no contexto.");
+    } catch (error) {
+      console.log("Erro ao atualizar dados do usuário em background:", error);
+    }
+  };
+
   const logout = async () => {
-    // Remove token de notificação do backend antes de fazer logout
     if (user?.token) {
       await removePushToken(user.token);
     }
 
     if (Platform.OS === "web") {
       localStorage.removeItem("userData");
-      console.log("Apagando os dados do [localStorage]");
     } else {
       await SecureStore.deleteItemAsync("userData");
-      console.log("Apagando os dados do [secureStorage]");
     }
     setUserState(null);
     setLoading(false);
@@ -85,17 +106,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteAccount = async () => {
     if (!user || !user.name) {
-      Alert.alert("Erro", "Usuário não encontrado")
+      Alert.alert("Erro", "Usuário não encontrado");
     }
     try {
       setLoading(true);
-      const res = await api_route.delete(`/users/${user.userName}`)
+      const res = await api_route.delete(`/users/${user.userName}`);
       if (res.status == 204) {
         Alert.alert(
           "Conta excluída",
           "Sua conta foi excluída com sucesso",
           [{ text: "OK", onPress: () => logout() }]
-        )
+        );
       } else {
         throw new Error("Resposta inesperada do servidor");
       }
@@ -109,7 +130,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const confirmDelete = async () => {
     Alert.alert(
@@ -121,8 +142,19 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       ],
     );
   };
+
   return (
-    <UserContext.Provider value={{ user, setUser, logout, loading, deleteAccount, confirmDelete }}>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        logout,
+        loading,
+        deleteAccount,
+        confirmDelete,
+        refreshUser, 
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
