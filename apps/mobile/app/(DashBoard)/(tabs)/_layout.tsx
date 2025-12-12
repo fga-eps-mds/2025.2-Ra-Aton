@@ -14,7 +14,7 @@ export default function DashboardTabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, 
+        headerShown: false,
         tabBarActiveTintColor: theme.orange,
         tabBarInactiveTintColor: theme.text,
         tabBarStyle: {
@@ -35,7 +35,7 @@ export default function DashboardTabsLayout() {
     >
 
       <Tabs.Screen
-        name="Home" 
+        name="Home"
         options={{
           title: "Feed",
           tabBarIcon: ({ color, size }) => (
@@ -44,7 +44,7 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="Teams" 
+        name="Teams"
         options={{
           title: "Equipes",
           tabBarIcon: ({ color, size }) => (
@@ -53,7 +53,7 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="NovoPost" 
+        name="NovoPost"
         options={{
           title: "Post",
           tabBarIcon: ({ color, size }) => (
@@ -62,7 +62,7 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="Partidas" 
+        name="Partidas"
         options={{
           title: "Partidas",
           tabBarIcon: ({ color, size }) => (
@@ -165,7 +165,7 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
-      
+
       <Tabs.Screen
         name="Solicitacoes"
         options={{
@@ -199,24 +199,25 @@ export default function DashboardTabsLayout() {
       />
 
       <Tabs.Screen
-        name="Notifications"
+        name="perfilGrupo"
         options={{
-          title: "Notificacoes",
+          title: "Perfil do Grupo",
           href: null,
         }} // Esconde da Navbar
       />
 
       <Tabs.Screen
-        name="(edit)/editarGrupo"
+        name="perfil"
         options={{
-          title: "Editar Grupo",
+          title: "Perfil",
           href: null,
         }} // Esconde da Navbar
       />
+
       <Tabs.Screen
-        name="(edit)/editarUsuario"
+        name="Notifications"
         options={{
-          title: "Editar Usuário",
+          title: "Notificações",
           href: null,
         }} // Esconde da Navbar
       />

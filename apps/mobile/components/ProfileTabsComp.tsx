@@ -14,6 +14,7 @@ import { IPost } from "@/libs/interfaces/Ipost";
 import { IUserProfile } from "@/libs/interfaces/Iprofile";
 import { MatchesCard } from "./MatchesCardComp";
 import PostCardComp from "./PostCardComp";
+import MemberCard from "./MemberCardComp";
 
 type UserTabType = "matches" | "followedGroups" | "memberGroups";
 type GroupTabType = "posts" | "members";
@@ -44,6 +45,8 @@ interface GroupProfileTabsProps extends BaseProfileTabsProps {
   onPressOptions?: (postId: string) => void;
   onPressMember?: (userName: string) => void;
   currentUserId?: string;
+  isAdmin?: boolean;
+  onRemoveMember?: (membershipId: string) => void;
 }
 
 type ProfileTabsProps = UserProfileTabsProps | GroupProfileTabsProps;
@@ -111,18 +114,24 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
           );
         case "members":
           return (
-            <TouchableOpacity
-              style={[styles.card, { backgroundColor: theme.input }]}
-              onPress={() => groupProps.onPressMember?.(item.userName)}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.cardTitle, { color: theme.text }]}>
-                {item.name}
-              </Text>
-              <Text style={[styles.cardSubtitle, { color: theme.gray }]}>
-                @{item.userName}
-              </Text>
-            </TouchableOpacity>
+            <MemberCard
+              member={{
+                id: item.id,
+                userId: item.id,
+                groupId: "",
+                role: item.isOwner ? 'ADMIN' : 'MEMBER',
+                joinedAt: "",
+                user: {
+                  id: item.id,
+                  name: item.name,
+                  email: item.email || "",
+                  avatarUrl: item.profilePicture,
+                  username: item.userName
+                }
+              }}
+              isAdminView={!!groupProps.isAdmin}
+              onRemove={(id) => groupProps.onRemoveMember && groupProps.onRemoveMember(id)}
+            />
           );
       }
     }

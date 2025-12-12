@@ -1,12 +1,22 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 import BackGroundComp from "@/components/BackGroundComp";
 import { ProfileHeaderComp } from "@/components/ProfileHeaderComp";
 import { FollowButtonComp } from "@/components/FollowButtonComp";
 import { ProfileTabsComp } from "@/components/ProfileTabsComp";
+import InviteMemberModal from "@/components/InviteMemberModalComp";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { useProfile } from "@/libs/hooks/useProfile";
@@ -37,6 +47,7 @@ import {
 import { useFeedModals } from "@/libs/hooks/useModalFeed";
 import CommentsModalComp from "@/components/CommentsModalComp";
 import { EventInfoModalComp } from "@/components/EventInfoModal";
+import { removeMember } from "@/libs/groupMembership/removeMember";
 
 export default function ProfileScreen() {
   const { identifier, type } = useLocalSearchParams<{
@@ -60,6 +71,29 @@ export default function ProfileScreen() {
     toggleFollow,
     reloadProfile,
   } = useProfile(profileIdentifier, profileType);
+
+
+  // --- INÍCIO DA SUA INSERÇÃO (LOGICA) ---
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+
+  // Lógica para saber se é Admin (CORRIGIDA)
+  const isCurrentUserAdmin =
+    profileType === "group" &&
+    currentUser &&
+    profile && // <--- ADICIONADO: Verifica se o perfil já carregou
+    ((profile as IGroupProfile).leaderId === currentUser.id); // Ou .ownerId, dependendo da sua interface
+
+  const handleRemoveMember = async (membershipId: string) => {
+    try {
+      await removeMember(membershipId);
+      Alert.alert("Sucesso", "Membro removido.");
+      reloadProfile(); // Atualiza a tela
+    } catch (error: any) {
+      Alert.alert("Erro", error.message);
+    }
+  };
+
+  // --- FIM DA SUA INSERÇÃO ---
 
   const [isFollowLoading, setIsFollowLoading] = useState(false);
 
@@ -333,6 +367,9 @@ export default function ProfileScreen() {
                 onPressComment={handleOpenComments}
                 onPressOptions={handleOpenOptions}
                 onPressMember={handleMemberPress}
+                currentUserId={currentUser?.id}
+                isAdmin={isCurrentUserAdmin}
+                onRemoveMember={handleRemoveMember}
                 onReload={reloadProfile}
                 isLoading={isLoading}
               />
@@ -350,6 +387,29 @@ export default function ProfileScreen() {
                 : undefined
             }
           />
+
+          {isCurrentUserAdmin && (
+            <View style={styles.followButtonContainer}>
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: theme.orange,
+                  gap: 8,
+                }}
+                onPress={() => setInviteModalVisible(true)}
+              >
+                <Ionicons name="person-add" size={20} color={theme.orange} />
+                <Text style={{ fontWeight: "600", fontSize: 14, color: theme.orange }}>
+                  Convidar Membros
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <ReportReasonModal
             isVisible={visibleReportMatch || isPostReportVisible}
@@ -408,6 +468,14 @@ export default function ProfileScreen() {
             visible={showEventModal}
             onClose={closeEventModal}
           />
+
+          {profileType === "group" && (
+            <InviteMemberModal
+              visible={inviteModalVisible}
+              onClose={() => setInviteModalVisible(false)}
+              groupId={profile?.id || groupProfile?.id || ""}
+            />
+          )}
         </View>
       </SafeAreaView>
     </BackGroundComp>
