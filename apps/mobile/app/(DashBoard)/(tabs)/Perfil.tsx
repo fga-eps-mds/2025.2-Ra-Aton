@@ -121,7 +121,7 @@ export default function ProfileScreen() {
     openModalInfos: openEventModal,
     closeModalInfos: closeEventModal,
     showModal: showEventModal,
-  } = useFeedModals({ user: currentUser, setPosts: () => {} });
+  } = useFeedModals({ user: currentUser, setPosts: () => { } });
 
   const {
     visibleConfirmCard,
@@ -339,129 +339,116 @@ export default function ProfileScreen() {
 
   return (
     <BackGroundComp>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-          <View style={styles.tabsContainer}>
-            {userTabs ? (
-              <ProfileTabsComp
-                type="user"
-                ListHeaderComponent={renderProfileHeader()}
-                matches={userTabs.matches || []}
-                followedGroups={userTabs.followedGroups || []}
-                memberGroups={userTabs.memberGroups || []}
-                isDarkMode={isDarkMode}
-                currentUserId={currentUser?.id}
-                onPressMatchInfos={(match) => useModal(match)}
-                onPressJoinMatch={(match) => handleJoinMatch(match)}
-                onPressGroup={(groupName) => handleGroupPress(groupName)}
-                onReload={reloadProfile}
-                isLoading={isLoading}
-              />
-            ) : groupTabs ? (
-              <ProfileTabsComp
-                type="group"
-                ListHeaderComponent={renderProfileHeader()}
-                members={groupTabs.members || []}
-                posts={groupTabs.posts || []}
-                isDarkMode={isDarkMode}
-                onPressComment={handleOpenComments}
-                onPressOptions={handleOpenOptions}
-                onPressMember={handleMemberPress}
-                onInvitePress={() => setInviteModalVisible(true)}
-                currentUserId={currentUser?.id}
-                isAdmin={isCurrentUserAdmin}
-                onRemoveMember={handleRemoveMember}
-                onReload={reloadProfile}
-                isLoading={isLoading}
-              />
-            ) : null}
-          </View>
 
-          <HandleMatchComp
-            isVisible={visibleConfirmCard}
-            onClose={closeModalConfirmCard}
-            match={selectedMatch ?? undefined}
-            onPressMoreInfos={openModalMoreInfosHandleModal}
-            onSwitchTeam={
-              selectedMatch
-                ? () => handleSwitchTeam(selectedMatch)
-                : undefined
-            }
+
+      <View style={styles.tabsContainer}>
+        {userTabs ? (
+          <ProfileTabsComp
+            type="user"
+            ListHeaderComponent={renderProfileHeader()}
+            matches={userTabs.matches || []}
+            followedGroups={userTabs.followedGroups || []}
+            memberGroups={userTabs.memberGroups || []}
+            isDarkMode={isDarkMode}
+            currentUserId={currentUser?.id}
+            onPressMatchInfos={(match) => useModal(match)}
+            onPressJoinMatch={(match) => handleJoinMatch(match)}
+            onPressGroup={(groupName) => handleGroupPress(groupName)}
+            onReload={reloadProfile}
+            isLoading={isLoading}
           />
-
-          {isCurrentUserAdmin && (
-            <View style={styles.followButtonContainer}>
-              
-            </View>
-          )}
-
-          <ReportReasonModal
-            isVisible={visibleReportMatch || isPostReportVisible}
-            onClose={() => {
-              closeReportMatchModal();
-              handleCloseModals();
-            }}
-            onSubmit={isPostReportVisible ? handleSubmitReport : undefined}
+        ) : groupTabs ? (
+          <ProfileTabsComp
+            type="group"
+            ListHeaderComponent={renderProfileHeader()}
+            members={groupTabs.members || []}
+            posts={groupTabs.posts || []}
+            isDarkMode={isDarkMode}
+            onPressComment={handleOpenComments}
+            onPressOptions={handleOpenOptions}
+            onPressMember={handleMemberPress}
+            onInvitePress={() => setInviteModalVisible(true)}
+            currentUserId={currentUser?.id}
+            isAdmin={isCurrentUserAdmin}
+            onRemoveMember={handleRemoveMember}
+            onReload={reloadProfile}
+            isLoading={isLoading}
           />
+        ) : null}
+      </View>
 
-          <MoreOptionsModalComp
-            isVisible={visibleInfosHandleMatch || isPostOptionsVisible}
-            onClose={() => {
-              closeModalMoreInfosHandleModal();
-              handleCloseInfoModel();
-            }}
-            onInfos={
-              visibleInfosHandleMatch
-                ? openDetailsFromHandle
-                : isPostOptionsVisible && selectedPostForInfo?.type === "EVENT"
-                ? openEventModal
-                : undefined
-            }
-            onDetailsMatch={visibleInfosHandleMatch ? openDescriptionMatchModal : undefined}
-            onLeaveMatch={
-              visibleInfosHandleMatch && selectedMatch
-                ? () => handleLeaveMatch(selectedMatch)
-                : undefined
-            }
-            onReport={isPostOptionsVisible ? handleStartReportFlow : undefined}
-          />
+      <HandleMatchComp
+        isVisible={visibleConfirmCard}
+        onClose={closeModalConfirmCard}
+        match={selectedMatch ?? undefined}
+        onPressMoreInfos={openModalMoreInfosHandleModal}
+        onSwitchTeam={
+          selectedMatch
+            ? () => handleSwitchTeam(selectedMatch)
+            : undefined
+        }
+      />
+      <ReportReasonModal
+        isVisible={visibleReportMatch || isPostReportVisible}
+        onClose={() => {
+          closeReportMatchModal();
+          handleCloseModals();
+        }}
+        onSubmit={isPostReportVisible ? handleSubmitReport : undefined}
+      />
+      <MoreOptionsModalComp
+        isVisible={visibleInfosHandleMatch || isPostOptionsVisible}
+        onClose={() => {
+          closeModalMoreInfosHandleModal();
+          handleCloseInfoModel();
+        }}
+        onInfos={
+          visibleInfosHandleMatch
+            ? openDetailsFromHandle
+            : isPostOptionsVisible && selectedPostForInfo?.type === "EVENT"
+              ? openEventModal
+              : undefined
+        }
+        onDetailsMatch={visibleInfosHandleMatch ? openDescriptionMatchModal : undefined}
+        onLeaveMatch={
+          visibleInfosHandleMatch && selectedMatch
+            ? () => handleLeaveMatch(selectedMatch)
+            : undefined
+        }
+        onReport={isPostOptionsVisible ? handleStartReportFlow : undefined}
+      />
 
-          <MatchDetailsModal
-            visible={visible}
-            onClose={closeModal}
-            match={selectedMatch ?? undefined}
-          />
+      <MatchDetailsModal
+        visible={visible}
+        onClose={closeModal}
+        match={selectedMatch ?? undefined}
+      />
+      <ModalDescription
+        visible={visibleDescriptionMatch}
+        onClose={closeDescriptionMatchModal}
+        title={selectedMatch?.title}
+        description={selectedMatch?.description}
+      />
+      <CommentsModalComp
+        isVisible={isPostCommentsVisible}
+        onClose={handleCloseComments}
+        comments={postComments}
+        isLoading={isLoadingComments}
+        onSendComment={handlePostComment}
+      />
+      <EventInfoModalComp
+        post={selectedPostForInfo}
+        visible={showEventModal}
+        onClose={closeEventModal}
+      />
+      {profileType === "group" && (
+        <InviteMemberModal
+          visible={inviteModalVisible}
+          onClose={() => setInviteModalVisible(false)}
+          groupId={profile?.id || groupProfile?.id || ""}
+        />
+      )}
 
-          <ModalDescription
-            visible={visibleDescriptionMatch}
-            onClose={closeDescriptionMatchModal}
-            title={selectedMatch?.title}
-            description={selectedMatch?.description}
-          />
-
-          <CommentsModalComp
-            isVisible={isPostCommentsVisible}
-            onClose={handleCloseComments}
-            comments={postComments}
-            isLoading={isLoadingComments}
-            onSendComment={handlePostComment}
-          />
-
-          <EventInfoModalComp
-            post={selectedPostForInfo}
-            visible={showEventModal}
-            onClose={closeEventModal}
-          />
-
-          {profileType === "group" && (
-            <InviteMemberModal
-              visible={inviteModalVisible}
-              onClose={() => setInviteModalVisible(false)}
-              groupId={profile?.id || groupProfile?.id || ""}
-            />
-          )}
-        </View>
-      </SafeAreaView>
     </BackGroundComp>
   );
 }
