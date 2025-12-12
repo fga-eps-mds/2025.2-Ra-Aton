@@ -118,7 +118,7 @@ const Teams = () => {
               style={{ width: "60%", height: 40, marginTop: 10, alignSelf: 'center' }}
               onPress={() => setAcceptingOnly(!acceptingOnly)}
             >
-              {acceptingOnly ? "Aceitando ✔" : "Apenas aceitando"}
+              {acceptingOnly ? "Aceitando ✔" : "Aceitando"}
             </Button2Comp>
 
             <AppText
