@@ -65,4 +65,41 @@ describe('Lib: handleFeed', () => {
 
     await expect(getFeed({ page: 1, limit: 10 })).rejects.toEqual(error500);
   });
+  it('DEVE lançar erro de rede se não houver resposta', async () => {
+    const networkError = {
+      request: {},
+      response: undefined,
+    };
+    
+    (api_route.get as jest.Mock).mockRejectedValue(networkError);
+
+    await expect(getFeed({ page: 1, limit: 10 })).rejects.toEqual(networkError);
+  });
+  it('DEVE lançar erro inesperado para outros tipos de erro', async () => {
+    const unexpectedError = new Error('Unexpected Error');
+    
+    (api_route.get as jest.Mock).mockRejectedValue(unexpectedError);
+
+    await expect(getFeed({ page: 1, limit: 10 })).rejects.toEqual(unexpectedError);
+  });
+  it('deve converter parâmetros numéricos para strings na chamada da API', async () => {
+    const mockResponse = { data: [] };
+    
+    (api_route.get as jest.Mock).mockResolvedValue({ data: mockResponse });
+
+    const result = await getFeed({ page: 5, limit: 20 });
+
+    expect(api_route.get).toHaveBeenCalledWith(
+      '/posts',
+      {
+        params: {
+          page: '5',
+          limit: '20',
+        },
+        signal: undefined 
+      },
+    );
+
+    expect(result).toEqual(mockResponse);
+  });
 });
