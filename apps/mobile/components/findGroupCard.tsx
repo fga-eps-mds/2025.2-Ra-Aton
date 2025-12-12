@@ -81,6 +81,7 @@ export const GroupCard = ({
       </AppText>
 
       <View style={styles.buttons}>
+        {group.acceptingNewMembers ? (
         <PrimaryButton
           textWeight={500} 
           textSize={20} 
@@ -111,6 +112,9 @@ export const GroupCard = ({
         >
           Solicitar
         </PrimaryButton>
+        ) : (
+          null
+        )}
 
         {group.isFollowing ? (
           <SecondaryButton

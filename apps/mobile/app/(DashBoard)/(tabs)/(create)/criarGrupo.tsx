@@ -46,7 +46,7 @@ export default function CriarGrupoScreen() {
     return (
         <BackGroundComp>
             {/* BOTÃO DE TESTE DE NAVEGAÇÃO */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 style={{ backgroundColor: 'red', padding: 20, marginBottom: 20 }}
                 onPress={() => {
                     console.log("Botão de teste clicado");
@@ -54,7 +54,7 @@ export default function CriarGrupoScreen() {
                 }}
             >
                 <Text style={{ color: 'white', fontWeight: 'bold' }}>TESTAR REDIRECIONAMENTO AGORA</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}

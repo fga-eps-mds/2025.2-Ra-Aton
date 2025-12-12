@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Switch, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, Switch, ActivityIndicator, Alert, TextInput } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { useUser } from "@/libs/storage/UserContext";
@@ -7,99 +7,187 @@ import PrimaryButton from "@/components/PrimaryButton";
 import Spacer from "@/components/SpacerComp";
 import { Fonts } from "@/constants/Fonts";
 import { api_route } from "@/libs/auth/api";
+import InputComp from "@/components/InputComp";
+import { DescricaoInput } from "@/components/DescricaoInput";
+
+import { useSettings } from "@/libs/hooks/useSettings";
 
 export default function SettingsScreen() {
+  const {
+    selectedTab,
+    setSelectedTab,
+    isLoading,
+    isEnabled,
+    toggleSwitch,
+    logout,
+    confirmDelete,
+    rating,
+    setRating,
+    message,
+    setmessage,
+    enviarAvaliacao,
+  } = useSettings();
+
   const { isDarkMode } = useTheme();
-  const { user, setUser, logout, confirmDelete } = useUser(); 
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(user?.notificationsAllowed ?? true);
-
-  useEffect(() => {
-    if (user) {
-      setIsEnabled(user.notificationsAllowed ?? true);
-    }
-  }, [user]);
-
-  const toggleSwitch = async () => {
-    if (!user) return;
-
-    const newValue = !isEnabled;
-    setIsEnabled(newValue);
-    setIsLoading(true);
-
-    try {
-      
-      await api_route.patch(`/users/${user.userName}`, {
-        notificationsAllowed: newValue
-      });
-      setUser({ ...user, notificationsAllowed: newValue });
-
-    } catch (error) {
-      console.error("Erro ao mudar preferência de notificação:", error);
-      setIsEnabled(!newValue);
-      Alert.alert("Erro", "Não foi possível atualizar sua preferência.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const themeStyles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: "center",
+      paddingTop: 60,
       alignItems: "center",
-      paddingHorizontal: 20,
-      backgroundColor: isDarkMode
-        ? Colors.dark.background
-        : Colors.light.background,
+      backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background,
     },
     text: {
       color: isDarkMode ? Colors.dark.text : Colors.light.text,
-      fontSize: 24,
+      fontFamily: Fonts.mainFont.dongleRegular,
+      fontSize: 30,
+    },
+    tabRow: {
+      flexDirection: "row",
+      width: "100%",
+      justifyContent: "space-around",
+      marginBottom: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      backgroundColor: isDarkMode ? Colors.dark.input : Colors.light.input,
+    },
+    tabButton: {
+      paddingVertical: 6,
+      paddingHorizontal: 20,
+      borderRadius: 20,
+    },
+    tabButtonText: {
+      fontSize: 28,
       fontFamily: Fonts.mainFont.dongleRegular,
     },
     row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
-      maxWidth: 300, // Limita a largura para ficar bonito no centro
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "100%",
+      maxWidth: 300,
       paddingVertical: 10,
-    }
+    },
+    feedbackInput: {
+      width: "85%",
+      borderWidth: 1,
+      borderColor: Colors.dark.orange,
+      borderRadius: 12,
+      padding: 10,
+      color: isDarkMode ? "#fff" : "#000",
+      fontFamily: Fonts.mainFont.dongleRegular,
+      fontSize: 22,
+    },
+    stars: {
+      flexDirection: "row",
+      marginVertical: 10,
+    },
   });
 
   return (
     <View style={themeStyles.container}>
-      <Text style={[themeStyles.text, { fontSize: 40, marginBottom: 20 }]}>
-        CONFIGURAÇÕES
-      </Text>
 
-      <View style={themeStyles.row}>
-        <Text style={themeStyles.text}>Receber Notificações</Text>
-        
-        {isLoading ? (
-           <ActivityIndicator color={Colors.dark.orange} />
-        ) : (
-          <Switch
-            trackColor={{ false: "#767577", true: Colors.dark.orange }}
-            thumbColor={isEnabled ? "#f4f3f4" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSwitch}
-            value={isEnabled}
-          />
-        )}
+      <View style={themeStyles.tabRow}>
+        <Text
+          style={[
+            themeStyles.tabButtonText,
+            { color: selectedTab === "perfil" ? themeStyles.text.color : Colors.dark.gray },
+          ]}
+          onPress={() => setSelectedTab("perfil")}
+        >
+          Perfil
+        </Text>
+
+        <Text
+          style={[
+            themeStyles.tabButtonText,
+            { color: selectedTab === "feedback" ? themeStyles.text.color : Colors.dark.gray },
+          ]}
+          onPress={() => setSelectedTab("feedback")}
+        >
+          Feedback
+        </Text>
       </View>
+          <Spacer height={20} />
 
-      <Spacer height={40} />
-      
-      <PrimaryButton onPress={logout}>Sair</PrimaryButton>
-      
-      <Spacer height={20} />
-      
-      <PrimaryButton onPress={confirmDelete} style={{ backgroundColor: 'red' }}>
-        Excluir conta
-      </PrimaryButton>
+      {/* ==========================
+               ABA: PERFIL
+         ========================== */}
+      {selectedTab === "perfil" && (
+        <>
+          <View style={themeStyles.row}>
+            <Text style={themeStyles.text}>Receber Notificações</Text>
+
+            {isLoading ? (
+              <ActivityIndicator testID="loading-indicator" color={Colors.dark.orange} />
+            ) : (
+              <Switch
+                testID="switch-notifications"
+                trackColor={{ false: "#767577", true: Colors.dark.orange }}
+                thumbColor="#f4f3f4"
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={toggleSwitch}
+                value={isEnabled}
+              />
+            )}
+          </View>
+
+          <Spacer height={40} />
+          <PrimaryButton testID="btn-logout" onPress={logout}>Sair</PrimaryButton>
+          <Spacer height={20} />
+
+          <PrimaryButton testID="btn-delete" onPress={confirmDelete} style={{ backgroundColor: "red" }}>
+            Excluir conta
+          </PrimaryButton>
+        </>
+      )}
+
+      {/* ==========================
+               ABA: FEEDBACK
+         ========================== */}
+      {selectedTab === "feedback" && (
+        <View style={{ width: "100%", alignItems: "center" }}>
+          <Text style={[themeStyles.text, { fontSize: 36 }]}>Avalie o App!</Text>
+
+          <View style={themeStyles.stars}>
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Text
+                key={s}
+                onPress={() => setRating(s)}
+                style={{
+                  fontSize: 42,
+                  color: s <= rating ? Colors.dark.orange : "#777",
+                }}
+              >
+                ★
+              </Text>
+            ))}
+          </View>
+            <View style = {{width: '100%', flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', paddingHorizontal: 20}}>
+              
+              <DescricaoInput width={'70%'} 
+              label=""
+              placeholder="Digite sua avaliação"
+              value={message}
+              onChangeText={setmessage}
+              />
+              
+              <PrimaryButton style = {{width: '25%'}} onPress={enviarAvaliacao}>
+                Enviar
+              </PrimaryButton>
+            </View>
+          {/* <Text style={[themeStyles.text, { fontSize: 26 }]}>
+            Encontrou um erro ou quer sugerir algo?
+          </Text> */}
+
+
+          {/* <Spacer height={20} /> */}
+
+          {/* <PrimaryButton onPress={() => Alert.alert("Enviado!", "Obrigado pela sugestão!")}>
+            Enviar Sugestão */}
+          {/* </PrimaryButton> */}
+        </View>
+      )}
     </View>
   );
 }
