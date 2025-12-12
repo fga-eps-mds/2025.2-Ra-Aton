@@ -1,5 +1,4 @@
-// 1. MOCK DO AMBIENTE (Crucial: deve vir antes dos imports)
-// Isso impede que o arquivo src/config/env.ts lance erro de validação ao carregar
+// MOCK DO AMBIENTE
 jest.mock("../../config/env", () => ({
   env: {
     DATABASE_URL: "postgresql://test:test@localhost:5432/test",
@@ -7,11 +6,10 @@ jest.mock("../../config/env", () => ({
     JWT_SECRET: "test-secret",
     JWT_EXPIRES_IN: "1h",
     EXPO_ACCESS_TOKEN: "test-token",
-    // Adicione outras chaves se o seu env.ts exigir (ex: chaves do Cloudinary)
   },
 }));
 
-// 2. MOCK DO CLOUDINARY (Para evitar carregar configurações reais)
+// MOCK DO CLOUDINARY
 jest.mock("../../config/cloudinary", () => ({
   uploader: {
     upload_stream: jest.fn(),
@@ -22,11 +20,11 @@ jest.mock("../../config/cloudinary", () => ({
 
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
-import profileController from "../../modules/profile/profile.controller"; // Ajuste o caminho se necessário
-import profileService from "../../modules/profile/profile.service";     // Ajuste o caminho se necessário
+import profileController from "../../modules/profile/profile.controller";
+import profileService from "../../modules/profile/profile.service";     
 import { ApiError } from "../../utils/ApiError";
 
-// 3. MOCK DO SERVICE
+// MOCK DO SERVICE
 jest.mock("../../modules/profile/profile.service");
 
 describe("ProfileController", () => {
@@ -94,7 +92,7 @@ describe("ProfileController", () => {
 
     it("Deve lidar com erros genericos com status 500", async () => {
       req = { params: { userName: "user" } } as any;
-      
+
       (profileService.fetchUserProfile as jest.Mock).mockRejectedValue(new Error("Database error"));
 
       await profileController.getUserProfile(req as Request, res as Response);
@@ -107,7 +105,7 @@ describe("ProfileController", () => {
   describe("getGroupProfile", () => {
     it("Deve retornar o perfil do grupo", async () => {
       const mockData = { profile: { id: "group-id" }, tabs: {} };
-      
+
       req = {
         params: { groupName: "testgroup" },
         user: { id: "auth-id" },
@@ -148,8 +146,7 @@ describe("ProfileController", () => {
     it("Deve atualizar as imagens corretamente", async () => {
       const authUser = { id: "user-id" };
       const groupId = "group-id";
-      
-      // Simula o objeto files do Multer
+
       const mockFiles = {
         logoImage: [{ originalname: "logo.png" }],
         bannerImage: [{ originalname: "banner.png" }]
@@ -158,7 +155,8 @@ describe("ProfileController", () => {
       req = {
         params: { groupId },
         user: authUser,
-        files: mockFiles
+        files: mockFiles,
+        body: { bio: "Nova descrição" }
       } as any;
 
       const mockResult = { message: "Imagens atualizadas com sucesso", group: {} };
@@ -170,7 +168,8 @@ describe("ProfileController", () => {
         groupId,
         authUser.id,
         mockFiles.logoImage[0],
-        mockFiles.bannerImage[0]
+        mockFiles.bannerImage[0],
+        "Nova descrição"
       );
       expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
       expect(res.json).toHaveBeenCalledWith(mockResult);
@@ -202,13 +201,14 @@ describe("ProfileController", () => {
 
     it("Deve lidar com alterações parciais", async () => {
       const authUser = { id: "user-id" };
-      
+
       req = {
         params: { groupId: "group-id" },
         user: authUser,
         files: {
           logoImage: [{ originalname: "logo.png" }]
-        }
+        },
+        body: {}
       } as any;
 
       (profileService.updateGroupImages as jest.Mock).mockResolvedValue({});
@@ -219,7 +219,8 @@ describe("ProfileController", () => {
         "group-id",
         "user-id",
         expect.anything(),
-        undefined
+        undefined,
+        undefined 
       );
       expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
     });
@@ -228,7 +229,8 @@ describe("ProfileController", () => {
       req = {
         params: { groupId: "group-id" },
         user: { id: "user-id" },
-        files: {}
+        files: {},
+        body: {}
       } as any;
 
       const error = new ApiError(httpStatus.FORBIDDEN, "Sem permissão");
@@ -236,7 +238,7 @@ describe("ProfileController", () => {
 
       await profileController.updateGroupImages(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR); // trocar por FORBIDDEN
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
       expect(res.json).toHaveBeenCalledWith({ message: "Sem permissão" });
     });
   });
