@@ -56,12 +56,14 @@ class ProfileController {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const logoFile = files?.['logoImage']?.[0];
       const bannerFile = files?.['bannerImage']?.[0];
+      const { bio } = req.body;
 
       const result = await profileService.updateGroupImages(
         groupId,
         authUserId,
         logoFile,
-        bannerFile
+        bannerFile,
+        bio
       );
 
       res.status(200).json(result);
@@ -92,12 +94,14 @@ class ProfileController {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const profileFile = files?.['profileImage']?.[0];
       const bannerFile = files?.['bannerImage']?.[0];
+      const { bio } = req.body;
 
       const result = await profileService.updateUserImages(
         userId,
         authUserId,
         profileFile,
-        bannerFile
+        bannerFile,
+        bio
       );
 
       res.status(200).json(result);

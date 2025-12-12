@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,11 +22,12 @@ import { updateUserImages } from "@/libs/user/handleUserProfile";
 import { useUser } from "@/libs/storage/UserContext";
 
 export default function EditarUsuarioScreen() {
-  const { userId, userName, profilePicture, bannerImage } = useLocalSearchParams<{
+  const { userId, userName, profilePicture, bannerImage, bio } = useLocalSearchParams<{
     userId: string;
     userName: string;
     profilePicture?: string;
     bannerImage?: string;
+    bio?: string;
   }>();
   
   const router = useRouter();
@@ -37,6 +39,7 @@ export default function EditarUsuarioScreen() {
   const [selectedBannerImage, setSelectedBannerImage] = useState<string | null>(bannerImage || null);
   const [profilePictureUri, setProfilePictureUri] = useState<string | null>(null);
   const [bannerImageUri, setBannerImageUri] = useState<string | null>(null);
+  const [userBio, setUserBio] = useState<string>(bio || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const pickImage = async (type: "profile" | "banner") => {
@@ -67,24 +70,25 @@ export default function EditarUsuarioScreen() {
   };
 
   const handleSave = async () => {
-    if (!profilePictureUri && !bannerImageUri) {
-      Alert.alert("Atenção", "Selecione pelo menos uma imagem para atualizar");
+    if (!profilePictureUri && !bannerImageUri && userBio === (bio || "")) {
+      Alert.alert("Atenção", "Faça alguma alteração antes de salvar");
       return;
     }
 
     setIsLoading(true);
     try {
-      await updateUserImages(userId, profilePictureUri, bannerImageUri, user?.token);
+      const bioToSend = userBio !== (bio || "") ? userBio : null;
+      await updateUserImages(userId, profilePictureUri, bannerImageUri, bioToSend, user?.token);
       
-      Alert.alert("Sucesso", "Imagens atualizadas com sucesso!", [
+      Alert.alert("Sucesso", "Perfil atualizado com sucesso!", [
         {
           text: "OK",
           onPress: () => router.back(),
         },
       ]);
     } catch (error: any) {
-      console.error("Erro ao atualizar imagens:", error);
-      Alert.alert("Erro", error.message || "Erro ao atualizar imagens do usuário");
+      console.error("Erro ao atualizar perfil:", error);
+      Alert.alert("Erro", error.message || "Erro ao atualizar perfil do usuário");
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +114,34 @@ export default function EditarUsuarioScreen() {
             <Text style={[styles.userName, { color: theme.text }]}>
               @{userName}
             </Text>
+
+            {/* Bio do Usuário */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                Biografia
+              </Text>
+              <TextInput
+                style={[
+                  styles.bioInput,
+                  {
+                    color: theme.text,
+                    borderColor: theme.gray,
+                    backgroundColor: isDarkMode ? theme.gray + "20" : "#f5f5f5",
+                  },
+                ]}
+                placeholder="Escreva uma bio para seu perfil..."
+                placeholderTextColor={theme.text + "80"}
+                value={userBio}
+                onChangeText={setUserBio}
+                multiline
+                maxLength={200}
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              <Text style={[styles.charCount, { color: theme.text + "80" }]}>
+                {userBio.length}/200
+              </Text>
+            </View>
 
             {/* Banner */}
             <View style={styles.section}>
@@ -222,6 +254,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
+  },
+  bioInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 14,
+    minHeight: 100,
+    maxHeight: 150,
+  },
+  charCount: {
+    fontSize: 12,
+    textAlign: "right",
+    marginTop: 4,
   },
   bannerContainer: {
     width: "100%",

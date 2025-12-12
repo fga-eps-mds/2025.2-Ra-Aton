@@ -18,6 +18,7 @@ import {
   IGroupProfileTabs,
 } from "@/libs/interfaces/Iprofile";
 import { useUser } from "@/libs/storage/UserContext";
+import AppText from "@/components/AppText";
 
 import { UseModalFeedMatchs } from "@/libs/hooks/useFeedMatchs";
 import { HandleMatchComp } from "@/components/HandleMatchComp";
@@ -61,7 +62,7 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       reloadProfile();
-    }, [reloadProfile])
+    }, [reloadProfile]),
   );
 
   const {
@@ -136,7 +137,7 @@ export default function ProfileScreen() {
           } catch (err: any) {
             Alert.alert(
               "Erro",
-              err.response?.data?.message || "Erro ao trocar de time"
+              err.response?.data?.message || "Erro ao trocar de time",
             );
           }
         },
@@ -159,7 +160,7 @@ export default function ProfileScreen() {
           } catch (err: any) {
             Alert.alert(
               "Erro",
-              err.response?.data?.message || "Erro ao sair da partida"
+              err.response?.data?.message || "Erro ao sair da partida",
             );
           }
         },
@@ -228,6 +229,7 @@ export default function ProfileScreen() {
                   userName: userProfile.userName,
                   profilePicture: userProfile.profilePicture || "",
                   bannerImage: userProfile.bannerImage || "",
+                  bio: userProfile.bio || "",
                 },
               } as any);
             } else if (profileType === "group" && groupProfile) {
@@ -238,6 +240,7 @@ export default function ProfileScreen() {
                   groupName: groupProfile.name,
                   logoUrl: groupProfile.logoUrl || "",
                   bannerUrl: groupProfile.bannerUrl || "",
+                  bio: groupProfile.bio || "",
                 },
               } as any);
             }
@@ -255,6 +258,14 @@ export default function ProfileScreen() {
           />
         </View>
       )}
+
+      {/* {profile && profile.bio ? (
+        <View style={{ paddingHorizontal: 20, marginBottom: 10, alignItems:'center', marginTop:10, }}>
+          <AppText style={{ color: Colors.dark.text, fontSize: 18 }}>
+            {profile.bio}
+          </AppText>
+        </View>
+      ) : null} */}
     </View>
   );
 

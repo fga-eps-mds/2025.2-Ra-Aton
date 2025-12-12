@@ -191,6 +191,7 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => renderItemContent(activeTab as string, item)}
       ListHeaderComponent={<RenderHeader />}
+      showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.listContent}
       ListEmptyComponent={
         <Text style={[styles.emptyText, { color: theme.gray }]}>
@@ -231,7 +232,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 20,
-    paddingHorizontal: 10, // Adicionado padding horizontal de 10
+    paddingHorizontal: 10,
     gap: 15,
     paddingBottom: 50,
   },

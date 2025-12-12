@@ -57,7 +57,7 @@ const ProfileThumbnailComp: React.FC<ProfileThumbnailProps> = ({
       );
     }
 
-    if (profileType === "user") {
+    if (profileType === "user" && !imageUrl) {
       return (
         <View style={styles.iconContainer}>
           <Ionicons 

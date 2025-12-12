@@ -68,12 +68,13 @@ class ProfileService {
         };
     }
 
-    // Atualiza imagens do grupo (logo e banner)
+    // Atualiza imagens do grupo (logo e banner) e bio
     async updateGroupImages(
         groupId: string,
         authUserId: string,
         logoFile?: Express.Multer.File,
-        bannerFile?: Express.Multer.File
+        bannerFile?: Express.Multer.File,
+        bio?: string
     ) {
         // Verificar se o grupo existe
         const group = await prisma.group.findUnique({
@@ -162,6 +163,11 @@ class ProfileService {
             updateData.bannerId = bannerResult.public_id;
         }
 
+        // Atualizar bio se fornecida
+        if (bio !== undefined && bio !== null) {
+            updateData.bio = bio;
+        }
+
         // Atualizar no banco de dados
         const updatedGroup = await prisma.group.update({
             where: { id: groupId },
@@ -169,6 +175,7 @@ class ProfileService {
             select: {
                 id: true,
                 name: true,
+                bio: true,
                 logoUrl: true,
                 bannerUrl: true,
             }
@@ -180,12 +187,13 @@ class ProfileService {
         };
     }
 
-    // Atualiza imagens do usuário (perfil e banner)
+    // Atualiza imagens do usuário (perfil e banner) e bio
     async updateUserImages(
         userId: string,
         authUserId: string,
         profileFile?: Express.Multer.File,
-        bannerFile?: Express.Multer.File
+        bannerFile?: Express.Multer.File,
+        bio?: string
     ) {
         // Verificar se o usuário existe
         const user = await prisma.user.findUnique({
@@ -263,6 +271,11 @@ class ProfileService {
             updateData.bannerImageId = bannerResult.public_id;
         }
 
+        // Atualizar bio se fornecida
+        if (bio !== undefined && bio !== null) {
+            updateData.bio = bio;
+        }
+
         // Atualizar no banco de dados
         const updatedUser = await prisma.user.update({
             where: { id: userId },
@@ -271,6 +284,7 @@ class ProfileService {
                 id: true,
                 userName: true,
                 name: true,
+                bio: true,
                 profileImageUrl: true,
                 bannerImageUrl: true,
             }
