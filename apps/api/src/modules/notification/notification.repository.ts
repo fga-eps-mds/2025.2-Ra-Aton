@@ -97,6 +97,7 @@ export class NotificationsRepository {
     type: NotificationType;
     resourceId?: string;
     resourceType?: string;
+    contentId?: string;
   }) {
     return this.prismaClient.notification.create({
       data: {
