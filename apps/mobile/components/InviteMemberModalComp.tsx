@@ -61,9 +61,14 @@ export default function InviteMemberModal({ visible, onClose, groupId }: InviteM
       await sendInvite({ groupId, targetEmail: email });
       
       // Sucesso
-      Alert.alert("Sucesso", `Convite enviado para ${email}`);
-      setEmail('');
-      onClose();
+      Alert.alert(
+        "Convite Enviado! 📧", 
+        `Um convite foi enviado para ${email}.`,
+        [{ text: "OK", onPress: () => {
+            setEmail('');
+            onClose();
+        }}]
+      );
     } catch (error: any) {
       // 3. Tratamento de Erro vindo do Backend (ex: Usuário não existe)
       const msg = error.message || "";
