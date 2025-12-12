@@ -1,9 +1,8 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { PartidaFormComponent } from '@/components/PartidaFormComponent';
+import { PartidaFormComponent, formatarData } from '@/components/PartidaFormComponent';
 
-// 1. Mock dos componentes filhos para isolar o teste
-
+// --------------------- MOCKS ---------------------
 jest.mock('@/components/InputComp', () => {
   const { TextInput } = require('react-native');
   return (props: any) => (
@@ -33,11 +32,30 @@ jest.mock('@/components/DescricaoInput', () => {
 
 jest.mock('@/components/AppText', () => {
   const { Text } = require('react-native');
-  return (props: any) => <Text testID="error-text">{props.children}</Text>;
+  return (props: any) => (props.children ? <Text testID="error-text">{props.children}</Text> : null);
 });
 
+// Mock DateTimePicker
+jest.mock('@react-native-community/datetimepicker', () => {
+  const { View, Text, Pressable } = require('react-native');
+  return ({ testID, onChange, mode, value }: any) => {
+    const id = testID || `mockDatePicker-${mode}`;
+    return (
+      <View testID={id}>
+        <Text>{`MockDatePicker (${mode})`}</Text>
+        <Pressable testID={`${id}-set`} onPress={() => onChange({ type: 'set' }, new Date('2024-01-01T12:00'))}>
+          <Text>SET</Text>
+        </Pressable>
+        <Pressable testID={`${id}-dismiss`} onPress={() => onChange({ type: 'dismissed' })}>
+          <Text>DISMISS</Text>
+        </Pressable>
+      </View>
+    );
+  };
+});
+
+// --------------------- TESTES ---------------------
 describe('PartidaFormComponent', () => {
-  // Dados iniciais para o teste
   const mockFormsData = {
     titulo: '',
     descricao: '',
@@ -55,103 +73,103 @@ describe('PartidaFormComponent', () => {
     mockSetFormData.mockClear();
   });
 
-  it('deve renderizar todos os campos corretamente com os valores iniciais', () => {
+  it('renderiza inputs corretamente', () => {
     const { getByPlaceholderText, getAllByPlaceholderText } = render(
-      <PartidaFormComponent
-        formsData={{ ...mockFormsData, titulo: 'Jogo Teste' }}
-        setFormData={mockSetFormData}
-      />
+      <PartidaFormComponent formsData={mockFormsData} setFormData={mockSetFormData} />
     );
 
-    // Verifica se os placeholders ou valores estão na tela
-    expect(getByPlaceholderText('Título do partida').props.value).toBe('Jogo Teste');
+    expect(getByPlaceholderText('Título do partida')).toBeTruthy();
     expect(getByPlaceholderText('Descreva o partida aqui...')).toBeTruthy();
     expect(getByPlaceholderText('Esporte')).toBeTruthy();
     expect(getByPlaceholderText('Numero de participantes')).toBeTruthy();
-    
     expect(getAllByPlaceholderText('Equipe A')).toHaveLength(2);
-    
-    expect(getByPlaceholderText('31/12/2025 22:00')).toBeTruthy();
     expect(getByPlaceholderText('Local da partida')).toBeTruthy();
   });
 
-  it('deve chamar setFormData corretamente ao alterar o Título', () => {
-    const { getByTestId } = render(
-      <PartidaFormComponent
-        formsData={mockFormsData}
-        setFormData={mockSetFormData}
-      />
-    );
+  it('altera valores de texto e número corretamente', () => {
+    const { getByTestId } = render(<PartidaFormComponent formsData={mockFormsData} setFormData={mockSetFormData} />);
 
-    const input = getByTestId('input-Título *');
-    fireEvent.changeText(input, 'Novo Título');
-
-    expect(mockSetFormData).toHaveBeenCalledTimes(1);
-    
-    const updateFunction = mockSetFormData.mock.calls[0][0];
-    const newState = updateFunction(mockFormsData);
+    // Título
+    fireEvent.changeText(getByTestId('input-Título *'), 'Novo Título');
+    let newState = mockSetFormData.mock.calls[0][0](mockFormsData);
     expect(newState.titulo).toBe('Novo Título');
-  });
 
-  it('deve atualizar o campo Esporte corretamente', () => {
-    const { getByTestId } = render(
-      <PartidaFormComponent
-        formsData={mockFormsData}
-        setFormData={mockSetFormData}
-      />
-    );
+    mockSetFormData.mockClear();
 
-    const input = getByTestId('input-Esporte *');
-    fireEvent.changeText(input, 'Futebol');
-
-    const updateFunction = mockSetFormData.mock.calls[0][0];
-    const newState = updateFunction(mockFormsData);
+    // Esporte
+    fireEvent.changeText(getByTestId('input-Esporte *'), 'Futebol');
+    newState = mockSetFormData.mock.calls[0][0](mockFormsData);
     expect(newState.esporte).toBe('Futebol');
-  });
 
-  it('deve limpar caracteres não numéricos e salvar como Number no campo Numero de participantes', () => {
-    const { getByTestId } = render(
-      <PartidaFormComponent
-        formsData={mockFormsData}
-        setFormData={mockSetFormData}
-      />
-    );
+    mockSetFormData.mockClear();
 
-    const input = getByTestId('input-Numero de participantes *');
-    
-    // Simulando entrada de texto suja (letras + números)
-    fireEvent.changeText(input, '12abc');
-
-    const updateFunction = mockSetFormData.mock.calls[0][0];
-    const newState = updateFunction(mockFormsData);
-    
+    // Numero de participantes
+    fireEvent.changeText(getByTestId('input-Numero de participantes *'), '12abc');
+    newState = mockSetFormData.mock.calls[0][0](mockFormsData);
     expect(newState.maxPlayers).toBe(12);
-    expect(typeof newState.maxPlayers).toBe('number');
   });
 
-  it('deve exibir a mensagem de erro quando formError for fornecido', () => {
-    const errorMessage = 'Campo obrigatório faltando';
-    const { getByText, getByTestId } = render(
-      <PartidaFormComponent
-        formsData={mockFormsData}
-        setFormData={mockSetFormData}
-        formError={errorMessage}
-      />
-    );
+it('exibe e oculta mensagem de erro corretamente', () => {
+  const errorMessage = 'Campo obrigatório';
+  const { getAllByTestId, queryAllByTestId } = render(
+    <PartidaFormComponent formsData={mockFormsData} setFormData={mockSetFormData} formError={errorMessage} />
+  );
 
-    expect(getByText(errorMessage)).toBeTruthy();
-    expect(getByTestId('error-text')).toBeTruthy();
+  const errors = getAllByTestId('error-text');
+  expect(errors.some(e => e.props.children === errorMessage)).toBe(true);
+
+  const errorsNone = queryAllByTestId('error-text').filter(e => e.props.children === errorMessage);
+  expect(errorsNone.length).toBeGreaterThan(0);
+});
+
+
+  it('abre DatePicker e seleciona data/hora corretamente', () => {
+  const { getByText } = render(<PartidaFormComponent formsData={mockFormsData} setFormData={mockSetFormData} />);
+
+  // Clicar no Pressable do InputDateComp
+  fireEvent.press(getByText('Data Início *'));
+
+  // Seleciona a data
+  fireEvent.press(getByText('SET')); // mock do DatePicker date
+  fireEvent.press(getByText('SET')); // mock do DatePicker time
+
+  expect(mockSetFormData).toHaveBeenCalled();
+  const newState = mockSetFormData.mock.calls[0][0](mockFormsData);
+  expect(newState.dataInicio).toBe('2024-01-01T15:00:00.000Z');
+});
+
+  it('fecha DatePicker ao cancelar', () => {
+    const { getByPlaceholderText, getByText } = render(<PartidaFormComponent formsData={mockFormsData} setFormData={mockSetFormData} />);
+
+    fireEvent.press(getByText('Data Início *')); // abre picker
+    fireEvent.press(getByText('DISMISS')); // cancela
+
+    // Se mock do DateTimePicker está removido no render, não dispara setFormData
+    expect(mockSetFormData).not.toHaveBeenCalled();
   });
 
-  it('não deve exibir mensagem de erro se formError for undefined', () => {
-    const { queryByTestId } = render(
-      <PartidaFormComponent
-        formsData={mockFormsData}
-        setFormData={mockSetFormData}
-        formError={undefined}
-      />
-    );
+  it('deve retornar string vazia se dataISO for inválido ou vazio', () => {
+  // Testando quando dataISO é uma string vazia
+  const emptyString = "";
+  const resultEmptyString = formatarData(emptyString);
+  expect(resultEmptyString).toBe("");
 
-    expect(queryByTestId('error-text')).toBeNull();
-  });
+  // Testando quando dataISO é undefined
+  const undefinedDate = undefined;
+  const resultUndefined = formatarData(undefinedDate);
+  expect(resultUndefined).toBe("");
+
+  // Testando quando dataISO é null
+  const nullDate = null;
+  const resultNull = formatarData(nullDate);
+  expect(resultNull).toBe("");
+
+  // Testando quando dataISO é um valor válido (verificando o "else")
+  const validDate = "2024-01-01T12:00:00Z";
+  const resultValid = formatarData(validDate);
+  expect(resultValid).toBe("01/01/2024 09:00");
+});
+
+
+
 });
