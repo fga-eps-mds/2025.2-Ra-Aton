@@ -33,6 +33,7 @@ interface UserProfileTabsProps extends BaseProfileTabsProps {
   currentUserId?: string;
   onPressMatchInfos?: (match: Imatches) => void;
   onPressJoinMatch?: (match: Imatches) => void;
+  onPressGroup?: (groupName: string) => void;
 }
 
 interface GroupProfileTabsProps extends BaseProfileTabsProps {
@@ -41,6 +42,7 @@ interface GroupProfileTabsProps extends BaseProfileTabsProps {
   posts: IPost[];
   onPressComment?: (postId: string) => void;
   onPressOptions?: (postId: string) => void;
+  onPressMember?: (userName: string) => void;
   currentUserId?: string;
 }
 
@@ -82,14 +84,18 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
         case "followedGroups":
         case "memberGroups":
           return (
-            <View style={[styles.groupCard, { backgroundColor: theme.input }]}>
-              <Text style={[styles.groupName, { color: theme.text }]}>
+            <TouchableOpacity
+              style={[styles.card, { backgroundColor: theme.input }]}
+              onPress={() => userProps.onPressGroup?.(item.name)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.cardTitle, { color: theme.text }]}>
                 {item.name}
               </Text>
-              <Text style={[styles.groupDescription, { color: theme.gray }]}>
+              <Text style={[styles.cardSubtitle, { color: theme.gray }]}>
                 {item.description}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
       }
     } else {
@@ -105,14 +111,18 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
           );
         case "members":
           return (
-            <View style={[styles.memberCard, { backgroundColor: theme.input }]}>
-              <Text style={[styles.memberName, { color: theme.text }]}>
+            <TouchableOpacity
+              style={[styles.card, { backgroundColor: theme.input }]}
+              onPress={() => groupProps.onPressMember?.(item.userName)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.cardTitle, { color: theme.text }]}>
                 {item.name}
               </Text>
-              <Text style={[styles.memberUsername, { color: theme.gray }]}>
+              <Text style={[styles.cardSubtitle, { color: theme.gray }]}>
                 @{item.userName}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
       }
     }
@@ -191,7 +201,6 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => renderItemContent(activeTab as string, item)}
       ListHeaderComponent={<RenderHeader />}
-      showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.listContent}
       ListEmptyComponent={
         <Text style={[styles.emptyText, { color: theme.gray }]}>
@@ -232,8 +241,8 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 20,
-    paddingHorizontal: 10,
-    gap: 15,
+    paddingHorizontal: 10, // Apenas o padding lateral leve
+    gap: 15,               // Espaçamento entre os itens
     paddingBottom: 50,
   },
   emptyText: {
@@ -241,27 +250,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 32,
   },
-  groupCard: {
+  card: {
     padding: 16,
     borderRadius: 12,
   },
-  groupName: {
+  cardTitle: {
     fontSize: 18,
     fontWeight: "bold",
   },
-  groupDescription: {
-    fontSize: 14,
-    marginTop: 4,
-  },
-  memberCard: {
-    padding: 16,
-    borderRadius: 12,
-  },
-  memberName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  memberUsername: {
+  cardSubtitle: {
     fontSize: 14,
     marginTop: 4,
   },

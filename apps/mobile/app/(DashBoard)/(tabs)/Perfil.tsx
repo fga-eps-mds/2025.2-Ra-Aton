@@ -34,6 +34,10 @@ import {
   switchTeam,
 } from "@/libs/auth/handleMatch";
 
+import { useFeedModals } from "@/libs/hooks/useModalFeed";
+import CommentsModalComp from "@/components/CommentsModalComp";
+import { EventInfoModalComp } from "@/components/EventInfoModal";
+
 export default function ProfileScreen() {
   const { identifier, type } = useLocalSearchParams<{
     identifier: string;
@@ -64,6 +68,26 @@ export default function ProfileScreen() {
       reloadProfile();
     }, [reloadProfile]),
   );
+
+  const {
+    isOptionsVisible: isPostOptionsVisible,
+    isCommentsVisible: isPostCommentsVisible,
+    isReportModalVisible: isPostReportVisible,
+    selectedPostId: selectedPostIdForModal,
+    comments: postComments,
+    isLoadingComments,
+    handleOpenComments,
+    handleCloseComments,
+    handleOpenOptions,
+    handleCloseInfoModel,
+    handleStartReportFlow,
+    handleCloseModals,
+    handleSubmitReport,
+    handlePostComment,
+    openModalInfos: openEventModal,
+    closeModalInfos: closeEventModal,
+    showModal: showEventModal,
+  } = useFeedModals({ user: currentUser, setPosts: () => {} });
 
   const {
     visibleConfirmCard,
@@ -168,6 +192,20 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const handleGroupPress = (groupName: string) => {
+    router.push({
+      pathname: "/(DashBoard)/(tabs)/Perfil",
+      params: { identifier: groupName, type: "group" },
+    });
+  };
+
+  const handleMemberPress = (userName: string) => {
+    router.push({
+      pathname: "/(DashBoard)/(tabs)/Perfil",
+      params: { identifier: userName, type: "user" },
+    });
+  };
+
   useEffect(() => {
     if (error) {
       Alert.alert("Erro", error);
@@ -258,16 +296,12 @@ export default function ProfileScreen() {
           />
         </View>
       )}
-
-      {/* {profile && profile.bio ? (
-        <View style={{ paddingHorizontal: 20, marginBottom: 10, alignItems:'center', marginTop:10, }}>
-          <AppText style={{ color: Colors.dark.text, fontSize: 18 }}>
-            {profile.bio}
-          </AppText>
-        </View>
-      ) : null} */}
     </View>
   );
+
+  const selectedPostForInfo = groupTabs?.posts?.find(
+    (p) => String(p.id) === selectedPostIdForModal
+  ) || null;
 
   return (
     <BackGroundComp>
@@ -285,6 +319,7 @@ export default function ProfileScreen() {
                 currentUserId={currentUser?.id}
                 onPressMatchInfos={(match) => useModal(match)}
                 onPressJoinMatch={(match) => handleJoinMatch(match)}
+                onPressGroup={(groupName) => handleGroupPress(groupName)}
                 onReload={reloadProfile}
                 isLoading={isLoading}
               />
@@ -295,10 +330,9 @@ export default function ProfileScreen() {
                 members={groupTabs.members || []}
                 posts={groupTabs.posts || []}
                 isDarkMode={isDarkMode}
-                onPressComment={(postId) =>
-                  console.log("Comentar post:", postId)
-                }
-                onPressOptions={(postId) => console.log("Opções post:", postId)}
+                onPressComment={handleOpenComments}
+                onPressOptions={handleOpenOptions}
+                onPressMember={handleMemberPress}
                 onReload={reloadProfile}
                 isLoading={isLoading}
               />
@@ -318,20 +352,34 @@ export default function ProfileScreen() {
           />
 
           <ReportReasonModal
-            isVisible={visibleReportMatch}
-            onClose={closeReportMatchModal}
+            isVisible={visibleReportMatch || isPostReportVisible}
+            onClose={() => {
+              closeReportMatchModal();
+              handleCloseModals();
+            }}
+            onSubmit={isPostReportVisible ? handleSubmitReport : undefined}
           />
 
           <MoreOptionsModalComp
-            isVisible={visibleInfosHandleMatch}
-            onClose={closeModalMoreInfosHandleModal}
-            onInfos={openDetailsFromHandle}
-            onDetailsMatch={openDescriptionMatchModal}
+            isVisible={visibleInfosHandleMatch || isPostOptionsVisible}
+            onClose={() => {
+              closeModalMoreInfosHandleModal();
+              handleCloseInfoModel();
+            }}
+            onInfos={
+              visibleInfosHandleMatch
+                ? openDetailsFromHandle
+                : isPostOptionsVisible && selectedPostForInfo?.type === "EVENT"
+                ? openEventModal
+                : undefined
+            }
+            onDetailsMatch={visibleInfosHandleMatch ? openDescriptionMatchModal : undefined}
             onLeaveMatch={
-              selectedMatch
+              visibleInfosHandleMatch && selectedMatch
                 ? () => handleLeaveMatch(selectedMatch)
                 : undefined
             }
+            onReport={isPostOptionsVisible ? handleStartReportFlow : undefined}
           />
 
           <MatchDetailsModal
@@ -345,6 +393,20 @@ export default function ProfileScreen() {
             onClose={closeDescriptionMatchModal}
             title={selectedMatch?.title}
             description={selectedMatch?.description}
+          />
+
+          <CommentsModalComp
+            isVisible={isPostCommentsVisible}
+            onClose={handleCloseComments}
+            comments={postComments}
+            isLoading={isLoadingComments}
+            onSendComment={handlePostComment}
+          />
+
+          <EventInfoModalComp
+            post={selectedPostForInfo}
+            visible={showEventModal}
+            onClose={closeEventModal}
           />
         </View>
       </SafeAreaView>

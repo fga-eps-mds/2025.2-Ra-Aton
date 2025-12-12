@@ -46,65 +46,72 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
   const modalOptions = [
-    ...(onDetailsMatch ? [
-      {
-        label: "Descrição da partida",
-        icon: "reader-outline",
-        action: onDetailsMatch,
-        color: theme.orange,
-      }
-    ] : [])
-    ,
-
-    ...(onReport ? [{
-      label: "Reportar Post",
-      icon: "alert-circle-outline",
-      action: onReport,
-      color: "#D93E3E",
-    }] : [])
-    ,
-    // {
-    //   label:"Reportar Evento",
-    //   icon:"alert-circle-outline",
-    //   action: onInfosMatch,
-    //   color:"#D93E3E"
-    // }
-
-    {
-      label: "Sobre o evento",
-      icon: "information-circle",
-      action: onInfos,
-      color: theme.orange,
-    },
-    ...(onDelete
+    ...(onDetailsMatch
       ? [
-        {
-          label: "Excluir Post",
-          icon: "trash-outline",
-          action: onDelete,
-          color: "#D93E3E",
-        },
-      ]
+          {
+            label: "Descrição da partida",
+            icon: "reader-outline",
+            action: onDetailsMatch,
+            color: theme.orange,
+          },
+        ]
       : []),
 
-    ...(onInfosMatch ? [
-      {
-        label: "Reportar Partida",
-        icon: "alert-circle-outline",
-        action: onInfosMatch,
-        color: "#D93E3E"
-      }
-    ] : []),
+    ...(onReport
+      ? [
+          {
+            label: "Reportar Post",
+            icon: "alert-circle-outline",
+            action: onReport,
+            color: "#D93E3E",
+          },
+        ]
+      : []),
 
-    ...(onLeaveMatch ? [
-      {
-        label: "Abandonar partida",
-        icon: "log-out-outline",
-        action: onLeaveMatch,
-        color: "#D93E3E",
-      }
-    ] : []),
+    // CORREÇÃO: Verifica se onInfos existe antes de adicionar a opção
+    ...(onInfos
+      ? [
+          {
+            label: "Sobre o evento",
+            icon: "information-circle",
+            action: onInfos,
+            color: theme.orange,
+          },
+        ]
+      : []),
 
+    ...(onDelete
+      ? [
+          {
+            label: "Excluir Post",
+            icon: "trash-outline",
+            action: onDelete,
+            color: "#D93E3E",
+          },
+        ]
+      : []),
+
+    ...(onInfosMatch
+      ? [
+          {
+            label: "Reportar Partida",
+            icon: "alert-circle-outline",
+            action: onInfosMatch,
+            color: "#D93E3E",
+          },
+        ]
+      : []),
+
+    ...(onLeaveMatch
+      ? [
+          {
+            label: "Abandonar partida",
+            icon: "log-out-outline",
+            action: onLeaveMatch,
+            color: "#D93E3E",
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -126,7 +133,9 @@ const MoreOptionsModalComp: React.FC<MoreOptionsModalProps> = ({
                 <TouchableOpacity
                   style={styles.optionButton}
                   onPress={() => {
-                    option.action();
+                    if (option.action) {
+                      option.action();
+                    }
                     onClose();
                   }}
                 >
