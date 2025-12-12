@@ -196,6 +196,15 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
+
+        <Tabs.Screen
+        name="Notifications"
+        options={{
+          title: "Editar Post",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
     </Tabs>
 
 

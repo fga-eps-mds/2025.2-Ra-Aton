@@ -1,127 +1,129 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import { EventoFormComponent } from '@/components/EventoFormComponent';
+import React from "react";
+import { render, fireEvent } from "@testing-library/react-native";
+import { EventoFormComponent, formatarDataHelper } from "@/components/EventoFormComponent";
 
-// --- MOCKS ---
+jest.mock("@react-native-community/datetimepicker", () => {
+  const { View, Text, Pressable } = require("react-native");
 
-// 1. Mock do InputComp (Assumindo que é export default)
-jest.mock('@/components/InputComp', () => {
-  const { TextInput } = require('react-native');
-  // Para 'export default', retornamos a função diretamente
-  return jest.fn(({ value, onChangeText, placeholder, label }) => (
-    <TextInput
-      testID={`input-${label}`}
-      value={value}
-      onChangeText={onChangeText}
-      placeholder={placeholder}
-    />
-  ));
-});
+  return ({ testID, onChange, mode }) => {
+    const id = testID || `mockDatePicker-${mode}`;
 
-// 2. Mock do DescricaoInput
-jest.mock('@/components/DescricaoInput', () => {
-  const { TextInput } = require('react-native');
-  
-  // IMPORTANTE: Retornamos um OBJETO contendo a chave 'DescricaoInput'
-  return {
-    DescricaoInput: jest.fn(({ value, onChangeText, placeholder, label }) => (
-      <TextInput
-        testID={`input-${label}`}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-      />
-    )),
+    return (
+      <View testID={id}>
+        <Text>{`MockDatePicker (${mode})`}</Text>
+
+        <Pressable
+          testID={`${id}-set`}
+          onPress={() => onChange({ type: "set" }, new Date("2024-01-01T12:00"))}
+        >
+          <Text>SET</Text>
+        </Pressable>
+
+        <Pressable
+          testID={`${id}-dismiss`}
+          onPress={() => onChange({ type: "dismissed" })}
+        >
+          <Text>DISMISS</Text>
+        </Pressable>
+      </View>
+    );
   };
 });
 
-describe('EventoFormComponent', () => {
-  const mockFormData = {
-    titulo: 'Festa de Teste',
-    descricao: 'Descrição inicial',
-    dataInicio: '25/12/2025 20:00',
-    dataFim: '26/12/2025 02:00',
-    local: 'Campus 1',
+describe("EventoFormComponent", () => {
+  const initialData = {
+    titulo: "",
+    descricao: "",
+    dataInicio: "",
+    dataFim: "",
+    local: "",
   };
 
-  const mockSetFormData = jest.fn();
+  const setFormDataMock = jest.fn();
+  afterEach(() => jest.clearAllMocks());
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  // -----------------------------------------------------------
+  test("formatarDataHelper formata corretamente", () => {
+    const result = formatarDataHelper("2024-01-10T14:30");
+    expect(result).toBe("10/01/2024 14:30");
   });
 
-  it('deve renderizar todos os campos com os valores iniciais corretos', () => {
-    const { getByDisplayValue } = render(
-      <EventoFormComponent 
-        formsData={mockFormData} 
-        setFormData={mockSetFormData} 
-      />
+  // -----------------------------------------------------------
+  test("altera título corretamente", () => {
+    const { getByLabelText } = render(
+      <EventoFormComponent formsData={initialData} setFormData={setFormDataMock} />
     );
 
-    expect(getByDisplayValue('Festa de Teste')).toBeTruthy();
-    expect(getByDisplayValue('Descrição inicial')).toBeTruthy();
-    expect(getByDisplayValue('25/12/2025 20:00')).toBeTruthy();
-    expect(getByDisplayValue('26/12/2025 02:00')).toBeTruthy();
-    expect(getByDisplayValue('Campus 1')).toBeTruthy();
+    const input = getByLabelText("Título *");
+    fireEvent.changeText(input, "Evento Teste");
+
+    expect(setFormDataMock).toHaveBeenCalled();
+
+    const fn = setFormDataMock.mock.calls[0][0];
+    const newState = fn(initialData);
+
+    expect(newState.titulo).toBe("Evento Teste");
   });
 
-  it('deve chamar setFormData corretamente ao alterar o Título', () => {
-    const { getByPlaceholderText } = render(
-      <EventoFormComponent formsData={mockFormData} setFormData={mockSetFormData} />
+  // -----------------------------------------------------------
+  test("abre DatePicker ao clicar em Data Início", () => {
+    const { getAllByText, getByTestId } = render(
+      <EventoFormComponent formsData={initialData} setFormData={setFormDataMock} />
     );
 
-    const inputTitulo = getByPlaceholderText('Título do evento');
-    fireEvent.changeText(inputTitulo, 'Novo Título');
+    fireEvent.press(getAllByText("Selecionar data")[0]);
 
-    expect(mockSetFormData).toHaveBeenCalledTimes(1);
-    
-    const functionPassedToSetState = mockSetFormData.mock.calls[0][0];
-    const newState = functionPassedToSetState(mockFormData);
-    
-    expect(newState).toEqual({
-      ...mockFormData,
-      titulo: 'Novo Título',
-    });
+    expect(getByTestId("mockDatePicker-date")).toBeTruthy();
   });
 
-  it('deve chamar setFormData corretamente ao alterar a Descrição', () => {
-    const { getByPlaceholderText } = render(
-      <EventoFormComponent formsData={mockFormData} setFormData={mockSetFormData} />
+  // -----------------------------------------------------------
+  test("seleciona data e hora para dataInicio", () => {
+    const { getAllByText, getByTestId } = render(
+      <EventoFormComponent formsData={initialData} setFormData={setFormDataMock} />
     );
 
-    const inputDescricao = getByPlaceholderText('Descreva o evento aqui...');
-    fireEvent.changeText(inputDescricao, 'Nova Descrição Detalhada');
+    fireEvent.press(getAllByText("Selecionar data")[0]);
 
-    const updateFunction = mockSetFormData.mock.calls[0][0];
-    const newState = updateFunction(mockFormData);
+    fireEvent.press(getByTestId("mockDatePicker-date-set"));
+    fireEvent.press(getByTestId("mockDatePicker-time-set"));
 
-    expect(newState).toEqual({
-      ...mockFormData,
-      descricao: 'Nova Descrição Detalhada',
-    });
+    expect(setFormDataMock).toHaveBeenCalled();
+
+    const fn = setFormDataMock.mock.calls[0][0];
+    const newState = fn(initialData);
+
+    expect(newState.dataInicio).toBe("2024-01-01T15:00:00.000Z");
   });
 
-  it('deve chamar setFormData ao alterar Data Início', () => {
-    const { getByPlaceholderText } = render(
-      <EventoFormComponent formsData={mockFormData} setFormData={mockSetFormData} />
+  // -----------------------------------------------------------
+  test("seleciona data e hora para dataFim", () => {
+    const { getAllByText, getByTestId } = render(
+      <EventoFormComponent formsData={initialData} setFormData={setFormDataMock} />
     );
 
-    const inputDate = getByPlaceholderText('31/12/2025 22:00');
-    fireEvent.changeText(inputDate, '01/01/2026 00:00');
+    fireEvent.press(getAllByText("Selecionar data")[1]);
 
-    const updateFunction = mockSetFormData.mock.calls[0][0];
-    expect(updateFunction(mockFormData).dataInicio).toBe('01/01/2026 00:00');
+    fireEvent.press(getByTestId("mockDatePicker-date-set"));
+    fireEvent.press(getByTestId("mockDatePicker-time-set"));
+
+    expect(setFormDataMock).toHaveBeenCalled();
+
+    const fn = setFormDataMock.mock.calls[0][0];
+    const newState = fn(initialData);
+
+    expect(newState.dataFim).toBe("2024-01-01T15:00:00.000Z");
   });
 
-  it('deve chamar setFormData ao alterar Local', () => {
-    const { getByPlaceholderText } = render(
-      <EventoFormComponent formsData={mockFormData} setFormData={mockSetFormData} />
+  // -----------------------------------------------------------
+  test("fecha datePicker quando usuário cancela", () => {
+    const { getAllByText, queryByTestId, getByTestId } = render(
+      <EventoFormComponent formsData={initialData} setFormData={setFormDataMock} />
     );
 
-    const inputLocal = getByPlaceholderText('Local do evento');
-    fireEvent.changeText(inputLocal, 'Auditório Principal');
+    fireEvent.press(getAllByText("Selecionar data")[0]);
 
-    const updateFunction = mockSetFormData.mock.calls[0][0];
-    expect(updateFunction(mockFormData).local).toBe('Auditório Principal');
+    fireEvent.press(getByTestId("mockDatePicker-date-dismiss"));
+
+    expect(queryByTestId("mockDatePicker-date")).toBeNull();
   });
 });

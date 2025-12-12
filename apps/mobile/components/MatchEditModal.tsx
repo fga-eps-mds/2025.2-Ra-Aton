@@ -22,7 +22,7 @@ import PrimaryButton from "./PrimaryButton";
 import AppText from "./AppText";
 import SecondaryButton from "@/components/SecondaryButton";
 import InputDateComp from "./InputDateComp";
-
+import InputDateWebComp from "./InputDateWebComp";
 type MatchEditModalProps = {
   visible: boolean;
   onClose: () => void;
@@ -278,13 +278,29 @@ export function MatchEditModal({
               placeholder="Equipe 2"
             />
 
-            <InputDateComp
-              label="Data de Início"
-              value={dataInputValue}
-              onPress={() => setShowPicker(true)}
-              status={!!formErrors.MatchDate}
-              statusText={formErrors.MatchDate}
-            />
+            {Platform.OS === "web" ? (
+                  <InputDateWebComp
+                  label="Data Início *"
+                  value={editData.MatchDate ? editData.MatchDate.slice(0, 16) : ""}
+                  onChange={(value) => {
+                  const iso = new Date(value).toISOString();
+                  setEditData((prev) => ({ ...prev, MatchDate: iso }));
+                  setDataInputValue(formatarData(iso));
+                }}
+                status={!!formErrors.MatchDate}
+                statusText={formErrors.MatchDate}
+              />
+            ) : (
+              <InputDateComp
+                label="Data de Início"
+                value={dataInputValue}
+                onPress={() => setShowPicker(true)}
+                status={!!formErrors.MatchDate}
+                statusText={formErrors.MatchDate}
+              />
+            )}
+
+
 
             <InputComp
               label="Local"
@@ -440,4 +456,5 @@ const makeStyles = (theme: any) =>
       justifyContent: "center",
       alignItems: "center",
     },
+    
   });

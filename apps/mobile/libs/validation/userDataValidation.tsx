@@ -32,12 +32,12 @@ export const verifyNickname = (userName: string) => {
 export const verifyPassword = (password: string) => {
   if (password.length > 50) return "A senha não pode ultrapassar 50 caracteres";
 
-  const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
-  if (password.length < 8) {
-    return "Sua senha deve possuir no mínimo 8 caracteres";
+  const validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
+  if (password.length < 12) {
+    return "Sua senha deve possuir no mínimo 12 caracteres";
   }
   if (validPassword.test(password) == false) {
-    return "Sua senha deve conter letras e números";
+    return "A senha deve ter caracteres maiúsculos, minúsculos, números e símbolos";
   }
   return "";
 };

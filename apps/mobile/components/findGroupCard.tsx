@@ -74,6 +74,7 @@ const handleFollow = async () => {
         <AppText style={styles.name}>{group.name}</AppText>
 
       <View style={styles.buttons}>
+        {group.acceptingNewMembers ? (
         <PrimaryButton
          textWeight={500} textSize={20} 
           style={styles.button}
@@ -103,6 +104,9 @@ const handleFollow = async () => {
         >
           Solicitar
         </PrimaryButton>
+        ) : (
+          null
+        )}
 
         {group.isFollowing ? (
           <SecondaryButton
