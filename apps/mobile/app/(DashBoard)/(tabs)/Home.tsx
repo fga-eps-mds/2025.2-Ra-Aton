@@ -68,10 +68,10 @@ export default function HomeScreen() {
         ListHeaderComponent={
           <View style={styles.containerHeader}>
             <ProfileThumbnailComp 
-              size={40} 
+              size={50} 
               // userName={user?.userName}
               userName={user?.userName ?? "User"}
-              imageUrl={user?.profilePicture}
+              imageUrl={user?.profilePicture ?? null}
               profileType={"user"}
             />
             <View style={styles.boxSearchComp}>

@@ -24,6 +24,7 @@ import {
   IGroupProfileTabs,
 } from "@/libs/interfaces/Iprofile";
 import { useUser } from "@/libs/storage/UserContext";
+import AppText from "@/components/AppText";
 
 export default function ProfileScreen() {
   const { identifier, type } = useLocalSearchParams<{
@@ -170,6 +171,13 @@ export default function ProfileScreen() {
                 />
               </View>
             )}
+
+            {/* Bio do perfil */}
+            {profile.bio ? (
+              <View style={{ paddingHorizontal: 20, marginBottom: 10 }}>
+                <AppText text={profile.bio ? profile.bio : ""} isDarkMode={isDarkMode} />
+              </View>
+            ) : null}
 
             {/* Abas com conteúdo */}
             <View style={styles.tabsContainer}>
