@@ -1,22 +1,23 @@
 import axios from "axios";
 import { api_route } from "../auth/api";
 
-// function convertToBackendDate(dateStr: string): string {
-//   if (!dateStr || !dateStr.includes(" ")) {
-//     throw new Error("Formato de data inválido: DD/MM/AAAA HH:MM.");
-//   }
+function validarData(dateStr: string): string | null {
+  const regex = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/;
+  if (!regex.test(dateStr)) {
+    return "Erro inesperado ao criar [partida].";
+  }
 
-//   const [datePart, timePart] = dateStr.split(" ");
-//   const [day, month, year] = datePart.split("/");
+  const [datePart] = dateStr.split(" ");
+  const [day, month, year] = datePart.split("/").map(Number);
 
-//   const date = new Date(`${year}-${month}-${day}T${timePart}:00`);
+  if (day < 1 || day > 31) return "Data fornecida é inválida.";
+  if (month < 1 || month > 12) return "Data fornecida é inválida.";
+  if (year < 1900) return "Data fornecida é inválida.";
 
-//   if (isNaN(date.getTime())) {
-//     throw new Error("Data fornecida é inválida.");
-//   }
-//   console.log("Data convertida para backend:", date.toISOString());
-//   return date.toISOString();
-// }
+  return null;
+}
+
+
 
 
 interface createPartidaParams {
@@ -54,6 +55,11 @@ export async function createPartida({
 }: createPartidaParams): Promise<CreatePartidaResponse> {
   let MatchDateFormatted = "";
   let partidaFinishDateFormatted = "";
+
+  const validationError = validarData(MatchDate);
+  if (validationError) {
+    return { error: validationError };
+  }
 
   try {
     MatchDateFormatted = MatchDate;

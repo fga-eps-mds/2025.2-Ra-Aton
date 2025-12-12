@@ -18,18 +18,7 @@ interface EventFormProps {
   setFormData: (data: any) => void;
   formError?: string;
 }
-
-export const EventoFormComponent: React.FC<EventFormProps> = ({
-  formsData,
-  setFormData,
-  formError,
-}) => {
-  const [showPicker, setShowPicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [tempDate, setTempDate] = useState(new Date());
-  const [editingField, setEditingField] = useState<"inicio" | "fim" | null>(null);
-
-  const formatarData = (dataISO: string) => {
+export const formatarDataHelper = (dataISO: string) => {
     if (!dataISO) return "";
     const data = new Date(dataISO);
     const dia = String(data.getDate()).padStart(2, "0");
@@ -40,6 +29,16 @@ export const EventoFormComponent: React.FC<EventFormProps> = ({
     return `${dia}/${mes}/${ano} ${h}:${m}`;
   };
 
+export const EventoFormComponent: React.FC<EventFormProps> = ({ // fiz assim para poder importar no teste dps
+  formsData,
+  setFormData,
+  formError,
+}) => {
+  const [showPicker, setShowPicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [tempDate, setTempDate] = useState(new Date());
+  const [editingField, setEditingField] = useState<"inicio" | "fim" | null>(null);
+  const formatarData = formatarDataHelper;
   const handleChangeDate = (event: any, selected?: Date) => {
     if (event.type === "dismissed") {
       setShowPicker(false);
@@ -159,7 +158,6 @@ export const EventoFormComponent: React.FC<EventFormProps> = ({
         </AppText>
       ) : null}
 
-      {/* --- PICKERS --- */}
       {showPicker && (
         <DateTimePicker
           value={tempDate}

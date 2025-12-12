@@ -25,7 +25,6 @@ function formatarData(datetime) {
   const semZ = datetime.replace("Z", "");
   let dataObj = new Date(semZ);
 
-  // Subtrair 3 horas APENAS NA EXIBIÇÃO
   dataObj.setHours(dataObj.getHours() - 3);
 
   const pad = (n) => String(n).padStart(2, "0");
@@ -51,7 +50,6 @@ function formatarData(datetime) {
         </View>
       )}
 
-      {/* Click em toda a área ativa → abre o picker */}
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => inputRef.current?.showPicker()}
@@ -64,7 +62,6 @@ function formatarData(datetime) {
           style={styles.icon}
         />
 
-        {/* Input HTML invisível (Web) */}
         <input
           ref={inputRef}
           type="datetime-local"
@@ -79,7 +76,7 @@ function formatarData(datetime) {
         />
 
         <AppText style={styles.valueText}>
-  {value ? formatarData(value) : "Selecione a data"}
+  {value ? formatarData(value) : "Selecionar data"}
         </AppText>
       </TouchableOpacity>
 
