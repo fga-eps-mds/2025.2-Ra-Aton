@@ -17,7 +17,7 @@ export interface IGroupMember {
 
 export interface IInvitePayload {
   groupId: string;
-  targetUserId?: string; // Para convidar amigo da plataforma
-  targetEmail?: string;  // Para convidar por e-mail
+  targetUserId?: string; 
+  targetEmail?: string; 
   message?: string;
 }
