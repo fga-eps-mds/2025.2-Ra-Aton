@@ -18,6 +18,7 @@ import BackGroundComp from "@/components/BackGroundComp";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { updateGroupImages } from "@/libs/group/handleGroupProfile";
+import { useUser } from "@/libs/storage/UserContext";
 
 export default function EditarGrupoScreen() {
   const { groupId, groupName, logoUrl, bannerUrl } = useLocalSearchParams<{
@@ -30,6 +31,7 @@ export default function EditarGrupoScreen() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
+  const { user } = useUser();
 
   const [selectedLogo, setSelectedLogo] = useState<string | null>(logoUrl || null);
   const [selectedBanner, setSelectedBanner] = useState<string | null>(bannerUrl || null);
@@ -72,7 +74,7 @@ export default function EditarGrupoScreen() {
 
     setIsLoading(true);
     try {
-      await updateGroupImages(groupId, logoUri, bannerUri);
+      await updateGroupImages(groupId, logoUri, bannerUri, user?.token);
       
       Alert.alert("Sucesso", "Imagens atualizadas com sucesso!", [
         {

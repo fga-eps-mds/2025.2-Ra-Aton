@@ -7,7 +7,8 @@ import { api_route } from "@/libs/auth/api";
 export async function updateGroupImages(
   groupId: string,
   logoUri: string | null,
-  bannerUri: string | null
+  bannerUri: string | null,
+  authToken?: string
 ): Promise<void> {
   try {
     const formData = new FormData();
@@ -41,6 +42,7 @@ export async function updateGroupImages(
     await api_route.patch(`/profile/group/${groupId}/images`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       },
     });
   } catch (error: any) {
