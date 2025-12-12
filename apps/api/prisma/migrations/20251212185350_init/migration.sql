@@ -237,6 +237,7 @@ CREATE TABLE "Notification" (
     "type" "NotificationType" NOT NULL,
     "resourceId" TEXT,
     "resourceType" TEXT,
+    "contentId" TEXT,
     "readAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
