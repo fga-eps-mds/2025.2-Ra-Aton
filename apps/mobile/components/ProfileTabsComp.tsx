@@ -1,4 +1,3 @@
-// components/ProfileTabsComp.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -6,7 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
-  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Imatches } from "@/libs/interfaces/Imatches";
@@ -17,231 +16,204 @@ import { MatchesCard } from "./MatchesCardComp";
 import PostCardComp from "./PostCardComp";
 
 type UserTabType = "matches" | "followedGroups" | "memberGroups";
-type GroupTabType = "members" | "posts";
+type GroupTabType = "posts" | "members";
 
-interface UserProfileTabsProps {
+interface BaseProfileTabsProps {
+  isDarkMode: boolean;
+  ListHeaderComponent?: React.ReactElement | null;
+  onReload?: () => void;
+  isLoading?: boolean;
+}
+
+interface UserProfileTabsProps extends BaseProfileTabsProps {
   type: "user";
   matches: Imatches[];
   followedGroups: IGroup[];
   memberGroups: IGroup[];
-  isDarkMode: boolean;
+  currentUserId?: string;
+  onPressMatchInfos?: (match: Imatches) => void;
+  onPressJoinMatch?: (match: Imatches) => void;
 }
 
-interface GroupProfileTabsProps {
+interface GroupProfileTabsProps extends BaseProfileTabsProps {
   type: "group";
   members: IUserProfile[];
   posts: IPost[];
-  isDarkMode: boolean;
   onPressComment?: (postId: string) => void;
   onPressOptions?: (postId: string) => void;
+  currentUserId?: string;
 }
 
 type ProfileTabsProps = UserProfileTabsProps | GroupProfileTabsProps;
 
 export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
-  const { type, isDarkMode } = props;
+  const { type, isDarkMode, ListHeaderComponent, onReload, isLoading } = props;
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
-  if (type === "user") {
-    const [activeTab, setActiveTab] = useState<UserTabType>("matches");
-    const { matches, followedGroups, memberGroups } = props;
+  const [activeTabUser, setActiveTabUser] = useState<UserTabType>("matches");
+  const [activeTabGroup, setActiveTabGroup] = useState<GroupTabType>("posts");
 
-    const tabs = [
-      { key: "matches" as UserTabType, label: "Partidas", count: matches.length },
-      { key: "followedGroups" as UserTabType, label: "Grupos Seguidos", count: followedGroups.length },
-      { key: "memberGroups" as UserTabType, label: "Grupos Participando", count: memberGroups.length },
-    ];
+  const activeTab = type === "user" ? activeTabUser : activeTabGroup;
+  const setActiveTab = type === "user" ? setActiveTabUser : setActiveTabGroup;
 
-    const renderContent = () => {
-      switch (activeTab) {
+  const checkIsSubscribed = (match: Imatches, userId?: string) => {
+    if (!userId) return false;
+    const inTeamA = match.teamA?.players?.some((p) => p.id === userId);
+    const inTeamB = match.teamB?.players?.some((p) => p.id === userId);
+    return !!(inTeamA || inTeamB);
+  };
+
+  const renderItemContent = (tab: string, item: any) => {
+    if (type === "user") {
+      const userProps = props as UserProfileTabsProps;
+      switch (tab) {
         case "matches":
           return (
-            <FlatList
-              data={matches}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <MatchesCard
-                  match={item}
-                  onPressInfos={() => {}}
-                  onPressJoinMatch={() => {}}
-                  onReloadFeed={() => {}}
-                  isUserSubscriped={false}
-                />
-              )}
-              contentContainerStyle={styles.listContent}
-              ListEmptyComponent={
-                <Text style={[styles.emptyText, { color: theme.gray }]}>
-                  Nenhuma partida encontrada
-                </Text>
-              }
+            <MatchesCard
+              match={item}
+              onPressInfos={() => userProps.onPressMatchInfos?.(item)}
+              onPressJoinMatch={() => userProps.onPressJoinMatch?.(item)}
+              onReloadFeed={async () => {
+                if (onReload) onReload();
+              }}
+              isUserSubscriped={checkIsSubscribed(item, userProps.currentUserId)}
             />
           );
         case "followedGroups":
         case "memberGroups":
-          const groups = activeTab === "followedGroups" ? followedGroups : memberGroups;
           return (
-            <FlatList
-              data={groups}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={[styles.groupCard, { backgroundColor: theme.input }]}>
-                  <Text style={[styles.groupName, { color: theme.text }]}>
-                    {item.name}
-                  </Text>
-                  <Text style={[styles.groupDescription, { color: theme.gray }]}>
-                    {item.description}
-                  </Text>
-                </View>
-              )}
-              contentContainerStyle={styles.listContent}
-              ListEmptyComponent={
-                <Text style={[styles.emptyText, { color: theme.gray }]}>
-                  Nenhum grupo encontrado
-                </Text>
-              }
-            />
+            <View style={[styles.groupCard, { backgroundColor: theme.input }]}>
+              <Text style={[styles.groupName, { color: theme.text }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.groupDescription, { color: theme.gray }]}>
+                {item.description}
+              </Text>
+            </View>
           );
       }
-    };
-
-    return (
-      <View style={styles.container}>
-        <View style={[styles.tabBar, { borderBottomColor: theme.gray }]}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.key}
-              style={[
-                styles.tab,
-                activeTab === tab.key && {
-                  borderBottomColor: theme.orange,
-                  borderBottomWidth: 3,
-                },
-              ]}
-              onPress={() => setActiveTab(tab.key)}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  {
-                    color: activeTab === tab.key ? theme.text : theme.gray,
-                    fontWeight: activeTab === tab.key ? "bold" : "normal",
-                  },
-                ]}
-              >
-                {tab.label}
-              </Text>
-              <Text style={[styles.tabCount, { color: theme.gray }]}>
-                {tab.count}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        {renderContent()}
-      </View>
-    );
-  } else {
-    const [activeTab, setActiveTab] = useState<GroupTabType>("posts");
-    const { members, posts, onPressComment, onPressOptions } = props;
-
-    const tabs = [
-      { key: "posts" as GroupTabType, label: "Postagens", count: posts.length },
-      { key: "members" as GroupTabType, label: "Membros", count: members.length },
-    ];
-
-    const renderContent = () => {
-      switch (activeTab) {
+    } else {
+      const groupProps = props as GroupProfileTabsProps;
+      switch (tab) {
         case "posts":
           return (
-            <FlatList
-              data={posts}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <PostCardComp
-                  post={item}
-                  onPressComment={onPressComment || (() => {})}
-                  onPressOptions={onPressOptions || (() => {})}
-                />
-              )}
-              contentContainerStyle={styles.listContent}
-              ListEmptyComponent={
-                <Text style={[styles.emptyText, { color: theme.gray }]}>
-                  Nenhuma postagem encontrada
-                </Text>
-              }
+            <PostCardComp
+              post={item}
+              onPressComment={groupProps.onPressComment || (() => {})}
+              onPressOptions={groupProps.onPressOptions || (() => {})}
             />
           );
         case "members":
           return (
-            <FlatList
-              data={members}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={[styles.memberCard, { backgroundColor: theme.input }]}>
-                  <Text style={[styles.memberName, { color: theme.text }]}>
-                    {item.name}
-                  </Text>
-                  <Text style={[styles.memberUsername, { color: theme.gray }]}>
-                    @{item.userName}
-                  </Text>
-                </View>
-              )}
-              contentContainerStyle={styles.listContent}
-              ListEmptyComponent={
-                <Text style={[styles.emptyText, { color: theme.gray }]}>
-                  Nenhum membro encontrado
-                </Text>
-              }
-            />
+            <View style={[styles.memberCard, { backgroundColor: theme.input }]}>
+              <Text style={[styles.memberName, { color: theme.text }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.memberUsername, { color: theme.gray }]}>
+                @{item.userName}
+              </Text>
+            </View>
           );
       }
-    };
+    }
+    return null;
+  };
 
-    return (
-      <View style={styles.container}>
-        <View style={[styles.tabBar, { borderBottomColor: theme.gray }]}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.key}
+  let tabs: { key: string; label: string; count: number }[] = [];
+  let dataToRender: any[] = [];
+
+  if (type === "user") {
+    const p = props as UserProfileTabsProps;
+    tabs = [
+      { key: "matches", label: "Partidas", count: p.matches.length },
+      { key: "followedGroups", label: "Seguindo", count: p.followedGroups.length },
+      { key: "memberGroups", label: "Membro", count: p.memberGroups.length },
+    ];
+    
+    if (activeTab === "matches") dataToRender = p.matches;
+    else if (activeTab === "followedGroups") dataToRender = p.followedGroups;
+    else dataToRender = p.memberGroups;
+  } else {
+    const p = props as GroupProfileTabsProps;
+    tabs = [
+      { key: "posts", label: "Posts", count: p.posts.length },
+      { key: "members", label: "Membros", count: p.members.length },
+    ];
+    
+    if (activeTab === "posts") dataToRender = p.posts;
+    else dataToRender = p.members;
+  }
+
+  const RenderHeader = () => (
+    <View>
+      {ListHeaderComponent}
+      <View
+        style={[
+          styles.tabBar,
+          { borderBottomColor: theme.gray, backgroundColor: theme.background },
+        ]}
+      >
+        {tabs.map((tab) => (
+          <TouchableOpacity
+            key={tab.key}
+            style={[
+              styles.tab,
+              activeTab === tab.key && {
+                borderBottomColor: theme.orange,
+                borderBottomWidth: 3,
+              },
+            ]}
+            onPress={() => setActiveTab(tab.key as any)}
+          >
+            <Text
               style={[
-                styles.tab,
-                activeTab === tab.key && {
-                  borderBottomColor: theme.orange,
-                  borderBottomWidth: 3,
+                styles.tabText,
+                {
+                  color: activeTab === tab.key ? theme.text : theme.gray,
+                  fontWeight: activeTab === tab.key ? "bold" : "normal",
                 },
               ]}
-              onPress={() => setActiveTab(tab.key)}
             >
-              <Text
-                style={[
-                  styles.tabText,
-                  {
-                    color: activeTab === tab.key ? theme.text : theme.gray,
-                    fontWeight: activeTab === tab.key ? "bold" : "normal",
-                  },
-                ]}
-              >
-                {tab.label}
-              </Text>
-              <Text style={[styles.tabCount, { color: theme.gray }]}>
-                {tab.count}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        {renderContent()}
+              {tab.label}
+            </Text>
+            <Text style={[styles.tabCount, { color: theme.gray }]}>
+              {tab.count}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
-    );
-  }
+    </View>
+  );
+
+  return (
+    <FlatList
+      data={dataToRender}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => renderItemContent(activeTab as string, item)}
+      ListHeaderComponent={<RenderHeader />}
+      contentContainerStyle={styles.listContent}
+      ListEmptyComponent={
+        <Text style={[styles.emptyText, { color: theme.gray }]}>
+          Nada encontrado nesta aba.
+        </Text>
+      }
+      refreshControl={
+        <RefreshControl
+          refreshing={isLoading || false}
+          onRefresh={onReload}
+          tintColor={theme.orange}
+        />
+      }
+    />
+  );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   tabBar: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    marginHorizontal: 16,
+    paddingHorizontal: 16,
+    paddingTop: 10,
   },
   tab: {
     flex: 1,
@@ -258,7 +230,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   listContent: {
-    padding: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 10, // Adicionado padding horizontal de 10
+    gap: 15,
+    paddingBottom: 50,
   },
   emptyText: {
     textAlign: "center",
@@ -268,7 +243,6 @@ const styles = StyleSheet.create({
   groupCard: {
     padding: 16,
     borderRadius: 12,
-    marginBottom: 12,
   },
   groupName: {
     fontSize: 18,
@@ -281,7 +255,6 @@ const styles = StyleSheet.create({
   memberCard: {
     padding: 16,
     borderRadius: 12,
-    marginBottom: 12,
   },
   memberName: {
     fontSize: 16,

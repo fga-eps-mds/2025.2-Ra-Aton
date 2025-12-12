@@ -1,12 +1,6 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import BackGroundComp from "@/components/BackGroundComp";
@@ -25,6 +19,20 @@ import {
 } from "@/libs/interfaces/Iprofile";
 import { useUser } from "@/libs/storage/UserContext";
 
+import { UseModalFeedMatchs } from "@/libs/hooks/useFeedMatchs";
+import { HandleMatchComp } from "@/components/HandleMatchComp";
+import { MatchDetailsModal } from "@/components/MatchDetailsModal";
+import MoreOptionsModalComp from "@/components/MoreOptionsModalComp";
+import ReportReasonModal from "@/components/ReportReasonModal";
+import { ModalDescription } from "@/components/ModalDescription";
+import { Imatches } from "@/libs/interfaces/Imatches";
+import {
+  getMatchById,
+  subscribeToMatch,
+  unsubscribeFromMatch,
+  switchTeam,
+} from "@/libs/auth/handleMatch";
+
 export default function ProfileScreen() {
   const { identifier, type } = useLocalSearchParams<{
     identifier: string;
@@ -35,7 +43,6 @@ export default function ProfileScreen() {
   const theme = isDarkMode ? Colors.dark : Colors.light;
   const { user: currentUser } = useUser();
 
-  // Determina o tipo de perfil (user ou group)
   const profileType: ProfileType = (type as ProfileType) || "user";
   const profileIdentifier = identifier || "";
 
@@ -50,6 +57,115 @@ export default function ProfileScreen() {
   } = useProfile(profileIdentifier, profileType);
 
   const [isFollowLoading, setIsFollowLoading] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      reloadProfile();
+    }, [reloadProfile])
+  );
+
+  const {
+    visibleConfirmCard,
+    visible,
+    visibleInfosHandleMatch,
+    visibleReportMatch,
+    visibleDescriptionMatch,
+    selectedMatch,
+    useModal,
+    closeModal,
+    openModalConfirmCard,
+    closeModalConfirmCard,
+    openModalMoreInfosHandleModal,
+    closeModalMoreInfosHandleModal,
+    openReportMatchModal,
+    closeReportMatchModal,
+    openDetailsFromHandle,
+    openDescriptionMatchModal,
+    closeDescriptionMatchModal,
+  } = UseModalFeedMatchs();
+
+  const checkIsSubscribed = (match: Imatches) => {
+    if (!currentUser?.id) return false;
+    const inTeamA = match.teamA?.players?.some((p) => p.id === currentUser.id);
+    const inTeamB = match.teamB?.players?.some((p) => p.id === currentUser.id);
+    return !!(inTeamA || inTeamB);
+  };
+
+  const handleJoinMatch = async (match: Imatches) => {
+    if (checkIsSubscribed(match)) {
+      try {
+        const updated = await getMatchById(match.id);
+        openModalConfirmCard(updated);
+      } catch (e) {
+        Alert.alert("Erro", "Não foi possível carregar a partida.");
+      }
+      return;
+    }
+
+    Alert.alert("Participar", "Deseja participar desta partida?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Confirmar",
+        onPress: async () => {
+          try {
+            await subscribeToMatch(match.id);
+            await reloadProfile();
+            const updated = await getMatchById(match.id);
+            openModalConfirmCard(updated);
+          } catch (err: any) {
+            const msg =
+              err.response?.data?.message || "Erro ao entrar na partida";
+            Alert.alert("Erro", msg);
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleSwitchTeam = async (match: Imatches) => {
+    Alert.alert("Trocar de Time", "Deseja trocar de time?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Confirmar",
+        onPress: async () => {
+          try {
+            await switchTeam(match.id);
+            const updated = await getMatchById(match.id);
+            openModalConfirmCard(updated);
+            reloadProfile();
+          } catch (err: any) {
+            Alert.alert(
+              "Erro",
+              err.response?.data?.message || "Erro ao trocar de time"
+            );
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleLeaveMatch = async (match: Imatches) => {
+    Alert.alert("Sair", "Deseja sair da partida?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Sair",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await unsubscribeFromMatch(match.id);
+            closeModalConfirmCard();
+            closeModalMoreInfosHandleModal();
+            reloadProfile();
+          } catch (err: any) {
+            Alert.alert(
+              "Erro",
+              err.response?.data?.message || "Erro ao sair da partida"
+            );
+          }
+        },
+      },
+    ]);
+  };
 
   useEffect(() => {
     if (error) {
@@ -66,137 +182,159 @@ export default function ProfileScreen() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !profile) {
     return (
       <BackGroundComp>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
-            <ActivityIndicator size="large" color={theme.orange} />
-          </View>
-        </SafeAreaView>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.orange} />
+        </View>
       </BackGroundComp>
     );
   }
 
-  if (!profile || !tabs) {
-    return (
-      <BackGroundComp>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={[styles.errorContainer, { backgroundColor: theme.background }]}>
-            <ActivityIndicator size="large" color={theme.orange} />
-          </View>
-        </SafeAreaView>
-      </BackGroundComp>
-    );
-  }
-
-  // Verifica se é o próprio perfil do usuário
   const isOwnProfile =
     profileType === "user" && currentUser?.userName === profileIdentifier;
-
-  // Type guards e variáveis auxiliares
   const userProfile = profileType === "user" ? (profile as IUserProfile) : null;
-  const groupProfile = profileType === "group" ? (profile as IGroupProfile) : null;
+  const groupProfile =
+    profileType === "group" ? (profile as IGroupProfile) : null;
   const userTabs = profileType === "user" ? (tabs as IUserProfileTabs) : null;
-  const groupTabs = profileType === "group" ? (tabs as IGroupProfileTabs) : null;
+  const groupTabs =
+    profileType === "group" ? (tabs as IGroupProfileTabs) : null;
 
-  // Debug: verificar o que está vindo do profile
-  console.log("Profile data:", profile);
-  console.log("Group profile:", groupProfile);
-  console.log("Is Leader?", groupProfile?.isLeader);
+  const renderProfileHeader = () => (
+    <View>
+      {profile && (
+        <ProfileHeaderComp
+          bannerUrl={userProfile?.bannerImage || groupProfile?.bannerUrl}
+          profileImageUrl={userProfile?.profilePicture || groupProfile?.logoUrl}
+          name={profile.name}
+          identifier={userProfile?.userName || groupProfile?.name || ""}
+          bio={profile.bio}
+          followersCount={profile.followersCount}
+          isDarkMode={isDarkMode}
+          onBack={() => router.back()}
+          showEditButton={
+            (profileType === "user" && userProfile?.isOwner === true) ||
+            (profileType === "group" &&
+              (groupProfile?.isLeader === true ||
+                (groupProfile as any)?.isOwner === true))
+          }
+          onEdit={() => {
+            if (profileType === "user" && userProfile) {
+              router.push({
+                pathname: "/(DashBoard)/(tabs)/(edit)/editarUsuario",
+                params: {
+                  userId: userProfile.id,
+                  userName: userProfile.userName,
+                  profilePicture: userProfile.profilePicture || "",
+                  bannerImage: userProfile.bannerImage || "",
+                },
+              } as any);
+            } else if (profileType === "group" && groupProfile) {
+              router.push({
+                pathname: "/(DashBoard)/(tabs)/(edit)/editarGrupo",
+                params: {
+                  groupId: groupProfile.id,
+                  groupName: groupProfile.name,
+                  logoUrl: groupProfile.logoUrl || "",
+                  bannerUrl: groupProfile.bannerUrl || "",
+                },
+              } as any);
+            }
+          }}
+        />
+      )}
+
+      {!isOwnProfile && profileType === "group" && (
+        <View style={styles.followButtonContainer}>
+          <FollowButtonComp
+            isFollowing={isFollowing}
+            onPress={handleFollowPress}
+            isLoading={isFollowLoading}
+            isDarkMode={isDarkMode}
+          />
+        </View>
+      )}
+    </View>
+  );
 
   return (
     <BackGroundComp>
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-          <ScrollView
-            style={styles.scrollView}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Cabeçalho do perfil */}
-            <ProfileHeaderComp
-              bannerUrl={
-                userProfile?.bannerImage || groupProfile?.bannerUrl
-              }
-              profileImageUrl={
-                userProfile?.profilePicture || groupProfile?.logoUrl
-              }
-              name={profile.name}
-              identifier={
-                userProfile?.userName || groupProfile?.name || ""
-              }
-              bio={profile.bio}
-              followersCount={profile.followersCount}
-              isDarkMode={isDarkMode}
-              onBack={() => router.back()}
-              showEditButton={
-                (profileType === "user" && userProfile?.isOwner === true) ||
-                (profileType === "group" && 
-                (groupProfile?.isLeader === true || (groupProfile as any)?.isOwner === true))
-              }
-              onEdit={() => {
-                if (profileType === "user" && userProfile) {
-                  router.push({
-                    pathname: "/(DashBoard)/(tabs)/(edit)/editarUsuario",
-                    params: {
-                      userId: userProfile.id,
-                      userName: userProfile.userName,
-                      profilePicture: userProfile.profilePicture || "",
-                      bannerImage: userProfile.bannerImage || "",
-                    },
-                  } as any);
-                } else if (profileType === "group" && groupProfile) {
-                  router.push({
-                    pathname: "/(DashBoard)/(tabs)/(edit)/editarGrupo",
-                    params: {
-                      groupId: groupProfile.id,
-                      groupName: groupProfile.name,
-                      logoUrl: groupProfile.logoUrl || "",
-                      bannerUrl: groupProfile.bannerUrl || "",
-                    },
-                  } as any);
+          <View style={styles.tabsContainer}>
+            {userTabs ? (
+              <ProfileTabsComp
+                type="user"
+                ListHeaderComponent={renderProfileHeader()}
+                matches={userTabs.matches || []}
+                followedGroups={userTabs.followedGroups || []}
+                memberGroups={userTabs.memberGroups || []}
+                isDarkMode={isDarkMode}
+                currentUserId={currentUser?.id}
+                onPressMatchInfos={(match) => useModal(match)}
+                onPressJoinMatch={(match) => handleJoinMatch(match)}
+                onReload={reloadProfile}
+                isLoading={isLoading}
+              />
+            ) : groupTabs ? (
+              <ProfileTabsComp
+                type="group"
+                ListHeaderComponent={renderProfileHeader()}
+                members={groupTabs.members || []}
+                posts={groupTabs.posts || []}
+                isDarkMode={isDarkMode}
+                onPressComment={(postId) =>
+                  console.log("Comentar post:", postId)
                 }
-              }}
-            />
+                onPressOptions={(postId) => console.log("Opções post:", postId)}
+                onReload={reloadProfile}
+                isLoading={isLoading}
+              />
+            ) : null}
+          </View>
 
-            {/* Botão de seguir (apenas se não for o próprio perfil) */}
-            {!isOwnProfile && profileType === "group" && (
-              <View style={styles.followButtonContainer}>
-                <FollowButtonComp
-                  isFollowing={isFollowing}
-                  onPress={handleFollowPress}
-                  isLoading={isFollowLoading}
-                  isDarkMode={isDarkMode}
-                />
-              </View>
-            )}
+          <HandleMatchComp
+            isVisible={visibleConfirmCard}
+            onClose={closeModalConfirmCard}
+            match={selectedMatch ?? undefined}
+            onPressMoreInfos={openModalMoreInfosHandleModal}
+            onSwitchTeam={
+              selectedMatch
+                ? () => handleSwitchTeam(selectedMatch)
+                : undefined
+            }
+          />
 
-            {/* Abas com conteúdo */}
-            <View style={styles.tabsContainer}>
-              {userTabs ? (
-                <ProfileTabsComp
-                  type="user"
-                  matches={userTabs.matches || []}
-                  followedGroups={userTabs.followedGroups || []}
-                  memberGroups={userTabs.memberGroups || []}
-                  isDarkMode={isDarkMode}
-                />
-              ) : groupTabs ? (
-                <ProfileTabsComp
-                  type="group"
-                  members={groupTabs.members || []}
-                  posts={groupTabs.posts || []}
-                  isDarkMode={isDarkMode}
-                  onPressComment={(postId) =>
-                    console.log("Comentar post:", postId)
-                  }
-                  onPressOptions={(postId) =>
-                    console.log("Opções post:", postId)
-                  }
-                />
-              ) : null}
-            </View>
-          </ScrollView>
+          <ReportReasonModal
+            isVisible={visibleReportMatch}
+            onClose={closeReportMatchModal}
+          />
+
+          <MoreOptionsModalComp
+            isVisible={visibleInfosHandleMatch}
+            onClose={closeModalMoreInfosHandleModal}
+            onInfos={openDetailsFromHandle}
+            onDetailsMatch={openDescriptionMatchModal}
+            onLeaveMatch={
+              selectedMatch
+                ? () => handleLeaveMatch(selectedMatch)
+                : undefined
+            }
+          />
+
+          <MatchDetailsModal
+            visible={visible}
+            onClose={closeModal}
+            match={selectedMatch ?? undefined}
+          />
+
+          <ModalDescription
+            visible={visibleDescriptionMatch}
+            onClose={closeDescriptionMatchModal}
+            title={selectedMatch?.title}
+            description={selectedMatch?.description}
+          />
         </View>
       </SafeAreaView>
     </BackGroundComp>
@@ -210,15 +348,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-  },
   loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -229,6 +359,5 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flex: 1,
-    minHeight: 400,
   },
 });
