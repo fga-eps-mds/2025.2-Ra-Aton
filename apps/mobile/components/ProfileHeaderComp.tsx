@@ -26,6 +26,7 @@ interface ProfileHeaderProps {
   onBack: () => void;
   showEditButton?: boolean;
   onEdit?: () => void;
+  profileType?: "user" | "group";
 }
 
 export const ProfileHeaderComp: React.FC<ProfileHeaderProps> = ({
@@ -39,6 +40,7 @@ export const ProfileHeaderComp: React.FC<ProfileHeaderProps> = ({
   onBack,
   showEditButton = false,
   onEdit,
+  profileType = "user",
 }) => {
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
@@ -95,6 +97,8 @@ export const ProfileHeaderComp: React.FC<ProfileHeaderProps> = ({
           </Text>
         )}
 
+        {/* Só mostra se profileType for "grupo" */}
+        {profileType === "group" && (
         <View style={styles.statsContainer}>
           <View style={styles.stat}>
             <Text style={[styles.statNumber, { color: theme.text }]}>
@@ -105,6 +109,7 @@ export const ProfileHeaderComp: React.FC<ProfileHeaderProps> = ({
             </Text>
           </View>
         </View>
+        )}
       </View>
     </View>
   );
