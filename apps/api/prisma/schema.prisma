@@ -63,6 +63,7 @@ enum MatchStatus {
   EM_ANDAMENTO
   FINALIZADO
 }
+
 enum NotificationType {
   GROUP_JOIN_REQUEST
   GROUP_JOIN_APPROVED
@@ -74,15 +75,15 @@ enum NotificationType {
 
 // Models
 model User {
-  id           String       @id @default(uuid())
-  name         String
-  email        String       @unique
-  userName     String       @unique
-  profileType  ProfileType?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  passwordHash String
-  notificationsAllowed Boolean @default(true)
+  id                   String       @id @default(uuid())
+  name                 String
+  email                String       @unique
+  userName             String       @unique
+  profileType          ProfileType?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  passwordHash         String
+  notificationsAllowed Boolean      @default(true)
 
   // Relationships
   subscription    PlayerSubscription[]
@@ -95,8 +96,9 @@ model User {
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
   notifyTokens    UsersNotifyTokens[]
-  followedGroups GroupFollow[]
-  notifications Notification[]
+  followedGroups  GroupFollow[]
+  notifications   Notification[]
+  avaliations     Avaliation[]
 }
 
 model Post {
@@ -253,13 +255,13 @@ model Match {
   maxPlayers Int // numero max de jogadores
   players    PlayerSubscription[] // jogadores inscritos
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  MatchDate   DateTime
-  MatchStatus MatchStatus
-  reminderSent Boolean @default(false)
-  location    String
-  sport       String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  MatchDate    DateTime
+  MatchStatus  MatchStatus
+  reminderSent Boolean     @default(false)
+  location     String
+  sport        String
 }
 
 model PlayerSubscription {
@@ -282,6 +284,7 @@ model UsersNotifyTokens {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model GroupFollow {
   id String @id @default(uuid())
 
@@ -297,17 +300,26 @@ model GroupFollow {
 }
 
 model Notification {
-  id String @id @default(uuid())
+  id     String @id @default(uuid())
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  title String
+  title   String
   content String
-  type NotificationType
+  type    NotificationType
 
-  resourceId String?
+  resourceId   String?
   resourceType String? // "GROUP", "MATCH"
 
-  readAt DateTime?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Avaliation {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  score     Int      @default(5)
+  message   String?
   createdAt DateTime @default(now())
 }
