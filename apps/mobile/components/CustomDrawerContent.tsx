@@ -91,7 +91,7 @@ export function CustomDrawerContent(props: any) {
         label="Solicitações"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
-          <Ionicons name="notifications-outline" size={size} color={theme.orange} />
+          <Ionicons name="mail-outline" size={size} color={theme.orange} />
         )}
         onPress={() => navigateTo("Solicitacoes")}
       />
