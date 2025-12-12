@@ -19,7 +19,7 @@ describe('createPartida', () => {
     maxPlayers: 10,
     teamNameA: 'Time A',
     teamNameB: 'Time B',
-    MatchDate: '31/12/2025 22:00',
+    MatchDate: '2026-12-31T20:01:00.000Z', // Alterado para o formato ISO 8601
     location: 'Quadra Central',
     token: 'fake-jwt-token',
   };
@@ -61,20 +61,20 @@ describe('createPartida', () => {
   });
 
   it('deve retornar erro imediato quando formato da data for inválido', async () => {
-    const paramsComDataRuim = { ...mockParams, MatchDate: '1/12/2026 12' };
+    const paramsComDataRuim = { ...mockParams, MatchDate: '31/12/2026 12' }; // Formato errado
 
     const result = await createPartida(paramsComDataRuim);
 
-    expect(result).toEqual({ error: 'Erro inesperado ao criar [partida].' });
+    expect(result).toEqual({ error: 'Formato da data inválido' });
     expect(mockedApi.post).not.toHaveBeenCalled();
   });
 
   it('deve retornar erro para datas impossíveis (ex: 99/99/2025)', async () => {
-    const paramsComDataRuim = { ...mockParams, MatchDate: '99/99/2025 22:00' };
+    const paramsComDataRuim = { ...mockParams, MatchDate: '0000-32-32T25:01:00.000Z' }; // Data impossível
 
     const result = await createPartida(paramsComDataRuim);
 
-    expect(result).toEqual({error: "Data fornecida é inválida."});
+    expect(result).toEqual({ error: "Data impossível." });
     expect(mockedApi.post).not.toHaveBeenCalled();
   });
 
@@ -86,6 +86,8 @@ describe('createPartida', () => {
         },
       },
     };
+// const paramsNomeCurto = { ...mockParams, title: 'A'};
+
 
     mockedApi.post.mockRejectedValueOnce(mockError);
 
