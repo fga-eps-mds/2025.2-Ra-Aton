@@ -90,9 +90,8 @@ const PostCardComp: React.FC<PostCardProps> = ({
   return (
     <View style={[styles.container, { backgroundColor: theme.input }]}>
       <View style={styles.header}>
-        <ProfileThumbnailComp size={50} userName={post.group?.name} imageUrl={post.author?.profilePicture} profileType="group" />
+        <ProfileThumbnailComp size={50} userName={post.group?.name} imageUrl={post.group?.logoUrl} profileType="group" />
         <SpacerComp width={12} />
-        <Text> {post.author?.profilePicture}</Text>
         <View>
           <Text style={[styles.authorName, { color: theme.text }]}>
             {post.author?.userName ?? "Autor"}

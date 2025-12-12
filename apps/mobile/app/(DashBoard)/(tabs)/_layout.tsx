@@ -197,6 +197,29 @@ export default function DashboardTabsLayout() {
           href: null,
         }} // Esconde da Navbar
       />
+
+      <Tabs.Screen
+        name="Notifications"
+        options={{
+          title: "Notificacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(edit)/editarGrupo"
+        options={{
+          title: "Editar Grupo",
+          href: null,
+        }} // Esconde da Navbar
+      />
+      <Tabs.Screen
+        name="(edit)/editarUsuario"
+        options={{
+          title: "Editar Usuário",
+          href: null,
+        }} // Esconde da Navbar
+      />
     </Tabs>
 
 

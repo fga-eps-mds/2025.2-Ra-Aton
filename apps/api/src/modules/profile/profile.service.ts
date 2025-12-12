@@ -179,6 +179,108 @@ class ProfileService {
             group: updatedGroup
         };
     }
+
+    // Atualiza imagens do usuário (perfil e banner)
+    async updateUserImages(
+        userId: string,
+        authUserId: string,
+        profileFile?: Express.Multer.File,
+        bannerFile?: Express.Multer.File
+    ) {
+        // Verificar se o usuário existe
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new ApiError(404, "Usuário não encontrado");
+        }
+
+        // Verificar se é o próprio usuário
+        if (userId !== authUserId) {
+            throw new ApiError(403, "Você só pode editar seu próprio perfil");
+        }
+
+        const updateData: any = {};
+
+        // Upload da imagem de perfil
+        if (profileFile) {
+            // Deletar imagem antiga se existir
+            if (user.profileImageId) {
+                try {
+                    await cloudinary.uploader.destroy(user.profileImageId);
+                } catch (error) {
+                    console.error("Erro ao deletar imagem de perfil antiga:", error);
+                }
+            }
+
+            // Upload da nova imagem de perfil
+            const profileResult = await new Promise<any>((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "users/profiles",
+                        resource_type: "image",
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                uploadStream.end(profileFile.buffer);
+            });
+
+            updateData.profileImageUrl = profileResult.secure_url;
+            updateData.profileImageId = profileResult.public_id;
+        }
+
+        // Upload do banner
+        if (bannerFile) {
+            // Deletar banner antigo se existir
+            if (user.bannerImageId) {
+                try {
+                    await cloudinary.uploader.destroy(user.bannerImageId);
+                } catch (error) {
+                    console.error("Erro ao deletar banner antigo:", error);
+                }
+            }
+
+            // Upload do novo banner
+            const bannerResult = await new Promise<any>((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "users/banners",
+                        resource_type: "image",
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                uploadStream.end(bannerFile.buffer);
+            });
+
+            updateData.bannerImageUrl = bannerResult.secure_url;
+            updateData.bannerImageId = bannerResult.public_id;
+        }
+
+        // Atualizar no banco de dados
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+            select: {
+                id: true,
+                userName: true,
+                name: true,
+                profileImageUrl: true,
+                bannerImageUrl: true,
+            }
+        });
+
+        return {
+            message: "Imagens atualizadas com sucesso",
+            user: updatedUser
+        };
+    }
 }
 
 export default new ProfileService();

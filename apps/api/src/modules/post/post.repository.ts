@@ -32,6 +32,7 @@ export const postRepository = {
               id: true,
               name: true,
               groupType: true,
+              logoUrl: true,
             },
           },
         },

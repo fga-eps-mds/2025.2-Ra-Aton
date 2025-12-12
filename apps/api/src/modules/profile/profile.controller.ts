@@ -69,6 +69,42 @@ class ProfileController {
       res.status(error.status || 500).json({ message: error.message || "Erro ao atualizar imagens do grupo" });
     }
   }
+
+  // Atualiza imagens do usuário (perfil e banner)
+  async updateUserImages(req: Request, res: Response) {
+    const { userId } = req.params;
+    const authUserId = (req as any).user?.id;
+    
+    if (!userId) {
+      return res.status(400).json({ message: "userId é obrigatório" });
+    }
+
+    if (!authUserId) {
+      return res.status(401).json({ message: "Usuário não autenticado" });
+    }
+
+    // Verificar se o usuário está tentando editar seu próprio perfil
+    if (userId !== authUserId) {
+      return res.status(403).json({ message: "Você só pode editar seu próprio perfil" });
+    }
+
+    try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const profileFile = files?.['profileImage']?.[0];
+      const bannerFile = files?.['bannerImage']?.[0];
+
+      const result = await profileService.updateUserImages(
+        userId,
+        authUserId,
+        profileFile,
+        bannerFile
+      );
+
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(error.status || 500).json({ message: error.message || "Erro ao atualizar imagens do usuário" });
+    }
+  }
 }
 
 export default new ProfileController();

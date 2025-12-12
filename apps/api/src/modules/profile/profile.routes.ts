@@ -26,4 +26,15 @@ router.patch(
   profileController.updateGroupImages
 );
 
+// Rota para atualizar imagens do usuário (perfil e banner)
+router.patch(
+  "/user/:userId/images",
+  auth,
+  upload.fields([
+    { name: "profileImage", maxCount: 1 },
+    { name: "bannerImage", maxCount: 1 },
+  ]),
+  profileController.updateUserImages
+);
+
 export default router;

@@ -130,11 +130,22 @@ export default function ProfileScreen() {
               isDarkMode={isDarkMode}
               onBack={() => router.back()}
               showEditButton={
-                profileType === "group" && 
-                (groupProfile?.isLeader === true || (groupProfile as any)?.isOwner === true)
+                (profileType === "user" && userProfile?.isOwner === true) ||
+                (profileType === "group" && 
+                (groupProfile?.isLeader === true || (groupProfile as any)?.isOwner === true))
               }
               onEdit={() => {
-                if (groupProfile) {
+                if (profileType === "user" && userProfile) {
+                  router.push({
+                    pathname: "/(DashBoard)/(tabs)/(edit)/editarUsuario",
+                    params: {
+                      userId: userProfile.id,
+                      userName: userProfile.userName,
+                      profilePicture: userProfile.profilePicture || "",
+                      bannerImage: userProfile.bannerImage || "",
+                    },
+                  } as any);
+                } else if (profileType === "group" && groupProfile) {
                   router.push({
                     pathname: "/(DashBoard)/(tabs)/(edit)/editarGrupo",
                     params: {
