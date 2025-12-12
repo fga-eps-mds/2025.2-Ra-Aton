@@ -16,7 +16,7 @@ import BackGroundComp from "@/components/BackGroundComp";
 import { ProfileHeaderComp } from "@/components/ProfileHeaderComp";
 import { FollowButtonComp } from "@/components/FollowButtonComp";
 import { ProfileTabsComp } from "@/components/ProfileTabsComp";
-import  InviteMemberModal  from "@/components/InviteMemberModalComp";
+import InviteMemberModal from "@/components/InviteMemberModalComp";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { useProfile } from "@/libs/hooks/useProfile";
@@ -58,12 +58,12 @@ export default function ProfileScreen() {
   // --- INÍCIO DA SUA INSERÇÃO (LOGICA) ---
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
 
-  // Lógica para saber se é Admin (ajuste conforme a regra do seu backend)
-  const isCurrentUserAdmin = 
-    profileType === "group" && 
+  // Lógica para saber se é Admin (CORRIGIDA)
+  const isCurrentUserAdmin =
+    profileType === "group" &&
     currentUser &&
-    // Exemplo: se o ID do usuário logado bate com o dono do grupo
-    ((profile as IGroupProfile).id === currentUser.id);
+    profile && // <--- ADICIONADO: Verifica se o perfil já carregou
+    ((profile as IGroupProfile).leaderId === currentUser.id); // Ou .ownerId, dependendo da sua interface
 
   const handleRemoveMember = async (membershipId: string) => {
     try {
@@ -74,7 +74,7 @@ export default function ProfileScreen() {
       Alert.alert("Erro", error.message);
     }
   };
-  
+
   // --- FIM DA SUA INSERÇÃO ---
 
   const [isFollowLoading, setIsFollowLoading] = useState(false);
@@ -169,7 +169,7 @@ export default function ProfileScreen() {
             {/* --- INÍCIO DA SUA INSERÇÃO (BOTÃO) --- */}
             {isCurrentUserAdmin && (
               <View style={styles.followButtonContainer}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -214,7 +214,7 @@ export default function ProfileScreen() {
                     console.log("Opções post:", postId)
                   }
                   isAdmin={isCurrentUserAdmin}
-                onRemoveMember={handleRemoveMember}
+                  onRemoveMember={handleRemoveMember}
                 />
               ) : null}
             </View>

@@ -15,6 +15,7 @@ import { IPost } from "@/libs/interfaces/Ipost";
 import { IUserProfile } from "@/libs/interfaces/Iprofile";
 import { MatchesCard } from "./MatchesCardComp";
 import PostCardComp from "./PostCardComp";
+import MemberCard from "./MemberCardComp";
 
 type UserTabType = "matches" | "followedGroups" | "memberGroups";
 type GroupTabType = "members" | "posts";
@@ -64,9 +65,9 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
               renderItem={({ item }) => (
                 <MatchesCard
                   match={item}
-                  onPressInfos={() => {}}
-                  onPressJoinMatch={() => {}}
-                  onReloadFeed={() => {}}
+                  onPressInfos={() => { }}
+                  onPressJoinMatch={() => { }}
+                  onReloadFeed={() => { }}
                   isUserSubscriped={false}
                 />
               )}
@@ -143,7 +144,7 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
     );
   } else {
     const [activeTab, setActiveTab] = useState<GroupTabType>("posts");
-    const { members, posts, onPressComment, onPressOptions } = props;
+    const { members, posts, onPressComment, onPressOptions, isAdmin, onRemoveMember } = props;
 
     const tabs = [
       { key: "posts" as GroupTabType, label: "Postagens", count: posts.length },
@@ -160,8 +161,8 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
               renderItem={({ item }) => (
                 <PostCardComp
                   post={item}
-                  onPressComment={onPressComment || (() => {})}
-                  onPressOptions={onPressOptions || (() => {})}
+                  onPressComment={onPressComment || (() => { })}
+                  onPressOptions={onPressOptions || (() => { })}
                 />
               )}
               contentContainerStyle={styles.listContent}
@@ -178,14 +179,24 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
               data={members}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <View style={[styles.memberCard, { backgroundColor: theme.input }]}>
-                  <Text style={[styles.memberName, { color: theme.text }]}>
-                    {item.name}
-                  </Text>
-                  <Text style={[styles.memberUsername, { color: theme.gray }]}>
-                    @{item.userName}
-                  </Text>
-                </View>
+                <MemberCard
+                  member={{
+                    id: item.id, // Aqui idealmente seria o ID do Membership, verifique se a API retorna isso ou se removemos pelo UserID
+                    userId: item.id,
+                    groupId: "", // Não crítico para visualização
+                    role: item.isOwner ? 'ADMIN' : 'MEMBER', // Adaptação da role baseada no booleano isOwner
+                    joinedAt: "",
+                    user: {
+                      id: item.id,
+                      name: item.name,
+                      email: item.email || "",
+                      avatarUrl: item.profilePicture,
+                      username: item.userName
+                    }
+                  }}
+                  isAdminView={!!isAdmin}
+                  onRemove={(id) => onRemoveMember && onRemoveMember(id)}
+                />
               )}
               contentContainerStyle={styles.listContent}
               ListEmptyComponent={
