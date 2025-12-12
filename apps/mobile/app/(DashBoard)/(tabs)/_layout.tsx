@@ -199,25 +199,24 @@ export default function DashboardTabsLayout() {
       />
 
       <Tabs.Screen
-        name="perfilGrupo"
-        options={{
-          title: "Perfil do Grupo",
-          href: null,
-        }} // Esconde da Navbar
-      />
-
-      <Tabs.Screen
-        name="perfil"
-        options={{
-          title: "Perfil",
-          href: null,
-        }} // Esconde da Navbar
-      />
-
-      <Tabs.Screen
         name="Notifications"
         options={{
-          title: "Notificações",
+          title: "Notificacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(edit)/editarGrupo"
+        options={{
+          title: "Editar Grupo",
+          href: null,
+        }} // Esconde da Navbar
+      />
+      <Tabs.Screen
+        name="(edit)/editarUsuario"
+        options={{
+          title: "Editar Usuário",
           href: null,
         }} // Esconde da Navbar
       />
