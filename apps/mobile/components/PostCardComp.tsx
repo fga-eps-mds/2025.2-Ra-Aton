@@ -99,7 +99,7 @@ const PostCardComp: React.FC<PostCardProps> = ({
           </Text>
           {/* <Text style={[styles.authorId, { color: theme.text }]}>{post.authorId ?? ""}</Text> */}
           <AppText style={[styles.authorId, { color: theme.text }, {fontSize: 20}, {fontWeight: '600'}]}> 
-            @{post.group?.name ?? "JOGADOR"}
+            @{post.group?.name ?? "Grupo"}
           </AppText>
         </View>
         <View style={{ flex: 1 }} />
