@@ -8,7 +8,7 @@ import { config } from "../config/env";
  * @returns token JWT assinado
  */
 export function generateToken(userId: string): string {
-  const secret = config.JWT_SECRET || "secret";
+  const secret = config.JWT_SECRET;
 
   return jwt.sign(
     { id: userId }, // payload que o middleware auth usa
