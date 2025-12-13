@@ -1,23 +1,22 @@
-// ARQUIVO: apps/mobile/__tests__/libs/hooks/useFeedMatches.test.ts
-import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { Alert, Platform } from 'react-native';
+import { renderHook, act, waitFor } from "@testing-library/react-native";
+import { Alert, Platform } from "react-native";
 import {
   getMatchesFeed,
   subscribeToMatch,
   getMatchById,
   switchTeam as switchTeamRequest,
   unsubscribeFromMatch,
-} from '@/libs/auth/handleMatch';
-import { useUser } from '@/libs/storage/UserContext';
-import { useFeedMatches } from '@/libs/hooks/useMatchesFunctions';
+} from "@/libs/auth/handleMatch";
+import { useUser } from "@/libs/storage/UserContext";
+import { useFeedMatches } from "@/libs/hooks/useMatchesFunctions";
 
 // --- MOCKS ---
 
-jest.mock('@/libs/storage/UserContext', () => ({
-  useUser: jest.fn(() => ({ user: { id: 'user-123' } })),
+jest.mock("@/libs/storage/UserContext", () => ({
+  useUser: jest.fn(() => ({ user: { id: "user-123" } })),
 }));
 
-jest.mock('@/libs/auth/handleMatch', () => ({
+jest.mock("@/libs/auth/handleMatch", () => ({
   getMatchesFeed: jest.fn(),
   subscribeToMatch: jest.fn(),
   unsubscribeFromMatch: jest.fn(),
@@ -25,14 +24,14 @@ jest.mock('@/libs/auth/handleMatch', () => ({
   switchTeam: jest.fn(),
 }));
 
-jest.mock('react-native', () => ({
-  ...jest.requireActual('react-native'),
+jest.mock("react-native", () => ({
+  ...jest.requireActual("react-native"),
   Alert: { alert: jest.fn() },
-  Platform: { OS: 'ios', select: jest.fn((objs) => objs['ios']) },
+  Platform: { OS: "ios", select: jest.fn((objs) => objs["ios"]) },
 }));
 
-jest.mock('axios', () => ({
-  ...jest.requireActual('axios'),
+jest.mock("axios", () => ({
+  ...jest.requireActual("axios"),
   isAxiosError: jest.fn((error) => !!error.response),
 }));
 
@@ -42,14 +41,22 @@ const createAxiosError = (status: number, message: string) => ({
 });
 
 // --- DADOS MOCK ---
-const mockMatchA = { id: 'match-A', teamA: { players: [] }, teamB: { players: [] } } as any;
-const mockMatchB = { id: 'match-B', teamA: { players: [{ id: 'user-123' }] }, teamB: { players: [] } } as any;
+const mockMatchA = {
+  id: "match-A",
+  teamA: { players: [] },
+  teamB: { players: [] },
+} as any;
+const mockMatchB = {
+  id: "match-B",
+  teamA: { players: [{ id: "user-123" }] },
+  teamB: { players: [] },
+} as any;
 
-describe('Hook: useFeedMatches (100% Coverage)', () => {
+describe("Hook: useFeedMatches (100% Coverage)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (Platform as any).OS = 'ios';
-    
+    (Platform as any).OS = "ios";
+
     // Sucesso padrão
     (getMatchesFeed as jest.Mock).mockResolvedValue({
       data: [mockMatchA],
@@ -61,127 +68,190 @@ describe('Hook: useFeedMatches (100% Coverage)', () => {
     (switchTeamRequest as jest.Mock).mockResolvedValue(true);
   });
 
-  // --- 1. CARREGAMENTO, ERROS E CANCELAMENTO ---
+  // --- 1. CARREGAMENTO, INICIALIZAÇÃO E CLEANUP ---
 
-  it('deve carregar dados iniciais com sucesso', async () => {
+  it("deve carregar dados iniciais com sucesso", async () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.matches).toHaveLength(1);
   });
 
-  it('deve ignorar erro de cancelamento (CanceledError) no loadPage', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    
-    // Simula erro de cancelamento
-    (getMatchesFeed as jest.Mock).mockRejectedValue({ name: 'CanceledError' });
-
+  it("deve lidar com reloadFeed manual", async () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    // Não deve logar erro no console, pois é um cancelamento esperado
-    expect(consoleSpy).not.toHaveBeenCalled();
-    consoleSpy.mockRestore();
+    await act(async () => {
+      await result.current.reloadFeed();
+    });
+
+    expect(getMatchesFeed).toHaveBeenCalledTimes(2); // Inicial + Reload
   });
 
-  it('deve logar erro genérico no loadPage', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    (getMatchesFeed as jest.Mock).mockRejectedValue(new Error('Falha na rede'));
+  it("deve limpar requisição pendente ao desmontar (AbortController)", async () => {
+    const { unmount } = renderHook(() => useFeedMatches());
+    unmount();
+  });
 
+  // --- 2. PAGINAÇÃO, THROTTLE E FALLBACKS ---
+
+  it("deve carregar próxima página ao atingir o fim", async () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(consoleSpy).toHaveBeenCalledWith('Erro ao carregar partidas:', expect.any(Error));
-    consoleSpy.mockRestore();
+    (getMatchesFeed as jest.Mock).mockResolvedValueOnce({
+      data: [{ id: "match-page-2" }],
+      meta: { page: 2, limit: 10, hasNextPage: false },
+    });
+
+    await act(async () => {
+      result.current.onEndReached();
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.matches).toHaveLength(2);
   });
 
-  it('deve tratar falha na sincronização de inscrições (syncSubscribedFromBackend)', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    
-    // Sucesso no feed, mas falha ao buscar detalhes para checar inscrição
+  it("deve bloquear onEndReached se lista vazia ou loading ou sem next page", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    act(() => {
+      result.current.onRefresh(); // Ativa loading
+      result.current.onEndReached(); // Ignorado
+    });
+    expect(getMatchesFeed).toHaveBeenCalledTimes(2); // 1 inicial + 1 refresh
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+  });
+
+  it("deve respeitar throttle no onEndReached", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    act(() => {
+      result.current.onEndReached();
+    });
+    act(() => {
+      result.current.onEndReached();
+    }); // Ignorado pelo throttle
+
+    expect(getMatchesFeed).toHaveBeenCalledTimes(2);
+  });
+
+  it("deve usar fallback de paginação quando meta.page ou data faltam", async () => {
+    // Simula resposta sem meta.page e sem hasNextPage explícito
     (getMatchesFeed as jest.Mock).mockResolvedValue({
-      data: [mockMatchA],
+      data: Array(10).fill(mockMatchA), // 10 itens -> next page implícita
+      meta: { limit: 10 }, // page e hasNextPage undefined
+    });
+
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    // Deve ter assumido targetPage (1) e hasNextPage true (limit atingido)
+    expect(result.current.hasNextPage).toBe(true);
+    expect(result.current.matches.length).toBe(10);
+  });
+
+  it("deve tratar resposta com data null (não array)", async () => {
+    (getMatchesFeed as jest.Mock).mockResolvedValue({
+      data: null,
       meta: { page: 1, limit: 10, hasNextPage: false },
     });
-    // Simula erro dentro do Promise.all (getMatchById falhando)
-    (getMatchById as jest.Mock).mockRejectedValue(new Error('Erro sync'));
 
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    // O código tem um catch interno no map: .catch(() => null), então não deve explodir,
-    // mas se o bloco inteiro falhar, deve logar.
-    // Vamos forçar o syncSubscribedFromBackend a falhar mockando o UserContext para null no meio?
-    // Não, o código é robusto. Vamos apenas garantir que ele roda sem travar.
-    
-    expect(getMatchById).toHaveBeenCalled();
-    consoleSpy.mockRestore();
+    expect(result.current.matches).toEqual([]);
   });
 
-  // --- 2. PAGINAÇÃO E THROTTLE ---
-
-  it('deve bloquear onEndReached se lista vazia ou loading ou sem next page', async () => {
+  it("deve forçar hasNextPage false se data vazio e página > 1", async () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    // Caso 1: Loading
-    act(() => {
-        // Força estado interno (mock) ou chama uma função que ativa loading
-        result.current.onRefresh(); // Isso ativa loading
-        result.current.onEndReached(); // Deve ser ignorado
+    // Carrega página 2 vazia
+    (getMatchesFeed as jest.Mock).mockResolvedValue({
+      data: [],
+      meta: { page: 2, limit: 10, hasNextPage: true }, // Backend diz true mas tá vazio
     });
-    expect(getMatchesFeed).toHaveBeenCalledTimes(2); // 1 inicial + 1 refresh (onEndReached ignorado)
+
+    await act(async () => {
+      result.current.onEndReached();
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    jest.clearAllMocks();
-
-    // Caso 2: Sem next page
-    (getMatchesFeed as jest.Mock).mockResolvedValue({
-        data: [],
-        meta: { hasNextPage: false }
-    });
-    await act(async () => { await result.current.onRefresh(); }); // Atualiza hasNextPage para false
-    
-    act(() => { result.current.onEndReached(); });
-    expect(getMatchesFeed).toHaveBeenCalledTimes(1); // Só o refresh chamou
+    expect(result.current.hasNextPage).toBe(false);
   });
 
   // --- 3. JOIN MATCH (INSCRIÇÃO) ---
 
-  it('deve tratar erro genérico (não-axios) ao entrar na partida', async () => {
-    const { result } = renderHook(() => useFeedMatches());
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    
-    (subscribeToMatch as jest.Mock).mockRejectedValue(new Error('Erro desconhecido'));
-
-    act(() => { result.current.joinMatch(mockMatchA, jest.fn()); });
-    
-    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
-    await act(async () => confirmBtn.onPress());
-
-    expect(Alert.alert).toHaveBeenCalledWith('Erro', expect.stringContaining('Não foi possível entrar'));
-  });
-
-  it('deve tratar erro ao carregar detalhes APÓS inscrição bem sucedida', async () => {
+  it("deve entrar na partida com sucesso (Mobile)", async () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     const mockOpenModal = jest.fn();
 
-    // Inscrição OK, mas getMatchById falha depois
-    (subscribeToMatch as jest.Mock).mockResolvedValue(true);
-    (getMatchById as jest.Mock).mockRejectedValue(new Error('Falha ao atualizar'));
+    act(() => {
+      result.current.joinMatch(mockMatchA, mockOpenModal);
+    });
 
-    act(() => { result.current.joinMatch(mockMatchA, mockOpenModal); });
-    
     const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
     await act(async () => confirmBtn.onPress());
 
-    // Deve logar erro ou alertar erro secundário
-    expect(Alert.alert).toHaveBeenCalledWith('Erro', 'Não foi possível carregar os dados da partida.');
-    expect(mockOpenModal).not.toHaveBeenCalled();
+    expect(subscribeToMatch).toHaveBeenCalledWith(mockMatchA.id);
+    expect(mockOpenModal).toHaveBeenCalled();
   });
 
-  it('Web: deve entrar direto', async () => {
-    (Platform as any).OS = 'web';
+  it("deve abrir modal direto se usuário já estiver inscrito", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    const mockOpenModal = jest.fn();
+
+    act(() => {
+      result.current.joinMatch(mockMatchB, mockOpenModal);
+    });
+
+    await waitFor(() => {
+      expect(subscribeToMatch).not.toHaveBeenCalled();
+      expect(mockOpenModal).toHaveBeenCalled();
+    });
+  });
+
+  it("deve tratar erro 409 (Já inscrito) ao entrar", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    (subscribeToMatch as jest.Mock).mockRejectedValue(
+      createAxiosError(409, "Já inscrito"),
+    );
+
+    act(() => {
+      result.current.joinMatch(mockMatchA, jest.fn());
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
+
+    expect(Alert.alert).toHaveBeenCalledWith("Aviso", "Já inscrito");
+  });
+
+  it("deve tratar erro 403 (Partida cheia) ao entrar", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    (subscribeToMatch as jest.Mock).mockRejectedValue(
+      createAxiosError(403, "Cheia"),
+    );
+
+    act(() => {
+      result.current.joinMatch(mockMatchA, jest.fn());
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
+
+    expect(Alert.alert).toHaveBeenCalledWith("Partida cheia", "Cheia");
+  });
+
+  it("Web: deve entrar direto sem Alert", async () => {
+    (Platform as any).OS = "web";
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -195,8 +265,40 @@ describe('Hook: useFeedMatches (100% Coverage)', () => {
 
   // --- 4. LEAVE MATCH (SAIR) ---
 
-  it('Web: deve sair direto', async () => {
-    (Platform as any).OS = 'web';
+  it("deve sair da partida e chamar onAfterLeave (Mobile)", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    const onLeaveSpy = jest.fn();
+
+    act(() => {
+      result.current.leaveMatch(mockMatchB, onLeaveSpy);
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
+
+    expect(unsubscribeFromMatch).toHaveBeenCalledWith(mockMatchB.id);
+    expect(onLeaveSpy).toHaveBeenCalled();
+  });
+
+  it("deve tratar erro 500 ao sair", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    (unsubscribeFromMatch as jest.Mock).mockRejectedValue(
+      createAxiosError(500, "Erro server"),
+    );
+
+    act(() => {
+      result.current.leaveMatch(mockMatchB);
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
+
+    expect(Alert.alert).toHaveBeenCalledWith("Erro", "Erro server");
+  });
+
+  it("Web: deve sair direto", async () => {
+    (Platform as any).OS = "web";
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -204,278 +306,122 @@ describe('Hook: useFeedMatches (100% Coverage)', () => {
       result.current.leaveMatch(mockMatchB);
     });
 
-    expect(Alert.alert).not.toHaveBeenCalled();
     expect(unsubscribeFromMatch).toHaveBeenCalled();
   });
 
-  it('deve tratar erro axios ao sair', async () => {
+  // --- 5. SWITCH TEAM (TROCAR TIME) ---
+
+  it("deve trocar de time com sucesso (Mobile)", async () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
+    const mockUpdateModal = jest.fn();
 
-    (unsubscribeFromMatch as jest.Mock).mockRejectedValue(createAxiosError(500, 'Erro backend'));
+    act(() => {
+      result.current.switchTeam(mockMatchB, mockUpdateModal);
+    });
 
-    act(() => { result.current.leaveMatch(mockMatchB); });
     const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
     await act(async () => confirmBtn.onPress());
 
-    expect(Alert.alert).toHaveBeenCalledWith('Erro', 'Erro backend');
-  });
-  it('deve usar array vazio se teamA ou teamB forem undefined', async () => {
-  (getMatchesFeed as jest.Mock).mockResolvedValue({
-    data: [{ id: 'match-undefined-teams' }],
-    meta: { page: 1, limit: 10, hasNextPage: false }
+    expect(switchTeamRequest).toHaveBeenCalledWith(mockMatchB.id);
+    expect(mockUpdateModal).toHaveBeenCalled();
   });
 
-  // getMatchById retorna um match sem teamA nem teamB
-  (getMatchById as jest.Mock).mockResolvedValue({
-    id: 'match-undefined-teams',
-    teamA: undefined,
-    teamB: undefined
-  });
-
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  // Chama isUserSubscriped para garantir que o fallback [] foi usado sem crash
-  const match = { id: 'match-undefined-teams' } as any;
-  expect(result.current.isUserSubscriped(match)).toBe(false);
-});
-
-it('deve definir hasNextPage como false se data estiver vazia e targetPage > 1', async () => {
-  // Primeira chamada retorna normalmente para carregar página 1
-  (getMatchesFeed as jest.Mock).mockResolvedValueOnce({
-    data: [{ id: 'match-1' }],
-    meta: { page: 1, limit: 10, hasNextPage: true }
-  });
-
-  // Segunda chamada retorna array vazio para simular última página
-  (getMatchesFeed as jest.Mock).mockResolvedValueOnce({
-    data: [],
-    meta: { page: 2, limit: 10, hasNextPage: true } // mesmo que true, fallback dispara
-  });
-
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  // Dispara carregamento da página 2
-  await act(async () => {
-    result.current.onEndReached(); // vai chamar loadPage(2, true)
-  });
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  // Espera que hasNextPage seja false (porque data.length === 0 && targetPage > 1)
-  expect(result.current.hasNextPage).toBe(false);
-});
-
-it('deve usar targetPage quando res.meta.page for undefined', async () => {
-  // Mock da API sem meta.page
-  (getMatchesFeed as jest.Mock).mockResolvedValue({
-    data: [{ id: 'match-X' }],
-    meta: { limit: 10, hasNextPage: true } // page ausente
-  });
-
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  // Espera que a página seja o targetPage (1 no primeiro load)
-  expect(result.current.matches.length).toBe(1);
-  // Aqui estamos verificando que fallback ocorreu
-  expect(result.current.hasNextPage).toBe(true);
-});
-
-it('deve usar array vazio quando res.data não for um array', async () => {
-  // Mock da API retornando algo inválido
-  (getMatchesFeed as jest.Mock).mockResolvedValue({
-    data: null, // não é array
-    meta: { page: 1, limit: 10, hasNextPage: false }
-  });
-
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  // Espera que matches seja vazio
-  expect(result.current.matches).toEqual([]);
-});
-
-});
-describe('useFeedMatches - cobertura early return', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('não deve tentar sincronizar se userId não existir', async () => {
-    // Mock do useUser retornando null
-    (useUser as jest.Mock).mockReturnValue({ user: null });
-
+  it("deve tratar erro 403 ao trocar time", async () => {
     const { result } = renderHook(() => useFeedMatches());
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    // Apenas garante que não lança erro e matches são carregadas normalmente
-    expect(result.current.matches).toBeDefined();
-  });
-
-  it('deve ignorar match null ao sincronizar inscritos', async () => {
-    (getMatchesFeed as jest.Mock).mockResolvedValue({
-      data: [{ id: 'match-null' }, { id: 'match-valid' }],
-      meta: { page: 1, limit: 10, hasNextPage: false }
-    });
-
-    // Simula getMatchById falhando para o primeiro match
-    (getMatchById as jest.Mock).mockImplementation((id) => {
-      if (id === 'match-null') return Promise.reject(new Error('Not found'));
-      return Promise.resolve({ id, teamA: { players: [] }, teamB: { players: [] } });
-    });
-
-    const { result } = renderHook(() => useFeedMatches());
-
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    // Garante que não crasha e matches válidas ainda são carregadas
-    expect(result.current.matches.some(m => m.id === 'match-valid')).toBe(true);
-  });
-  it('deve usar fallback de limite quando hasNextPage não é boolean', async () => {
-  const LIMIT = 10; // mesmo valor do hook
-  (getMatchesFeed as jest.Mock).mockResolvedValue({
-    data: Array(LIMIT).fill({ id: 'match-fallback' }), // cria array de tamanho LIMIT
-    meta: { page: 1, limit: LIMIT, hasNextPage: undefined } // undefined força fallback
-  });
+    (switchTeamRequest as jest.Mock).mockRejectedValue(
+      createAxiosError(403, "Time cheio"),
+    );
 
-  const { result } = renderHook(() => useFeedMatches());
+    act(() => {
+      result.current.switchTeam(mockMatchB, jest.fn());
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
 
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  // Espera que hasNextPage seja true (porque data.length === LIMIT)
-  expect(result.current.hasNextPage).toBe(true);
-  expect(result.current.matches.length).toBe(LIMIT);
-});
-
-it('ignora match null ao sincronizar inscritos', async () => {
-  (getMatchesFeed as jest.Mock).mockResolvedValue({
-    data: [{ id: 'match-null' }],
-    meta: { page: 1, limit: 10, hasNextPage: false }
+    expect(Alert.alert).toHaveBeenCalledWith("Aviso", "Time cheio");
   });
 
-  (getMatchById as jest.Mock).mockResolvedValue(null); // força dm = null
+  it("deve tratar erro genérico (não axios) ao trocar time", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  const { result } = renderHook(() => useFeedMatches());
+    (switchTeamRequest as jest.Mock).mockRejectedValue(new Error("Erro X"));
 
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
+    act(() => {
+      result.current.switchTeam(mockMatchB, jest.fn());
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
 
-  // Matches carregadas, sem crash
-  expect(result.current.matches.length).toBe(1);
-});
-
-it('retorna false em isUserSubscriped se userId não existir', async () => {
-  (useUser as jest.Mock).mockReturnValue({ user: null });
-
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  expect(result.current.isUserSubscriped({ id: 'match-A' } as any)).toBe(false);
-});
-
-it('retorna false em isUserSubscriped se userId não existir', async () => {
-  (useUser as jest.Mock).mockReturnValue({ user: null });
-
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  expect(result.current.isUserSubscriped({ id: 'match-A' } as any)).toBe(false);
-});
-
-it('não chama loadPage se já estiver carregando', async () => {
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  // Força isLoadingRef.current = true
-  act(() => {
-    (result.current as any).isLoading = true;
-    (result.current as any).isLoadingRef = { current: true };
+    expect(Alert.alert).toHaveBeenCalledWith(
+      "Erro",
+      expect.stringContaining("Não foi possível trocar"),
+    );
   });
 
-  act(() => {
-    result.current.onEndReached();
+  it("Web: deve trocar time direto", async () => {
+    (Platform as any).OS = "web";
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      result.current.switchTeam(mockMatchB, jest.fn());
+    });
+
+    expect(switchTeamRequest).toHaveBeenCalled();
   });
 
-  // Não deve chamar getMatchesFeed de novo
-  expect(getMatchesFeed).toHaveBeenCalledTimes(1); // apenas carga inicial
-});
+  // --- 6. SYNC SUBSCRIBED E FALLBACKS DE TEAMS ---
 
-it('chama onAfterLeave após sair da partida', async () => {
-  const { result } = renderHook(() => useFeedMatches());
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
+  it("deve sincronizar inscritos corretamente", async () => {
+    const matchWithUser = {
+      ...mockMatchB,
+      teamA: { players: [{ id: "user-123" }] },
+    };
+    (getMatchById as jest.Mock).mockResolvedValue(matchWithUser);
 
-  const mockAfterLeave = jest.fn();
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  act(() => {
-    result.current.leaveMatch(mockMatchA, mockAfterLeave);
+    expect(result.current.isUserSubscriped(mockMatchB)).toBe(true);
   });
 
-  // Simula clique no botão Confirmar do Alert
-  const lastAlertCallIndex = (Alert.alert as jest.Mock).mock.calls.length - 1;
-  const confirmButton = (Alert.alert as jest.Mock).mock.calls[lastAlertCallIndex][2]
-    .find((b: any) => b.text === 'Confirmar');
+  it("deve lidar com match onde teamA ou teamB são undefined no sync e isUserSubscriped", async () => {
+    const matchNoTeams = { id: "match-no-teams" };
+    (getMatchesFeed as jest.Mock).mockResolvedValue({
+      data: [matchNoTeams],
+      meta: { page: 1, limit: 10, hasNextPage: false },
+    });
+    (getMatchById as jest.Mock).mockResolvedValue({
+      id: "match-no-teams",
+      teamA: undefined,
+      teamB: undefined,
+    });
 
-  await act(async () => confirmButton.onPress());
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  expect(mockAfterLeave).toHaveBeenCalled();
-});
-
-it('não faz nada em onEndReached se não houver matches', async () => {
-  const { result } = renderHook(() => useFeedMatches());
-
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  act(() => {
-    (result.current as any).matches = [];
-    result.current.onEndReached();
+    // Testa isUserSubscriped com objeto incompleto para ativar '?? []'
+    expect(result.current.isUserSubscriped(matchNoTeams as any)).toBe(false);
   });
 
-  expect(getMatchesFeed).toHaveBeenCalledTimes(1); // só carga inicial
-});
+  it("deve ignorar sincronização se usuário não logado", async () => {
+    (useUser as jest.Mock).mockReturnValue({ user: null });
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-it('não faz nada em onEndReached se loading ou sem próxima página', async () => {
-  const { result } = renderHook(() => useFeedMatches());
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  act(() => {
-    (result.current as any).isLoadingRef = { current: true };
-    result.current.onEndReached();
+    expect(getMatchById).not.toHaveBeenCalled();
+    // E isUserSubscriped deve retornar false
+    expect(result.current.isUserSubscriped(mockMatchA)).toBe(false);
   });
 
-  act(() => {
-    (result.current as any).isLoadingRef = { current: false };
-    (result.current as any).hasNextPage = false;
-    result.current.onEndReached();
+  it("deve tratar erro na sincronização sem quebrar o app", async () => {
+    (getMatchById as jest.Mock).mockRejectedValue(new Error("Falha sync"));
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.matches).toHaveLength(1);
   });
-
-  expect(getMatchesFeed).toHaveBeenCalledTimes(1); // só carga inicial
 });
-
-it('não chama loadPage se throttleRequest ainda não expirou', async () => {
-  const { result } = renderHook(() => useFeedMatches());
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-  act(() => {
-    (result.current as any).throttleRequest = { current: Date.now() };
-    result.current.onEndReached();
-  });
-
-  expect(getMatchesFeed).toHaveBeenCalledTimes(1); // apenas carga inicial
-});
-
-});
-

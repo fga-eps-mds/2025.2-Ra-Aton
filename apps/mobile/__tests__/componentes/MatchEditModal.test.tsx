@@ -74,8 +74,8 @@ jest.mock("@/components/InputDateWebComp", () => {
 jest.mock("@/components/PrimaryButton", () => {
   const { TouchableOpacity, Text } = require("react-native");
   return (props: any) => (
-    <TouchableOpacity 
-      onPress={props.onPress} 
+    <TouchableOpacity
+      onPress={props.onPress}
       disabled={props.disabled}
       testID="primary-button"
     >
@@ -87,8 +87,8 @@ jest.mock("@/components/PrimaryButton", () => {
 jest.mock("@/components/SecondaryButton", () => {
   const { TouchableOpacity, Text } = require("react-native");
   return (props: any) => (
-    <TouchableOpacity 
-      onPress={props.onPress} 
+    <TouchableOpacity
+      onPress={props.onPress}
       disabled={props.disabled}
       testID="secondary-button"
     >
@@ -109,7 +109,7 @@ jest.mock("@react-native-community/datetimepicker", () => {
         onPress={() => {
           const dateToUse = new Date("2023-12-25T14:30:00");
           if (props.mode === "time") {
-             dateToUse.setHours(16, 45); 
+            dateToUse.setHours(16, 45);
           }
           simulatedDateForTest = dateToUse;
           props.onChange({ type: "set" }, dateToUse);
@@ -142,7 +142,7 @@ jest.mock("@react-native-community/datetimepicker", () => {
 describe("MatchEditModal", () => {
   const mockOnClose = jest.fn();
   const mockOnSave = jest.fn();
-  
+
   const mockMatch = {
     id: "1",
     title: "Jogo Teste",
@@ -176,7 +176,7 @@ describe("MatchEditModal", () => {
     );
 
     expect(getByTestId("input-Título").props.value).toBe("Jogo Teste");
-    
+
     // Verificação flexível da data para evitar erro de fuso horário
     // O dia/mês/ano deve ser 10/10/2023. A hora pode variar (11:00 ou 14:00)
     const dateText = getByTestId("date-input-mobile").props.children[0].props.children;
@@ -187,12 +187,12 @@ describe("MatchEditModal", () => {
 
   it("deve lidar com match sendo undefined/null na inicialização (valores padrão)", () => {
     const { getByTestId } = render(
-        <MatchEditModal visible={true} onClose={mockOnClose} match={undefined} />
+      <MatchEditModal visible={true} onClose={mockOnClose} match={undefined} />
     );
     // Quando editData é {}, o value é undefined. 
     // O componente InputComp mockado recebe value={editData.title} -> value={undefined}
     // O TextInput do React Native aceita undefined (exibe vazio), mas para o teste ser preciso:
-    expect(getByTestId("input-Título").props.value).toBeUndefined(); 
+    expect(getByTestId("input-Título").props.value).toBeUndefined();
   });
 
   // --- 2. ATUALIZAÇÃO DE INPUTS ---
@@ -208,25 +208,25 @@ describe("MatchEditModal", () => {
     fireEvent.changeText(getByTestId("input-Descrição"), "Nova Descrição");
     fireEvent.changeText(getByTestId("input-Nome da Equipe 1"), "Alfa");
     fireEvent.changeText(getByTestId("input-Nome da Equipe 2"), "Beta");
-    
+
     mockOnSave.mockResolvedValue({ success: true });
     fireEvent.press(getByTestId("primary-button"));
 
     await waitFor(() => {
-        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
-            title: "Novo Título",
-            sport: "Vôlei",
-            location: "Praia",
-            description: "Nova Descrição",
-            teamNameA: "Alfa",
-            teamNameB: "Beta"
-        }));
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        title: "Novo Título",
+        sport: "Vôlei",
+        location: "Praia",
+        description: "Nova Descrição",
+        teamNameA: "Alfa",
+        teamNameB: "Beta"
+      }));
     });
   });
 
   it("deve filtrar caracteres não numéricos em campos numéricos", async () => {
     mockOnSave.mockResolvedValue({ success: true });
-    
+
     const { getByTestId, getByText } = render(
       <MatchEditModal visible={true} onClose={mockOnClose} onSave={mockOnSave} match={mockMatch} />
     );
@@ -238,27 +238,27 @@ describe("MatchEditModal", () => {
     fireEvent.press(getByText("Salvar"));
 
     await waitFor(() => {
-        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
-            maxPlayers: 20,
-            teamAScore: "3",
-            teamBScore: "1"
-        }));
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        maxPlayers: 20,
+        teamAScore: "3",
+        teamBScore: "1"
+      }));
     });
   });
 
   // --- 3. VALIDAÇÃO (BRANCHES DE ERRO) ---
 
   it("deve falhar validação para campos vazios ou curtos", async () => {
-    const invalidMatch = { 
-        ...mockMatch, 
-        title: "A", // < 2
-        sport: "", 
-        location: "", 
-        MatchDate: "", 
-        description: "Oi", // < 3
-        maxPlayers: "1" // < 2
+    const invalidMatch = {
+      ...mockMatch,
+      title: "A", // < 2
+      sport: "",
+      location: "",
+      MatchDate: "",
+      description: "Oi", // < 3
+      maxPlayers: "1" // < 2
     };
-    
+
     const { getByText, getByTestId } = render(
       <MatchEditModal
         visible={true}
@@ -290,18 +290,18 @@ describe("MatchEditModal", () => {
 
     // Abre Data
     fireEvent.press(getByTestId("date-input-mobile"));
-    
+
     // Confirma Data (25/12/2023)
     fireEvent.press(getByTestId("datetime-picker-date-confirm"));
-    
+
     // Aguarda e Confirma Hora (16:45)
     await waitFor(() => expect(queryByTestId("datetime-picker-time-confirm")).toBeTruthy());
     fireEvent.press(getByTestId("datetime-picker-time-confirm"));
 
     // Verifica update visual - regex para data/hora
     await waitFor(() => {
-        const dateText = getByTestId("date-input-mobile").props.children[0].props.children;
-        expect(dateText).toMatch(/25\/12\/2023 \d{2}:\d{2}/);
+      const dateText = getByTestId("date-input-mobile").props.children[0].props.children;
+      expect(dateText).toMatch(/25\/12\/2023 \d{2}:\d{2}/);
     });
   });
 
@@ -324,7 +324,7 @@ describe("MatchEditModal", () => {
 
     fireEvent.press(getByTestId("date-input-mobile"));
     fireEvent.press(getByTestId("datetime-picker-date-confirm"));
-    
+
     await waitFor(() => expect(queryByTestId("datetime-picker-time-cancel")).toBeTruthy());
     fireEvent.press(getByTestId("datetime-picker-time-cancel"));
 
@@ -350,7 +350,7 @@ describe("MatchEditModal", () => {
 
     fireEvent.press(getByTestId("date-input-mobile"));
     fireEvent.press(getByTestId("datetime-picker-date-confirm"));
-    
+
     await waitFor(() => expect(queryByTestId("datetime-picker-time-neutral")).toBeTruthy());
     fireEvent.press(getByTestId("datetime-picker-time-neutral"));
 
@@ -368,7 +368,7 @@ describe("MatchEditModal", () => {
     const inputWeb = getByTestId("date-input-web");
     const newDateISO = "2024-01-01T12:00:00.000Z";
     fireEvent.changeText(inputWeb, newDateISO);
-    
+
     expect(inputWeb.props.value).toBe("2024-01-01T12:00"); // Slice(0, 16)
   });
 

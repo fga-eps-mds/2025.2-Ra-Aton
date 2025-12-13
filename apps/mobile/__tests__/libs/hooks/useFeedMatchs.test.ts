@@ -2,10 +2,22 @@ import { renderHook, act } from "@testing-library/react-native";
 import { UseModalFeedMatchs } from "@/libs/hooks/useFeedMatchs";
 import { Imatches } from "@/libs/interfaces/Imatches";
 
-describe("UseModalFeedMatchs", () => {
-  const mockMatch = { id: "1", title: "Test Match" } as unknown as Imatches;
+describe("UseModalFeedMatchs Hook", () => {
+  const mockMatch = {
+    id: "1",
+    title: "Test Match",
+    description: "Desc",
+    sport: "Futebol",
+    maxPlayers: 10,
+    MatchDate: "2023-01-01",
+    location: "Quadra",
+    teamAScore: 0,
+    teamBScore: 0,
+    teamNameA: "A",
+    teamNameB: "B",
+  } as unknown as Imatches;
 
-  it("deve inicializar com os estados padrao", () => {
+  it("deve inicializar com todos os modais fechados e match nulo", () => {
     const { result } = renderHook(() => UseModalFeedMatchs());
 
     expect(result.current.visible).toBe(false);
@@ -17,7 +29,8 @@ describe("UseModalFeedMatchs", () => {
     expect(result.current.selectedMatch).toBeNull();
   });
 
-  it("deve abrir o modal principal e definir a origem como card ao chamar useModal", () => {
+  // --- Teste do fluxo principal: CARD ---
+  it("useModal: deve abrir o modal principal, definir match e configurar origem como 'card'", () => {
     const { result } = renderHook(() => UseModalFeedMatchs());
 
     act(() => {
@@ -26,124 +39,127 @@ describe("UseModalFeedMatchs", () => {
 
     expect(result.current.selectedMatch).toEqual(mockMatch);
     expect(result.current.visible).toBe(true);
-  });
 
-  it("deve fechar o modal principal sem abrir confirmação se a origem nao for handle", () => {
-    const { result } = renderHook(() => UseModalFeedMatchs());
-
-    act(() => {
-      result.current.useModal(mockMatch);
-    });
-
+    // Fechar vindo do CARD não deve abrir confirmação
     act(() => {
       result.current.closeModal();
     });
 
     expect(result.current.visible).toBe(false);
-    expect(result.current.visibleConfirmCard).toBe(false);
-    expect(result.current.selectedMatch).toEqual(mockMatch); 
+    expect(result.current.visibleConfirmCard).toBe(false); // Confirma que a origem era 'card' ou null
   });
 
-  it("deve configurar estados corretamente ao chamar openDetailsFromHandle", () => {
+  // --- Teste do fluxo: HANDLE ---
+  it("openDetailsFromHandle: deve abrir modal principal e configurar origem como 'handle'", () => {
     const { result } = renderHook(() => UseModalFeedMatchs());
 
+    // Primeiro, abrimos o modal de infos para garantir que ele fecha ao chamar openDetailsFromHandle
     act(() => {
       result.current.openModalMoreInfosHandleModal();
-      result.current.openModalConfirmCard(mockMatch);
+      result.current.openModalConfirmCard(mockMatch); // Abre confirmação também para testar reset
     });
 
+    expect(result.current.visibleInfosHandleMatch).toBe(true);
+    expect(result.current.visibleConfirmCard).toBe(true);
+
+    // Ação Principal
     act(() => {
       result.current.openDetailsFromHandle();
     });
 
-    expect(result.current.visibleInfosHandleMatch).toBe(false);
-    expect(result.current.visibleConfirmCard).toBe(false);
-    expect(result.current.visible).toBe(true);
-  });
+    // Verificações
+    expect(result.current.visibleInfosHandleMatch).toBe(false); // Deve ter fechado
+    expect(result.current.visibleConfirmCard).toBe(false); // Deve ter fechado
+    expect(result.current.visible).toBe(true); // Modal principal aberto
 
-  it("deve abrir modal de confirmação ao fechar modal principal se a origem for handle", () => {
-    const { result } = renderHook(() => UseModalFeedMatchs());
-
-    act(() => {
-      result.current.openDetailsFromHandle();
-    });
-
+    // Fechar vindo do HANDLE DEVE abrir confirmação
     act(() => {
       result.current.closeModal();
     });
 
     expect(result.current.visible).toBe(false);
-    expect(result.current.visibleConfirmCard).toBe(true);
+    expect(result.current.visibleConfirmCard).toBe(true); // Branch 'if (detailsOrigin === "handle")' coberto
   });
 
-  it("deve controlar o modal de detalhes do handle", () => {
+  // --- Teste do reset de estado ---
+  it("closeModal: deve resetar a origem para null após fechar", () => {
     const { result } = renderHook(() => UseModalFeedMatchs());
 
+    // 1. Abre como Handle
     act(() => {
-      result.current.openDetailsHandleMatchModal();
+      result.current.openDetailsFromHandle();
     });
-    expect(result.current.visibleDetailsHandle).toBe(true);
 
+    // 2. Fecha (Abre confirmação)
     act(() => {
-      result.current.closeDetailsHandleMatchModal();
-    });
-    expect(result.current.visibleDetailsHandle).toBe(false);
-  });
-
-  it("deve controlar o modal de confirmação do card", () => {
-    const { result } = renderHook(() => UseModalFeedMatchs());
-
-    act(() => {
-      result.current.openModalConfirmCard(mockMatch);
+      result.current.closeModal();
     });
     expect(result.current.visibleConfirmCard).toBe(true);
-    expect(result.current.selectedMatch).toEqual(mockMatch);
 
+    // 3. Fecha confirmação manualmente
     act(() => {
       result.current.closeModalConfirmCard();
     });
+
+    // 4. Se chamarmos closeModal novamente agora, NÃO deve abrir confirmação
+    // pois o estado 'detailsOrigin' deve ter sido resetado para null na primeira chamada de closeModal
+    act(() => {
+      result.current.closeModal();
+    });
+
+    expect(result.current.visibleConfirmCard).toBe(false); // Prova que setDetailsOrigin(null) funcionou
+  });
+
+  // --- Testes de Modais Individuais (Coverage Functions) ---
+
+  it("DetailsHandleMatchModal: deve abrir e fechar", () => {
+    const { result } = renderHook(() => UseModalFeedMatchs());
+
+    act(() => result.current.openDetailsHandleMatchModal());
+    expect(result.current.visibleDetailsHandle).toBe(true);
+
+    act(() => result.current.closeDetailsHandleMatchModal());
+    expect(result.current.visibleDetailsHandle).toBe(false);
+  });
+
+  it("ConfirmCard: deve abrir (com match) e fechar", () => {
+    const { result } = renderHook(() => UseModalFeedMatchs());
+
+    act(() => result.current.openModalConfirmCard(mockMatch));
+    expect(result.current.visibleConfirmCard).toBe(true);
+    expect(result.current.selectedMatch).toEqual(mockMatch);
+
+    act(() => result.current.closeModalConfirmCard());
     expect(result.current.visibleConfirmCard).toBe(false);
   });
 
-  it("deve controlar o modal de mais informacoes", () => {
+  it("MoreInfosHandleModal: deve abrir e fechar", () => {
     const { result } = renderHook(() => UseModalFeedMatchs());
 
-    act(() => {
-      result.current.openModalMoreInfosHandleModal();
-    });
+    act(() => result.current.openModalMoreInfosHandleModal());
     expect(result.current.visibleInfosHandleMatch).toBe(true);
 
-    act(() => {
-      result.current.closeModalMoreInfosHandleModal();
-    });
+    act(() => result.current.closeModalMoreInfosHandleModal());
     expect(result.current.visibleInfosHandleMatch).toBe(false);
   });
 
-  it("deve controlar o modal de report", () => {
+  it("ReportMatchModal: deve abrir e fechar", () => {
     const { result } = renderHook(() => UseModalFeedMatchs());
 
-    act(() => {
-      result.current.openReportMatchModal();
-    });
+    act(() => result.current.openReportMatchModal());
     expect(result.current.visibleReportMatch).toBe(true);
 
-    act(() => {
-      result.current.closeReportMatchModal();
-    });
+    act(() => result.current.closeReportMatchModal());
     expect(result.current.visibleReportMatch).toBe(false);
   });
 
-  it("deve controlar o modal de descricao", () => {
+  it("DescriptionMatchModal: deve abrir e fechar", () => {
     const { result } = renderHook(() => UseModalFeedMatchs());
 
-    act(() => {
-      result.current.openDescriptionMatchModal();
-    });
+    act(() => result.current.openDescriptionMatchModal());
     expect(result.current.visibleDescriptionMatch).toBe(true);
 
-    act(() => {
-      result.current.closeDescriptionMatchModal();
-    });
+    act(() => result.current.closeDescriptionMatchModal());
     expect(result.current.visibleDescriptionMatch).toBe(false);
   });
 });
