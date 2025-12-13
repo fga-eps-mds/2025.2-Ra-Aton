@@ -6,7 +6,7 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "ts-node-dev src/server.ts ",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
