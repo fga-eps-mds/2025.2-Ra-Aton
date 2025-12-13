@@ -76,22 +76,26 @@ describe("ProfileController", () => {
       expect(profileService.fetchUserProfile).not.toHaveBeenCalled();
     });
 
-    it("Deve lidar com os erros corretamente", async () => {
+    it("Deve lidar com erros com status específico", async () => {
       req = {
         params: { userName: "unknown" },
+        user: { id: "auth-id" }
       } as any;
 
-      const error = new ApiError(httpStatus.NOT_FOUND, "Perfil de usuário não encontrado");
+      const error = { status: httpStatus.NOT_FOUND, message: "Perfil de usuário não encontrado" };
       (profileService.fetchUserProfile as jest.Mock).mockRejectedValue(error);
 
       await profileController.getUserProfile(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR); // trocar por NOT_FOUND
+      expect(res.status).toHaveBeenCalledWith(httpStatus.NOT_FOUND);
       expect(res.json).toHaveBeenCalledWith({ message: "Perfil de usuário não encontrado" });
     });
 
-    it("Deve lidar com erros genericos com status 500", async () => {
-      req = { params: { userName: "user" } } as any;
+    it("Deve lidar com erros sem status (default 500)", async () => {
+      req = { 
+        params: { userName: "user" },
+        user: { id: "auth-id" }
+      } as any;
 
       (profileService.fetchUserProfile as jest.Mock).mockRejectedValue(new Error("Database error"));
 
@@ -99,6 +103,20 @@ describe("ProfileController", () => {
 
       expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
       expect(res.json).toHaveBeenCalledWith({ message: "Database error" });
+    });
+
+    it("Deve lidar com erros sem mensagem (default message)", async () => {
+      req = { 
+        params: { userName: "user" },
+        user: { id: "auth-id" }
+      } as any;
+
+      (profileService.fetchUserProfile as jest.Mock).mockRejectedValue({});
+
+      await profileController.getUserProfile(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao obter perfil do usuário" });
     });
   });
 
@@ -130,15 +148,46 @@ describe("ProfileController", () => {
     });
 
     it("Deve lidar com os error corretamente", async () => {
-      req = { params: { groupName: "group" } } as any;
+      req = { 
+        params: { groupName: "group" },
+        user: { id: "auth-id" }
+      } as any;
 
-      const error = new ApiError(httpStatus.NOT_FOUND, "Grupo não encontrado");
+      const error = { status: httpStatus.NOT_FOUND, message: "Grupo não encontrado" };
       (profileService.fetchGroupProfile as jest.Mock).mockRejectedValue(error);
 
       await profileController.getGroupProfile(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR); // trocar por NOT_FOUND
+      expect(res.status).toHaveBeenCalledWith(httpStatus.NOT_FOUND);
       expect(res.json).toHaveBeenCalledWith({ message: "Grupo não encontrado" });
+    });
+
+    it("Deve lidar com erros sem status (default 500)", async () => {
+      req = { 
+        params: { groupName: "group" },
+        user: { id: "auth-id" }
+      } as any;
+
+      (profileService.fetchGroupProfile as jest.Mock).mockRejectedValue(new Error("Database error"));
+
+      await profileController.getGroupProfile(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({ message: "Database error" });
+    });
+
+    it("Deve lidar com erros sem mensagem (default message)", async () => {
+      req = { 
+        params: { groupName: "group" },
+        user: { id: "auth-id" }
+      } as any;
+
+      (profileService.fetchGroupProfile as jest.Mock).mockRejectedValue({});
+
+      await profileController.getGroupProfile(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao obter perfil do grupo" });
     });
   });
 
@@ -233,13 +282,243 @@ describe("ProfileController", () => {
         body: {}
       } as any;
 
-      const error = new ApiError(httpStatus.FORBIDDEN, "Sem permissão");
+      const error = { status: httpStatus.FORBIDDEN, message: "Sem permissão" };
       (profileService.updateGroupImages as jest.Mock).mockRejectedValue(error);
 
       await profileController.updateGroupImages(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.status).toHaveBeenCalledWith(httpStatus.FORBIDDEN);
       expect(res.json).toHaveBeenCalledWith({ message: "Sem permissão" });
+    });
+
+    it("Deve lidar com erros sem status (default 500)", async () => {
+      req = {
+        params: { groupId: "group-id" },
+        user: { id: "user-id" },
+        files: {},
+        body: {}
+      } as any;
+
+      (profileService.updateGroupImages as jest.Mock).mockRejectedValue(new Error("Database error"));
+
+      await profileController.updateGroupImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({ message: "Database error" });
+    });
+
+    it("Deve lidar com erros sem mensagem (default message)", async () => {
+      req = {
+        params: { groupId: "group-id" },
+        user: { id: "user-id" },
+        files: {},
+        body: {}
+      } as any;
+
+      (profileService.updateGroupImages as jest.Mock).mockRejectedValue({});
+
+      await profileController.updateGroupImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao atualizar imagens do grupo" });
+    });
+  });
+
+  describe("updateUserImages", () => {
+    it("Deve atualizar as imagens do usuário corretamente", async () => {
+      const authUser = { id: "user-id" };
+      const userId = "user-id";
+
+      const mockFiles = {
+        profileImage: [{ originalname: "profile.png" }],
+        bannerImage: [{ originalname: "banner.png" }]
+      };
+
+      req = {
+        params: { userId },
+        user: authUser,
+        files: mockFiles,
+        body: { bio: "Nova bio" }
+      } as any;
+
+      const mockResult = { message: "Imagens atualizadas com sucesso", user: {} };
+      (profileService.updateUserImages as jest.Mock).mockResolvedValue(mockResult);
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(profileService.updateUserImages).toHaveBeenCalledWith(
+        userId,
+        authUser.id,
+        mockFiles.profileImage[0],
+        mockFiles.bannerImage[0],
+        "Nova bio"
+      );
+      expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(mockResult);
+    });
+
+    it("Deve retornar 400 se o userId não estiver presente", async () => {
+      req = {
+        params: {},
+        user: { id: "user-id" }
+      } as any;
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith({ message: "userId é obrigatório" });
+      expect(profileService.updateUserImages).not.toHaveBeenCalled();
+    });
+
+    it("Deve retornar 401 se o usuário não estiver autenticado", async () => {
+      req = {
+        params: { userId: "user-id" },
+        user: undefined
+      } as any;
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.UNAUTHORIZED);
+      expect(res.json).toHaveBeenCalledWith({ message: "Usuário não autenticado" });
+      expect(profileService.updateUserImages).not.toHaveBeenCalled();
+    });
+
+    it("Deve retornar 403 se o usuário tentar editar perfil de outro usuário", async () => {
+      req = {
+        params: { userId: "other-user-id" },
+        user: { id: "user-id" }
+      } as any;
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.FORBIDDEN);
+      expect(res.json).toHaveBeenCalledWith({ message: "Você só pode editar seu próprio perfil" });
+      expect(profileService.updateUserImages).not.toHaveBeenCalled();
+    });
+
+    it("Deve lidar com atualizações parciais (apenas profile)", async () => {
+      const authUser = { id: "user-id" };
+
+      req = {
+        params: { userId: "user-id" },
+        user: authUser,
+        files: {
+          profileImage: [{ originalname: "profile.png" }]
+        },
+        body: {}
+      } as any;
+
+      (profileService.updateUserImages as jest.Mock).mockResolvedValue({});
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(profileService.updateUserImages).toHaveBeenCalledWith(
+        "user-id",
+        "user-id",
+        expect.anything(),
+        undefined,
+        undefined
+      );
+      expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
+    });
+
+    it("Deve lidar com atualizações parciais (apenas banner)", async () => {
+      const authUser = { id: "user-id" };
+
+      req = {
+        params: { userId: "user-id" },
+        user: authUser,
+        files: {
+          bannerImage: [{ originalname: "banner.png" }]
+        },
+        body: {}
+      } as any;
+
+      (profileService.updateUserImages as jest.Mock).mockResolvedValue({});
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(profileService.updateUserImages).toHaveBeenCalledWith(
+        "user-id",
+        "user-id",
+        undefined,
+        expect.anything(),
+        undefined
+      );
+      expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
+    });
+
+    it("Deve lidar com atualizações parciais (apenas bio)", async () => {
+      const authUser = { id: "user-id" };
+
+      req = {
+        params: { userId: "user-id" },
+        user: authUser,
+        files: {},
+        body: { bio: "Apenas bio nova" }
+      } as any;
+
+      (profileService.updateUserImages as jest.Mock).mockResolvedValue({});
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(profileService.updateUserImages).toHaveBeenCalledWith(
+        "user-id",
+        "user-id",
+        undefined,
+        undefined,
+        "Apenas bio nova"
+      );
+      expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
+    });
+
+    it("Deve lidar com erros com status específico", async () => {
+      req = {
+        params: { userId: "user-id" },
+        user: { id: "user-id" },
+        files: {},
+        body: {}
+      } as any;
+
+      const error = { status: httpStatus.BAD_REQUEST, message: "Imagem inválida" };
+      (profileService.updateUserImages as jest.Mock).mockRejectedValue(error);
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith({ message: "Imagem inválida" });
+    });
+
+    it("Deve lidar com erros sem status (default 500)", async () => {
+      req = {
+        params: { userId: "user-id" },
+        user: { id: "user-id" },
+        files: {},
+        body: {}
+      } as any;
+
+      (profileService.updateUserImages as jest.Mock).mockRejectedValue(new Error("Upload failed"));
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({ message: "Upload failed" });
+    });
+
+    it("Deve lidar com erros sem mensagem (default message)", async () => {
+      req = {
+        params: { userId: "user-id" },
+        user: { id: "user-id" },
+        files: {},
+        body: {}
+      } as any;
+
+      (profileService.updateUserImages as jest.Mock).mockRejectedValue({});
+
+      await profileController.updateUserImages(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao atualizar imagens do usuário" });
     });
   });
 });

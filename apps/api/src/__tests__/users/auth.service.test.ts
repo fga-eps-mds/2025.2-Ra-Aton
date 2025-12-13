@@ -78,8 +78,8 @@ describe("AuthService", () => {
           email: mockUser.email,
           userName: mockUser.userName,
           profileType: mockUser.profileType,
-          bannerImage: null,
-          profilePicture: null,
+          profilePicture: mockUser.profileImageUrl,
+          bannerImage: mockUser.bannerImageUrl,
         },
         warns: [],
       });
@@ -197,8 +197,8 @@ describe("AuthService", () => {
           email: mockUser.email,
           userName: mockUser.userName,
           profileType: null,
-          bannerImage: null,
-          profilePicture: null,
+          profilePicture: mockUser.profileImageUrl,
+          bannerImage: mockUser.bannerImageUrl,
         },
         warns: ["Configuração de perfil pendente."],
       });
