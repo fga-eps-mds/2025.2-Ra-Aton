@@ -23,6 +23,13 @@ describe("POSTLIKE Integration Tests", () => {
   it("deve curtir um post quando nenhuma curtida existente for encontrada", async () => {
     const token = generateToken(USER_ID);
 
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: USER_ID,
+      email: "teste@example.com",
+      name: "Usuario Teste",
+      password: "hashedpassword",
+    } as any);
+
     // Mock: NÃO existe curtida ainda
     prismaMock.postLike.findFirst.mockResolvedValue(null);
 
