@@ -58,6 +58,18 @@ describe('TwoOptionSwitch Component', () => {
     expect(mockOnChange).toHaveBeenCalledWith('RIGHT');
   });
 
+  it('deve chamar onChange("LEFT") ao clicar na opção da esquerda', () => {
+    const { getByText } = render(<TwoOptionSwitch {...defaultProps} selected="RIGHT" />);
+    
+    const leftOption = getByText('Opção Esquerda');
+    
+    // Dispara o evento de clique
+    fireEvent.press(leftOption);
+    
+    // Verifica se a função foi chamada com o argumento correto
+    expect(mockOnChange).toHaveBeenCalledWith('LEFT');
+  });
+
   it('deve aplicar as cores corretas quando a opção ESQUERDA está selecionada', () => {
     const { getByText } = render(<TwoOptionSwitch {...defaultProps} selected="LEFT" />);
 

@@ -20,25 +20,34 @@ const mockConstants = {
   expoConfig: {
     extra: { eas: { projectId: "mock-project-id" } },
   },
-  easConfig: { projectId: "mock-project-id" }, // Mockando também o easConfig por garantia
+  easConfig: { projectId: "mock-project-id" },
 };
 
-// Mock das bibliotecas do Expo
-// Usamos virtual: true pois em ambiente de teste node (jest) essas libs nativas podem não existir
-jest.mock("expo-notifications", () => mockNotifications, { virtual: true });
-jest.mock("expo-device", () => mockDevice, { virtual: true });
-jest.mock("expo-constants", () => ({ default: mockConstants }), {
-  virtual: true,
-});
-
-// Função auxiliar para recarregar o módulo a cada teste
-// Isso é CRUCIAL porque seu arquivo faz verificações de Platform.OS fora das funções (top-level)
-function loadModule() {
+// --- Helper para carregar o módulo em isolamento ---
+// Aceita o sistema operacional desejado para configurar o ambiente antes do require
+function loadModule(os: "ios" | "android" | "web" = "ios") {
   let module: typeof import("@/libs/notifications/registerNotifications");
+
   jest.isolateModules(() => {
-    // Ajuste o caminho relativo conforme a estrutura de pastas
+    // 1. Mockamos as bibliotecas Expo DENTRO do isolamento para garantir que sejam usadas
+    jest.doMock("expo-notifications", () => mockNotifications);
+    jest.doMock("expo-device", () => mockDevice);
+    jest.doMock("expo-constants", () => ({ default: mockConstants }));
+
+    // 2. Configuramos o Platform.OS para esta instância isolada
+    const RN = require("react-native");
+
+    // Reseta a propriedade OS para garantir que não haja contaminação
+    Object.defineProperty(RN.Platform, "OS", {
+      get: () => os,
+      configurable: true,
+    });
+
+    // 3. Carregamos o módulo sob teste
+    // O require vai usar os mocks definidos acima e o Platform configurado
     module = require("../../../libs/notifications/registerNotifications");
   });
+
   return module!;
 }
 
@@ -49,12 +58,10 @@ describe("Lib: registerForPushNotificationsAsync", () => {
     jest.clearAllMocks();
     consoleLogSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
-    // --- CONFIGURAÇÃO DE SUCESSO PADRÃO ---
-    (Platform as any).OS = "ios";
+    // Resetamos os valores padrão dos mocks
     mockDevice.isDevice = true;
     mockConstants.appOwnership = "standalone";
 
-    // Respostas padrão das promises
     mockNotifications.getPermissionsAsync.mockResolvedValue({
       status: "granted",
     });
@@ -73,8 +80,8 @@ describe("Lib: registerForPushNotificationsAsync", () => {
   // --- Testes de Ambiente ---
 
   it("deve retornar null e logar se estiver na Web", async () => {
-    (Platform as any).OS = "web";
-    const { registerForPushNotificationsAsync } = loadModule();
+    // Passamos 'web' para o helper
+    const { registerForPushNotificationsAsync } = loadModule("web");
 
     const token = await registerForPushNotificationsAsync();
 
@@ -83,9 +90,9 @@ describe("Lib: registerForPushNotificationsAsync", () => {
   });
 
   it("deve retornar null e logar se estiver rodando no Expo Go", async () => {
-    (Platform as any).OS = "ios";
     mockConstants.appOwnership = "expo";
-    const { registerForPushNotificationsAsync } = loadModule();
+    // Passamos 'ios' (ou android) para entrar no bloco if (Platform.OS !== 'web')
+    const { registerForPushNotificationsAsync } = loadModule("ios");
 
     const token = await registerForPushNotificationsAsync();
 
@@ -97,9 +104,8 @@ describe("Lib: registerForPushNotificationsAsync", () => {
   });
 
   it("deve retornar null e logar se nao for um dispositivo fisico (simulador)", async () => {
-    (Platform as any).OS = "ios";
     mockDevice.isDevice = false;
-    const { registerForPushNotificationsAsync } = loadModule();
+    const { registerForPushNotificationsAsync } = loadModule("ios");
 
     const token = await registerForPushNotificationsAsync();
 
@@ -113,12 +119,11 @@ describe("Lib: registerForPushNotificationsAsync", () => {
   // --- Testes de Sucesso ---
 
   it("deve retornar o token se as permissoes ja estiverem concedidas", async () => {
-    const { registerForPushNotificationsAsync } = loadModule();
+    const { registerForPushNotificationsAsync } = loadModule("ios");
     const token = await registerForPushNotificationsAsync();
 
     expect(token).toBe("mock-push-token");
     expect(mockNotifications.getPermissionsAsync).toHaveBeenCalledTimes(1);
-    // Verifica se usou o projectId correto
     expect(mockNotifications.getExpoPushTokenAsync).toHaveBeenCalledWith(
       expect.objectContaining({ projectId: "mock-project-id" }),
     );
@@ -128,9 +133,8 @@ describe("Lib: registerForPushNotificationsAsync", () => {
     mockNotifications.getPermissionsAsync.mockResolvedValueOnce({
       status: "undetermined",
     });
-    // requestPermissionsAsync configurado para sucesso no beforeEach
 
-    const { registerForPushNotificationsAsync } = loadModule();
+    const { registerForPushNotificationsAsync } = loadModule("ios");
     const token = await registerForPushNotificationsAsync();
 
     expect(token).toBe("mock-push-token");
@@ -148,7 +152,7 @@ describe("Lib: registerForPushNotificationsAsync", () => {
       status: "denied",
     });
 
-    const { registerForPushNotificationsAsync } = loadModule();
+    const { registerForPushNotificationsAsync } = loadModule("ios");
     const token = await registerForPushNotificationsAsync();
 
     expect(token).toBeNull();
@@ -163,7 +167,7 @@ describe("Lib: registerForPushNotificationsAsync", () => {
       new Error("API failed"),
     );
 
-    const { registerForPushNotificationsAsync } = loadModule();
+    const { registerForPushNotificationsAsync } = loadModule("ios");
     const token = await registerForPushNotificationsAsync();
 
     expect(token).toBeNull();
@@ -176,24 +180,21 @@ describe("Lib: registerForPushNotificationsAsync", () => {
 
 describe("Lib: setupNotificationHandler", () => {
   beforeEach(() => {
-    (Platform as any).OS = "ios";
     mockNotifications.setNotificationHandler.mockClear();
   });
 
-  it("deve chamar setNotificationHandler com a configuração correta", async () => {
-    const { setupNotificationHandler } = loadModule();
+  it("deve chamar setNotificationHandler com a configuração correta (Nativo)", async () => {
+    const { setupNotificationHandler } = loadModule("ios");
 
     setupNotificationHandler();
 
     expect(mockNotifications.setNotificationHandler).toHaveBeenCalledTimes(1);
 
-    // Acessa a função handleNotification passada como argumento
     const handlerConfig = (
       mockNotifications.setNotificationHandler as jest.Mock
     ).mock.calls[0][0];
     const handlerFunction = handlerConfig.handleNotification;
 
-    // Executa a função handler para verificar o retorno (configuração visual da notificação)
     const result = await handlerFunction();
 
     expect(result).toEqual({
@@ -206,8 +207,7 @@ describe("Lib: setupNotificationHandler", () => {
   });
 
   it("NAO deve chamar setNotificationHandler na Web", () => {
-    (Platform as any).OS = "web";
-    const { setupNotificationHandler } = loadModule();
+    const { setupNotificationHandler } = loadModule("web");
 
     setupNotificationHandler();
 
