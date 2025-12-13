@@ -109,5 +109,75 @@ describe('Lib: handleCreateGroup', () => {
 
       await expect(handleCreateGroup(mockPayload)).rejects.toThrow('Erro ao criar o grupo.');
     });
+
+    it('deve usar parsed.error quando parsed.message não existir', async () => {
+  const errorStr = JSON.stringify({ error: 'Erro vindo da API' });
+  const mockError = { response: { data: errorStr } };
+
+  (api_route.post as jest.Mock).mockRejectedValue(mockError);
+
+  await expect(handleCreateGroup(mockPayload))
+    .rejects
+    .toThrow('Erro vindo da API');
+});
+it('deve usar mensagem padrão quando parsed não tiver message nem error', async () => {
+  const errorStr = JSON.stringify({ foo: 'bar' });
+  const mockError = { response: { data: errorStr } };
+
+  (api_route.post as jest.Mock).mockRejectedValue(mockError);
+
+  await expect(handleCreateGroup(mockPayload))
+    .rejects
+    .toThrow('Erro ao criar o grupo.');
+});
+
+it('deve usar data.message quando data não for string e não tiver issues', async () => {
+  const errorData = {
+    message: 'Mensagem direta do backend',
+  };
+
+  const mockError = {
+    response: { data: errorData },
+  };
+
+  (api_route.post as jest.Mock).mockRejectedValue(mockError);
+
+  await expect(handleCreateGroup(mockPayload))
+    .rejects
+    .toThrow('Mensagem direta do backend');
+});
+
+it('deve usar data.error quando data.message não existir (else interno)', async () => {
+  const errorData = {
+    error: 'Erro vindo do campo error',
+  };
+
+  const mockError = {
+    response: { data: errorData },
+  };
+
+  (api_route.post as jest.Mock).mockRejectedValue(mockError);
+
+  await expect(handleCreateGroup(mockPayload))
+    .rejects
+    .toThrow('Erro vindo do campo error');
+});
+
+it('deve usar mensagem padrão quando data não tiver message nem error (else interno)', async () => {
+  const errorData = {
+    foo: 'bar',
+  };
+
+  const mockError = {
+    response: { data: errorData },
+  };
+
+  (api_route.post as jest.Mock).mockRejectedValue(mockError);
+
+  await expect(handleCreateGroup(mockPayload))
+    .rejects
+    .toThrow('Erro ao criar o grupo.');
+});
+
   });
 });
