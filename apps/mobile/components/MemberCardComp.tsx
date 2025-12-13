@@ -1,6 +1,5 @@
-//Card visual de um membro (Foto, Nome, Cargo, Botão de Remover).
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { useTheme } from '@/constants/Theme';
@@ -8,18 +7,23 @@ import { IGroupMember } from '@/libs/interfaces/IMember';
 
 interface MemberCardProps {
     member: IGroupMember;
-    isAdminView: boolean; // Se quem está vendo é admin
+    isAdminView: boolean; 
     onRemove: (id: string, name: string) => void;
+    onPress?: () => void;   
 }
 
-export default function MemberCard({ member, isAdminView, onRemove }: MemberCardProps) {
+export default function MemberCard({ member, isAdminView, onRemove, onPress }: MemberCardProps) {
     const { isDarkMode } = useTheme();
     const theme = isDarkMode ? Colors.dark : Colors.light;
 
     return (
-        <View style={[styles.container, { borderBottomColor: theme.gray + '20' }]}>
+        <TouchableOpacity 
+            style={[styles.container, { borderBottomColor: theme.gray + '20' }]}
+            onPress={onPress} 
+            activeOpacity={0.7}
+            disabled={!onPress} 
+        >
             <View style={styles.leftContent}>
-                {/* Avatar */}
                 <View style={[styles.avatar, { backgroundColor: theme.gray + '30' }]}>
                     {member.user.avatarUrl ? (
                         <Image source={{ uri: member.user.avatarUrl }} style={styles.avatarImage} />
@@ -28,7 +32,6 @@ export default function MemberCard({ member, isAdminView, onRemove }: MemberCard
                     )}
                 </View>
 
-                {/* Textos */}
                 <View>
                     <Text style={[styles.name, { color: theme.text }]}>{member.user.name}</Text>
                     <Text style={[styles.role, { color: member.role === 'ADMIN' ? theme.orange : theme.gray }]}>
@@ -37,7 +40,6 @@ export default function MemberCard({ member, isAdminView, onRemove }: MemberCard
                 </View>
             </View>
 
-            {/* Ação de Remover (Apenas Admin vê, e não pode remover a si mesmo aqui - lógica no pai) */}
             {isAdminView && member.role !== 'ADMIN' && (
                 <TouchableOpacity
                     onPress={() => onRemove(member.id, member.user.name)}
@@ -46,7 +48,7 @@ export default function MemberCard({ member, isAdminView, onRemove }: MemberCard
                     <Ionicons name="trash-outline" size={20} color="#FF4D4D" />
                 </TouchableOpacity>
             )}
-        </View>
+        </TouchableOpacity>
     );
 }
 

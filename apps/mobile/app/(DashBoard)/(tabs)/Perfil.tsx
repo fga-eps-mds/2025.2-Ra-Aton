@@ -48,6 +48,8 @@ import { useFeedModals } from "@/libs/hooks/useModalFeed";
 import CommentsModalComp from "@/components/CommentsModalComp";
 import { EventInfoModalComp } from "@/components/EventInfoModal";
 import { removeMember } from "@/libs/groupMembership/removeMember";
+import { getGroupMembers } from "@/libs/groupMembership/getGroupMembers"; 
+// import { removeMember } from "@/libs/groupMembership/removeMember";
 
 export default function ProfileScreen() {
   const { identifier, type } = useLocalSearchParams<{
@@ -73,27 +75,47 @@ export default function ProfileScreen() {
   } = useProfile(profileIdentifier, profileType);
 
 
-  // --- INÍCIO DA SUA INSERÇÃO (LOGICA) ---
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
 
-  // Lógica para saber se é Admin (CORRIGIDA)
   const isCurrentUserAdmin =
     profileType === "group" &&
     currentUser &&
-    profile && // <--- ADICIONADO: Verifica se o perfil já carregou
-    ((profile as IGroupProfile).leaderId === currentUser.id); // Ou .ownerId, dependendo da sua interface
+    profile && 
+    ((profile as IGroupProfile).leaderId === currentUser.id); 
+  const handleRemoveMember = async (userIdToRemove: string) => {
+    if (!profile || !profile.id) return;
 
-  const handleRemoveMember = async (membershipId: string) => {
-    try {
-      await removeMember(membershipId);
-      Alert.alert("Sucesso", "Membro removido.");
-      reloadProfile(); // Atualiza a tela
-    } catch (error: any) {
-      Alert.alert("Erro", error.message);
-    }
+    Alert.alert(
+      "Remover Membro",
+      "Tem certeza que deseja remover este usuário do grupo?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Remover",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const members = await getGroupMembers(profile.id);
+              const targetMember = members.find(m => m.userId === userIdToRemove || m.user?.id === userIdToRemove);
+
+              if (!targetMember) {
+                Alert.alert("Erro", "Membro não encontrado na lista.");
+                return;
+              }
+
+              await removeMember(targetMember.id);
+              
+              Alert.alert("Sucesso", "Membro removido.");
+              reloadProfile();
+            } catch (error: any) {
+              Alert.alert("Erro", error.message || "Não foi possível remover.");
+            }
+          },
+        },
+      ]
+    );
   };
 
-  // --- FIM DA SUA INSERÇÃO ---
 
   const [isFollowLoading, setIsFollowLoading] = useState(false);
 
@@ -286,6 +308,7 @@ export default function ProfileScreen() {
           followersCount={profile.followersCount}
           isDarkMode={isDarkMode}
           onBack={() => router.back()}
+          profileType={profileType}
           showEditButton={
             (profileType === "user" && userProfile?.isOwner === true) ||
             (profileType === "group" &&
