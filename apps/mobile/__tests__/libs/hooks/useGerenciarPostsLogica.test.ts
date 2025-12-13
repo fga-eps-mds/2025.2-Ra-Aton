@@ -88,7 +88,7 @@ describe("useGerenciarPostsLogic", () => {
     });
 
     act(() => {
-      result.current.confirmDeletePost();
+      result.current.confirmDeletePost(post.id);
     });
     
     expect(result.current.alertConfig.visible).toBe(true);
@@ -158,7 +158,7 @@ describe("useGerenciarPostsLogic", () => {
     });
 
     act(() => {
-      result.current.confirmDeletePost();
+      result.current.confirmDeletePost(post.id);
     });
 
     expect(result.current.alertConfig.visible).toBe(true);
@@ -180,13 +180,22 @@ describe("useGerenciarPostsLogic", () => {
     });
 
     act(() => {
-      result.current.confirmDeletePost();
+      // CORREÇÃO 1: Passar o ID do post
+      result.current.confirmDeletePost(post.id);
     });
 
     await act(async () => {
       if (result.current.alertConfig.onConfirm) {
         result.current.alertConfig.onConfirm();
       }
+    });
+
+    // Verificação extra: garante que a função de deletar foi chamada com o ID certo
+    expect(mockHandleDeletePost).toHaveBeenCalledWith(post.id);
+
+    // CORREÇÃO 2: Simular o fechamento do alerta (já que o hook não fecha automaticamente no onConfirm)
+    act(() => {
+      result.current.closeAlert();
     });
 
     expect(result.current.menuVisible).toBe(false);
