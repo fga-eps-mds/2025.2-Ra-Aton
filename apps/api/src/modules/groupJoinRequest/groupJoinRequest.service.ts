@@ -101,6 +101,7 @@ class GroupJoinRequestService {
           `${user.userName} solicitou para entrar no grupo ${group?.name}.`,
           groupId,
           "GROUP",
+          newInvite.id,
         );
       }
     }
@@ -126,7 +127,7 @@ class GroupJoinRequestService {
           },
           group: {
             connect: {
-              id: updatedInvite.userId,
+              id: updatedInvite.groupId,
             },
           },
         },
@@ -141,6 +142,7 @@ class GroupJoinRequestService {
         `Sua solicitação para entrar no grupo ${groupName} foi aprovada.`,
         updatedInvite.groupId,
         "GROUP",
+        updatedInvite.id,
       );
     }
 
@@ -153,6 +155,7 @@ class GroupJoinRequestService {
         `Sua solicitação para entrar no grupo ${groupName} foi rejeitada.`,
         updatedInvite.groupId,
         "GROUP",
+        updatedInvite.id,
       );
     }
     return updatedInvite;

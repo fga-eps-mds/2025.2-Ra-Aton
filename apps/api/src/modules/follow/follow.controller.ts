@@ -50,6 +50,30 @@ class FollowController {
         const result = await followService.getUserFollowingGroups(userId, limit, page);
         res.status(httpStatus.OK).json(result);
     }
+
+    async followUser(req: Request, res: Response) {
+        const { userId: followingId } = req.params;
+        const { id: followerId } = (req as any).user!;
+
+        if (!followingId) {
+            return res.status(httpStatus.BAD_REQUEST).json({ message: 'ID do usuário é necessário' });
+        }
+
+        await followService.followUser(followerId, followingId);
+        res.status(httpStatus.CREATED).json({ message: "Usuário seguido com sucesso" });
+    }
+
+    async unfollowUser(req: Request, res: Response) {
+        const { userId: followingId } = req.params;
+        const { id: followerId } = (req as any).user!;
+
+        if (!followingId) {
+            return res.status(httpStatus.BAD_REQUEST).json({ message: 'ID do usuário é necessário' });
+        }
+
+        await followService.unfollowUser(followerId, followingId);
+        res.status(httpStatus.NO_CONTENT).send();
+    }
 }
 
 export default new FollowController();

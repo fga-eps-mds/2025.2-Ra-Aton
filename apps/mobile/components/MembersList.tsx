@@ -1,0 +1,1 @@
+//Componente que renderiza a lista e trata o estado de loading/vazio.

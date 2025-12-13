@@ -8,10 +8,15 @@ export interface IPost {
   author: {
     userName: string;
     id: string;
+    profileImageUrl?: string | null;
   };
   authorId: string | null;
 
-  group?: string | null;
+  group: {
+    name: string;
+    id: string;
+    logoUrl?: string | null;
+  };
   groupId?: string | null;
 
   createdAt?: string;

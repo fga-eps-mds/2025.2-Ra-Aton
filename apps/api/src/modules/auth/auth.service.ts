@@ -14,6 +14,8 @@ const formatUserResponse = (user: User) => {
     email: user.email,
     userName: user.userName,
     profileType: user.profileType,
+    profilePicture: user.profileImageUrl, 
+    bannerImage: user.bannerImageUrl,
   };
 };
 

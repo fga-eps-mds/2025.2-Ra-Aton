@@ -3,6 +3,7 @@ import * as ExpoRouter from "expo-router";
 
 const mockReplace = jest.fn();
 const mockBack = jest.fn();
+const mockPush = jest.fn();
 
 jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
@@ -28,6 +29,7 @@ describe("useCreateGroupForm", () => {
     (ExpoRouter.useRouter as jest.Mock).mockReturnValue({
       replace: mockReplace,
       back: mockBack,
+      push: mockPush,
     });
   });
 
@@ -119,9 +121,10 @@ describe("useCreateGroupForm", () => {
       jest.runAllTimers();
     });
 
-    expect(mockReplace).toHaveBeenCalledWith({
-      pathname: "/perfilGrupo",
-      params: { id: "grupo-123-id" },
+    // Verifica Redirecionamento
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: `/(DashBoard)/(tabs)/Perfil`,
+      params: { identifier: "Novo Grupo", type: "group" },
     });
   });
 });

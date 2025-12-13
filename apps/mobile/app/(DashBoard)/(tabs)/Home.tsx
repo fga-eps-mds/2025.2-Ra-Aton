@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { StyleSheet, View, FlatList, ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import { useUser } from "@/libs/storage/UserContext";
 import BackGroundComp from "@/components/BackGroundComp";
@@ -12,6 +12,7 @@ import Spacer from "@/components/SpacerComp";
 import ReportReasonModal from "@/components/ReportReasonModal";
 import { useFeedEvents } from "@/libs/hooks/useFeedEvents";
 import { useFeedModals } from "@/libs/hooks/useModalFeed";
+import { useFocusEffect } from "expo-router"; 
 import { Ionicons } from "@expo/vector-icons";
 import { useNotifications } from "@/libs/storage/NotificationContext";
 import { useTheme } from "@/constants/Theme";
@@ -19,7 +20,15 @@ import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
-  const { user } = useUser();
+  const { user, refreshUser } = useUser();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (refreshUser) {
+        refreshUser();
+      }
+    }, [])
+  );
 
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
@@ -77,7 +86,12 @@ export default function HomeScreen() {
         )}
         ListHeaderComponent={
   <View style={styles.containerHeader}>
-    <ProfileThumbnailComp size={40} />
+    <ProfileThumbnailComp
+              size={50}
+              userName={user?.userName ?? "User"}
+              imageUrl={user?.profilePicture ?? null}
+              profileType={"user"}
+            />
     <TouchableOpacity onPress={() => router.push("/Notifications")} style={{alignSelf: 'flex-end', position: 'relative'}}>
       {unreadCount > 0 && (
         <View
@@ -163,7 +177,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   containerHeader: {
-    flexDirection: "row",
+    flexDirection: "row"  ,
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 25,

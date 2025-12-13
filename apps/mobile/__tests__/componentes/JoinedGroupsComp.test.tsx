@@ -18,7 +18,18 @@ const MockButton = (props: any) => {
 };
 
 jest.mock('@/components/PrimaryButton', () => (props: any) => <MockButton {...props} testID="primary-button" />);
-jest.mock('@/components/SecondaryButton', () => (props: any) => <MockButton {...props} testID="secondary-button" />);
+
+jest.mock('@/components/ProfileThumbnailComp', () => {
+  const { View } = require('react-native');
+  return (props: any) => <View testID="profile-thumbnail" />;
+});
+
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
 
 jest.mock('@/constants/Theme', () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -40,13 +51,9 @@ jest.mock('@/constants/Colors', () => ({
 }));
 
 describe('JoinedGroupsComp', () => {
-  const mockPrimaryPress = jest.fn();
-  const mockSecondaryPress = jest.fn();
-
   const defaultProps = {
     name: 'Grupo de Futebol',
-    onPrimaryPress: mockPrimaryPress,
-    onSecondaryPress: mockSecondaryPress,
+    logoUrl: 'https://example.com/logo.png',
   };
 
   beforeEach(() => {
@@ -58,20 +65,33 @@ describe('JoinedGroupsComp', () => {
     expect(getByText('Grupo de Futebol')).toBeTruthy();
   });
 
-  // Estes testes de clique vão falhar com o código atual do componente, pois o onPress não está sendo passado para os botões.
-  /*it('deve chamar onPrimaryPress ao clicar no botão primário', () => {
+  it('deve renderizar o ProfileThumbnailComp', () => {
+    const { getByTestId } = render(<JoinedGroupsComp {...defaultProps} />);
+    expect(getByTestId('profile-thumbnail')).toBeTruthy();
+  });
+
+  it('deve renderizar o botão "Perfil"', () => {
+    const { getByText } = render(<JoinedGroupsComp {...defaultProps} />);
+    expect(getByText('Perfil')).toBeTruthy();
+  });
+
+  it('deve navegar para o perfil do grupo ao clicar no botão', () => {
     const { getByTestId } = render(<JoinedGroupsComp {...defaultProps} />);
     fireEvent.press(getByTestId('primary-button'));
-    expect(mockPrimaryPress).toHaveBeenCalledTimes(1);
+    
+    expect(mockPush).toHaveBeenCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(DashBoard)/(tabs)/Perfil",
+      params: { identifier: 'Grupo de Futebol', type: "group" }
+    });
   });
 
   it('deve aplicar as cores do tema corretamente (Light Mode)', () => {
     const { getByText } = render(<JoinedGroupsComp {...defaultProps} />);
     const nameText = getByText('Grupo de Futebol');
     
-    // Verifica a cor real #121212
     expect(nameText.props.style).toEqual(expect.objectContaining({
       color: '#121212',
     }));
-  });*/
+  });
 });

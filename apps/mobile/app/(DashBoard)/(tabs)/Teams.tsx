@@ -76,25 +76,32 @@ const Teams = () => {
               Seus times
             </AppText>
             <CreateGroupComp
-              onPrimaryPress={() => router.replace("/criarGrupo")}
-            />
-            <FlatList
-              data={myGroups}
-              keyExtractor={(g) => g.id}
-              scrollEnabled={false}
-              contentContainerStyle={{ gap: 10 }}
-              ListEmptyComponent={
-                <AppText
-                  style={[
-                    { textAlign: "center", alignSelf: "center", width: "100%" },
-                    styles.txt,
-                  ]}
-                >
-                  Você ainda não faz parte de nenhum time.
-                </AppText>
-              }
-              renderItem={({ item }) => <JoinedGroupsComp name={item.name} />}
-            />
+            onPrimaryPress={() => router.replace("/criarGrupo")} />
+
+<FlatList
+  data={myGroups}
+  keyExtractor={(g) => g.id}
+  scrollEnabled={false}               
+  contentContainerStyle={{ gap: 10 }} 
+  ListEmptyComponent={
+    <AppText
+      style={[
+        { textAlign: "center", alignSelf: "center", width: "100%" },
+        styles.txt,
+      ]}
+    >
+      Você ainda não faz parte de nenhum time.
+    </AppText>
+  }
+  renderItem={({ item }) => (
+    <JoinedGroupsComp 
+      name={item.name} 
+      logoUrl={item.logoUrl} 
+    />
+  )}
+/>
+
+
             <Spacer height={"2%"} />
             <TwoOptionSwitch
               optionLeft="Amadores"

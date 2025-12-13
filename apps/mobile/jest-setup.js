@@ -111,27 +111,40 @@ try {
       visible ? React.createElement(React.Fragment, null, children) : null;
 
     // --- CORREÇÃO AQUI ---
-    const FlatList = ({ data, renderItem, keyExtractor, ListEmptyComponent, style }) => {
-      if (!data || data.length === 0) {
-        if (!ListEmptyComponent) return null;
-        // Se for um elemento React válido (ex: <Text />), retorna ele direto
-        if (React.isValidElement(ListEmptyComponent)) {
-          return ListEmptyComponent;
+    const FlatList = ({ data, renderItem, keyExtractor, ListEmptyComponent, ListHeaderComponent, style }) => {
+      const children = [];
+      
+      // Renderiza o header se existir
+      if (ListHeaderComponent) {
+        if (React.isValidElement(ListHeaderComponent)) {
+          children.push(ListHeaderComponent);
+        } else {
+          children.push(React.createElement(ListHeaderComponent));
         }
-        // Se for um componente (função/classe), cria o elemento
-        return React.createElement(ListEmptyComponent);
       }
-      return React.createElement(
-        "View",
-        { style },
-        data.map((item, index) =>
-          React.createElement(
-            "View",
-            { key: keyExtractor ? keyExtractor(item) : String(index) },
-            renderItem({ item, index }),
-          ),
-        ),
-      );
+      
+      // Renderiza os dados ou o componente vazio
+      if (!data || data.length === 0) {
+        if (ListEmptyComponent) {
+          if (React.isValidElement(ListEmptyComponent)) {
+            children.push(ListEmptyComponent);
+          } else {
+            children.push(React.createElement(ListEmptyComponent));
+          }
+        }
+      } else {
+        children.push(
+          ...data.map((item, index) =>
+            React.createElement(
+              "View",
+              { key: keyExtractor ? keyExtractor(item) : String(index) },
+              renderItem({ item, index }),
+            ),
+          )
+        );
+      }
+      
+      return React.createElement("View", { style }, ...children);
     };
     // ---------------------
 
@@ -146,6 +159,11 @@ try {
       Platform: {
         OS: "ios",
         select: (obj) => (obj && obj.ios) || obj?.default,
+      },
+      Dimensions: {
+        get: jest.fn().mockReturnValue({ width: 375, height: 812 }),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
       },
       Alert: { alert: jest.fn() },
       View,
