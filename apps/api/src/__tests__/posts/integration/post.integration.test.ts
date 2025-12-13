@@ -70,8 +70,8 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       updatedAt: new Date(),
     };
 
-    prismaMock.group.create.mockResolvedValue(mockGroup)
-    prismaMock.group.findUnique.mockResolvedValue(mockGroup)
+    prismaMock.group.create.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+    prismaMock.group.findUnique.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
 
     prismaMock.user.findUnique.mockResolvedValue({
       id: AUTH_USER_ID,
@@ -82,6 +82,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "Test User",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     prismaMock.post.create.mockResolvedValue({
@@ -96,6 +102,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: null,
       eventFinishDate: null,
       location: null,
+      reminderSent: false,
       likesCount: 0,
       commentsCount: 0,
       attendancesCount: 0,
@@ -136,8 +143,8 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       updatedAt: new Date(),
     };
 
-    prismaMock.group.create.mockResolvedValue(mockGroup)
-    prismaMock.group.findUnique.mockResolvedValue(mockGroup)
+    prismaMock.group.create.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+    prismaMock.group.findUnique.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
 
     const body = {
       title: "Event Test",
@@ -159,6 +166,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "Event User",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     prismaMock.post.create.mockResolvedValue({
@@ -173,6 +186,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: new Date(eventStart),
       eventFinishDate: new Date(eventEnd),
       location: "Main Hall",
+      reminderSent: false,
       likesCount: 0,
       commentsCount: 0,
       attendancesCount: 0,
@@ -208,8 +222,8 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       updatedAt: new Date(),
     };
 
-    prismaMock.group.create.mockResolvedValue(mockGroup)
-    prismaMock.group.findUnique.mockResolvedValue(mockGroup)
+    prismaMock.group.create.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+    prismaMock.group.findUnique.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
 
     const body = {
       title: "Invalid Event",
@@ -228,6 +242,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "User",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     const response = await request(app)
@@ -281,6 +301,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "UserX",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     const response = await request(app)
@@ -317,6 +343,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
         eventDate: null,
         eventFinishDate: null,
         location: null,
+        reminderSent: false,
         likesCount: 0,
         commentsCount: 0,
         attendancesCount: 0,
@@ -382,6 +409,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: null,
       eventFinishDate: null,
       location: null,
+      reminderSent: false,
     });
 
     const response = await request(app)
@@ -455,6 +483,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: null,
       eventFinishDate: null,
       location: null,
+      reminderSent: false,
       likesCount: 0,
       commentsCount: 0,
       attendancesCount: 0,

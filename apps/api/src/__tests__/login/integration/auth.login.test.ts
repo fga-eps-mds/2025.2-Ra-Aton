@@ -34,6 +34,12 @@ describe("API Testes", () => {
         updatedAt: new Date(),
         passwordHash: await bcrypt.hash("senha123", 10),
         profileType: "JOGADOR",
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       };
       prismaMock.user.findUnique.mockResolvedValue(registeredUser);
 
@@ -55,6 +61,12 @@ describe("API Testes", () => {
         updatedAt: new Date(),
         passwordHash: await bcrypt.hash("senha123", 10),
         profileType: "JOGADOR",
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       };
       prismaMock.user.findUnique.mockResolvedValue(registeredUser);
 

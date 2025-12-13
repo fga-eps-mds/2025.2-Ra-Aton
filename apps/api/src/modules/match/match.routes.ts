@@ -47,22 +47,24 @@ router.post(
   auth,
   validateRequest(createMatchSchema),
   catchAsync(matchController.createMatch),
-  
+
   notifyUser({
-    // @ts-ignore
-    getUserId: (req) => req.user?.userId || '',
-    getTitle: () => '🏀 Partida Criada com Sucesso!',
+    // @ts-ignore /* istanbul ignore next */
+    getUserId: (req) => req.user?.userId || "",
+    getTitle: () => "🏀 Partida Criada com Sucesso!",
     getBody: (req, res) => {
-      const title = res.locals.matchTitle || 'Nova partida';
-      const date = res.locals.matchDate ? new Date(res.locals.matchDate).toLocaleDateString('pt-BR') : '';
-      const location = res.locals.matchLocation || '';
+      const title = res.locals.matchTitle || "Nova partida";
+      const date = res.locals.matchDate
+        ? new Date(res.locals.matchDate).toLocaleDateString("pt-BR")
+        : "";
+      const location = res.locals.matchLocation || "";
       return `Sua partida "${title}" foi marcada para ${date} em ${location}. Aguardando jogadores!`;
     },
     getData: (req, res) => ({
-      type: 'match_created',
+      type: "match_created",
       matchId: res.locals.newMatchId,
       sport: res.locals.matchSport,
-      screen: 'match_detail',
+      screen: "match_detail",
     }),
   }),
 );

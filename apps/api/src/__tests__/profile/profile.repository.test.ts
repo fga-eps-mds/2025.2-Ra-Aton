@@ -88,7 +88,8 @@ describe("ProfileRepository", () => {
           location: null,
           content: "Conteudo",
           type: "TEXT",
-          authorId: "a1"
+          authorId: "a1",
+          reminderSent: false
         },
       ];
 
@@ -119,6 +120,7 @@ describe("ProfileRepository", () => {
                 sport: "FUTEBOL",
                 createdAt: mockDate,
                 updatedAt: mockDate,
+                reminderSent: false,
                 teamNameA: "Time A",
                 teamNameB: "Time B",
                 players: [
@@ -162,7 +164,10 @@ describe("ProfileRepository", () => {
                     groupType: "AMATEUR",
                     sports: ["FUTEBOL"],
                     createdAt: mockDate,
-                    updatedAt: mockDate
+                    updatedAt: mockDate,
+                    bio: null,
+                    logoId: null,
+                    bannerId: null
                 } 
             }
         ];
@@ -194,6 +199,9 @@ describe("ProfileRepository", () => {
             bannerUrl: "banner.png",
             createdAt: mockDate,
             updatedAt: mockDate,
+            bio: null,
+            logoId: null,
+            bannerId: null,
             _count: { GroupMembership: 10 },
           },
         },

@@ -38,6 +38,7 @@ describe("POSTLIKE Integration Tests", () => {
       id: "like-123",
       postId: POST_ID,
       userId: USER_ID,
+      createdAt: new Date(),
     });
 
     // Mock: update contador de likes
@@ -71,12 +72,14 @@ describe("POSTLIKE Integration Tests", () => {
       id: "like-987",
       postId: POST_ID,
       userId: USER_ID,
+      createdAt: new Date(),
     });
 
     prismaMock.postLike.delete.mockResolvedValue({
       id: "like-987",
       postId: POST_ID,
       userId: USER_ID,
+      createdAt: new Date(),
     });
 
     prismaMock.post.update.mockResolvedValue({});

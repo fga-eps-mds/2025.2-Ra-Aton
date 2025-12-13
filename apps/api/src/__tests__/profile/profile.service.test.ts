@@ -56,6 +56,9 @@ describe("ProfileService", () => {
         matchesCount: 1,
         isFollowing: false,
         isOwner: true,
+        notificationsAllowed: true,
+        profileImageId: null,
+        bannerImageId: null,
       };
 
       const mockMatches = { matches: [{ id: "match-1" }] };

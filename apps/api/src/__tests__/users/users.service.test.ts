@@ -37,6 +37,12 @@ describe("UserService", () => {
         passwordHash: "hashedPassword",
         createdAt: now,
         updatedAt: now,
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       });
 
       const result = await userService.createUser(mockUserInput);

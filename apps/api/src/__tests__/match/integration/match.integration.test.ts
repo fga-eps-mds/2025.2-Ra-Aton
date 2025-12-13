@@ -55,6 +55,65 @@ describe("Match Integration Tests - Branch Coverage", () => {
    * Tests controller authentication checks that execute AFTER validation
    */
   describe("POST /match - createMatch - Authentication & Business Logic", () => {
+    it("deve retornar 401 quando não há header Authorization (middleware auth)", async () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 7);
+
+      await request(app)
+        .post("/match")
+        .send({
+          userId: "00000000-0000-0000-0000-000000000001",
+          title: "Partida Teste",
+          MatchDate: futureDate,
+          teamNameA: "Time A",
+          teamNameB: "Time B",
+          location: "Local",
+          sport: "Futebol",
+          maxPlayers: 10,
+        })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("deve retornar 401 quando token é inválido (middleware auth)", async () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 7);
+
+      await request(app)
+        .post("/match")
+        .set("Authorization", "Bearer token-invalido-xyz")
+        .send({
+          userId: "00000000-0000-0000-0000-000000000001",
+          title: "Partida Teste",
+          MatchDate: futureDate,
+          teamNameA: "Time A",
+          teamNameB: "Time B",
+          location: "Local",
+          sport: "Futebol",
+          maxPlayers: 10,
+        })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("deve retornar 401 quando formato do header Authorization é inválido (middleware auth)", async () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 7);
+
+      await request(app)
+        .post("/match")
+        .set("Authorization", "InvalidFormat token123")
+        .send({
+          userId: "00000000-0000-0000-0000-000000000001",
+          title: "Partida Teste",
+          MatchDate: futureDate,
+          teamNameA: "Time A",
+          teamNameB: "Time B",
+          location: "Local",
+          sport: "Futebol",
+          maxPlayers: 10,
+        })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it("deve retornar 401 quando userId não está no body (branch: !authUser)", async () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 7);
@@ -62,7 +121,7 @@ describe("Match Integration Tests - Branch Coverage", () => {
       await request(app)
         .post("/match")
         .send({
-          // userId is missing - will trigger !authUser branch
+          /* Lines 65-66 omitted */
           title: "Partida Teste",
           MatchDate: futureDate,
           teamNameA: "Time A",
@@ -293,12 +352,21 @@ describe("Match Integration Tests - Branch Coverage", () => {
    * TEST SUITE 2: updateMatch Authorization Branches
    */
   describe("PATCH /match/:id - updateMatch - Authorization Logic", () => {
-    it("deve retornar 401 quando usuário não está autenticado", async () => {
+    it("deve retornar 401 quando não há header Authorization (middleware auth)", async () => {
       const matchId = "00000000-0000-0000-0000-000000000001";
 
-      // Request without auth middleware data (req.user is undefined)
       await request(app)
         .patch(`/match/${matchId}`)
+        .send({ title: "Novo Título" })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("deve retornar 401 quando token é inválido (middleware auth)", async () => {
+      const matchId = "00000000-0000-0000-0000-000000000001";
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", "Bearer token-invalido-xyz")
         .send({ title: "Novo Título" })
         .expect(HttpStatus.UNAUTHORIZED);
     });
@@ -326,6 +394,69 @@ describe("Match Integration Tests - Branch Coverage", () => {
         .expect(HttpStatus.BAD_REQUEST);
     });
 
+    it("deve validar descrição mínima no update (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const matchId = "00000000-0000-0000-0000-000000000010";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ description: "A" })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("deve validar teamNameA mínimo no update (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const matchId = "00000000-0000-0000-0000-000000000010";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ teamNameA: "A" })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("deve validar teamNameB mínimo no update (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const matchId = "00000000-0000-0000-0000-000000000010";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ teamNameB: "B" })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
     it("deve validar teamAScore positivo (validação Zod)", async () => {
       const userId = "00000000-0000-0000-0000-000000000001";
       const matchId = "00000000-0000-0000-0000-000000000010";
@@ -344,6 +475,90 @@ describe("Match Integration Tests - Branch Coverage", () => {
         .patch(`/match/${matchId}`)
         .set("Authorization", `Bearer ${token}`)
         .send({ teamAScore: -1 })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("deve validar teamBScore positivo no update (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const matchId = "00000000-0000-0000-0000-000000000010";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ teamBScore: -1 })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("deve validar data inválida no update (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const matchId = "00000000-0000-0000-0000-000000000010";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ MatchDate: "invalid-date" })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("deve validar location mínimo no update (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const matchId = "00000000-0000-0000-0000-000000000010";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ location: "" })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("deve validar sport mínimo no update (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const matchId = "00000000-0000-0000-0000-000000000010";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .patch(`/match/${matchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ sport: "" })
         .expect(HttpStatus.BAD_REQUEST);
     });
 
@@ -405,6 +620,7 @@ describe("Match Integration Tests - Branch Coverage", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         players: [],
+        reminderSent: false,
       } as any);
 
       await request(app)
@@ -419,11 +635,20 @@ describe("Match Integration Tests - Branch Coverage", () => {
    * TEST SUITE 3: deleteMatch Authorization Branches
    */
   describe("DELETE /match/:id - deleteMatch - Authorization Logic", () => {
-    it("deve retornar 401 quando usuário não está autenticado", async () => {
+    it("deve retornar 401 quando não há header Authorization (middleware auth)", async () => {
       const matchId = "00000000-0000-0000-0000-000000000001";
 
       await request(app)
         .delete(`/match/${matchId}`)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("deve retornar 401 quando token é inválido (middleware auth)", async () => {
+      const matchId = "00000000-0000-0000-0000-000000000001";
+
+      await request(app)
+        .delete(`/match/${matchId}`)
+        .set("Authorization", "Bearer token-invalido-xyz")
         .expect(HttpStatus.UNAUTHORIZED);
     });
 
@@ -525,6 +750,42 @@ describe("Match Integration Tests - Branch Coverage", () => {
    * Tests all branches of the Round Robin team allocation logic
    */
   describe("POST /match/:id/subscribe - Round Robin Team Allocation", () => {
+    it("deve retornar 401 quando não há header Authorization (middleware auth)", async () => {
+      const matchId = "00000000-0000-0000-0000-000000000010";
+
+      await request(app)
+        .post(`/match/${matchId}/subscribe`)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("deve retornar 401 quando token é inválido (middleware auth)", async () => {
+      const matchId = "00000000-0000-0000-0000-000000000010";
+
+      await request(app)
+        .post(`/match/${matchId}/subscribe`)
+        .set("Authorization", "Bearer token-invalido-xyz")
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("deve validar UUID do matchId no subscribe (validação Zod)", async () => {
+      const userId = "00000000-0000-0000-0000-000000000001";
+      const user = await createUser(userId, "testuser", "test@test.com", "Test");
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(user);
+
+      const loginRes = await request(app)
+        .post("/login")
+        .send({ email: "test@test.com", password: "senha123" })
+        .expect(HttpStatus.OK);
+
+      const token = loginRes.body.token;
+
+      await request(app)
+        .post(`/match/invalid-uuid/subscribe`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
     it("deve retornar 400 quando partida não existe (service branch)", async () => {
       const userId = "00000000-0000-0000-0000-000000000001";
       const nonExistentMatchId = "00000000-0000-0000-0000-000000000099";
@@ -569,6 +830,7 @@ describe("Match Integration Tests - Branch Coverage", () => {
         maxPlayers: 10,
         MatchDate: futureDate,
         MatchStatus: "PENDING",
+        reminderSent: false,
       } as any);
 
       // Mock existing subscription
@@ -608,6 +870,7 @@ describe("Match Integration Tests - Branch Coverage", () => {
         maxPlayers: 2, // Max 2 players per team (1 per side)
         MatchDate: futureDate,
         MatchStatus: "PENDING",
+        reminderSent: false,
       } as any);
 
       // No existing subscription for this user
@@ -684,6 +947,7 @@ describe("Match Integration Tests - Branch Coverage", () => {
         maxPlayers: 2, // Max 2 players (1 per team)
         MatchDate: futureDate,
         MatchStatus: "PENDING",
+        reminderSent: false,
       } as any);
 
       // Mock Team B (destination) is full

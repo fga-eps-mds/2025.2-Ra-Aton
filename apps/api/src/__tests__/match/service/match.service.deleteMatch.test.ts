@@ -37,8 +37,8 @@ describe("MatchService.deleteMatch", () => {
         updatedAt: new Date(),
     };
 
-    repo.findById.mockResolvedValue(deletedMatch);
-    repo.deleteMatch.mockResolvedValue(deletedMatch);
+    repo.findById.mockResolvedValue({ ...deletedMatch, reminderSent: false });
+    repo.deleteMatch.mockResolvedValue({ ...deletedMatch, reminderSent: false });
 
     // 2. ACT
     const result = await MatchService.deleteMatch(matchId, authorId);

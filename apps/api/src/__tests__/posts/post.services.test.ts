@@ -31,6 +31,11 @@ const mockGroup = {
   description: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  bio: null,
+  logoUrl: null,
+  bannerUrl: null,
+  logoId: null,
+  bannerId: null,
 };
 
 const mockPost = {
@@ -46,6 +51,7 @@ const mockPost = {
   eventDate: null,
   eventFinishDate: null,
   location: null,
+  reminderSent: false,
 };
 
 const mockEventPostData = {
