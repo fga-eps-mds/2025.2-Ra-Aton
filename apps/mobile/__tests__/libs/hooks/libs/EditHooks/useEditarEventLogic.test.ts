@@ -148,8 +148,7 @@ describe("useEditarEventoLogic", () => {
     // Verifica se a conversão de data ocorreu no payload
     const payloadEnviado = mockApiPatch.mock.calls[0][1];
 
-    // 25/12/2025 15:30 -> ISO String deve conter 2025-12-25T15:30:00 (ajustado ao timezone ou UTC)
-    // Verificamos apenas se converteu para o formato ISO esperado (contém T, hífens e dois pontos)
+    // 25/12/2025 15:30 -> ISO String deve conter 2025-12-25T15:30:00
     expect(payloadEnviado.eventDate).toMatch(
       /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
     );
@@ -211,7 +210,7 @@ describe("useEditarEventoLogic", () => {
     expect(result.current.alertConfig.visible).toBe(true);
     expect(result.current.alertConfig.title).toBe("Erro");
 
-    // CORREÇÃO: O hook original ignora o message do erro local e usa o fallback
+    // Com o código atual, ele cai no fallback genérico
     expect(result.current.alertConfig.message).toBe(
       "Erro ao atualizar evento.",
     );
