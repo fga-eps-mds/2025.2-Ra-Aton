@@ -12,6 +12,7 @@ import { rejeitarSolicitacao } from "@/libs/solicitacoes/rejeitarSolicitacao";
 
 interface CardNotificationCompProps {
   title: string;
+  type: string;
   description: string;
   isRead: boolean;
   inviteId: string;
@@ -21,6 +22,7 @@ interface CardNotificationCompProps {
 
 const CardNotificationComp: React.FC<CardNotificationCompProps> = ({
   title,
+  type,
   description,
   isRead,
   inviteId,
@@ -77,28 +79,45 @@ const CardNotificationComp: React.FC<CardNotificationCompProps> = ({
 
   {/* ----------- DIREITA ----------- */}
   <View style={styles.rightButtons}>
-    {title === "Solicitação de Entrada" && (
-      <>
 
+    {type === "GROUP_JOIN_REQUEST" && (
+      <>
         <PrimaryButton
           onPress={async () => {
             await rejeitarSolicitacao(inviteId);
-            onMarkAsRead(); 
+            onMarkAsRead();
           }}
           style={{ width: "40%", height: 40 }}
         >
           Recusar
         </PrimaryButton>
 
-        <PrimaryButton onPress={async () => { await aceitarSolicitacao(inviteId);
-                                              onMarkAsRead();
-                                            }}
-                                             style={{ width: "40%", height: 40 }}>
+        <PrimaryButton
+          onPress={async () => {
+            await aceitarSolicitacao(inviteId);
+            onMarkAsRead();
+          }}
+          style={{ width: "40%", height: 40 }}
+        >
           Aceitar
         </PrimaryButton>
       </>
     )}
-  </View>
+
+    {type === "GROUP_JOIN_APPROVED" && (
+      <SecondaryButton style={{ backgroundColor: theme.input, height: 40, width: 90 }}>
+        Aceito
+      </SecondaryButton>
+    )}
+
+    {type === "GROUP_JOIN_REJECTED" && (
+      <SecondaryButton style={{ backgroundColor: theme.input, height: 40, width: 90 }}>
+        Recusado
+      </SecondaryButton>
+    )}
+
+</View>
+
 
 </View>
 
