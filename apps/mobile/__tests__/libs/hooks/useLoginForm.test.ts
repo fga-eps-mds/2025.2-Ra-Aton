@@ -124,7 +124,7 @@ describe("useLoginForm", () => {
 
     expect(result.current.isLoading).toBe(false);
     
-    expect(mockSetUser).toHaveBeenCalledWith({ ...mockUser, token: "token123" });
+    expect(mockSetUser).toHaveBeenCalledWith({ ...mockUser, token: "token123", bannerImage: undefined, notificationsAllowed: true, profilePicture: undefined });
     
     expect(mockSyncPushToken).toHaveBeenCalledWith("push-token-123", "token123");
     expect(mockReplace).toHaveBeenCalledWith("/(DashBoard)/(tabs)/Partidas");

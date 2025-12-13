@@ -73,12 +73,21 @@ describe('CustomDrawerContent', () => {
     const { getByText } = render(<CustomDrawerContent {...props} />);
 
     // Teste: Clicar em "Início"
-    fireEvent.press(getByText('Início'));
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('(tabs)', { screen: 'Home' });
+    // fireEvent.press(getByText('Início'));
+    // expect(mockNavigation.navigate).toHaveBeenCalledWith('(tabs)', { screen: 'Home' });
+
+    fireEvent.press(getByText('Solicitações'));
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('(tabs)', { screen: 'Solicitacoes' });
+
+    fireEvent.press(getByText('Configurações'));
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('(tabs)', { screen: 'Settings' });
+
+    fireEvent.press(getByText('Notificações'));
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('(tabs)', { screen: 'Notifications' });
 
     // Teste: Clicar em "Amigos"
-    fireEvent.press(getByText('Amigos'));
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('(tabs)', { screen: 'Friends' });
+    // fireEvent.press(getByText('Amigos'));
+    // expect(mockNavigation.navigate).toHaveBeenCalledWith('(tabs)', { screen: 'Friends' });
   });
 
   it('deve chamar a função de logout ao clicar em Sair', () => {

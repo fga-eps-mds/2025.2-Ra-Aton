@@ -1,197 +1,259 @@
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { MatchEditModal } from '../../components/MatchEditModal';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+// ARQUIVO: apps/mobile/__tests__/componentes/MatchEditModal.test.tsx
+import React from "react";
+import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import { MatchEditModal } from "@/components/MatchEditModal";
+import { useTheme } from "@/constants/Theme";
+import { Platform } from "react-native";
 
-// --- MOCKS BLINDADOS ---
-
-jest.mock('@/constants/Theme', () => ({
-  useTheme: () => ({ isDarkMode: false }),
+// 1. Mocks Essenciais
+jest.mock("@/constants/Theme", () => ({
+  useTheme: jest.fn(),
 }));
 
-jest.mock('@/constants/Colors', () => ({
-  Colors: {
-    light: { input: '#fff', orange: 'orange', text: 'black' },
-    dark: { input: '#000', orange: 'orange', text: 'white' },
+// Mock do InputComp (Default Export)
+jest.mock("@/components/InputComp", () => {
+  const { TextInput, View, Text } = require("react-native");
+  return (props: any) => (
+    <View>
+      <Text>{props.label}</Text>
+      <TextInput
+        testID={`input-${props.label}`}
+        value={props.value}
+        onChangeText={props.onChangeText}
+        placeholder={props.placeholder}
+        keyboardType={props.keyboardType}
+      />
+      {props.status && <Text>{props.statusText}</Text>}
+    </View>
+  );
+});
+
+// Mock do DescricaoInput (Named Export)
+jest.mock("@/components/DescricaoInput", () => ({
+  DescricaoInput: (props: any) => {
+    const { TextInput, View, Text } = require("react-native");
+    return (
+      <View>
+        <Text>{props.label}</Text>
+        <TextInput
+          testID={`input-${props.label}`}
+          value={props.value}
+          onChangeText={props.onChangeText}
+          placeholder={props.placeholder}
+          multiline
+        />
+        {props.status && <Text>{props.statusText}</Text>}
+      </View>
+    );
   },
 }));
 
-jest.mock('@/constants/Fonts', () => ({
-  Fonts: { mainFont: { dongleRegular: 'Arial' } },
-}));
+// MOCK INTELIGENTE DO DATETIMEPICKER
+jest.mock("@react-native-community/datetimepicker", () => {
+  const { TouchableOpacity, Text } = require("react-native");
+  return (props: any) => {
+    return (
+      <TouchableOpacity
+        testID={`datetime-picker-${props.mode}`}
+        onPress={() => {
+          // Simula o evento de seleção (onChange) passando uma data fixa
+          const simulatedDate = new Date("2023-12-25T14:30:00"); 
+          props.onChange({ type: "set" }, simulatedDate);
+        }}
+      >
+        <Text>Confirmar Data/Hora</Text>
+      </TouchableOpacity>
+    );
+  };
+});
 
-// Mock do InputComp
-jest.mock('../../components/InputComp', () => {
-  const { TextInput } = require('react-native');
-  const React = require('react');
+// Mock do InputDateComp (Mobile)
+jest.mock("@/components/InputDateComp", () => {
+  const { TouchableOpacity, Text } = require("react-native");
   return (props: any) => (
-    <TextInput
-      testID={`input-${props.label}`}
-      placeholder={props.placeholder}
-      value={props.value}
-      onChangeText={props.onChangeText}
-    />
+    <TouchableOpacity onPress={props.onPress} testID="date-input-mobile">
+      <Text>{props.value || "Selecionar Data"}</Text>
+      {props.status && <Text>{props.statusText}</Text>}
+    </TouchableOpacity>
   );
 });
 
-// Mock da DescricaoInput
-jest.mock('../../components/DescricaoInput', () => {
-  const { TextInput } = require('react-native');
-  const React = require('react');
-  return {
-    DescricaoInput: (props: any) => (
+// Mock do InputDateWebComp (Web)
+jest.mock("@/components/InputDateWebComp", () => {
+  const { TextInput, View, Text } = require("react-native");
+  return (props: any) => (
+    <View>
+      <Text>{props.label}</Text>
       <TextInput
-        testID="input-description"
+        testID="date-input-web"
         value={props.value}
-        onChangeText={props.onChangeText}
+        onChangeText={props.onChange} 
       />
-    ),
-  };
-});
-
-// Mock do InputDateComp
-jest.mock('../../components/InputDateComp', () => {
-  const { TouchableOpacity, Text } = require('react-native');
-  const React = require('react');
-  return (props: any) => (
-    <TouchableOpacity onPress={props.onPress} testID="input-date">
-      <Text>{props.value || 'Selecione Data'}</Text>
-    </TouchableOpacity>
+      {props.status && <Text>{props.statusText}</Text>}
+    </View>
   );
 });
 
-// Mock dos Botões
-jest.mock('../../components/PrimaryButton', () => {
-  const { TouchableOpacity, Text } = require('react-native');
-  const React = require('react');
-  return (props: any) => (
-    <TouchableOpacity onPress={props.onPress} testID="btn-save">
-      <Text>{props.children}</Text>
-    </TouchableOpacity>
-  );
-});
-
-jest.mock('@/components/SecondaryButton', () => {
-  const { TouchableOpacity, Text } = require('react-native');
-  const React = require('react');
-  return (props: any) => (
-    <TouchableOpacity onPress={props.onPress} testID="btn-cancel">
-      <Text>{props.children}</Text>
-    </TouchableOpacity>
-  );
-});
-
-// CORREÇÃO CRÍTICA AQUI: Adicionado { virtual: true }
-jest.mock('@react-native-community/datetimepicker', () => {
-  const { View } = require('react-native');
-  const React = require('react');
-  return (props: any) => <View testID="datetimepicker" {...props} />;
-}, { virtual: true });
-
-// Mock AppText
-jest.mock('../../components/AppText', () => {
-  const { Text } = require('react-native');
-  const React = require('react');
-  return {
-    __esModule: true,
-    default: (props: any) => <Text {...props}>{props.children}</Text>,
-  };
-});
-
-// Mock Ionicons
-jest.mock('@expo/vector-icons', () => {
-  const { View } = require('react-native');
-  const React = require('react');
-  return {
-    Ionicons: (props: any) => <View {...props} />,
-  };
-});
-
-describe('MatchEditModal', () => {
-  const mockMatch = {
-    id: '1',
-    title: 'Jogo Antigo',
-    description: 'Desc',
-    sport: 'Futebol',
-    location: 'Rua 1',
-    maxPlayers: 10,
-    MatchDate: '2025-12-25T10:00:00.000Z',
-  };
-
-  const mockOnSave = jest.fn();
+describe("MatchEditModal", () => {
   const mockOnClose = jest.fn();
+  const mockOnSave = jest.fn();
+  
+  const mockMatch = {
+    id: "1",
+    title: "Jogo Teste",
+    description: "Descrição Original",
+    sport: "Futebol",
+    maxPlayers: 10,
+    MatchDate: "2023-10-10T14:00:00.000Z",
+    location: "Quadra 1",
+    teamAScore: 0,
+    teamBScore: 0,
+    teamNameA: "Time A",
+    teamNameB: "Time B",
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockOnSave.mockResolvedValue({ success: true });
+    (useTheme as jest.Mock).mockReturnValue({ isDarkMode: false });
+    // Reseta plataforma para IOS por padrão nos testes
+    Platform.OS = "ios";
   });
 
-  it('deve pré-carregar os dados da partida no formulário', () => {
+  it("deve inicializar com os dados da partida corretamente", () => {
     const { getByTestId } = render(
-      <MatchEditModal 
-        visible={true} 
-        onClose={mockOnClose} 
-        match={mockMatch as any} 
-        onSave={mockOnSave} 
+      <MatchEditModal
+        visible={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        match={mockMatch}
       />
     );
 
-    expect(getByTestId('input-Título').props.value).toBe('Jogo Antigo');
-    expect(getByTestId('input-Esporte').props.value).toBe('Futebol');
-    expect(getByTestId('input-Local').props.value).toBe('Rua 1');
+    expect(getByTestId("input-Título").props.value).toBe("Jogo Teste");
+    expect(getByTestId("date-input-mobile")).toBeTruthy();
   });
 
-  it('deve atualizar o estado ao digitar e chamar onSave', async () => {
-    const { getByTestId } = render(
-      <MatchEditModal 
-        visible={true} 
-        onClose={mockOnClose} 
-        match={mockMatch as any} 
-        onSave={mockOnSave} 
+  it("deve passar por TODAS as validações de erro (Coverage Boost)", async () => {
+    // Inicializa com um match vazio/inválido para forçar erros
+    const invalidMatch = { ...mockMatch, title: "", sport: "", location: "", MatchDate: "", description: "oi" };
+    
+    const { getByText, getByTestId } = render(
+      <MatchEditModal
+        visible={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        match={invalidMatch}
       />
     );
 
-    fireEvent.changeText(getByTestId('input-Título'), 'Jogo Novo Editado');
-    fireEvent.press(getByTestId('btn-save'));
+    // Zera os inputs manualmente para garantir
+    fireEvent.changeText(getByTestId("input-Título"), "");
+    fireEvent.changeText(getByTestId("input-Esporte"), "");
+    fireEvent.changeText(getByTestId("input-Local"), "");
+    fireEvent.changeText(getByTestId("input-Número de Participantes"), "1"); // Menor que 2
+    fireEvent.changeText(getByTestId("input-Descrição"), "oi"); // Menor que 3
+
+    // Tenta Salvar
+    fireEvent.press(getByText("Salvar"));
 
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
-        title: 'Jogo Novo Editado',
-        id: '1',
-      }));
+      expect(mockOnSave).not.toHaveBeenCalled();
+      expect(getByText("Título deve ter no mínimo 2 caracteres.")).toBeTruthy();
+      expect(getByText("Informe o esporte.")).toBeTruthy();
+      expect(getByText("Informe o local da partida.")).toBeTruthy();
+      expect(getByText("O número de participantes deve ser >= 2.")).toBeTruthy();
+      expect(getByText("Descrição deve ter no mínimo 3 caracteres.")).toBeTruthy();
     });
   });
 
-  it('deve fechar o modal após salvar com sucesso', async () => {
+  it("deve processar o fluxo completo de alteração de DATA e HORA (Mobile)", async () => {
+    const { getByTestId, queryByTestId, getByText } = render(
+      <MatchEditModal visible={true} onClose={mockOnClose} match={mockMatch} />
+    );
+
+    // 1. Abre o Picker de Data
+    fireEvent.press(getByTestId("date-input-mobile"));
+    expect(queryByTestId("datetime-picker-date")).toBeTruthy();
+
+    // 2. Simula seleção da DATA (clica no mock) -> aciona handleChangeDate
+    fireEvent.press(getByTestId("datetime-picker-date"));
+
+    await waitFor(() => {
+      expect(queryByTestId("datetime-picker-time")).toBeTruthy();
+    });
+
+    // 3. Simula seleção da HORA (clica no mock) -> aciona handleChangeTime
+    fireEvent.press(getByTestId("datetime-picker-time"));
+
+    await waitFor(() => {
+      expect(queryByTestId("datetime-picker-time")).toBeNull();
+      // Procura por partes da data mockada: 25/12
+      expect(getByText(/25\/12/)).toBeTruthy();
+    });
+  });
+
+  it("deve lidar com InputDateWebComp e formatação no ambiente Web", () => {
+    Platform.OS = "web";
     const { getByTestId } = render(
-      <MatchEditModal 
-        visible={true} 
-        onClose={mockOnClose} 
-        match={mockMatch as any} 
-        onSave={mockOnSave} 
+      <MatchEditModal visible={true} onClose={mockOnClose} match={mockMatch} />
+    );
+
+    const dateInput = getByTestId("date-input-web");
+    expect(dateInput).toBeTruthy();
+
+    // Simula troca de data no web com string ISO completa
+    fireEvent.changeText(dateInput, "2025-12-31T20:00:00.000Z");
+    
+    // CORREÇÃO: O componente corta a string (slice 0, 16), então esperamos a string cortada
+    expect(dateInput.props.value).toBe("2025-12-31T20:00");
+  });
+
+  it("deve salvar com sucesso quando tudo estiver válido", async () => {
+    mockOnSave.mockResolvedValue({ success: true });
+
+    const { getByTestId, getByText } = render(
+      <MatchEditModal
+        visible={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        match={mockMatch}
       />
     );
 
-    fireEvent.press(getByTestId('btn-save'));
+    // Preenche campos válidos
+    fireEvent.changeText(getByTestId("input-Título"), "Final do Campeonato");
+    fireEvent.changeText(getByTestId("input-Pontuação - Equipe 1"), "3");
+    fireEvent.changeText(getByTestId("input-Pontuação - Equipe 2"), "1");
+
+    fireEvent.press(getByText("Salvar"));
 
     await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        title: "Final do Campeonato",
+        teamAScore: "3",
+        teamBScore: "1"
+      }));
       expect(mockOnClose).toHaveBeenCalled();
     });
   });
 
-  it('não deve salvar se validação falhar (ex: Título vazio)', async () => {
-    const { getByTestId } = render(
-      <MatchEditModal 
-        visible={true} 
-        onClose={mockOnClose} 
-        match={mockMatch as any} 
-        onSave={mockOnSave} 
+  it("deve exibir erro genérico ao falhar no salvamento", async () => {
+    mockOnSave.mockResolvedValue({ success: false, error: "Erro Fatal" });
+
+    const { getByText } = render(
+      <MatchEditModal
+        visible={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        match={mockMatch}
       />
     );
 
-    fireEvent.changeText(getByTestId('input-Título'), '');
-    fireEvent.press(getByTestId('btn-save'));
+    fireEvent.press(getByText("Salvar"));
 
-    expect(mockOnSave).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalled();
+      expect(mockOnClose).not.toHaveBeenCalled();
+    });
   });
 });
