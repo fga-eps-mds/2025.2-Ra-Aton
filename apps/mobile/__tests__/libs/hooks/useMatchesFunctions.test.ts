@@ -98,6 +98,7 @@ describe("Hook: useFeedMatches (100% Coverage)", () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
+    // Configura mock para segunda página
     (getMatchesFeed as jest.Mock).mockResolvedValueOnce({
       data: [{ id: "match-page-2" }],
       meta: { page: 2, limit: 10, hasNextPage: false },
@@ -138,10 +139,12 @@ describe("Hook: useFeedMatches (100% Coverage)", () => {
     expect(getMatchesFeed).toHaveBeenCalledTimes(2);
   });
 
+  // --- TESTES DE FALLBACK NO LOADPAGE ---
+
   it("deve usar fallback de paginação quando meta.page ou data faltam", async () => {
     // Simula resposta sem meta.page e sem hasNextPage explícito
     (getMatchesFeed as jest.Mock).mockResolvedValue({
-      data: Array(10).fill(mockMatchA), // 10 itens -> next page implícita
+      data: Array(10).fill(mockMatchA), // 10 itens -> next page implícita (limit reached)
       meta: { limit: 10 }, // page e hasNextPage undefined
     });
 
@@ -181,6 +184,25 @@ describe("Hook: useFeedMatches (100% Coverage)", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.hasNextPage).toBe(false);
+  });
+
+  it("não faz nada em onEndReached se não houver matches", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    // Forçamos matches vazio
+    (getMatchesFeed as jest.Mock).mockResolvedValue({ data: [], meta: {} });
+    await act(async () => {
+      await result.current.onRefresh();
+    });
+
+    // Agora matches está vazio. onEndReached deve retornar early.
+    act(() => {
+      result.current.onEndReached();
+    });
+
+    // getMatchesFeed chamado 1x (init) + 1x (refresh). EndReached ignorado.
+    expect(getMatchesFeed).toHaveBeenCalledTimes(2);
   });
 
   // --- 3. JOIN MATCH (INSCRIÇÃO) ---
@@ -250,6 +272,44 @@ describe("Hook: useFeedMatches (100% Coverage)", () => {
     expect(Alert.alert).toHaveBeenCalledWith("Partida cheia", "Cheia");
   });
 
+  it("deve tratar erro genérico (não axios) ao entrar", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    (subscribeToMatch as jest.Mock).mockRejectedValue(new Error("Erro X"));
+
+    act(() => {
+      result.current.joinMatch(mockMatchA, jest.fn());
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      "Erro",
+      expect.stringContaining("Não foi possível entrar"),
+    );
+  });
+
+  it("deve tratar erro ao carregar detalhes APÓS inscrição bem sucedida", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    (subscribeToMatch as jest.Mock).mockResolvedValue(true);
+    // getMatchById falha APÓS a inscrição
+    (getMatchById as jest.Mock).mockRejectedValue(new Error("Falha refresh"));
+
+    act(() => {
+      result.current.joinMatch(mockMatchA, jest.fn());
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      "Erro",
+      "Não foi possível carregar os dados da partida.",
+    );
+  });
+
   it("Web: deve entrar direto sem Alert", async () => {
     (Platform as any).OS = "web";
     const { result } = renderHook(() => useFeedMatches());
@@ -295,6 +355,24 @@ describe("Hook: useFeedMatches (100% Coverage)", () => {
     await act(async () => confirmBtn.onPress());
 
     expect(Alert.alert).toHaveBeenCalledWith("Erro", "Erro server");
+  });
+
+  it("deve tratar erro genérico (não axios) ao sair", async () => {
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    (unsubscribeFromMatch as jest.Mock).mockRejectedValue(new Error("Erro X"));
+
+    act(() => {
+      result.current.leaveMatch(mockMatchB);
+    });
+    const confirmBtn = (Alert.alert as jest.Mock).mock.calls[0][2][1];
+    await act(async () => confirmBtn.onPress());
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      "Erro",
+      expect.stringContaining("Não foi possível sair"),
+    );
   });
 
   it("Web: deve sair direto", async () => {
@@ -423,5 +501,26 @@ describe("Hook: useFeedMatches (100% Coverage)", () => {
     const { result } = renderHook(() => useFeedMatches());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.matches).toHaveLength(1);
+  });
+
+  // --- 7. IGNORAR MATCH NULL ---
+  it("syncSubscribedFromBackend deve ignorar match se getMatchById retornar null", async () => {
+    // getMatchesFeed retorna 2 matches
+    (getMatchesFeed as jest.Mock).mockResolvedValue({
+      data: [mockMatchA, { id: "match-null" }],
+      meta: { page: 1, limit: 10, hasNextPage: false },
+    });
+
+    // getMatchById retorna null para o segundo
+    (getMatchById as jest.Mock).mockImplementation((id) => {
+      if (id === "match-null") return Promise.resolve(null);
+      return Promise.resolve(mockMatchA);
+    });
+
+    const { result } = renderHook(() => useFeedMatches());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    // Não deve quebrar
+    expect(result.current.matches).toHaveLength(2);
   });
 });
