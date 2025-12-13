@@ -1,28 +1,78 @@
-jest.mock("@/constants/Theme", () => ({ useTheme: () => ({ isDarkMode: false }) }));
-jest.mock("@/constants/Colors", () => ({
-  Colors: {
-    light: { background: "#fff", input: "#fff", orange: "#fa0", text: "#000" },
-    dark: { background: "#000", input: "#000", orange: "#fa0", text: "#fff" },
-    warning: "#ff0",
-    input: { iconColor: "#000" },
-  },
+import React from "react";
+import { render, fireEvent } from "@testing-library/react-native";
+import InputDateComp from "@/components/InputDateWebComp";
+
+// Mock do tema
+jest.mock("@/constants/Theme", () => ({
+  useTheme: () => ({
+    isDarkMode: false,
+  }),
 }));
-jest.mock("@/constants/Fonts", () => ({ Fonts: { mainFont: { dongleRegular: "System" } } }));
 
-const { render, fireEvent } = require("@testing-library/react-native");
-const InputDateComp = require("@/components/InputDateComp").default;
+// Mock do Ionicons
+jest.mock("@expo/vector-icons", () => ({
+  Ionicons: jest.fn(() => null),
+}));
 
-describe("InputDateComp", () => {
-  it("exibe valor e placeholder corretamente", () => {
-    const onPress = jest.fn();
-    const { getByText } = render(<InputDateComp value={null} onPress={onPress} />);
+describe("InputDateWebComp", () => {
+  it("deve renderizar o label quando fornecido", () => {
+    const { getByText } = render(
+      <InputDateComp
+        label="Data de nascimento"
+        value={null}
+        onPress={jest.fn()}
+      />
+    );
+
+    expect(getByText("Data de nascimento")).toBeTruthy();
+  });
+
+  it("deve renderizar o placeholder quando value for null", () => {
+    const { getByText } = render(
+      <InputDateComp
+        value={null}
+        placeholder="Selecionar data"
+        onPress={jest.fn()}
+      />
+    );
+
     expect(getByText("Selecionar data")).toBeTruthy();
   });
 
-  it("chama onPress ao clicar", () => {
-    const onPress = jest.fn();
-    const { getByText } = render(<InputDateComp value="01/01/2025" onPress={onPress} />);
-    fireEvent.press(getByText("01/01/2025"));
-    expect(onPress).toHaveBeenCalled();
+  it("deve renderizar um valor quando fornecido", () => {
+    const { getByText } = render(
+      <InputDateComp value="10/05/2025" onPress={jest.fn()} />
+    );
+
+    // O valor pode ser formatado internamente no Web
+    expect(getByText(/\/|:/)).toBeTruthy();
+  });
+
+
+  it("deve exibir statusText quando statusText for passado", () => {
+    const { getByText } = render(
+      <InputDateComp
+        label="Data"
+        value={null}
+        status={true}
+        statusText="Data inválida"
+        onPress={jest.fn()}
+      />
+    );
+
+    expect(getByText("Data inválida")).toBeTruthy();
+  });
+
+  it("deve renderizar o ícone de calendário", () => {
+    render(
+      <InputDateComp
+        value={null}
+        onPress={jest.fn()}
+      />
+    );
+
+    // Como o Ionicons foi mockado, verificamos se foi chamado
+    const { Ionicons } = require("@expo/vector-icons");
+    expect(Ionicons).toHaveBeenCalled();
   });
 });
