@@ -55,7 +55,7 @@ export default function DashboardTabsLayout() {
       <Tabs.Screen
         name="NovoPost"
         options={{
-          title: "Post",
+          title: "Publicações",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
           ),

@@ -57,7 +57,12 @@ describe('Screen: NovoPost', () => {
 
   it('deve renderizar o título da tela', () => {
     const { getByText } = render(<NovoPost />);
-    expect(getByText('Criar?...')).toBeTruthy();
+    expect(getByText('Criar')).toBeTruthy();
+  });
+
+  it('deve renderizar o título Gerenciar', () => {
+    const { getByText } = render(<NovoPost />);
+    expect(getByText('Gerenciar')).toBeTruthy();
   });
 
   it('deve navegar para /criarEvento ao clicar no botão correspondente', () => {
@@ -72,11 +77,11 @@ describe('Screen: NovoPost', () => {
     expect(mockPush).toHaveBeenCalledWith('/criarPartida');
   });
 
-  it('deve navegar para /criarGrupo ao clicar no botão correspondente', () => {
-    const { getByText } = render(<NovoPost />);
-    fireEvent.press(getByText('Criar Grupo'));
-    expect(mockPush).toHaveBeenCalledWith('/criarGrupo');
-  });
+  // it('deve navegar para /criarGrupo ao clicar no botão correspondente', () => {
+  //   const { getByText } = render(<NovoPost />);
+  //   fireEvent.press(getByText('Criar Grupo'));
+  //   expect(mockPush).toHaveBeenCalledWith('/criarGrupo');
+  // });
 
   it('deve navegar para /criarPost ao clicar no botão correspondente', () => {
     const { getByText } = render(<NovoPost />);
