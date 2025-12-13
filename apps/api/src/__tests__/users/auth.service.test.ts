@@ -78,6 +78,8 @@ describe("AuthService", () => {
           email: mockUser.email,
           userName: mockUser.userName,
           profileType: mockUser.profileType,
+          bannerImage: null,
+          profilePicture: null,
         },
         warns: [],
       });
@@ -195,6 +197,8 @@ describe("AuthService", () => {
           email: mockUser.email,
           userName: mockUser.userName,
           profileType: null,
+          bannerImage: null,
+          profilePicture: null,
         },
         warns: ["Configuração de perfil pendente."],
       });
@@ -314,6 +318,8 @@ describe("AuthService", () => {
         email: mockUser.email,
         userName: mockUser.userName,
         profileType: mockUser.profileType,
+        bannerImage: mockUser.bannerImageUrl,
+        profilePicture: mockUser.profileImageUrl,
       });
 
       // Verifica que dados sensíveis não estão no response
