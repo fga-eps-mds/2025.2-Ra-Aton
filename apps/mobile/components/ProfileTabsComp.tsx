@@ -48,7 +48,7 @@ interface GroupProfileTabsProps extends BaseProfileTabsProps {
   currentUserId?: string;
   isAdmin?: boolean;
   onRemoveMember?: (membershipId: string) => void;
-  onInvitePress?: () => void; // <--- NOVA PROP
+  onInvitePress?: () => void;
 }
 
 type ProfileTabsProps = UserProfileTabsProps | GroupProfileTabsProps;
@@ -83,7 +83,10 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
               onReloadFeed={async () => {
                 if (onReload) onReload();
               }}
-              isUserSubscriped={checkIsSubscribed(item, userProps.currentUserId)}
+              isUserSubscriped={checkIsSubscribed(
+                item,
+                userProps.currentUserId
+              )}
             />
           );
         case "followedGroups":
@@ -121,20 +124,22 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
                 id: item.id,
                 userId: item.id,
                 groupId: "",
-                role: item.isOwner ? 'ADMIN' : 'MEMBER',
+                role: item.isOwner ? "ADMIN" : "MEMBER",
                 joinedAt: "",
                 user: {
                   id: item.id,
                   name: item.name,
                   email: item.email || "",
                   avatarUrl: item.profilePicture,
-                  username: item.userName
-                }
+                  username: item.userName,
+                },
               }}
               isAdminView={!!groupProps.isAdmin}
-              onRemove={(id) => groupProps.onRemoveMember && groupProps.onRemoveMember(id)}
+              onRemove={(id) =>
+                groupProps.onRemoveMember && groupProps.onRemoveMember(id)
+              }
+              onPress={() => groupProps.onPressMember?.(item.userName)}
             />
-            
           );
       }
     }
@@ -148,10 +153,14 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
     const p = props as UserProfileTabsProps;
     tabs = [
       { key: "matches", label: "Partidas", count: p.matches.length },
-      { key: "followedGroups", label: "Seguindo", count: p.followedGroups.length },
+      {
+        key: "followedGroups",
+        label: "Seguindo",
+        count: p.followedGroups.length,
+      },
       { key: "memberGroups", label: "Membro", count: p.memberGroups.length },
     ];
-    
+
     if (activeTab === "matches") dataToRender = p.matches;
     else if (activeTab === "followedGroups") dataToRender = p.followedGroups;
     else dataToRender = p.memberGroups;
@@ -161,16 +170,15 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
       { key: "posts", label: "Posts", count: p.posts.length },
       { key: "members", label: "Membros", count: p.members.length },
     ];
-    
+
     if (activeTab === "posts") dataToRender = p.posts;
     else dataToRender = p.members;
   }
 
   const RenderHeader = () => {
-    // --- LÓGICA PARA EXIBIR O BOTÃO APENAS SE FOR GRUPO + ABA MEMBROS + ADMIN ---
-    const showInviteButton = 
-      type === "group" && 
-      activeTab === "members" && 
+    const showInviteButton =
+      type === "group" &&
+      activeTab === "members" &&
       (props as GroupProfileTabsProps).isAdmin;
 
     return (
@@ -179,7 +187,10 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
         <View
           style={[
             styles.tabBar,
-            { borderBottomColor: theme.gray, backgroundColor: theme.background },
+            {
+              borderBottomColor: theme.gray,
+              backgroundColor: theme.background,
+            },
           ]}
         >
           {tabs.map((tab) => (
@@ -212,9 +223,8 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
           ))}
         </View>
 
-        {/* --- AQUI ENTRA O BOTÃO DE CONVIDAR --- */}
         {showInviteButton && (
-          <View style={{ padding: 16, paddingBottom: 0, alignItems: 'center' }}>
+          <View style={{ padding: 16, paddingBottom: 0, alignItems: "center" }}>
             <TouchableOpacity
               style={{
                 flexDirection: "row",
@@ -229,17 +239,22 @@ export const ProfileTabsComp: React.FC<ProfileTabsProps> = (props) => {
               onPress={(props as GroupProfileTabsProps).onInvitePress}
             >
               <Ionicons name="person-add" size={20} color={theme.orange} />
-              <Text style={{ fontWeight: "600", fontSize: 14, color: theme.orange }}>
+              <Text
+                style={{
+                  fontWeight: "600",
+                  fontSize: 14,
+                  color: theme.orange,
+                }}
+              >
                 Convidar Membros
               </Text>
             </TouchableOpacity>
           </View>
         )}
-        {/* --- FIM DA INSERÇÃO --- */}
-
       </View>
     );
   };
+
   return (
     <FlatList
       data={dataToRender}
@@ -286,8 +301,8 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 20,
-    paddingHorizontal: 10, // Apenas o padding lateral leve
-    gap: 15,               // Espaçamento entre os itens
+    paddingHorizontal: 10,
+    gap: 15,
     paddingBottom: 50,
   },
   emptyText: {
