@@ -11,6 +11,7 @@ export type Group = {
   description: string;
   isMember: boolean;
   isFollowing: boolean;
+  logoUrl?: string; 
 };
 
 export function useGroups() {

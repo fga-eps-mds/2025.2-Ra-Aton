@@ -134,6 +134,7 @@ export class NotificationsService {
     content: string,
     resourceId?: string,
     resourceType?: string,
+    contentId?: string,
   ) {
     return notificationRepository.create({
       userId,
@@ -142,6 +143,7 @@ export class NotificationsService {
       content,
       resourceId,
       resourceType,
+      contentId,
     });
   }
 

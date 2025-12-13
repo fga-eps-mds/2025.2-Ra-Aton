@@ -1,5 +1,7 @@
 import followRepository from "./follow.repository";
 import groupRepository from "../group/group.repository";
+import userFollowRepository from "../user/userFollow.repository";
+import userRepository from "../user/user.repository";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 
@@ -45,6 +47,36 @@ class FollowService {
                 hasPreviousPage: page > 1,
             },
         };
+    }
+
+    async followUser(followerId: string, followingId: string) {
+        // Não pode seguir a si mesmo
+        if (followerId === followingId) {
+            throw new ApiError(httpStatus.BAD_REQUEST, "Você não pode seguir a si mesmo");
+        }
+
+        // Verifica se o usuário a ser seguido existe
+        const userToFollow = await userRepository.findById(followingId);
+        if (!userToFollow) {
+            throw new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado");
+        }
+
+        // Verifica se já está seguindo
+        const existingFollow = await userFollowRepository.findFollow(followerId, followingId);
+        if (existingFollow) {
+            throw new ApiError(httpStatus.CONFLICT, "Você já está seguindo este usuário");
+        }
+
+        await userFollowRepository.createFollow(followerId, followingId);
+    }
+
+    async unfollowUser(followerId: string, followingId: string) {
+        const existingFollow = await userFollowRepository.findFollow(followerId, followingId);
+        if (!existingFollow) {
+            throw new ApiError(httpStatus.BAD_REQUEST, "Você não está seguindo este usuário");
+        }
+
+        await userFollowRepository.deleteFollow(followerId, followingId);
     }
 }
 

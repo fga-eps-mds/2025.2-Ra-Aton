@@ -1,5 +1,6 @@
 import { Router, type Router as RouterType } from "express";
 import userController from "./user.controller";
+import followController from "../follow/follow.controller";
 import validateRequest from "../../middlewares/validateRequest";
 import { catchAsync } from "../../utils/catchAsync";
 import { auth } from "../../middlewares/auth"; // <-- Importando o middleware de autenticação
@@ -66,6 +67,26 @@ router.delete(
   auth, // 1. Executa o middleware de autenticação
   validateRequest(deleteUserSchema), // 2. Valida os params
   catchAsync(userController.deleteUser), // 3. Executa o controller
+);
+
+/**
+ * POST /api/v1/users/:userId/follow
+ * Segue um usuário. Requer autenticação.
+ */
+router.post(
+  "/:userId/follow",
+  auth,
+  catchAsync(followController.followUser),
+);
+
+/**
+ * DELETE /api/v1/users/:userId/unfollow
+ * Deixa de seguir um usuário. Requer autenticação.
+ */
+router.delete(
+  "/:userId/unfollow",
+  auth,
+  catchAsync(followController.unfollowUser),
 );
 
 export default router;

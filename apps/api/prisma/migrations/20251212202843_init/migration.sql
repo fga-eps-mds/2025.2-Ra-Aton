@@ -29,7 +29,7 @@ CREATE TYPE "JoinRequestStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 CREATE TYPE "MatchStatus" AS ENUM ('EM_BREVE', 'EM_ANDAMENTO', 'FINALIZADO');
 
 -- CreateEnum
-CREATE TYPE "NotificationType" AS ENUM ('GROUP_JOIN_REQUEST', 'GROUP_JOIN_APPROVED', 'GROUP_JOIN_REJECTED', 'MATCH_REMINDER', 'SYSTEM');
+CREATE TYPE "NotificationType" AS ENUM ('GROUP_JOIN_REQUEST', 'GROUP_JOIN_APPROVED', 'GROUP_JOIN_REJECTED', 'MATCH_REMINDER', 'EVENT_REMINDER', 'SYSTEM');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -42,6 +42,11 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "notificationsAllowed" BOOLEAN NOT NULL DEFAULT true,
+    "bio" TEXT,
+    "profileImageUrl" TEXT,
+    "bannerImageUrl" TEXT,
+    "profileImageId" TEXT,
+    "bannerImageId" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +64,7 @@ CREATE TABLE "Post" (
     "eventDate" TIMESTAMP(3),
     "eventFinishDate" TIMESTAMP(3),
     "location" TEXT,
+    "reminderSent" BOOLEAN NOT NULL DEFAULT false,
     "likesCount" INTEGER NOT NULL DEFAULT 0,
     "commentsCount" INTEGER NOT NULL DEFAULT 0,
     "attendancesCount" INTEGER NOT NULL DEFAULT 0,
@@ -121,6 +127,11 @@ CREATE TABLE "Group" (
     "acceptingNewMembers" BOOLEAN NOT NULL DEFAULT false,
     "verificationRequest" BOOLEAN NOT NULL DEFAULT false,
     "verificationStatus" "VerificationStatus",
+    "bio" TEXT,
+    "logoUrl" TEXT,
+    "bannerUrl" TEXT,
+    "logoId" TEXT,
+    "bannerId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -208,6 +219,16 @@ CREATE TABLE "GroupFollow" (
 );
 
 -- CreateTable
+CREATE TABLE "UserFollow" (
+    "id" TEXT NOT NULL,
+    "followerId" TEXT NOT NULL,
+    "followingId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "UserFollow_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Notification" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -216,6 +237,7 @@ CREATE TABLE "Notification" (
     "type" "NotificationType" NOT NULL,
     "resourceId" TEXT,
     "resourceType" TEXT,
+    "contentId" TEXT,
     "readAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -223,13 +245,14 @@ CREATE TABLE "Notification" (
 );
 
 -- CreateTable
-CREATE TABLE "avaliation" (
+CREATE TABLE "Avaliation" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "score" INTEGER NOT NULL DEFAULT 5,
     "message" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "avaliation_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Avaliation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -267,6 +290,15 @@ CREATE UNIQUE INDEX "UsersNotifyTokens_token_key" ON "UsersNotifyTokens"("token"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "GroupFollow_userId_groupId_key" ON "GroupFollow"("userId", "groupId");
+
+-- CreateIndex
+CREATE INDEX "UserFollow_followerId_idx" ON "UserFollow"("followerId");
+
+-- CreateIndex
+CREATE INDEX "UserFollow_followingId_idx" ON "UserFollow"("followingId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserFollow_followerId_followingId_key" ON "UserFollow"("followerId", "followingId");
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -332,7 +364,13 @@ ALTER TABLE "GroupFollow" ADD CONSTRAINT "GroupFollow_userId_fkey" FOREIGN KEY (
 ALTER TABLE "GroupFollow" ADD CONSTRAINT "GroupFollow_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "UserFollow" ADD CONSTRAINT "UserFollow_followerId_fkey" FOREIGN KEY ("followerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserFollow" ADD CONSTRAINT "UserFollow_followingId_fkey" FOREIGN KEY ("followingId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "avaliation" ADD CONSTRAINT "avaliation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Avaliation" ADD CONSTRAINT "Avaliation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
