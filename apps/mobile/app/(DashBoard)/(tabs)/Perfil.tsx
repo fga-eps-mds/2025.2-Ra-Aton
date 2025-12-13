@@ -308,6 +308,7 @@ export default function ProfileScreen() {
           followersCount={profile.followersCount}
           isDarkMode={isDarkMode}
           onBack={() => router.back()}
+          profileType={profileType}
           showEditButton={
             (profileType === "user" && userProfile?.isOwner === true) ||
             (profileType === "group" &&
