@@ -6,6 +6,7 @@ import * as ExpoRouter from "expo-router";
 
 const mockReplace = jest.fn();
 const mockBack = jest.fn();
+const mockPush = jest.fn();
 
 // Mock Router
 jest.mock("expo-router", () => ({
@@ -37,6 +38,7 @@ describe("useCreateGroupForm", () => {
     (ExpoRouter.useRouter as jest.Mock).mockReturnValue({
       replace: mockReplace,
       back: mockBack,
+      push: mockPush,
     });
   });
 
@@ -93,9 +95,9 @@ describe("useCreateGroupForm", () => {
     });
 
     // Verifica Redirecionamento
-    expect(mockReplace).toHaveBeenCalledWith({
-      pathname: "/perfilGrupo",
-      params: { id: "grupo-123-id" },
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: `/(DashBoard)/(tabs)/Perfil`,
+      params: { identifier: "Novo Grupo", type: "group" },
     });
 
     // Verifica se nossa função wrapper foi chamada (sem erro de undefined!)
