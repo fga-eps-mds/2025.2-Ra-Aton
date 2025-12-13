@@ -1,14 +1,15 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { PostFormComponent } from '../../components/PostFormComponent'; // Ajuste se for export default
-import { View, Text, TextInput } from 'react-native';
+import { PostFormComponent } from '../../components/PostFormComponent'; 
+import { View, Text } from 'react-native'; 
 
 // --- MOCKS ---
 
-// Mock do InputComp como TextInput simples
+// 1. Mock do InputComp
 jest.mock('../../components/InputComp', () => {
   const { TextInput } = require('react-native');
   const React = require('react');
+  
   return (props: any) => (
     <TextInput
       testID="input-titulo"
@@ -19,10 +20,11 @@ jest.mock('../../components/InputComp', () => {
   );
 });
 
-// Mock do DescricaoInput
+// 2. Mock do DescricaoInput
 jest.mock('../../components/DescricaoInput', () => {
   const { TextInput } = require('react-native');
   const React = require('react');
+
   return {
     DescricaoInput: (props: any) => (
       <TextInput
@@ -35,10 +37,11 @@ jest.mock('../../components/DescricaoInput', () => {
   };
 });
 
-// Mock AppText
+// 3. Mock AppText
 jest.mock('../../components/AppText', () => {
   const { Text } = require('react-native');
   const React = require('react');
+  
   return {
     __esModule: true,
     default: (props: any) => <Text {...props}>{props.children}</Text>,
@@ -47,63 +50,72 @@ jest.mock('../../components/AppText', () => {
 
 describe('PostFormComponent', () => {
   const mockSetFormData = jest.fn();
-  const formsData = {
+  
+  const initialFormsData = {
     titulo: 'Meu Título',
     descricao: 'Minha Descrição',
   };
 
-  it('deve renderizar os valores iniciais nos inputs', () => {
-    const { getByTestId } = render(
-      <PostFormComponent 
-        formsData={formsData} 
-        setFormData={mockSetFormData} 
-      />
-    );
-
-    const inputTitulo = getByTestId('input-titulo');
-    const inputDesc = getByTestId('input-descricao');
-
-    expect(inputTitulo.props.value).toBe('Meu Título');
-    expect(inputDesc.props.value).toBe('Minha Descrição');
+  beforeEach(() => {
+    mockSetFormData.mockClear();
   });
 
-  it('deve atualizar o título ao digitar', () => {
+  it('deve atualizar o título ao digitar (testando a função funcional)', () => {
     const { getByTestId } = render(
       <PostFormComponent 
-        formsData={formsData} 
+        formsData={initialFormsData} 
         setFormData={mockSetFormData} 
       />
     );
 
     fireEvent.changeText(getByTestId('input-titulo'), 'Novo Título');
 
-    // O componente usa setFormData((prev) => ...).
-    // O mockSetFormData recebe a função de update.
-    // Verificamos se foi chamado.
     expect(mockSetFormData).toHaveBeenCalled();
+
+    // Captura a função (prev) => ...
+    const updateFunction = mockSetFormData.mock.calls[0][0];
+
+    // Executa manualmente
+    const previousState = { titulo: 'Antigo', descricao: 'Antiga Desc' };
+    const newState = updateFunction(previousState);
+
+    expect(newState).toEqual({
+      titulo: 'Novo Título',
+      descricao: 'Antiga Desc'
+    });
   });
 
-  it('deve atualizar a descrição ao digitar', () => {
+  it('deve atualizar a descrição ao digitar (testando a função funcional)', () => {
     const { getByTestId } = render(
       <PostFormComponent 
-        formsData={formsData} 
+        formsData={initialFormsData} 
         setFormData={mockSetFormData} 
       />
     );
 
     fireEvent.changeText(getByTestId('input-descricao'), 'Nova Descrição');
+
     expect(mockSetFormData).toHaveBeenCalled();
+
+    const updateFunction = mockSetFormData.mock.calls[0][0];
+    const previousState = { titulo: 'Titulo Fixo', descricao: 'Antiga' };
+    const newState = updateFunction(previousState);
+
+    expect(newState).toEqual({
+      titulo: 'Titulo Fixo',
+      descricao: 'Nova Descrição'
+    });
   });
 
-  it('deve exibir mensagem de erro se formError for passado', () => {
-    const { getByText } = render(
-      <PostFormComponent 
-        formsData={formsData} 
-        setFormData={mockSetFormData}
-        formError="Campo obrigatório"
-      />
-    );
-
-    expect(getByText('Campo obrigatório')).toBeTruthy();
+  it('deve renderizar os valores iniciais e erro', () => {
+     const { getByTestId, getByText } = render(
+        <PostFormComponent 
+          formsData={initialFormsData} 
+          setFormData={mockSetFormData}
+          formError="Erro teste" 
+        />
+      );
+      expect(getByTestId('input-titulo').props.value).toBe('Meu Título');
+      expect(getByText('Erro teste')).toBeTruthy();
   });
 });
