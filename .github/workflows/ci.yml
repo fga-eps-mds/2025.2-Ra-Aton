@@ -65,6 +65,10 @@ jobs:
           echo "JWT_SECRET='your_jwt_secret_key'" >> apps/api/.env
           echo "JWT_EXPIRES_IN=1h" >> apps/api/.env
           echo "NODE_ENV='test'" >> apps/api/.env
+          echo "CLOUDINARY_CLOUD_NAME=dmrvgnejc" >> apps/api/.env
+          echo "CLOUDINARY_API_KEY=338112538364636" >> apps/api/.env
+          echo "CLOUDINARY_API_SECRET=EG-dHmzkdU-woFEBzRPyqIh4AaE" >> apps/api/.env
+          echo "CLOUDINARY_FOLDER=ra-aton-users" >> apps/api/.env
 
       - name: Run workspace tests
         working-directory: .

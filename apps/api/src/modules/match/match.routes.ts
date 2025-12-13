@@ -3,6 +3,7 @@ import matchController from "./match.controller";
 import validateRequest from "../../middlewares/validateRequest";
 import { catchAsync } from "../../utils/catchAsync";
 import { auth } from "../../middlewares/auth";
+import { notifyUser } from "../../middlewares/notificationMiddleware";
 import {
   createMatchSchema,
   updateMatchSchema,
@@ -12,6 +13,22 @@ import {
 } from "./match.validation";
 
 const router: RouterType = Router();
+
+/*
+ * GET match/author
+ * Retorna todas as partidas que o usuário criou,
+ * ou seja, todas as partidas onde "authorId" é 
+ * igual ao id do usuário logado. 
+ * 
+ * Obs.: O id do usuário é pego automaticamente
+ * pelo auth.  
+*/
+
+router.get(
+  "/author",
+  auth,
+  catchAsync(matchController.listMatchesByUserId),
+);
 
 router.get(
   "/",
@@ -30,6 +47,26 @@ router.post(
   auth,
   validateRequest(createMatchSchema),
   catchAsync(matchController.createMatch),
+
+  notifyUser({
+    // @ts-ignore /* istanbul ignore next */
+    getUserId: (req) => req.user?.userId || "",
+    getTitle: () => "🏀 Partida Criada com Sucesso!",
+    getBody: (req, res) => {
+      const title = res.locals.matchTitle || "Nova partida";
+      const date = res.locals.matchDate
+        ? new Date(res.locals.matchDate).toLocaleDateString("pt-BR")
+        : "";
+      const location = res.locals.matchLocation || "";
+      return `Sua partida "${title}" foi marcada para ${date} em ${location}. Aguardando jogadores!`;
+    },
+    getData: (req, res) => ({
+      type: "match_created",
+      matchId: res.locals.newMatchId,
+      sport: res.locals.matchSport,
+      screen: "match_detail",
+    }),
+  }),
 );
 
 router.patch(

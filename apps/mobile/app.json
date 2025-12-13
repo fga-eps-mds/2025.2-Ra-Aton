@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Aton",
+    "slug": "aton",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/img/Logo_1_Atom.png",
+    "icon": "./assets/img/Logo_2_Atom.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,27 +14,56 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.unb.aton",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/img/Logo_1_Atom.png",
+        "foregroundImage": "./assets/img/Logo_2_Atom.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ton.aton",
+      "package": "com.unb.aton",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "usesCleartextTraffic": true,
-      "permissions": [ "INTERNET" ]
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED",
+        "INTERNET"
+      ],
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/img/Logo_1_Atom.png"
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/img/Logo_1_Atom.png",
+          "color": "#ffffff",
+          "sounds": []
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5a53dc72-332d-4ef9-86be-aff9b26eaed3"
+      }
     }
   }
 }

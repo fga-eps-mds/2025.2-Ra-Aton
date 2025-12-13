@@ -44,17 +44,17 @@ export function CustomDrawerContent(props: any) {
       style={{ backgroundColor: theme.background }}
     >
       {/* Item 1: Início (Home) */}
-      <DrawerItem
+      {/* <DrawerItem
         label="Início"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
           <Ionicons name="home-outline" size={size} color={theme.orange} />
         )}
         onPress={() => navigateTo("Home")} // 4. Manda só o nome da tela interna
-      />
+      /> */}
 
       {/* Item 2: Amigos (Friends) */}
-      <DrawerItem
+      {/* <DrawerItem
         label="Amigos"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
@@ -65,33 +65,33 @@ export function CustomDrawerContent(props: any) {
           />
         )}
         onPress={() => navigateTo("Friends")} // 4. Manda só o nome da tela interna
-      />
+      /> */}
 
       {/* Adicione os outros (Perfil, Settings) aqui no mesmo padrão */}
-
+{/* 
       <DrawerItem
-        label="Buscar Atléticas"
+        label="Buscar Equipes"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
           <Ionicons name="people-outline" size={size} color={theme.orange} />
         )}
-        onPress={() => navigateTo("Atletica")} // 4. Manda só o nome da tela interna
-      />
+        onPress={() => navigateTo("Teams")} // 4. Manda só o nome da tela interna
+      /> */}
 
-      <DrawerItem
+      {/* <DrawerItem
         label="Próximos Jogos"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
           <Ionicons name="calendar-outline" size={size} color={theme.orange} />
         )}
-        onPress={() => navigateTo("NextGames")} // 4. Manda só o nome da tela interna
-      />
+        onPress={() => navigateTo("Partidas")} // 4. Manda só o nome da tela interna
+      /> */}
 
       <DrawerItem
         label="Solicitações"
         labelStyle={{ color: theme.text, fontSize: 16 }}
         icon={({ color, size }) => (
-          <Ionicons name="notifications-outline" size={size} color={theme.orange} />
+          <Ionicons name="mail-outline" size={size} color={theme.orange} />
         )}
         onPress={() => navigateTo("Solicitacoes")}
       />

@@ -57,6 +57,7 @@ export function useSolicitacoes() {
     solicitacoes,
     loading,
     error,
+    load,
     refetch: load,  
     setSolicitacoes,
   };

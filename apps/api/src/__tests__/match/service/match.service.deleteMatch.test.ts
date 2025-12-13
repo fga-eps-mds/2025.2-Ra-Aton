@@ -25,8 +25,11 @@ describe("MatchService.deleteMatch", () => {
         description: "This match has been deleted",
         MatchDate: new Date(),
         teamNameA: "Team A",
-        teamNameB: "Team B",
+        teamAScore: 3,
+        teamNameB: "Updatable Team B",
+        teamBScore: 2,
         location: "Stadium A",
+        sport: "futsal",
         maxPlayers: 22,
         players: [],
         MatchStatus: MatchStatus.FINALIZADO,
@@ -34,8 +37,8 @@ describe("MatchService.deleteMatch", () => {
         updatedAt: new Date(),
     };
 
-    repo.findById.mockResolvedValue(deletedMatch);
-    repo.deleteMatch.mockResolvedValue(deletedMatch);
+    repo.findById.mockResolvedValue({ ...deletedMatch, reminderSent: false });
+    repo.deleteMatch.mockResolvedValue({ ...deletedMatch, reminderSent: false });
 
     // 2. ACT
     const result = await MatchService.deleteMatch(matchId, authorId);

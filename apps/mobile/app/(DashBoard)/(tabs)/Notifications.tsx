@@ -35,7 +35,7 @@ export default function NotificationsScreen() {
   const { loadUnread } = useNotifications();
 
   // Tipos de notificação que NÃO devem ter botão de redirecionamento
-  const INFO_ONLY_TYPES = ['GROUP_JOIN_APPROVED', 'GROUP_JOIN_REJECTED'];
+  const INFO_ONLY_TYPES = ['GROUP_JOIN_APPROVED', 'GROUP_JOIN_REJECTED', 'EVENT_REMINDER'];
 
   // --- BUSCAR DADOS ---
   const fetchNotifications = async () => {
@@ -113,17 +113,10 @@ export default function NotificationsScreen() {
     }
 
     switch (notif.resourceType) {
-      case 'GROUP':
-        // Exemplo: Navegar para o grupo (ajuste a rota conforme seu app)
-        // router.push(`/(DashBoard)/Group/${notif.resourceId}` as any);
-        console.log("Navegando para Grupo ID:", notif.resourceId);
-        break;
-
       case 'MATCH':
-        // Navega para a tela de Partidas passando o ID
         router.push({
-          pathname: "/(DashBoard)/Home",
-          params: { matchId: notif.resourceId } 
+          pathname: "/(DashBoard)/(tabs)/Partidas",
+          params: { matchId: notif.resourceId }
         });
         break;
 
@@ -167,7 +160,7 @@ export default function NotificationsScreen() {
           </View>
 
           <Pressable style={styles.allRead} onPress={handleMarkAllAsRead}>
-            <Text style={styles.btnText}>Lidas</Text>
+            <Text style={styles.btnText}>Marcar todas como lidas</Text>
           </Pressable>
         </View>
 
@@ -196,6 +189,8 @@ export default function NotificationsScreen() {
                     title={item.title}
                     description={item.content}
                     isRead={!!item.readAt}
+                    inviteId={item.contentId}
+                    type={item.type}
                     onMarkAsRead={() => handleMarkAsRead(item.id)}
                     // Se for informativo, passa undefined para esconder o botão
                     onView={showViewButton ? () => handleNotificationPress(item) : undefined}

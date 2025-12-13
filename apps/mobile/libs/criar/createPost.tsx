@@ -1,11 +1,11 @@
-import axios from "axios";
-import { api_route } from "../auth/api";
+import { api_route } from "@/libs/auth/api";
 
 interface createPostParams {
   title: string;
   type: string;
   content: string;
   token: string;
+  groupId: string;
 }
 
 interface CreatePostResponse {
@@ -19,26 +19,28 @@ export async function createPost({
   type,
   content,
   token,
+  groupId,
 }: createPostParams): Promise<CreatePostResponse> {
-  console.log(
-    `Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\n`,
-  );
+  console.log("[createPost] api_route existe?", !!api_route);
+  console.log("[createPost] Parâmetros recebidos:");
+  console.log("  - title:", title);
+  console.log("  - type:", type);
+  console.log("  - content:", content);
+  console.log("  - groupId:", groupId);
+
   try {
-    const response = await api_route.post(
-      "/posts",
-      {
-        title,
-        type,
-        content,
-        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
+    const payload = { title, type, content, groupId };
+    console.log(
+      "[createPost] Payload sendo enviado:",
+      JSON.stringify(payload, null, 2),
     );
+
+    const response = await api_route.post("/posts", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
     return response.data;
   } catch (error: any) {
     if (error.response) {

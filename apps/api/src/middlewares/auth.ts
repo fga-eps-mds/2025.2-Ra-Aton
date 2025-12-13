@@ -41,7 +41,37 @@ export const auth = catchAsync(
     // ----------------------------------------------------
 
     // Anexa o ID de forma segura
-    (req as any).user = { id: decoded.id };
+    (req as any).user = { id: decoded.id, userId: decoded.id };
     next();
   },
 );
+
+/**
+ * Middleware de autenticação opcional
+ * Não bloqueia se o token não existir, apenas o adiciona se existir
+ */
+export const optionalAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      
+      try {
+        const decoded = jwt.verify(token, config.JWT_SECRET) as any;
+        (req as any).user = { id: decoded.id, userName: decoded.userName };
+      } catch (error) {
+        // Token inválido, mas não bloqueia a requisição
+        console.log("Token inválido em optionalAuth, continuando sem autenticação");
+      }
+    }
+    
+    next();
+  } catch (error) {
+    next(error);
+  }
+};

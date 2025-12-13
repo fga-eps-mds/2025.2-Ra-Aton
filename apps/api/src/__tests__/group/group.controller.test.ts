@@ -4,8 +4,8 @@ import { userService } from "../../modules/user/user.service";
 import GroupService from "../../modules/group/group.service";
 import GroupController from "../../modules/group/group.controller";
 import jwt from "jsonwebtoken";
+import { ApiError } from "../../utils/ApiError";
 
-// Mocks
 jest.mock("../../modules/group/group.service");
 jest.mock("../../modules/user/user.service");
 jest.mock("jsonwebtoken");
@@ -31,87 +31,83 @@ describe("GroupController", () => {
   });
 
   describe("listGroups", () => {
-    it("should return a list of groups", async () => {
+    it("deve listar grupos sem userId se o header de auth não for enviado", async () => {
       const groups = [{ id: "1", name: "Group 1" }];
-
       (GroupService.getAllGroups as jest.Mock).mockResolvedValue(groups);
 
-      req = {
-        headers: {},
-      } as Partial<Request>;
+      req = { headers: {} } as Partial<Request>;
 
       await GroupController.listGroups(req as Request, res as Response);
 
-      expect(GroupService.getAllGroups).toHaveBeenCalled();
+      expect(GroupService.getAllGroups).toHaveBeenCalledWith(undefined);
       expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(res.json).toHaveBeenCalledWith(groups);
     });
 
-    it("Should return a list of open groups", async () => {
-      const groups = [
-        { id: "1", name: "Open Group 1" },
-        { id: "2", name: "Open Group 2" },
-      ];
-
-      (GroupService.getAllOpenGroups as jest.Mock).mockResolvedValue(groups);
+    it("deve extrair userId do token JWT e passar para o serviço", async () => {
+      const groups = [{ id: "1", name: "Group 1" }];
+      (GroupService.getAllGroups as jest.Mock).mockResolvedValue(groups);
+      (jwt.verify as jest.Mock).mockReturnValue({ id: "user123" });
 
       req = {
-        headers: {},
+        headers: { authorization: "Bearer token-valido" },
       } as Partial<Request>;
+
+      await GroupController.listGroups(req as Request, res as Response);
+
+      expect(jwt.verify).toHaveBeenCalled();
+      expect(GroupService.getAllGroups).toHaveBeenCalledWith("user123");
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+    });
+
+    it("deve ignorar erro de token inválido (catch silencioso) e chamar serviço com userId undefined", async () => {
+      (GroupService.getAllGroups as jest.Mock).mockResolvedValue([]);
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw new Error("Invalid token");
+      });
+
+      req = {
+        headers: { authorization: "Bearer token-invalido" },
+      } as Partial<Request>;
+
+      await GroupController.listGroups(req as Request, res as Response);
+
+      expect(GroupService.getAllGroups).toHaveBeenCalledWith(undefined);
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+    });
+
+    it("deve ignorar token se o payload decodificado não tiver id", async () => {
+      (GroupService.getAllGroups as jest.Mock).mockResolvedValue([]);
+      (jwt.verify as jest.Mock).mockReturnValue({ role: "admin" });
+
+      req = {
+        headers: { authorization: "Bearer token-sem-id" },
+      } as Partial<Request>;
+
+      await GroupController.listGroups(req as Request, res as Response);
+
+      expect(GroupService.getAllGroups).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  describe("listOpenGroups", () => {
+    it("deve retornar lista de grupos abertos", async () => {
+      const openGroups = [{ id: "2", name: "Open Group", isPrivate: false }];
+      (GroupService.getAllOpenGroups as jest.Mock).mockResolvedValue(openGroups);
+
+      req = {};
 
       await GroupController.listOpenGroups(req as Request, res as Response);
 
       expect(GroupService.getAllOpenGroups).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(res.json).toHaveBeenCalledWith(groups);
+      expect(res.json).toHaveBeenCalledWith(openGroups);
     });
+  });
 
-    it("should return a group by name including isFollowing status", async () => {
-      const groupWithDetails = { id: "1", name: "Group 1", isFollowing: false };
-
-      (GroupService.getGroupByName as jest.Mock).mockResolvedValue(groupWithDetails);
-
-      req = {
-        params: { name: "Group 1" },
-        headers: {},
-      } as Partial<Request>;
-
-      await GroupController.getGroupByName(req as Request, res as Response);
-
-      expect(GroupService.getGroupByName).toHaveBeenCalledWith("Group 1", undefined);
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.FOUND);
-      expect(res.json).toHaveBeenCalledWith(groupWithDetails);
-    });
-
-    it("should pass userId to service when user is authenticated via Token", async () => {
-      const groupWithDetails = { id: "1", name: "Group 1", isFollowing: true };
-      
-      // Configura o mock do Service
-      (GroupService.getGroupByName as jest.Mock).mockResolvedValue(groupWithDetails);
-      
-
-      (jwt.verify as jest.Mock).mockReturnValue({ id: "user-123" });
-
-
-      req = {
-        params: { name: "Group 1" },
-        headers: {
-          authorization: "Bearer valid_token_mock",
-        },
-      } as Partial<Request>;
-
-      await GroupController.getGroupByName(req as Request, res as Response);
-
-      expect(GroupService.getGroupByName).toHaveBeenCalledWith("Group 1", "user-123");
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.FOUND);
-      expect(res.json).toHaveBeenCalledWith(groupWithDetails);
-    });
-
-    it("should return 404 if group name is not provided", async () => {
-      req = {
-        params: {},
-        headers: {},
-      } as Partial<Request>;
+  describe("getGroupByName", () => {
+    it("deve retornar 404 se o nome do grupo não for fornecido", async () => {
+      req = { params: {} };
 
       await GroupController.getGroupByName(req as Request, res as Response);
 
@@ -120,40 +116,52 @@ describe("GroupController", () => {
         message: "Nome do grupo é obrigatorio",
       });
     });
+
+    it("deve buscar grupo pelo nome (com autenticação opcional funcionando)", async () => {
+      const mockGroup = { id: "1", name: "Grupo Teste" };
+      (GroupService.getGroupByName as jest.Mock).mockResolvedValue(mockGroup);
+      (jwt.verify as jest.Mock).mockReturnValue({ id: "user1" });
+
+      req = {
+        params: { name: "Grupo Teste" },
+        headers: { authorization: "Bearer token" },
+      } as any;
+
+      await GroupController.getGroupByName(req as Request, res as Response);
+
+      expect(GroupService.getGroupByName).toHaveBeenCalledWith(
+        "Grupo Teste",
+        "user1"
+      );
+      expect(res.status).toHaveBeenCalledWith(302); 
+      expect(res.json).toHaveBeenCalledWith(mockGroup);
+    });
+
+    it("deve buscar grupo pelo nome mesmo se token for inválido (catch silencioso)", async () => {
+      const mockGroup = { id: "1", name: "Grupo Teste" };
+      (GroupService.getGroupByName as jest.Mock).mockResolvedValue(mockGroup);
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw new Error("Erro JWT");
+      });
+
+      req = {
+        params: { name: "Grupo Teste" },
+        headers: { authorization: "Bearer bad-token" },
+      } as any;
+
+      await GroupController.getGroupByName(req as Request, res as Response);
+
+      expect(GroupService.getGroupByName).toHaveBeenCalledWith(
+        "Grupo Teste",
+        undefined
+      );
+      expect(res.status).toHaveBeenCalledWith(302);
+    });
   });
 
   describe("createGroup", () => {
-    it("should create a new group", async () => {
-      const authUser = { id: "user1" };
-      const author = { id: "user1", name: "Author" };
-      const newGroupData = { name: "New Group" };
-      const createdGroup = { id: "group1", name: "New Group" };
-
-      req = {
-        user: authUser,
-        body: newGroupData,
-        headers: {},
-      } as any;
-
-      (userService.getUserById as jest.Mock).mockResolvedValue(author);
-      (GroupService.createGroup as jest.Mock).mockResolvedValue(createdGroup);
-
-      await GroupController.createGroup(req as Request, res as Response);
-
-      expect(userService.getUserById).toHaveBeenCalledWith("user1");
-      expect(GroupService.createGroup).toHaveBeenCalledWith(
-        newGroupData,
-        author,
-      );
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.CREATED);
-      expect(res.json).toHaveBeenCalledWith(createdGroup);
-    });
-
-    it("should return 401 if user is not authorized", async () => {
-      req = {
-        user: undefined,
-        headers: {},
-      } as Partial<Request>;
+    it("deve retornar 401 se usuário não estiver autenticado (req.user undefined)", async () => {
+      req = { body: { name: "Novo Grupo" } } as Request;
 
       await GroupController.createGroup(req as Request, res as Response);
 
@@ -163,91 +171,134 @@ describe("GroupController", () => {
       });
     });
 
-    it("should return 404 if author is not found", async () => {
-      const authUser = { id: "user1" };
-
+    it("deve retornar 404 se o usuário do req.user não for encontrado no banco", async () => {
       req = {
-        user: authUser,
-        body: { name: "New Group" },
-        headers: {},
+        body: { name: "Novo Grupo" },
+        user: { id: "user-fantasma" },
       } as any;
 
       (userService.getUserById as jest.Mock).mockResolvedValue(null);
 
       await GroupController.createGroup(req as Request, res as Response);
 
-      expect(userService.getUserById).toHaveBeenCalledWith("user1");
+      expect(userService.getUserById).toHaveBeenCalledWith("user-fantasma");
       expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(res.json).toHaveBeenCalledWith({
         message: "Autor da postagem não encotrado",
       });
     });
+
+    it("deve criar grupo com sucesso (201)", async () => {
+      const user = { id: "user1", name: "User" };
+      const newGroup = { id: "g1", name: "Novo Grupo", authorId: "user1" };
+
+      req = {
+        body: { name: "Novo Grupo" },
+        user: { id: "user1" },
+      } as any;
+
+      (userService.getUserById as jest.Mock).mockResolvedValue(user);
+      (GroupService.createGroup as jest.Mock).mockResolvedValue(newGroup);
+
+      await GroupController.createGroup(req as Request, res as Response);
+
+      expect(GroupService.createGroup).toHaveBeenCalledWith(
+        { name: "Novo Grupo" },
+        user
+      );
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.CREATED);
+      expect(res.json).toHaveBeenCalledWith(newGroup);
+    });
+
+    it("deve propagar ApiError se ocorrer erro de negócio (sem try/catch no controller)", async () => {
+      req = { body: {}, user: { id: "u1" } } as any;
+      (userService.getUserById as jest.Mock).mockResolvedValue({ id: "u1" });
+      
+      const apiError = new ApiError(HttpStatus.BAD_REQUEST, "Nome inválido");
+      (GroupService.createGroup as jest.Mock).mockRejectedValue(apiError);
+
+      await expect(
+        GroupController.createGroup(req as Request, res as Response)
+      ).rejects.toBe(apiError);
+    });
+
+    it("deve propagar erro genérico (sem try/catch no controller)", async () => {
+      req = { body: {}, user: { id: "u1" } } as any;
+      (userService.getUserById as jest.Mock).mockResolvedValue({ id: "u1" });
+      
+      const genericError = new Error("Crash");
+      (GroupService.createGroup as jest.Mock).mockRejectedValue(genericError);
+
+      await expect(
+        GroupController.createGroup(req as Request, res as Response)
+      ).rejects.toThrow("Crash");
+    });
   });
 
   describe("updateGroup", () => {
-    it("should update an existing group", async () => {
-      const authUser = { id: "user1" };
-      const groupName = "Existing Group";
-      const updateData = { name: "Updated Group" };
-      const updatedGroup = { id: "group1", name: "Updated Group" };
-
-      req = {
-        user: authUser,
-        params: { name: groupName },
-        body: updateData,
-        headers: {},
-      } as any;
-
-      (GroupService.updateGroup as jest.Mock).mockResolvedValue(updatedGroup);
-
+    it("deve retornar 401 se usuário não autenticado", async () => {
+      req = { params: { name: "g1" } } as any;
       await GroupController.updateGroup(req as Request, res as Response);
-
-      expect(GroupService.updateGroup).toHaveBeenCalledWith(
-        updateData,
-        "user1",
-        groupName,
-      );
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(res.json).toHaveBeenCalledWith(updatedGroup);
-    });
-
-    it("should return 401 if user is not authorized", async () => {
-      req = {
-        user: undefined,
-        params: { name: "Existing Group" },
-        body: { name: "Updated Group" },
-        headers: {},
-      } as Partial<Request>;
-
-      await GroupController.updateGroup(req as Request, res as Response);
-
       expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Não foi possivel autorizar o usuário",
-      });
     });
 
-    it("should return 404 if group name is not provided", async () => {
-      const authUser = { id: "user1" };
-
-      req = {
-        user: authUser,
-        params: {},
-        body: { name: "Updated Group" },
-        headers: {},
-      } as any;
-
+    it("deve retornar 404 se nome do grupo não for informado", async () => {
+      req = { user: { id: "u1" }, params: {} } as any;
       await GroupController.updateGroup(req as Request, res as Response);
-
       expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(res.json).toHaveBeenCalledWith({
         message: "Nome do grupo é obrigatorio",
       });
     });
+
+    it("deve atualizar grupo com sucesso", async () => {
+      req = {
+        user: { id: "u1" },
+        params: { name: "GrupoAntigo" },
+        body: { name: "NovoNome" },
+      } as any;
+      
+      const updated = { id: "g1", name: "NovoNome" };
+      (GroupService.updateGroup as jest.Mock).mockResolvedValue(updated);
+
+      await GroupController.updateGroup(req as Request, res as Response);
+
+      expect(GroupService.updateGroup).toHaveBeenCalledWith(
+        { name: "NovoNome" },
+        "u1",
+        "GrupoAntigo"
+      );
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(updated);
+    });
+
+    it("deve lidar com ApiError no update", async () => {
+      req = { user: { id: "u1" }, params: { name: "G" }, body: {} } as any;
+      (GroupService.updateGroup as jest.Mock).mockRejectedValue(
+        new ApiError(HttpStatus.FORBIDDEN, "Sem permissão")
+      );
+
+      await GroupController.updateGroup(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.FORBIDDEN);
+      expect(res.json).toHaveBeenCalledWith({ message: "Sem permissão" });
+    });
+
+    it("deve lidar com erro genérico no update (500)", async () => {
+      req = { user: { id: "u1" }, params: { name: "G" }, body: {} } as any;
+      (GroupService.updateGroup as jest.Mock).mockRejectedValue(new Error("Erro DB"));
+
+      await GroupController.updateGroup(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "não foi possível atualizar o grupo",
+      });
+    });
   });
 
   describe("deleteGroup", () => {
-    it("should delete an existing group", async () => {
+    it("deve deletar grupo com sucesso", async () => {
       const authUser = { id: "user1" };
       const groupName = "Existing Group";
 
@@ -256,6 +307,8 @@ describe("GroupController", () => {
         params: { name: groupName },
         headers: {},
       } as any;
+
+      (GroupService.deleteGroup as jest.Mock).mockResolvedValue(undefined);
 
       await GroupController.deleteGroup(req as Request, res as Response);
 
@@ -264,11 +317,10 @@ describe("GroupController", () => {
       expect(res.send).toHaveBeenCalled();
     });
 
-    it("should return 401 if user is not authorized", async () => {
+    it("deve retornar 401 se usuário não autorizado", async () => {
       req = {
         user: undefined,
         params: { name: "Existing Group" },
-        headers: {},
       } as Partial<Request>;
 
       await GroupController.deleteGroup(req as Request, res as Response);
@@ -279,13 +331,11 @@ describe("GroupController", () => {
       });
     });
 
-    it("should return 404 if group name is not provided", async () => {
+    it("deve retornar 404 se nome do grupo não fornecido", async () => {
       const authUser = { id: "user1" };
-
       req = {
         user: authUser,
         params: {},
-        headers: {},
       } as any;
 
       await GroupController.deleteGroup(req as Request, res as Response);
@@ -295,5 +345,33 @@ describe("GroupController", () => {
         message: "Nome do grupo é obrigatorio",
       });
     });
+
+    it("deve lidar com ApiError no delete", async () => {
+        const authUser = { id: "user1" };
+        req = { user: authUser, params: { name: "G" } } as any;
+        
+        (GroupService.deleteGroup as jest.Mock).mockRejectedValue(
+          new ApiError(HttpStatus.NOT_FOUND, "Grupo não existe")
+        );
+  
+        await GroupController.deleteGroup(req as Request, res as Response);
+  
+        expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
+        expect(res.json).toHaveBeenCalledWith({ message: "Grupo não existe" });
+      });
+  
+      it("deve lidar com erro genérico no delete (500)", async () => {
+        const authUser = { id: "user1" };
+        req = { user: authUser, params: { name: "G" } } as any;
+        
+        (GroupService.deleteGroup as jest.Mock).mockRejectedValue(new Error("Crash"));
+  
+        await GroupController.deleteGroup(req as Request, res as Response);
+  
+        expect(res.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "não foi possível excluir o grupo",
+        });
+      });
   });
 });

@@ -2,21 +2,40 @@ import axios from "axios";
 import { api_route } from "../auth/api";
 
 function convertToBackendDate(dateStr: string): string {
-  if (!dateStr || !dateStr.includes(" ")) {
-    throw new Error("Formato de data inválido: DD/MM/AAAA HH:MM.");
+  if (!dateStr) {
+    throw new Error("Data não fornecida.");
   }
 
-  const [datePart, timePart] = dateStr.split(" ");
-  const [day, month, year] = datePart.split("/");
+  // formatando para WEB
+  if (dateStr.includes("T") && !dateStr.includes("/")) {
+    const d = new Date(dateStr);
 
-  const date = new Date(`${year}-${month}-${day}T${timePart}:00`);
+    if (isNaN(d.getTime())) {
+      throw new Error("Data inválida.");
+    }
 
-  if (isNaN(date.getTime())) {
-    throw new Error("Data fornecida é inválida.");
+    console.log("Data convertida (WEB):", d.toISOString());
+    return d.toISOString();
   }
-  console.log("Data convertida para backend:", date.toISOString());
-  return date.toISOString();
+
+  // formatando para MOBILE
+  if (dateStr.includes("/") && dateStr.includes(" ")) {
+    const [datePart, timePart] = dateStr.split(" ");
+    const [day, month, year] = datePart.split("/");
+
+    const d = new Date(`${year}-${month}-${day}T${timePart}:00`);
+
+    if (isNaN(d.getTime())) {
+      throw new Error("Data fornecida é inválida.");
+    }
+
+    console.log("Data convertida (MOBILE):", d.toISOString());
+    return d.toISOString();
+  }
+
+  throw new Error("Formato de data inválido.");
 }
+
 
 
 interface createEventParams {
@@ -27,6 +46,7 @@ interface createEventParams {
   eventFinishDate: string;
   location: string;
   token: string;
+  groupId: string;
 }
 
 interface CreateEventResponse {
@@ -43,6 +63,7 @@ export async function createEvent({
   eventFinishDate,
   location,
   token,
+  groupId,
 }: createEventParams): Promise<CreateEventResponse> {
   let eventDateFormatted = "";
   let eventFinishDateFormatted = "";
@@ -56,22 +77,32 @@ export async function createEvent({
     return { error: error.message };
   }
 
-  console.log(
-    `Title ==> ${title}\nDescricao ==> ${content}\nTipo ==> ${type}\nData ==>${eventDate} até ${eventFinishDate}\nLocalização ==> ${location}`,
-  );
+  console.log('[createEvent] Parâmetros recebidos:');
+  console.log('  - title:', title);
+  console.log('  - type:', type);
+  console.log('  - content:', content);
+  console.log('  - eventDate:', eventDate);
+  console.log('  - eventFinishDate:', eventFinishDate);
+  console.log('  - location:', location);
+  console.log('  - groupId:', groupId);
+  console.log('  - groupId type:', typeof groupId);
+  console.log('  - groupId is null?', groupId === null);
+  console.log('  - groupId is undefined?', groupId === undefined);
   try {
+    const payload = {
+      title,
+      type,
+      content,
+      eventDate: eventDateFormatted,
+      eventFinishDate: eventFinishDateFormatted || undefined,
+      location,
+      groupId,
+    };
+    console.log('[createEvent] Payload sendo enviado:', JSON.stringify(payload, null, 2));
+    
     const response = await api_route.post(
       "/posts",
-      {
-        title,
-        type,
-        content,
-        eventDate: eventDateFormatted,
-        eventFinishDate: eventFinishDateFormatted || undefined,
-        location,
-        group: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-        groupId: "f9769e23-d7dc-4e61-8fb8-4b8547d16b32",
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${token}`,

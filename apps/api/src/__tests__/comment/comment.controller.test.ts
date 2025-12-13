@@ -27,7 +27,7 @@ describe("CommentController", () => {
   });
 
   describe("listComments", () => {
-    it("deve retornar 204 quando não houver comentários", async () => {
+    it("deve retornar 204 quando não houver comentários (array vazio)", async () => {
       (commentService.listComments as jest.Mock).mockResolvedValue([]);
 
       req = {};
@@ -39,7 +39,18 @@ describe("CommentController", () => {
       expect(res.send).toHaveBeenCalled();
     });
 
-    it("deve retornar 200 com comentários", async () => {
+    it("deve retornar 204 quando o retorno for null/undefined", async () => {
+      (commentService.listComments as jest.Mock).mockResolvedValue(null);
+
+      req = {};
+
+      await commentController.listComments(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.NO_CONTENT);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it("deve retornar 200 com a lista de comentários", async () => {
       const items = [{ id: "c1", content: "x", postId: "p1", authorId: "u1" }];
       (commentService.listComments as jest.Mock).mockResolvedValue(items);
 
@@ -47,52 +58,135 @@ describe("CommentController", () => {
 
       await commentController.listComments(req as Request, res as Response);
 
-      expect(commentService.listComments).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
       expect(res.json).toHaveBeenCalledWith(items);
     });
 
-    it("deve tratar ApiError retornando o status do erro", async () => {
-      (commentService.listComments as jest.Mock).mockRejectedValue(
-        new ApiError(418, "Erro custom"),
-      );
+    it("deve capturar ApiError e retornar o status correto", async () => {
+      const error = new ApiError(httpStatus.BAD_REQUEST, "Erro de API");
+      (commentService.listComments as jest.Mock).mockRejectedValue(error);
 
       req = {};
 
       await commentController.listComments(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(418);
-      expect(res.json).toHaveBeenCalledWith({ message: "Erro custom" });
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro de API" });
+    });
+
+    it("deve capturar Error genérico e retornar 500", async () => {
+      const error = new Error("Erro de Banco");
+      (commentService.listComments as jest.Mock).mockRejectedValue(error);
+
+      req = {};
+
+      await commentController.listComments(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Erro ao listar comentários",
+      });
+    });
+  });
+
+  describe("deleteCommentAsPostAuthor", () => {
+    it("deve retornar 400 se o id não for fornecido nos params", async () => {
+      req = { params: {} }; // Sem ID
+
+      await commentController.deleteCommentAsPostAuthor(
+        req as Request,
+        res as Response
+      );
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "O id é necessesário para excluir os comentários da postagem",
+      });
+    });
+
+    it("deve deletar e retornar 204 (sucesso)", async () => {
+      (commentService.deleteComment as jest.Mock).mockResolvedValue(undefined);
+
+      req = { params: { id: "c1" }, user: { id: "u1" } } as any;
+
+      await commentController.deleteCommentAsPostAuthor(
+        req as Request,
+        res as Response
+      );
+
+      expect(commentService.deleteComment).toHaveBeenCalledWith("c1", "u1");
+      expect(res.status).toHaveBeenCalledWith(httpStatus.NO_CONTENT);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it("deve capturar ApiError e retornar o status correto", async () => {
+      const error = new ApiError(httpStatus.FORBIDDEN, "Não autorizado");
+      (commentService.deleteComment as jest.Mock).mockRejectedValue(error);
+
+      req = { params: { id: "c1" }, user: { id: "u1" } } as any;
+
+      await commentController.deleteCommentAsPostAuthor(
+        req as Request,
+        res as Response
+      );
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.FORBIDDEN);
+      expect(res.json).toHaveBeenCalledWith({ message: "Não autorizado" });
+    });
+
+    it("deve capturar Error genérico e retornar 500", async () => {
+      const error = new Error("Crash");
+      (commentService.deleteComment as jest.Mock).mockRejectedValue(error);
+
+      req = { params: { id: "c1" }, user: { id: "u1" } } as any;
+
+      await commentController.deleteCommentAsPostAuthor(
+        req as Request,
+        res as Response
+      );
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Erro ao excluir o comentário da postagem",
+      });
     });
   });
 
   describe("createComment", () => {
-    it("deve lançar ApiError se postId ausente", async () => {
-      req = { params: {}, body: { content: "x" } };
+    it("deve lançar ApiError(400) se postId não for fornecido", async () => {
+      req = { params: {}, body: { content: "teste" } };
 
       await expect(
-        commentController.createComment(req as Request, res as Response),
+        commentController.createComment(req as Request, res as Response)
       ).rejects.toBeInstanceOf(ApiError);
+
+      await expect(
+        commentController.createComment(req as Request, res as Response)
+      ).rejects.toThrow("Parâmetro postId é obrigatório");
     });
 
     it("deve criar comentário e retornar 201", async () => {
-      const payload = { content: "novo", authorId: "u1" };
-      const created = { id: "c1", postId: "p1", ...payload };
-      (commentService.createComment as jest.Mock).mockResolvedValue(created);
+      const newComment = { id: "c1", content: "teste" };
+      (commentService.createComment as jest.Mock).mockResolvedValue(newComment);
 
-      req = { params: { postId: "p1" }, body: payload };
+      req = {
+        params: { postId: "p1" },
+        body: { content: "teste" },
+      };
 
       await commentController.createComment(req as Request, res as Response);
 
-      expect(commentService.createComment).toHaveBeenCalledWith("p1", payload);
+      expect(commentService.createComment).toHaveBeenCalledWith("p1", {
+        content: "teste",
+      });
       expect(res.status).toHaveBeenCalledWith(httpStatus.CREATED);
-      expect(res.json).toHaveBeenCalledWith(created);
+      expect(res.json).toHaveBeenCalledWith(newComment);
     });
   });
 
   describe("getCommentById", () => {
     it("deve retornar 200 com o comentário", async () => {
-      const comment = { id: "c1", content: "x", postId: "p1", authorId: "u1" };
+      const comment = { id: "c1", content: "ok" };
       (commentService.getCommentById as jest.Mock).mockResolvedValue(comment);
 
       req = { params: { id: "c1" } };
@@ -119,23 +213,6 @@ describe("CommentController", () => {
       });
       expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
       expect(res.json).toHaveBeenCalledWith(updated);
-    });
-  });
-
-  describe("deleteComment", () => {
-    it("deve deletar e retornar 204", async () => {
-      (commentService.deleteComment as jest.Mock).mockResolvedValue(undefined);
-
-      req = { params: { id: "c1" }, user: { id: "u1" } } as any;
-
-      await commentController.deleteCommentAsPostAuthor(
-        req as Request,
-        res as Response,
-      );
-
-      expect(commentService.deleteComment).toHaveBeenCalledWith("c1", "u1");
-      expect(res.status).toHaveBeenCalledWith(httpStatus.NO_CONTENT);
-      expect(res.send).toHaveBeenCalled();
     });
   });
 });

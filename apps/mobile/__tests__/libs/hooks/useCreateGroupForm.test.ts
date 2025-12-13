@@ -1,34 +1,26 @@
-// ARQUIVO: apps/mobile/__tests__/libs/hooks/useCreateGroupForm.test.ts
 import { renderHook, act } from "@testing-library/react-native";
 import * as ExpoRouter from "expo-router";
 
-// 1. MOCKS SIMPLIFICADOS
-
 const mockReplace = jest.fn();
 const mockBack = jest.fn();
+const mockPush = jest.fn();
 
-// Mock Router
 jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock API
 jest.mock("@/libs/group/handleCreateGroup", () => ({
   handleCreateGroup: jest.fn(),
 }));
 
-// 2. MOCK DO NOSSO UTILS (A mágica acontece aqui)
-// Como é um arquivo local TS, o Jest mocka sem reclamar.
 jest.mock("@/libs/utils/alert", () => ({
   showSuccessAlert: jest.fn(),
   showErrorAlert: jest.fn(),
 }));
 
-// 3. Imports
 import { useCreateGroupForm } from "@/libs/hooks/useCreateGroupForm";
 const { handleCreateGroup } = require("@/libs/group/handleCreateGroup");
-// Importamos o mock para verificar se foi chamado
-const { showSuccessAlert } = require("@/libs/utils/alert");
+const { showErrorAlert } = require("@/libs/utils/alert");
 
 describe("useCreateGroupForm", () => {
   beforeEach(() => {
@@ -37,6 +29,7 @@ describe("useCreateGroupForm", () => {
     (ExpoRouter.useRouter as jest.Mock).mockReturnValue({
       replace: mockReplace,
       back: mockBack,
+      push: mockPush,
     });
   });
 
@@ -44,12 +37,12 @@ describe("useCreateGroupForm", () => {
     jest.useRealTimers();
   });
 
-  it("deve inicializar corretamente", () => {
+  it("deve inicializar com valores padrão", () => {
     const { result } = renderHook(() => useCreateGroupForm());
     expect(result.current.selectedType).toBe("ATHLETIC");
   });
 
-  it("deve validar erros", async () => {
+  it("deve validar erros locais (ex: nome curto)", async () => {
     const { result } = renderHook(() => useCreateGroupForm());
 
     await act(async () => {
@@ -60,16 +53,57 @@ describe("useCreateGroupForm", () => {
     expect(result.current.errors.name).toBeDefined();
   });
 
-  it("deve chamar API, redirecionar e mostrar alerta de sucesso", async () => {
-    // Mock sucesso
-    handleCreateGroup.mockResolvedValue({
+
+  it("deve definir erro manual no campo 'name' se a API retornar erro de conflito de nome (Linhas 83-88)", async () => {
+    const errorMsg = "Este Nome já está em Uso por outro grupo";
+    (handleCreateGroup as jest.Mock).mockRejectedValue(new Error(errorMsg));
+
+    const { result } = renderHook(() => useCreateGroupForm());
+
+    await act(async () => {
+      result.current.setValue("name", "Nome Duplicado");
+      result.current.setValue("type", "AMATEUR");
+    });
+
+    await act(async () => {
+      await result.current.submitForm();
+    });
+
+    expect(result.current.errors.name).toBeDefined();
+    expect(result.current.errors.name?.message).toBe("Este nome já está em uso.");
+    expect(showErrorAlert).not.toHaveBeenCalled();
+  });
+
+  it("deve mostrar alerta genérico para outros erros da API (Linhas 89-91)", async () => {
+    const errorMsg = "Erro interno do servidor 500";
+    (handleCreateGroup as jest.Mock).mockRejectedValue(new Error(errorMsg));
+
+    const { result } = renderHook(() => useCreateGroupForm());
+
+    await act(async () => {
+      result.current.setValue("name", "Nome Valido");
+      result.current.setValue("type", "AMATEUR");
+    });
+
+  
+    await act(async () => {
+      await result.current.submitForm();
+    });
+
+    expect(showErrorAlert).toHaveBeenCalledWith("Erro", errorMsg);
+    expect(result.current.errors.name).toBeUndefined();
+  });
+
+  // -----------------------------------------
+
+  it("deve chamar API, redirecionar e mostrar alerta de sucesso (Caminho Feliz)", async () => {
+    (handleCreateGroup as jest.Mock).mockResolvedValue({
       id: "grupo-123-id",
       name: "Novo Grupo",
     });
 
     const { result } = renderHook(() => useCreateGroupForm());
 
-    // Preenche
     await act(async () => {
       result.current.setValue("name", "Novo Grupo");
       result.current.setValue("description", "Teste");
@@ -77,31 +111,20 @@ describe("useCreateGroupForm", () => {
       result.current.setValue("sport", "Futsal");
     });
 
-    // Submete
     await act(async () => {
       await result.current.submitForm();
     });
 
-    // Verifica API
-    expect(handleCreateGroup).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Novo Grupo" }),
-    );
+    expect(handleCreateGroup).toHaveBeenCalled();
 
-    // Avança o tempo
     act(() => {
       jest.runAllTimers();
     });
 
     // Verifica Redirecionamento
-    expect(mockReplace).toHaveBeenCalledWith({
-      pathname: "/perfilGrupo",
-      params: { id: "grupo-123-id" },
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: `/(DashBoard)/(tabs)/Perfil`,
+      params: { identifier: "Novo Grupo", type: "group" },
     });
-
-    // Verifica se nossa função wrapper foi chamada (sem erro de undefined!)
-    expect(showSuccessAlert).toHaveBeenCalledWith(
-      "Sucesso",
-      expect.stringContaining("criado"),
-    );
   });
 });

@@ -191,7 +191,8 @@ describe("GroupJoinRequestService", () => {
         expect.any(String),
         expect.stringContaining("UserTest"),
         "group1",
-        "GROUP"
+        "GROUP",
+        "1"
       );
     });
 
@@ -240,7 +241,8 @@ describe("GroupJoinRequestService", () => {
         expect.stringContaining("Aprovada"),
         expect.stringContaining("Grupo Teste"),
         "group1",
-        "GROUP"
+        "GROUP",
+        "1"
       );
     });
 
@@ -266,7 +268,8 @@ describe("GroupJoinRequestService", () => {
         expect.stringContaining("Rejeitada"),
         expect.stringContaining("Grupo Teste"),
         "group1",
-        "GROUP"
+        "GROUP",
+        "1"
       );
       
       expect(groupMembershipRepository.createMembership).not.toHaveBeenCalled();

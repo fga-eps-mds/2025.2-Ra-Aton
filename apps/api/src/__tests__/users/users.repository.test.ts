@@ -18,6 +18,12 @@ describe("UserRepository", () => {
         passwordHash: "hashedPassword",
         createdAt: new Date(),
         updatedAt: new Date(),
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       };
       prismaMock.user.create.mockResolvedValue(userData);
 

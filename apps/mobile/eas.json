@@ -1,0 +1,50 @@
+{
+  "cli": {
+    "version": ">= 14.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "node": "22.11.0",
+      "env": {
+        "NODE_ENV": "development",
+        "EXPO_PUBLIC_API_URL": "https://192.241.132.151"
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "simulator": true
+      },
+      "cache": {
+        "disabled": false
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "node": "22.11.0",
+      "env": {
+        "NODE_ENV": "production",
+        "EXPO_PUBLIC_API_URL": "http://192.241.132.151",
+        "EXPO_PUBLIC_ENV": "production"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "node": "22.11.0",
+      "env": {
+        "NODE_ENV": "production",
+        "EXPO_PUBLIC_API_URL": "http://192.241.132.151",
+        "EXPO_PUBLIC_ENV": "production"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

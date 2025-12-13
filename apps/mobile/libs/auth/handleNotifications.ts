@@ -8,6 +8,7 @@ export interface NotificationAPI {
   type: string; // Ex: 'GROUP_JOIN_REQUEST', 'MATCH_REMINDER'
   resourceId?: string;
   resourceType?: string; // Ex: 'GROUP', 'MATCH'
+  contentId?: string;
   readAt: string | null; // Data ISO ou null se não lida
   createdAt: string;     // Data ISO
 }

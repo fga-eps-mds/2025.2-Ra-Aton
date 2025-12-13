@@ -26,33 +26,36 @@ export default function NovoPost() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.containerBtns}>
-          <AppText style={styles.txt}>Criar?...</AppText>
+          <AppText style={styles.txt}>Criar</AppText>
           <Spacer height={30} />
+          
+          <PrimaryButton onPress={() => router.push("/criarPost")}>
+            Criar Post
+          </PrimaryButton>
+          
+          <Spacer height={40} />
 
           <PrimaryButton onPress={() => router.push("/criarEvento")}>
             Criar Evento
           </PrimaryButton>
+          
           <Spacer height={40} />
-
+          
           <PrimaryButton onPress={() => router.push("/criarPartida")}>
             Criar Partida
           </PrimaryButton>
-          <Spacer height={40} />
-
-          <PrimaryButton onPress={() => router.push("/criarGrupo")}>
-            Criar Grupo
-          </PrimaryButton>
 
           <Spacer height={40} />
-
-          <PrimaryButton onPress={() => router.push("/criarPost")}>
-            Criar Post
-          </PrimaryButton>
-
+          <AppText style={styles.txt}>Gerenciar</AppText>
           <Spacer height={40} />
-
           <PrimaryButton onPress={() => router.push("/gerenciarPost")}>
             Gerenciar Posts
+          </PrimaryButton>
+
+          <Spacer height={40} />
+
+          <PrimaryButton onPress={() => router.push("/gerenciarPartidas")}>
+            Gerenciar Partidas
           </PrimaryButton>
 
           <Spacer height={40} />

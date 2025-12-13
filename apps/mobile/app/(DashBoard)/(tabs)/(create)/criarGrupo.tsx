@@ -9,7 +9,8 @@ import {
     ScrollView,
     ActivityIndicator,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    Button,
 } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +20,7 @@ import BackGroundComp from '@/components/BackGroundComp';
 import PrimaryButton from '@/components/PrimaryButton';
 import InputComp from '@/components/InputComp';
 import { useRouter, Redirect } from 'expo-router';
+import * as Linking from 'expo-linking';
 
 // Importamos apenas o nosso hook customizado (agora sem Zod)
 import { useCreateGroupForm } from '@/libs/hooks/useCreateGroupForm';
@@ -35,24 +37,16 @@ export default function CriarGrupoScreen() {
         setValue,
         submitForm,
         isLoading,
-        createdGroupId // 2. PEGUE O ID AQUI
+        createdGroupId,
+        createdGroupName,
     } = useCreateGroupForm();
 
-    if (createdGroupId) {
-        return <Redirect href={`/group/${createdGroupId}`} />;
-    }
+    // if (createdGroupName) {
+    //     return <Redirect href={`/Perfil?id=${createdGroupName}`} />;
+    // }
+
     return (
         <BackGroundComp>
-            {/* BOTÃO DE TESTE DE NAVEGAÇÃO */}
-            <TouchableOpacity
-                style={{ backgroundColor: 'red', padding: 20, marginBottom: 20 }}
-                onPress={() => {
-                    console.log("Botão de teste clicado");
-                    router.push({ pathname: "/group/[id]", params: { id: "teste-123" } });
-                }}
-            >
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>TESTAR REDIRECIONAMENTO AGORA</Text>
-            </TouchableOpacity>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
@@ -157,7 +151,9 @@ export default function CriarGrupoScreen() {
                                 <Text style={styles.txtFormsAthletic}>
                                     Para criar uma atlética verificada é necessário enviar documentação comprobatória ao time Aton
                                     {"\n"}
-                                    {/* {"http://algo:porta"}  rodrigo: aqui a gente coloca o link do forms  */}
+                                    <View style={styles.txtFormsAthletic}>
+                                        <Button title="Forms" onPress={() => Linking.openURL('https://shre.ink/qIX9')} />
+                                    </View>
                                 </Text>
                             )}
                             {errors.type && <Text style={styles.errorText}>{errors.type.message}</Text>}

@@ -4,6 +4,27 @@ import { prismaMock } from "../../prisma-mock";
 import HttpStatus from "http-status";
 import jwt from "jsonwebtoken";
 import { config } from "../../../config/env";
+import { GroupType } from "@prisma/client";
+
+// MOCK DO AMBIENTE
+jest.mock("../../../config/env", () => ({
+  config: { 
+    DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+    NODE_ENV: "test",
+    JWT_SECRET: "test-secret",
+    JWT_EXPIRES_IN: "1h",
+    EXPO_ACCESS_TOKEN: "test-token",
+  },
+}));
+
+// MOCK DO CLOUDINARY
+jest.mock("../../../config/cloudinary", () => ({
+  uploader: {
+    upload_stream: jest.fn(),
+    destroy: jest.fn(),
+  },
+  config: jest.fn(),
+}));
 
 const AUTH_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
 const OTHER_USER_ID = "550e8400-e29b-41d4-a716-446655440111";
@@ -36,6 +57,22 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       groupId: GROUP_ID,
     };
 
+    const mockGroup = {
+      id: GROUP_ID,
+      name: "teste",
+      sports: ["fut"],
+      groupType: GroupType.AMATEUR,
+      acceptingNewMembers: true,
+      verificationRequest: false,
+      verificationStatus: null,
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    prismaMock.group.create.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+    prismaMock.group.findUnique.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+
     prismaMock.user.findUnique.mockResolvedValue({
       id: AUTH_USER_ID,
       userName: "TestUser",
@@ -45,6 +82,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "Test User",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     prismaMock.post.create.mockResolvedValue({
@@ -59,6 +102,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: null,
       eventFinishDate: null,
       location: null,
+      reminderSent: false,
       likesCount: 0,
       commentsCount: 0,
       attendancesCount: 0,
@@ -86,6 +130,22 @@ describe("Testes de Integração Post (com prismaMock))", () => {
     const eventStart = new Date(Date.now() + 3600000).toISOString(); // Data futura
     const eventEnd = new Date(Date.now() + 7200000).toISOString(); // Data + futura ainda
 
+    const mockGroup = {
+      id: GROUP_ID,
+      name: "teste",
+      sports: ["fut"],
+      groupType: GroupType.AMATEUR,
+      acceptingNewMembers: true,
+      verificationRequest: false,
+      verificationStatus: null,
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    prismaMock.group.create.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+    prismaMock.group.findUnique.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+
     const body = {
       title: "Event Test",
       type: "EVENT",
@@ -106,6 +166,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "Event User",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     prismaMock.post.create.mockResolvedValue({
@@ -120,6 +186,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: new Date(eventStart),
       eventFinishDate: new Date(eventEnd),
       location: "Main Hall",
+      reminderSent: false,
       likesCount: 0,
       commentsCount: 0,
       attendancesCount: 0,
@@ -142,6 +209,22 @@ describe("Testes de Integração Post (com prismaMock))", () => {
   it("deve retornar 400 ao criar um EVENT sem os campos obrigatórios", async () => {
     const token = generateToken(AUTH_USER_ID);
 
+    const mockGroup = {
+      id: GROUP_ID,
+      name: "teste",
+      sports: ["fut"],
+      groupType: GroupType.AMATEUR,
+      acceptingNewMembers: true,
+      verificationRequest: false,
+      verificationStatus: null,
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    prismaMock.group.create.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+    prismaMock.group.findUnique.mockResolvedValue({ ...mockGroup, bio: null, logoUrl: null, bannerUrl: null, logoId: null, bannerId: null })
+
     const body = {
       title: "Invalid Event",
       type: "EVENT",
@@ -159,6 +242,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "User",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     const response = await request(app)
@@ -212,6 +301,12 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       name: "UserX",
       profileType: "JOGADOR",
       passwordHash: "hashedPassword",
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     const response = await request(app)
@@ -245,6 +340,24 @@ describe("Testes de Integração Post (com prismaMock))", () => {
         groupId: GROUP_ID,
         createdAt: now,
         updatedAt: now,
+        eventDate: null,
+        eventFinishDate: null,
+        location: null,
+        reminderSent: false,
+        likesCount: 0,
+        commentsCount: 0,
+        attendancesCount: 0,
+        author: {
+          id: AUTH_USER_ID,
+          userName: "Teste User",
+          profileImageUrl: null, // O repositório tenta ler isso
+        },
+        group: {
+          id: GROUP_ID,
+          name: "Teste Group",
+          groupType: "GENERAL",
+          logoUrl: null,
+        },
       },
     ];
 
@@ -296,6 +409,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: null,
       eventFinishDate: null,
       location: null,
+      reminderSent: false,
     });
 
     const response = await request(app)
@@ -369,6 +483,7 @@ describe("Testes de Integração Post (com prismaMock))", () => {
       eventDate: null,
       eventFinishDate: null,
       location: null,
+      reminderSent: false,
       likesCount: 0,
       commentsCount: 0,
       attendancesCount: 0,

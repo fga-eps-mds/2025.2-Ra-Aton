@@ -52,7 +52,6 @@ enum MadeBy {
   GROUP
 }
 
-
 enum JoinRequestStatus {
   PENDING
   APPROVED
@@ -64,28 +63,36 @@ enum MatchStatus {
   EM_ANDAMENTO
   FINALIZADO
 }
+
 enum NotificationType {
   GROUP_JOIN_REQUEST
   GROUP_JOIN_APPROVED
   GROUP_JOIN_REJECTED
   MATCH_REMINDER
+  EVENT_REMINDER
   SYSTEM
 }
 
 // Models
 model User {
-  id           String       @id @default(uuid())
-  name         String
-  email        String       @unique
-  userName     String       @unique
-  profileType  ProfileType?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  passwordHash String
-  notificationsAllowed Boolean @default(true)
+  id                   String       @id @default(uuid())
+  name                 String
+  email                String       @unique
+  userName             String       @unique
+  profileType          ProfileType?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  passwordHash         String
+  notificationsAllowed Boolean      @default(true)
+
+  bio              String?  // Bio do usuário
+  profileImageUrl  String?  // URL da imagem de perfil no Cloudinary
+  bannerImageUrl   String?  // URL do banner no Cloudinary
+  profileImageId   String?  // Public ID do Cloudinary (para deletar)
+  bannerImageId    String?  // Public ID do Cloudinary (para deletar)
 
   // Relationships
-  subscription PlayerSubscription[]
+  subscription    PlayerSubscription[]
   posts           Post[]
   matchs          Match[]
   Attendance      Attendance[]
@@ -94,8 +101,12 @@ model User {
   Comment         Comment[]
   joinRequests    GroupJoinRequest[]
   GroupMembership GroupMembership[]
-  followedGroups GroupFollow[]
-  notifications Notification[]
+  notifyTokens    UsersNotifyTokens[]
+  followers       UserFollow[] @relation("UserFollowers")
+  following       UserFollow[] @relation("UserFollowing")
+  followedGroups  GroupFollow[]
+  notifications   Notification[]
+  avaliations     Avaliation[]
 }
 
 model Post {
@@ -114,6 +125,7 @@ model Post {
   eventDate       DateTime? // data/hora do evento
   eventFinishDate DateTime? // opcional no frontend
   location        String? // local do evento
+  reminderSent Boolean @default(false)
 
   // denormalized counters (optional, useful for real-time UI)
   likesCount       Int @default(0)
@@ -198,6 +210,12 @@ model Group {
   verificationRequest Boolean             @default(false)
   verificationStatus  VerificationStatus?
 
+  bio         String?  // Bio do grupo
+  logoUrl     String?  // URL do logo no Cloudinary
+  bannerUrl   String?  // URL do banner no Cloudinary
+  logoId      String?  // Public ID do Cloudinary
+  bannerId    String?  // Public ID do Cloudinary
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -205,7 +223,7 @@ model Group {
   joinRequests GroupJoinRequest[]
   posts        Post[]
   memberships  GroupMembership[]
-  followers GroupFollow[]
+  followers    GroupFollow[]
 }
 
 model GroupMembership {
@@ -220,17 +238,6 @@ model GroupMembership {
 
   @@unique([userId, groupId])
 }
-
-// model Follow {
-//   id        String   @id @default(uuid())
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   userId    String
-//   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//   groupId   String
-//   createdAt DateTime @default(now())
-
-//   @@unique([userId, groupId])
-// }
 
 model GroupJoinRequest {
   id        String            @id @default(uuid())
@@ -248,22 +255,27 @@ model GroupJoinRequest {
 }
 
 model Match {
-  id          String               @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
   description String? // descrição (opcional)
-  teamNameA   String?              @default("TIME_A") // nome do time A
-  teamNameB   String?              @default("TIME_B") // nome do time B
-  author      User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    String
-  maxPlayers  Int // numero max de jogadores
-  players     PlayerSubscription[] // jogadores inscritos
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-  MatchDate   DateTime
-  MatchStatus MatchStatus
-  reminderSent Boolean @default(false)
-  location    String
-  sport       String
+
+  teamNameA  String? @default("TIME_A") // nome do time A
+  teamAScore Int     @default(0)
+  teamNameB  String? @default("TIME_B") // nome do time B
+  teamBScore Int     @default(0)
+
+  maxPlayers Int // numero max de jogadores
+  players    PlayerSubscription[] // jogadores inscritos
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  MatchDate    DateTime
+  MatchStatus  MatchStatus
+  reminderSent Boolean     @default(false)
+  location     String
+  sport        String
 }
 
 model PlayerSubscription {
@@ -278,32 +290,68 @@ model PlayerSubscription {
   @@unique([userId, matchId]) // garante que o usuário apenas se inscreva uma vez por partida
 }
 
+model UsersNotifyTokens {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model GroupFollow {
   id String @id @default(uuid())
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   groupId String
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
   @@unique([userId, groupId])
 }
 
-model Notification {
+model UserFollow {
   id String @id @default(uuid())
+
+  followerId String
+  follower User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+
+  followingId String
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Notification {
+  id     String @id @default(uuid())
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  title String
+  title   String
   content String
-  type NotificationType
+  type    NotificationType
 
-  resourceId String?
+  resourceId   String?
   resourceType String? // "GROUP", "MATCH"
 
-  readAt DateTime?
+  contentId    String?  // Se for um invite tem o Id dele por exemplo
+
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Avaliation {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  score     Int      @default(5)
+  message   String?
   createdAt DateTime @default(now())
 }

@@ -166,6 +166,11 @@ describe("Group Repository", () => {
         verificationStatus: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        bio: null,
+        logoUrl: null,
+        bannerUrl: null,
+        logoId: null,
+        bannerId: null,
       };
 
       const author: User = {
@@ -177,6 +182,12 @@ describe("Group Repository", () => {
         passwordHash: "hash",
         createdAt: new Date(),
         updatedAt: new Date(),
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       };
 
       prismaMock.group.create.mockResolvedValueOnce(groupData as Group);
@@ -223,6 +234,11 @@ describe("Group Repository", () => {
         verificationStatus: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        bio: null,
+        logoUrl: null,
+        bannerUrl: null,
+        logoId: null,
+        bannerId: null,
       };
 
       prismaMock.group.update.mockResolvedValueOnce(group);
@@ -240,6 +256,11 @@ describe("Group Repository", () => {
         verificationStatus: null,
         createdAt: group.createdAt,
         updatedAt: group.updatedAt,
+        bio: null,
+        logoUrl: null,
+        bannerUrl: null,
+        logoId: null,
+        bannerId: null,
       });
       expect(prismaMock.group.update).toHaveBeenCalledWith({
         where: { id: groupId },

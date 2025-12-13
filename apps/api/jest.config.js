@@ -35,6 +35,16 @@ const config = {
   coverageDirectory: "<rootDir>/coverage",
 
   coverageReporters: ["html"],
+
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "<rootDir>/src/__tests__/",
+    "<rootDir>/src/mocks/",
+    "<rootDir>/src/config/",
+    "<rootDir>/src/database/",
+    "<rootDir>/src/types/",
+    "<rootDir>/src/server.ts",
+  ],
 };
 
 module.exports = config;

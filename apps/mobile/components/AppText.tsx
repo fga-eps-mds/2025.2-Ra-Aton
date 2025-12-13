@@ -6,13 +6,15 @@ interface AppTextProps extends TextProps {
   style?: StyleProp<TextStyle>;
 }
 
-// fonte padrão usada na app.
 const AppText: React.FC<AppTextProps> = ({ children, style, ...props }) => {
-  const defaultFont =
-    (Fonts && Fonts.otherFonts && Fonts.otherFonts.dongleBold) || undefined;
+  const defaultFont = Fonts?.otherFonts?.dongleBold;
 
   return (
-    <Text {...props} style={[{ fontFamily: defaultFont }, style]}>
+    <Text
+      {...props}
+      style={[{ fontFamily: defaultFont }, style]}
+      allowFontScaling={false}
+    >
       {children}
     </Text>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInput, View, Text, StyleSheet } from "react-native";
+import { TextInput, View, Text, StyleSheet, DimensionValue } from "react-native";
 import { useTheme } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
@@ -11,6 +11,10 @@ interface DescricaoInputProps {
   onChangeText: (text: string) => void;
   placeholder?: string;
   height?: number;
+  status?: boolean;
+  statusText?: string;
+  width?: DimensionValue;
+
 }
 
 export const DescricaoInput: React.FC<DescricaoInputProps> = ({
@@ -19,14 +23,18 @@ export const DescricaoInput: React.FC<DescricaoInputProps> = ({
   onChangeText,
   placeholder = "Digite aqui...",
   height = 120,
+    status,
+  statusText,
+  width = "100%",
 }) => {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-  const styles = makeStyles(theme, height);
+  const styles = makeStyles(theme, height, width);
+  const statusBorderColor = status ? Colors.warning : theme.orange;
 
   return (
     <View style={styles.container}>
-      {label && <AppText style={styles.label}>{label}</AppText>}
+      {label?.trim().length > 0 && <AppText style={styles.label}>{label}</AppText>}
       <TextInput
         style={styles.input}
         value={value}
@@ -37,14 +45,21 @@ export const DescricaoInput: React.FC<DescricaoInputProps> = ({
         numberOfLines={Math.ceil(height / 40)}
         textAlignVertical="top"
       />
+      {statusText ? (
+        <AppText
+          style={[styles.textStatusMessage, { color: statusBorderColor }]}
+        >
+          {statusText}
+        </AppText>
+      ) : null}
     </View>
   );
 };
 
-const makeStyles = (theme: any, height: number) =>
+const makeStyles = (theme: any, height: number, width: DimensionValue) =>
   StyleSheet.create({
     container: {
-      width: "100%",
+      width: width,
       //   marginVertical: 12,
       //   paddingHorizontal: 0,
     },
@@ -67,5 +82,11 @@ const makeStyles = (theme: any, height: number) =>
       fontSize: 20,
       color: theme.text,
       fontFamily: Fonts.otherFonts.dongleBold,
+    },
+        textStatusMessage: {
+      marginLeft: 17,
+      alignSelf: "flex-start",
+      fontSize: 13,
+      color: Colors.warning,
     },
   });

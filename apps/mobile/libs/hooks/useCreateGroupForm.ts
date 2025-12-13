@@ -21,6 +21,8 @@ export function useCreateGroupForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [createdGroupId, setCreatedGroupId] = useState<string | null>(null);
+  const [createdGroupName, setCreatedGroupName] = useState<string | null>(null);
+
 
   const {
     control,
@@ -66,13 +68,14 @@ export function useCreateGroupForm() {
       const newGroup = await handleCreateGroup(payload);
 
       setCreatedGroupId(newGroup.id);
+      setCreatedGroupName(newGroup.name);
 
       setTimeout(() => {
         console.log("Navegando para perfilGrupo com ID:", newGroup.id);
 
-        router.replace({
-          pathname: "/perfilGrupo",
-          params: { id: newGroup.id },
+        router.push({
+          pathname: `/(DashBoard)/(tabs)/Perfil`,
+          params: { identifier: newGroup.name, type: "group" },
         });
 
         // 2. Usamos nossa função wrapper
@@ -107,6 +110,7 @@ export function useCreateGroupForm() {
     submitForm,
     isLoading,
     createdGroupId,
+    createdGroupName,
     goBack: router.back,
   };
 }

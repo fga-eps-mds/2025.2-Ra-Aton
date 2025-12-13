@@ -14,7 +14,7 @@ export default function DashboardTabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, 
+        headerShown: false,
         tabBarActiveTintColor: theme.orange,
         tabBarInactiveTintColor: theme.text,
         tabBarStyle: {
@@ -35,7 +35,7 @@ export default function DashboardTabsLayout() {
     >
 
       <Tabs.Screen
-        name="Home" 
+        name="Home"
         options={{
           title: "Feed",
           tabBarIcon: ({ color, size }) => (
@@ -44,7 +44,7 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="Teams" 
+        name="Teams"
         options={{
           title: "Equipes",
           tabBarIcon: ({ color, size }) => (
@@ -53,16 +53,16 @@ export default function DashboardTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="NovoPost" 
+        name="NovoPost"
         options={{
-          title: "Post",
+          title: "Publicações",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="Partidas" 
+        name="Partidas"
         options={{
           title: "Partidas",
           tabBarIcon: ({ color, size }) => (
@@ -159,12 +159,13 @@ export default function DashboardTabsLayout() {
       />
 
       <Tabs.Screen
-        name="perfilGrupo"
+        name="Perfil"
         options={{
-          title: "Perfil do Grupo",
+          title: "Perfil",
           href: null,
         }} // Esconde da Navbar
       />
+
       <Tabs.Screen
         name="Solicitacoes"
         options={{
@@ -173,6 +174,52 @@ export default function DashboardTabsLayout() {
         }} // Esconde da Navbar
       />
 
+      <Tabs.Screen
+        name="(create)/gerenciarPartidas"
+        options={{
+          title: "Solicitacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(edit)/editarPost"
+        options={{
+          title: "Editar Post",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(edit)/editEvento"
+        options={{
+          title: "Editar Post",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="Notifications"
+        options={{
+          title: "Notificacoes",
+          href: null,
+        }} // Esconde da Navbar
+      />
+
+      <Tabs.Screen
+        name="(edit)/editarGrupo"
+        options={{
+          title: "Editar Grupo",
+          href: null,
+        }} // Esconde da Navbar
+      />
+      <Tabs.Screen
+        name="(edit)/editarUsuario"
+        options={{
+          title: "Editar Usuário",
+          href: null,
+        }} // Esconde da Navbar
+      />
     </Tabs>
 
 

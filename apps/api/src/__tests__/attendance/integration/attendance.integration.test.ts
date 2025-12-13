@@ -22,6 +22,12 @@ describe("Testes de Integração de Presença", () => {
       passwordHash: await bcrypt.hash("senhaPresenca", 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     };
 
     prismaMock.user.findUnique.mockResolvedValue(usuarioExistente);
@@ -72,6 +78,12 @@ describe("Testes de Integração de Presença", () => {
       passwordHash: await bcrypt.hash("senhaPresenca", 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     };
 
     prismaMock.user.findUnique.mockResolvedValue(usuarioExistente);
@@ -134,6 +146,12 @@ describe("Testes de Integração de Presença", () => {
       passwordHash: await bcrypt.hash("senhaPresenca", 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     };
 
     prismaMock.user.findUnique.mockResolvedValue(usuarioExistente);
@@ -166,6 +184,12 @@ describe("Testes de Integração de Presença", () => {
       passwordHash: await bcrypt.hash("senhaPresenca", 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     };
 
     prismaMock.user.findUnique.mockResolvedValue(usuarioExistente);
