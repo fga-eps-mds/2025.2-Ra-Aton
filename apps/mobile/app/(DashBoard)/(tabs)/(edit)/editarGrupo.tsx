@@ -100,7 +100,7 @@ export default function EditarGrupoScreen() {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton} testID="back-button">
               <Ionicons name="arrow-back" size={24} color={theme.text} />
             </TouchableOpacity>
             <Text style={[styles.title, { color: theme.text }]}>
@@ -201,7 +201,7 @@ export default function EditarGrupoScreen() {
               disabled={isLoading}
             >
               {isLoading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#fff" testID="activity-indicator" />
               ) : (
                 <>
                   <Ionicons name="checkmark-circle" size={24} color="#fff" />
