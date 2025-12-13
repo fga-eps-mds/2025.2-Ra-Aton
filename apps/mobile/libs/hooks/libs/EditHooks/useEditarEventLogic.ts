@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { api_route } from "@/libs/auth/api";
 import { IPost } from "@/libs/interfaces/Ipost";
 
-function convertToBackendDate(dateStr: string): string {
+export function convertToBackendDate(dateStr: string): string {
   if (!dateStr) return ""; // permite campo opcional
 
   // formato WEB

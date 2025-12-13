@@ -143,22 +143,52 @@ describe("useEditarPostLogic", () => {
     expect(mockRouterBack).toHaveBeenCalled();
   });
 
-  it("deve tratar erro da API ao atualizar", async () => {
+  it("deve lidar com erro da API sem message específica", async () => {
     const { result } = renderHook(() => useEditarPostLogic());
-    const errorMessage = "Erro de validação no backend";
 
     mockApiPatch.mockRejectedValue({
-      response: { data: { message: errorMessage } },
+      response: { data: {} }, // Sem message
     });
 
     await act(async () => {
       await result.current.handleUpdate();
     });
 
-    expect(result.current.formError).toBe(errorMessage);
+    expect(result.current.formError).toBe("Não foi possível atualizar o post.");
     expect(result.current.alertConfig.visible).toBe(true);
-    expect(result.current.alertConfig.title).toBe("Erro");
-    expect(result.current.alertConfig.message).toBe(errorMessage);
+    expect(result.current.alertConfig.message).toBe(
+      "Não foi possível atualizar o post.",
+    );
+  });
+
+  it("deve lidar com erro da API sem response", async () => {
+    const { result } = renderHook(() => useEditarPostLogic());
+
+    mockApiPatch.mockRejectedValue(new Error("Network error"));
+
+    await act(async () => {
+      await result.current.handleUpdate();
+    });
+
+    expect(result.current.formError).toBe("Não foi possível atualizar o post.");
+    expect(result.current.alertConfig.visible).toBe(true);
+  });
+
+  it("não deve fazer nada se postId for null", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      postData: undefined, // Sem dados
+    });
+
+    const { result } = renderHook(() => useEditarPostLogic());
+
+    expect(result.current.formsData.titulo).toBe("");
+    expect(result.current.formsData.descricao).toBe("");
+
+    await act(async () => {
+      await result.current.handleUpdate();
+    });
+
+    expect(mockApiPatch).not.toHaveBeenCalled();
   });
 
   it("deve navegar para trás ao cancelar", () => {

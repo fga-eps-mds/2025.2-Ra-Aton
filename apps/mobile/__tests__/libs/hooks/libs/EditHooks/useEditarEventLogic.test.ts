@@ -1,5 +1,8 @@
 import { renderHook, act, waitFor } from "@testing-library/react-native";
-import { useEditarEventoLogic } from "@/libs/hooks/libs/EditHooks/useEditarEventLogic";
+import {
+  useEditarEventoLogic,
+  convertToBackendDate,
+} from "@/libs/hooks/libs/EditHooks/useEditarEventLogic";
 import { api_route } from "@/libs/auth/api";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
@@ -39,6 +42,41 @@ describe("useEditarEventoLogic", () => {
     });
     jest.spyOn(console, "error").mockImplementation(() => {});
     jest.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  describe("convertToBackendDate", () => {
+    it("deve retornar string vazia para data vazia", () => {
+      expect(convertToBackendDate("")).toBe("");
+    });
+
+    it("deve converter formato ISO válido", () => {
+      const iso = "2025-12-25T14:00:00.000Z";
+      expect(convertToBackendDate(iso)).toBe(iso);
+    });
+
+    it("deve converter formato Mobile válido", () => {
+      const mobile = "25/12/2025 15:30";
+      const result = convertToBackendDate(mobile);
+      expect(result).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/);
+    });
+
+    it("deve lançar erro para formato inválido", () => {
+      expect(() => convertToBackendDate("invalid")).toThrow(
+        "Formato de data inválido.",
+      );
+    });
+
+    it("deve lançar erro para data ISO inválida", () => {
+      expect(() => convertToBackendDate("2025-13-45T25:00:00.000Z")).toThrow(
+        "Data inválida.",
+      );
+    });
+
+    it("deve lançar erro para data Mobile inválida", () => {
+      expect(() => convertToBackendDate("45/13/2025 25:00")).toThrow(
+        "Data inválida.",
+      );
+    });
   });
 
   it("deve inicializar e popular o formulário com os dados do post", () => {
@@ -189,6 +227,30 @@ describe("useEditarEventoLogic", () => {
     expect(mockApiPatch).toHaveBeenCalled();
     const payload = mockApiPatch.mock.calls[0][1];
     expect(payload.eventDate).toBe(isoDate); // Deve manter inalterado se já for ISO válido
+  });
+
+  it("deve enviar atualização com dataFim opcional vazia", async () => {
+    const { result } = renderHook(() => useEditarEventoLogic());
+
+    act(() => {
+      result.current.setFormData({
+        titulo: "Evento Sem Fim",
+        descricao: "Sem data de fim",
+        local: "Local",
+        dataInicio: "2025-01-01T12:00:00.000Z",
+        dataFim: "", // Vazia
+      });
+    });
+
+    mockApiPatch.mockResolvedValue({});
+
+    await act(async () => {
+      await result.current.handleUpdate();
+    });
+
+    expect(mockApiPatch).toHaveBeenCalled();
+    const payload = mockApiPatch.mock.calls[0][1];
+    expect(payload.eventFinishDate).toBeUndefined();
   });
 
   it("deve lidar com erro na conversão de data", async () => {
