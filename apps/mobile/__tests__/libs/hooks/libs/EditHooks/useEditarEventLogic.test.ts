@@ -210,9 +210,11 @@ describe("useEditarEventoLogic", () => {
     expect(mockApiPatch).not.toHaveBeenCalled();
     expect(result.current.alertConfig.visible).toBe(true);
     expect(result.current.alertConfig.title).toBe("Erro");
-    
+
     // CORREÇÃO: O hook original ignora o message do erro local e usa o fallback
-    expect(result.current.alertConfig.message).toBe("Erro ao atualizar evento.");
+    expect(result.current.alertConfig.message).toBe(
+      "Erro ao atualizar evento.",
+    );
   });
 
   it("deve tratar erro da API ao atualizar", async () => {
