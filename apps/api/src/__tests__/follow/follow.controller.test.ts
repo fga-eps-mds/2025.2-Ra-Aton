@@ -10,6 +10,8 @@ jest.mock('../../modules/follow/follow.service', () => ({
     followGroup: jest.fn(),
     unfollowGroup: jest.fn(),
     getUserFollowingGroups: jest.fn(),
+    followUser: jest.fn(),
+    unfollowUser: jest.fn(),
   },
 }));
 
@@ -195,6 +197,102 @@ describe('FollowController', () => {
       expect(mockedFollowService.getUserFollowingGroups).toHaveBeenCalledWith(mockUserId, 5, 2);
       expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
       expect(res.json).toHaveBeenCalledWith(mockResult);
+    });
+  });
+
+  describe('followUser', () => {
+    const followingId = 'user-789';
+
+    it('deve retornar 400 se o ID do usuário não for fornecido', async () => {
+      req = {
+        params: {},
+        user: { id: mockUserId },
+      } as any;
+
+      await followController.followUser(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith({ message: 'ID do usuário é necessário' });
+      expect(mockedFollowService.followUser).not.toHaveBeenCalled();
+    });
+
+    it('deve seguir um usuário com sucesso (201)', async () => {
+      req = {
+        params: { userId: followingId },
+        user: { id: mockUserId },
+      } as any;
+
+      mockedFollowService.followUser.mockResolvedValue(undefined);
+
+      await followController.followUser(req as Request, res as Response);
+
+      expect(mockedFollowService.followUser).toHaveBeenCalledWith(mockUserId, followingId);
+      expect(res.status).toHaveBeenCalledWith(httpStatus.CREATED);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Usuário seguido com sucesso' });
+    });
+
+    it('deve propagar erro do serviço ao tentar seguir usuário', async () => {
+      req = {
+        params: { userId: followingId },
+        user: { id: mockUserId },
+      } as any;
+
+      const mockError = new Error('Você não pode seguir a si mesmo');
+      mockedFollowService.followUser.mockRejectedValue(mockError);
+
+      await expect(
+        followController.followUser(req as Request, res as Response)
+      ).rejects.toThrow('Você não pode seguir a si mesmo');
+
+      expect(mockedFollowService.followUser).toHaveBeenCalledWith(mockUserId, followingId);
+    });
+  });
+
+  describe('unfollowUser', () => {
+    const followingId = 'user-789';
+
+    it('deve retornar 400 se o ID do usuário não for fornecido', async () => {
+      req = {
+        params: {},
+        user: { id: mockUserId },
+      } as any;
+
+      await followController.unfollowUser(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith({ message: 'ID do usuário é necessário' });
+      expect(mockedFollowService.unfollowUser).not.toHaveBeenCalled();
+    });
+
+    it('deve deixar de seguir um usuário com sucesso (204)', async () => {
+      req = {
+        params: { userId: followingId },
+        user: { id: mockUserId },
+      } as any;
+
+      mockedFollowService.unfollowUser.mockResolvedValue(undefined);
+
+      await followController.unfollowUser(req as Request, res as Response);
+
+      expect(mockedFollowService.unfollowUser).toHaveBeenCalledWith(mockUserId, followingId);
+      expect(res.status).toHaveBeenCalledWith(httpStatus.NO_CONTENT);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it('deve propagar erro do serviço ao tentar deixar de seguir usuário', async () => {
+      req = {
+        params: { userId: followingId },
+        user: { id: mockUserId },
+      } as any;
+
+      const mockError = new Error('Você não está seguindo este usuário');
+      mockedFollowService.unfollowUser.mockRejectedValue(mockError);
+
+      await expect(
+        followController.unfollowUser(req as Request, res as Response)
+      ).rejects.toThrow('Você não está seguindo este usuário');
+
+      expect(mockedFollowService.unfollowUser).toHaveBeenCalledWith(mockUserId, followingId);
     });
   });
 });
