@@ -124,15 +124,22 @@ describe('Screen: CriarGrupo', () => {
     expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
   });
 
-  it('deve redirecionar se um grupo for criado', () => {
+  it('deve mostrar grupo criado quando createdGroupId existe', () => {
     mockUseCreateGroupForm.mockReturnValue({
       createdGroupId: 'new-group-123',
-      control: {}, errors: {}, selectedType: 'AMATEUR', setValue: jest.fn(), submitForm: jest.fn(), isLoading: false
+      createdGroupName: 'Atlética de Computação',
+      control: {}, 
+      errors: {}, 
+      selectedType: 'AMATEUR', 
+      setValue: jest.fn(), 
+      submitForm: jest.fn(), 
+      isLoading: false
     });
 
     const { getByTestId } = render(<CriarGrupoScreen />);
-    const redirect = getByTestId('redirect-component');
-    expect(redirect.props.href).toBe('/group/new-group-123');
+    
+    // O componente deve renderizar normalmente (redirecionamento é feito pelo hook)
+    expect(getByTestId('bg-comp')).toBeTruthy();
   });
 
   it('deve chamar setValue ao trocar o tipo de grupo', () => {

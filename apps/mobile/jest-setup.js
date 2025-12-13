@@ -48,6 +48,17 @@ try {
     useFonts: () => [true, null],
   }));
 
+  jestRequire.mock("expo-linking", () => ({
+    __esModule: true,
+    createURL: jestRequire.fn((path) => `exp://localhost:8081/${path}`),
+    parse: jestRequire.fn((url) => ({ path: url })),
+    makeUrl: jestRequire.fn((path) => `exp://localhost:8081/${path}`),
+    addEventListener: jestRequire.fn(() => ({ remove: () => {} })),
+    removeEventListener: jestRequire.fn(),
+    hasConstantsToExport: false,
+    hasCustomScheme: () => false,
+  }));
+
   jestRequire.mock("@expo/vector-icons", () => {
     const React = require("react");
     const MockIcon = (props) => React.createElement("span", props);
@@ -68,6 +79,17 @@ try {
     Link: ({ children }) => children,
     Stack: { Screen: () => null },
     Tabs: { Screen: () => null },
+  }));
+
+  jestRequire.mock("expo-image-picker", () => ({
+    MediaTypeOptions: {
+      All: "All",
+      Images: "Images",
+      Videos: "Videos",
+    },
+    requestMediaLibraryPermissionsAsync: jestRequire.fn().mockResolvedValue({ status: "granted" }),
+    launchImageLibraryAsync: jestRequire.fn().mockResolvedValue({ canceled: true }),
+    launchCameraAsync: jestRequire.fn().mockResolvedValue({ canceled: true }),
   }));
 } catch (e) {}
 
