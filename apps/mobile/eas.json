@@ -25,13 +25,23 @@
     "preview": {
       "distribution": "internal",
       "node": "22.11.0",
+      "env": {
+        "NODE_ENV": "production",
+        "EXPO_PUBLIC_API_URL": "http://192.241.132.151",
+        "EXPO_PUBLIC_ENV": "production"
+      },
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
       "autoIncrement": true,
-      "node": "22.11.0"
+      "node": "22.11.0",
+      "env": {
+        "NODE_ENV": "production",
+        "EXPO_PUBLIC_API_URL": "http://192.241.132.151",
+        "EXPO_PUBLIC_ENV": "production"
+      }
     }
   },
   "submit": {
