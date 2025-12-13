@@ -20,6 +20,7 @@ export const FollowButtonComp: React.FC<FollowButtonProps> = ({
 
   return (
     <TouchableOpacity
+      testID="follow-button"
       style={[
         styles.button,
         isFollowing
