@@ -166,4 +166,77 @@ describe('Screen: Solicitacoes', () => {
             expect(rejeitarSolicitacao).toHaveBeenCalledWith('3');
         });
     });
+
+    it('deve mostrar mensagem quando não houver solicitações enviadas pendentes', () => {
+  mockUseSolicitacoes.mockReturnValue({
+    solicitacoes: [
+      { id: '1', group: { name: 'Grupo' }, status: 'APPROVED', madeBy: 'USER' },
+    ],
+    loading: false,
+    refetch: mockRefetch,
+  });
+
+  const { getByText } = render(<SolicitacoesScreen />);
+
+  expect(getByText('Nenhuma solicitação pendente.')).toBeTruthy();
+});
+
+it('deve mostrar mensagem quando não houver solicitações enviadas respondidas', () => {
+  mockUseSolicitacoes.mockReturnValue({
+    solicitacoes: [
+      { id: '1', group: { name: 'Grupo' }, status: 'PENDING', madeBy: 'USER' },
+    ],
+    loading: false,
+    refetch: mockRefetch,
+  });
+
+  const { getByText } = render(<SolicitacoesScreen />);
+
+  expect(getByText('Nenhuma solicitação respondida.')).toBeTruthy();
+});
+
+it('deve mostrar mensagem quando não houver convites recebidos pendentes', () => {
+  mockUseSolicitacoes.mockReturnValue({
+    solicitacoes: [],
+    loading: false,
+    refetch: mockRefetch,
+  });
+
+  const { getByText } = render(<SolicitacoesScreen />);
+
+  fireEvent.press(getByText('Recebidas'));
+
+  expect(getByText('Nenhum convite recebido.')).toBeTruthy();
+});
+
+it('deve listar solicitações recebidas respondidas', () => {
+  mockUseSolicitacoes.mockReturnValue({
+    solicitacoes: [
+      {
+        id: '9',
+        group: { name: 'Grupo Respondido' },
+        status: 'APPROVED',
+        madeBy: 'GROUP',
+      },
+    ],
+    loading: false,
+    refetch: mockRefetch,
+  });
+
+  const { getByText } = render(<SolicitacoesScreen />);
+
+  fireEvent.press(getByText('Recebidas'));
+
+  expect(getByText('Grupo Respondido')).toBeTruthy();
+});
+
+jest.mock('@/constants/Theme', () => ({
+    useTheme: () => ({ isDarkMode: true }),
+}));
+
+it('deve renderizar corretamente no modo escuro', () => {
+    const { getByText } = render(<SolicitacoesScreen />);
+    expect(getByText('Solicitações enviadas')).toBeTruthy();
+});
+
 });
