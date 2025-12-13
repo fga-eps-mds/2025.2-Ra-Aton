@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, 
-  ActivityIndicator, KeyboardAvoidingView, Platform, Alert, FlatList, Image 
+import {
+  Modal, View, Text, StyleSheet, TouchableOpacity, TextInput,
+  ActivityIndicator, KeyboardAvoidingView, Platform, Alert, FlatList, Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
@@ -16,19 +16,12 @@ interface InviteModalProps {
   groupId: string;
 }
 
-type InviteTab = 'EMAIL' | 'FRIENDS';
 
 export default function InviteMemberModal({ visible, onClose, groupId }: InviteModalProps) {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? Colors.dark : Colors.light;
-  
-  const [activeTab, setActiveTab] = useState<InviteTab>('EMAIL');
-  
-  // Estados do E-mail
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  // REFINAMENTO: Estado para controlar a mensagem de erro visual
-  const [emailError, setEmailError] = useState<string | null>(null);
+
+
 
   // Estados da Busca (Amigos)
   const [searchText, setSearchText] = useState('');
@@ -36,60 +29,9 @@ export default function InviteMemberModal({ visible, onClose, groupId }: InviteM
   const [searchLoading, setSearchLoading] = useState(false);
   const [invitedIds, setInvitedIds] = useState<string[]>([]);
 
-  // REFINAMENTO: Regex para validação de e-mail robusta
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+  const [invitingIds, setInvitingIds] = useState<string[]>([]); // Loading state
 
-  const handleSendEmail = async () => {
-    // 1. Limpa erros anteriores
-    setEmailError(null);
 
-    // 2. Validação visual imediata
-    if (!email) {
-      setEmailError("O campo de e-mail não pode estar vazio.");
-      return;
-    }
-    if (!validateEmail(email)) {
-      setEmailError("Digite um endereço de e-mail válido (ex: nome@email.com).");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await sendInvite({ groupId, targetEmail: email });
-      
-      // Sucesso
-      Alert.alert(
-        "Convite Enviado! 📧", 
-        `Um convite foi enviado para ${email}.`,
-        [{ text: "OK", onPress: () => {
-            setEmail('');
-            onClose();
-        }}]
-      );
-    } catch (error: any) {
-      // 3. Tratamento de Erro vindo do Backend (ex: Usuário não existe)
-      const msg = error.message || "";
-      
-      // Se o erro for sobre usuário não encontrado, mostramos no input
-      // Tratamento específico para CONFLITO (409)
-      if (msg.includes("already") || msg.toLowerCase().includes("convidado")) {
-        setEmailError("Este usuário já foi convidado ou já é membro.");
-      } 
-      // Tratamento para NÃO ENCONTRADO (404)
-      else if (msg.includes("found") || msg.toLowerCase().includes("encontrado")) {
-        setEmailError("Nenhum usuário encontrado com este e-mail.");
-      } 
-      // Outros erros
-      else {
-        Alert.alert("Erro", msg);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Funções de busca (mantidas igual, focando no refinamento do e-mail)
   const handleSearch = async () => {
@@ -106,19 +48,37 @@ export default function InviteMemberModal({ visible, onClose, groupId }: InviteM
   };
 
   const handleInviteUser = async (userId: string) => {
+    setInvitingIds(prev => [...prev, userId]);
     try {
       await sendInvite({ groupId, targetUserId: userId });
-      setInvitedIds(prev => [...prev, userId]);
+      setInvitedIds(prev => [...prev, userId]); // Marca como sucesso
     } catch (error: any) {
-      Alert.alert("Erro", error.message);
+      const msg = error.message || "";
+      if (msg.includes("already")) {
+        setInvitedIds(prev => [...prev, userId]); // Marca como enviado se já for
+        Alert.alert("Aviso", "Usuário já convidado.");
+      } else {
+        Alert.alert("Erro", msg);
+      }
+    } finally {
+      setInvitingIds(prev => prev.filter(id => id !== userId));
     }
   };
 
   // Limpa estados ao fechar ou trocar de aba
   useEffect(() => {
+    if (searchText.length < 2) {
+      setUsers([]);
+      return;
+    }
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch(); // Chama a sua função de busca existente
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchText]);
+
+  useEffect(() => {
     if (!visible) {
-      setEmail('');
-      setEmailError(null); // Limpa erro ao fechar
       setSearchText('');
       setUsers([]);
       setInvitedIds([]);
@@ -127,12 +87,12 @@ export default function InviteMemberModal({ visible, onClose, groupId }: InviteM
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.overlay}
       >
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-          
+
           <View style={styles.header}>
             <Text style={[styles.title, { color: theme.text }]}>Convidar Membros</Text>
             <TouchableOpacity onPress={onClose}>
@@ -140,126 +100,73 @@ export default function InviteMemberModal({ visible, onClose, groupId }: InviteM
             </TouchableOpacity>
           </View>
 
-          <View style={styles.tabs}>
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === 'EMAIL' && { borderBottomColor: theme.orange }]}
-              onPress={() => setActiveTab('EMAIL')}
-            >
-              <Text style={[styles.tabText, { color: activeTab === 'EMAIL' ? theme.orange : theme.gray }]}>Por E-mail</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === 'FRIENDS' && { borderBottomColor: theme.orange }]}
-              onPress={() => setActiveTab('FRIENDS')}
-            >
-              <Text style={[styles.tabText, { color: activeTab === 'FRIENDS' ? theme.orange : theme.gray }]}>Buscar Usuários</Text>
-            </TouchableOpacity>
-          </View>
-
           <View style={styles.content}>
-            {activeTab === 'EMAIL' ? (
-              <View>
-                <Text style={[styles.label, { color: theme.text }]}>E-mail do usuário</Text>
-                
-                {/* REFINAMENTO: Input com feedback visual */}
+            <View style={{ flex: 1 }}>
+              <View style={styles.searchRow}>
                 <TextInput
-                  style={[
-                    styles.input, 
-                    { 
-                      color: theme.text, 
-                      backgroundColor: theme.input,
-                      // Muda a cor da borda se tiver erro
-                      borderColor: emailError ? '#ff4d4d' : theme.gray 
-                    }
-                  ]}
-                  placeholder="exemplo@email.com"
+                  style={[styles.searchInput, { color: theme.text, borderColor: theme.gray, backgroundColor: theme.input }]}
+                  placeholder="Nome ou username..."
                   placeholderTextColor={theme.gray}
-                  value={email}
-                  onChangeText={(text) => {
-                    setEmail(text);
-                    if (emailError) setEmailError(null); // Limpa erro ao digitar
-                  }}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
+                  value={searchText}
+                  onChangeText={setSearchText}
+                  onSubmitEditing={handleSearch}
+                  autoFocus={true}
                 />
-                
-                {/* REFINAMENTO: Mensagem de erro abaixo do input */}
-                {emailError && (
-                  <Text style={styles.errorText}>
-                    <Ionicons name="alert-circle" size={14} /> {emailError}
-                  </Text>
-                )}
+                <TouchableOpacity onPress={handleSearch} style={[styles.searchBtn, { backgroundColor: theme.orange }]}>
+                  <Ionicons name="search" size={20} color="#FFF" />
+                </TouchableOpacity>
+              </View>
 
-                <View style={{ marginTop: 20 }}>
-                  {loading ? (
-                    <ActivityIndicator color={theme.orange} />
-                  ) : (
-                    <PrimaryButton onPress={handleSendEmail}>Enviar Convite</PrimaryButton>
+              {searchLoading ? (
+                <ActivityIndicator style={{ marginTop: 20 }} color={theme.orange} />
+              ) : (
+                <FlatList
+                  data={users}
+                  keyExtractor={(item) => item.id}
+                  contentContainerStyle={{ paddingVertical: 10 }}
+                  ListEmptyComponent={() => (
+                    <Text style={{ color: theme.gray, textAlign: 'center', marginTop: 20 }}>
+                      {searchText.length < 2 ? "Digite para buscar." : "Nenhum usuário encontrado."}
+                    </Text>
                   )}
-                </View>
-              </View>
-            ) : (
-              // --- ABA DE AMIGOS ---
-              <View style={{ flex: 1 }}>
-                <View style={styles.searchRow}>
-                  <TextInput
-                    style={[styles.searchInput, { color: theme.text, borderColor: theme.gray, backgroundColor: theme.input }]}
-                    placeholder="Nome ou username..."
-                    placeholderTextColor={theme.gray}
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    onSubmitEditing={handleSearch}
-                  />
-                  <TouchableOpacity onPress={handleSearch} style={[styles.searchBtn, { backgroundColor: theme.orange }]}>
-                    <Ionicons name="search" size={20} color="#FFF" />
-                  </TouchableOpacity>
-                </View>
-
-                {searchLoading ? (
-                  <ActivityIndicator style={{ marginTop: 20 }} color={theme.orange} />
-                ) : (
-                  <FlatList
-                    data={users}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ paddingVertical: 10 }}
-                    ListEmptyComponent={() => (
-                      <Text style={{ color: theme.gray, textAlign: 'center', marginTop: 20 }}>
-                        {searchText ? "Nenhum usuário encontrado." : "Busque por nome."}
-                      </Text>
-                    )}
-                    renderItem={({ item }) => {
-                      const isInvited = invitedIds.includes(item.id);
-                      return (
-                        <View style={[styles.userItem, { borderBottomColor: theme.gray + '20' }]}>
-                          <View style={styles.userInfo}>
-                            <View style={[styles.avatar, { backgroundColor: theme.gray + '30' }]}>
-                              {item.avatarUrl ? (
-                                <Image source={{ uri: item.avatarUrl }} style={{ width: '100%', height: '100%' }} />
-                              ) : (
-                                <Ionicons name="person" size={18} color={theme.text} />
-                              )}
-                            </View>
-                            <Text style={[styles.userName, { color: theme.text }]}>{item.name}</Text>
+                  renderItem={({ item }) => {
+                    const isInvited = invitedIds.includes(item.id);
+                    return (
+                      <View style={[styles.userItem, { borderBottomColor: theme.gray + '20' }]}>
+                        <View style={styles.userInfo}>
+                          <View style={[styles.avatar, { backgroundColor: theme.gray + '30' }]}>
+                            {item.profilePicture ? (
+                              <Image source={{ uri: item.profilePicture }} style={{ width: '100%', height: '100%' }} />
+                            ) : (
+                              <Ionicons name="person" size={18} color={theme.text} />
+                            )}
                           </View>
-
-                          <TouchableOpacity 
-                            style={[
-                              styles.inviteBtn, 
-                              { backgroundColor: isInvited ? theme.gray : theme.orange }
-                            ]}
-                            disabled={isInvited}
-                            onPress={() => handleInviteUser(item.id)}
-                          >
-                            <Text style={styles.inviteBtnText}>
-                              {isInvited ? "Enviado" : "Convidar"}
-                            </Text>
-                          </TouchableOpacity>
+                          <Text style={[styles.userName, { color: theme.text }]}>{item.name}</Text>
                         </View>
-                      );
-                    }}
-                  />
-                )}
-              </View>
-            )}
+
+                        <TouchableOpacity
+                          style={[
+                            styles.inviteBtn,
+                            { backgroundColor: invitedIds.includes(item.id) ? theme.gray : theme.orange }
+                          ]}
+                          disabled={invitedIds.includes(item.id) || invitingIds.includes(item.id)}
+                          onPress={() => handleInviteUser(item.id)}
+                        >
+                          {invitingIds.includes(item.id) ? (
+                            <ActivityIndicator size="small" color="#FFF" />
+                          ) : (
+                            <Text style={styles.inviteBtnText}>
+                              {invitedIds.includes(item.id) ? "Enviado" : "Convidar"}
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  }}
+                />
+              )}
+            </View>
+          
           </View>
 
         </View>
@@ -278,7 +185,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    height: '60%', 
+    height: '60%',
   },
   header: {
     flexDirection: 'row',
