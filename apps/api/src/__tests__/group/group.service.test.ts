@@ -58,6 +58,11 @@ describe("GroupService", () => {
           verificationStatus: VerificationStatus.PENDING,
           createdAt: new Date("2025-11-28T21:27:04.691Z"),
           updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+          bio: null,
+          logoUrl: null,
+          bannerUrl: null,
+          logoId: null,
+          bannerId: null,
         },
         {
           name: "grupo2",
@@ -70,6 +75,11 @@ describe("GroupService", () => {
           verificationStatus: VerificationStatus.VERIFIED,
           createdAt: new Date("2025-11-28T21:27:04.691Z"),
           updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+          bio: null,
+          logoUrl: null,
+          bannerUrl: null,
+          logoId: null,
+          bannerId: null,
         },
       ];
 
@@ -100,6 +110,11 @@ describe("GroupService", () => {
           verificationStatus: VerificationStatus.PENDING,
           createdAt: new Date("2025-11-28T21:27:04.691Z"),
           updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+          bio: null,
+          logoUrl: null,
+          bannerUrl: null,
+          logoId: null,
+          bannerId: null,
         },
         {
           name: "grupo2",
@@ -114,6 +129,11 @@ describe("GroupService", () => {
           verificationStatus: VerificationStatus.VERIFIED,
           createdAt: new Date("2025-11-28T21:27:04.691Z"),
           updatedAt: new Date("2025-11-28T21:27:04.691Z"),
+          bio: null,
+          logoUrl: null,
+          bannerUrl: null,
+          logoId: null,
+          bannerId: null,
         },
       ];
 

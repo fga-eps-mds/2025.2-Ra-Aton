@@ -1,24 +1,21 @@
 import { userService } from "../../modules/user/user.service";
 import userRepository from "../../modules/user/user.repository";
+import { uploadService } from "../../modules/user/upload.service";
 import bcrypt from "bcryptjs";
 import { ApiError } from "../../utils/ApiError";
 import httpStatus from "http-status";
 
-// Mock do repositório de usuários
 jest.mock("../../modules/user/user.repository");
+jest.mock("../../modules/user/upload.service");
 
-// Helper para ter tipagem correta nos mocks
 const repo = jest.mocked(userRepository);
+const uploadMock = jest.mocked(uploadService);
 
 describe("UserService", () => {
-  // Limpar mocks entre testes para evitar interferência
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  // ======================================================
-  // CREATE USER
-  // ======================================================
   describe("createUser", () => {
     const mockUserInput = {
       name: "Test User",
@@ -28,7 +25,6 @@ describe("UserService", () => {
     };
 
     it("should create a user successfully", async () => {
-      // Arrange
       jest.spyOn(bcrypt, "hash").mockResolvedValue("hashedPassword" as any);
       repo.findByEmail.mockResolvedValue(null);
       repo.findByUserName.mockResolvedValue(null);
@@ -38,21 +34,24 @@ describe("UserService", () => {
         id: "u_1",
         ...mockUserInput,
         profileType: null,
-        passwordHash: "hashedPassword", // O repositório retorna com hash
+        passwordHash: "hashedPassword",
         createdAt: now,
         updatedAt: now,
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       });
 
-      // Act
       const result = await userService.createUser(mockUserInput);
 
-      // Assert
       expect(repo.findByEmail).toHaveBeenCalledWith(mockUserInput.email);
       expect(repo.findByUserName).toHaveBeenCalledWith(mockUserInput.userName);
       expect(bcrypt.hash).toHaveBeenCalledWith(mockUserInput.password, 10);
       expect(repo.create).toHaveBeenCalledTimes(1);
       
-      // Verifica se a senha foi removida do retorno
       expect((result as any).passwordHash).toBeUndefined();
       expect(result.name).toBe(mockUserInput.name);
     });
@@ -78,12 +77,11 @@ describe("UserService", () => {
       expect(repo.create).not.toHaveBeenCalled();
     });
 
-    // --- TESTES PARA COBERTURA DO IF DE SENHA ---
     it("should throw BAD_REQUEST if password is missing", async () => {
       repo.findByEmail.mockResolvedValue(null);
       repo.findByUserName.mockResolvedValue(null);
 
-      const invalidInput = { ...mockUserInput, password: "" }; // Senha vazia
+      const invalidInput = { ...mockUserInput, password: "" };
 
       await expect(userService.createUser(invalidInput)).rejects.toMatchObject({
         statusCode: httpStatus.BAD_REQUEST,
@@ -97,7 +95,7 @@ describe("UserService", () => {
       repo.findByEmail.mockResolvedValue(null);
       repo.findByUserName.mockResolvedValue(null);
 
-      const invalidInput = { ...mockUserInput, password: 123456 }; // Tipo errado
+      const invalidInput = { ...mockUserInput, password: 123456 };
 
       await expect(userService.createUser(invalidInput as any)).rejects.toMatchObject({
         statusCode: httpStatus.BAD_REQUEST,
@@ -108,9 +106,6 @@ describe("UserService", () => {
     });
   });
 
-  // ======================================================
-  // GET USER BY ID
-  // ======================================================
   describe("getUserById", () => {
     it("should return a user by id", async () => {
       const mockUser = { id: "u_1", passwordHash: "hash" } as any;
@@ -132,9 +127,6 @@ describe("UserService", () => {
     });
   });
 
-  // ======================================================
-  // GET USER BY USERNAME
-  // ======================================================
   describe("getUserByUserName", () => {
     it("should return a user by username", async () => {
       const mockUser = { id: "u_1", userName: "test", passwordHash: "hash" } as any;
@@ -155,9 +147,6 @@ describe("UserService", () => {
     });
   });
 
-  // ======================================================
-  // GET ALL USERS
-  // ======================================================
   describe("getAllUsers", () => {
     it("should return all users without passwords", async () => {
       const mockUsers = [
@@ -175,13 +164,10 @@ describe("UserService", () => {
     });
   });
 
-  // ======================================================
-  // UPDATE USER
-  // ======================================================
   describe("updateUser", () => {
     const userId = "u_1";
     const userName = "testuser";
-    const authUserId = "u_1"; // Mesmo usuário (autorizado)
+    const authUserId = "u_1";
 
     it("should update user successfully", async () => {
       const mockUser = { id: userId, userName, passwordHash: "hash" } as any;
@@ -200,7 +186,7 @@ describe("UserService", () => {
 
     it("should hash password if provided in update", async () => {
       const mockUser = { id: userId, userName, passwordHash: "oldhash" } as any;
-      const updateData = { passwordHash: "newpassword" }; // A tipagem no service espera passwordHash
+      const updateData = { passwordHash: "newpassword" };
       
       repo.findByUserName.mockResolvedValue(mockUser);
       jest.spyOn(bcrypt, "hash").mockResolvedValue("hashedNewPassword" as any);
@@ -209,7 +195,6 @@ describe("UserService", () => {
       await userService.updateUser(userName, authUserId, updateData);
 
       expect(bcrypt.hash).toHaveBeenCalledWith("newpassword", 10);
-      // Verifica se o update foi chamado com a senha hasheada
       expect(repo.update).toHaveBeenCalledWith(userId, { passwordHash: "hashedNewPassword" });
     });
 
@@ -231,9 +216,6 @@ describe("UserService", () => {
     });
   });
 
-  // ======================================================
-  // DELETE USER
-  // ======================================================
   describe("deleteUser", () => {
     const userName = "testuser";
     const userId = "u_1";
@@ -263,6 +245,166 @@ describe("UserService", () => {
 
       await expect(userService.deleteUser("other", authUserId)).rejects.toThrow(
         new ApiError(httpStatus.FORBIDDEN, "Você não tem permissão para deletar este usuário")
+      );
+    });
+  });
+
+  describe("updateProfileImage", () => {
+    const userId = "u_1";
+    const fileBuffer = Buffer.from("image");
+
+    it("should update profile image successfully", async () => {
+      const mockUser = { id: userId, profileImageId: "old_pid" } as any;
+      const uploadResult = { url: "new_url", publicId: "new_pid" };
+      const updatedUser = { ...mockUser, profileImageUrl: uploadResult.url, profileImageId: uploadResult.publicId };
+
+      repo.findById.mockResolvedValue(mockUser);
+      uploadMock.uploadProfileImage.mockResolvedValue(uploadResult as any);
+      repo.update.mockResolvedValue(updatedUser);
+
+      const result = await userService.updateProfileImage(userId, fileBuffer);
+
+      expect(repo.findById).toHaveBeenCalledWith(userId);
+      expect(uploadMock.uploadProfileImage).toHaveBeenCalledWith(fileBuffer, userId, "old_pid");
+      expect(repo.update).toHaveBeenCalledWith(userId, {
+        profileImageUrl: "new_url",
+        profileImageId: "new_pid"
+      });
+      expect(result.profileImageId).toBe("new_pid");
+    });
+
+    it("should throw NOT_FOUND if user does not exist", async () => {
+      repo.findById.mockResolvedValue(null);
+
+      await expect(userService.updateProfileImage(userId, fileBuffer)).rejects.toThrow(
+        new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado")
+      );
+      expect(uploadMock.uploadProfileImage).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateBannerImage", () => {
+    const userId = "u_1";
+    const fileBuffer = Buffer.from("banner");
+
+    it("should update banner image successfully", async () => {
+      const mockUser = { id: userId, bannerImageId: "old_bid" } as any;
+      const uploadResult = { url: "new_banner_url", publicId: "new_bid" };
+      const updatedUser = { ...mockUser, bannerImageUrl: uploadResult.url, bannerImageId: uploadResult.publicId };
+
+      repo.findById.mockResolvedValue(mockUser);
+      uploadMock.uploadBannerImage.mockResolvedValue(uploadResult as any);
+      repo.update.mockResolvedValue(updatedUser);
+
+      const result = await userService.updateBannerImage(userId, fileBuffer);
+
+      expect(repo.findById).toHaveBeenCalledWith(userId);
+      expect(uploadMock.uploadBannerImage).toHaveBeenCalledWith(fileBuffer, userId, "old_bid");
+      expect(repo.update).toHaveBeenCalledWith(userId, {
+        bannerImageUrl: "new_banner_url",
+        bannerImageId: "new_bid"
+      });
+      expect(result.bannerImageId).toBe("new_bid");
+    });
+
+    it("should throw NOT_FOUND if user does not exist", async () => {
+      repo.findById.mockResolvedValue(null);
+
+      await expect(userService.updateBannerImage(userId, fileBuffer)).rejects.toThrow(
+        new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado")
+      );
+      expect(uploadMock.uploadBannerImage).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteProfileImage", () => {
+    const userId = "u_1";
+
+    it("should delete profile image if user has one", async () => {
+      const mockUser = { id: userId, profileImageId: "pid_123" } as any;
+      const updatedUser = { ...mockUser, profileImageUrl: null, profileImageId: null };
+
+      repo.findById.mockResolvedValue(mockUser);
+      uploadMock.deleteImage.mockResolvedValue(undefined as any);
+      repo.update.mockResolvedValue(updatedUser);
+
+      await userService.deleteProfileImage(userId);
+
+      expect(repo.findById).toHaveBeenCalledWith(userId);
+      expect(uploadMock.deleteImage).toHaveBeenCalledWith("pid_123");
+      expect(repo.update).toHaveBeenCalledWith(userId, {
+        profileImageUrl: null,
+        profileImageId: null
+      });
+    });
+
+    it("should not call deleteImage if user does not have profile image", async () => {
+      const mockUser = { id: userId, profileImageId: null } as any;
+      const updatedUser = { ...mockUser };
+
+      repo.findById.mockResolvedValue(mockUser);
+      repo.update.mockResolvedValue(updatedUser);
+
+      await userService.deleteProfileImage(userId);
+
+      expect(uploadMock.deleteImage).not.toHaveBeenCalled();
+      expect(repo.update).toHaveBeenCalledWith(userId, {
+        profileImageUrl: null,
+        profileImageId: null
+      });
+    });
+
+    it("should throw NOT_FOUND if user does not exist", async () => {
+      repo.findById.mockResolvedValue(null);
+
+      await expect(userService.deleteProfileImage(userId)).rejects.toThrow(
+        new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado")
+      );
+    });
+  });
+
+  describe("deleteBannerImage", () => {
+    const userId = "u_1";
+
+    it("should delete banner image if user has one", async () => {
+      const mockUser = { id: userId, bannerImageId: "bid_123" } as any;
+      const updatedUser = { ...mockUser, bannerImageUrl: null, bannerImageId: null };
+
+      repo.findById.mockResolvedValue(mockUser);
+      uploadMock.deleteImage.mockResolvedValue(undefined as any);
+      repo.update.mockResolvedValue(updatedUser);
+
+      await userService.deleteBannerImage(userId);
+
+      expect(repo.findById).toHaveBeenCalledWith(userId);
+      expect(uploadMock.deleteImage).toHaveBeenCalledWith("bid_123");
+      expect(repo.update).toHaveBeenCalledWith(userId, {
+        bannerImageUrl: null,
+        bannerImageId: null
+      });
+    });
+
+    it("should not call deleteImage if user does not have banner image", async () => {
+      const mockUser = { id: userId, bannerImageId: null } as any;
+      const updatedUser = { ...mockUser };
+
+      repo.findById.mockResolvedValue(mockUser);
+      repo.update.mockResolvedValue(updatedUser);
+
+      await userService.deleteBannerImage(userId);
+
+      expect(uploadMock.deleteImage).not.toHaveBeenCalled();
+      expect(repo.update).toHaveBeenCalledWith(userId, {
+        bannerImageUrl: null,
+        bannerImageId: null
+      });
+    });
+
+    it("should throw NOT_FOUND if user does not exist", async () => {
+      repo.findById.mockResolvedValue(null);
+
+      await expect(userService.deleteBannerImage(userId)).rejects.toThrow(
+        new ApiError(httpStatus.NOT_FOUND, "Usuário não encontrado")
       );
     });
   });

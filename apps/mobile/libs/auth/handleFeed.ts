@@ -18,7 +18,7 @@ type GetFeedArgs = {
   signal?: AbortSignal;
 };
 
-function logAxiosError(prefix: string, e: any) {
+export function logAxiosError(prefix: string, e: any) {
   const err = e as AxiosError;
   const status = err?.response?.status;
   const data = err?.response?.data;

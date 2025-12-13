@@ -91,7 +91,7 @@ describe("MatchRepository", () => {
         updatedAt: new Date(),
       };
 
-      prismaMock.match.create.mockResolvedValue(createdMatch);
+      prismaMock.match.create.mockResolvedValue({ ...createdMatch, reminderSent: false });
 
       prismaMock.playerSubscription.create.mockResolvedValue({
         userId: "author-id",
@@ -100,12 +100,13 @@ describe("MatchRepository", () => {
       } as PlayerSubscription);
 
       // Act
-      const result = await matchRepository.createMatch(matchData, author);
+      const authorComplete = { ...author, notificationsAllowed: true, bio: null, profileImageUrl: null, bannerImageUrl: null, profileImageId: null, bannerImageId: null };
+      const result = await matchRepository.createMatch(matchData, authorComplete);
 
       // Assert
       expect(prismaStub.$transaction).toHaveBeenCalledTimes(1);
       expect(prismaMock.match.create).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(createdMatch);
+      expect(result).toEqual({ ...createdMatch, reminderSent: false });
     });
 
     it("should throw an error if match creation fails", async () => {
@@ -136,7 +137,7 @@ describe("MatchRepository", () => {
 
       // Act & Assert
       await expect(
-        matchRepository.createMatch(matchData, author),
+        matchRepository.createMatch(matchData, { ...author, notificationsAllowed: true, bio: null, profileImageUrl: null, bannerImageUrl: null, profileImageId: null, bannerImageId: null }),
       ).rejects.toThrow("Database error");
 
       expect(prismaStub.$transaction).toHaveBeenCalledTimes(1);
@@ -226,7 +227,7 @@ describe("MatchRepository", () => {
         updatedAt: new Date(),
       };
 
-      prismaMock.match.delete.mockResolvedValue(deletedMatch);
+      prismaMock.match.delete.mockResolvedValue({ ...deletedMatch, authorId: "author-123", reminderSent: false });
 
       // Act
       const result = await matchRepository.deleteMatch(matchId);
@@ -238,7 +239,7 @@ describe("MatchRepository", () => {
       expect(prismaMock.playerSubscription.deleteMany).toHaveBeenCalledWith({
         where: { matchId: matchId },
       });
-      expect(result).toEqual(deletedMatch);
+      expect(result).toEqual({ ...deletedMatch, authorId: "author-123", reminderSent: false });
     });
 
     it("should throw an error if match deletion fails (e.g. not found)", async () => {

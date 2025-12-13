@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 import { getUserData } from "@/libs/storage/getUserData";
 
 jest.mock("expo-secure-store", () => ({
@@ -7,46 +8,113 @@ jest.mock("expo-secure-store", () => ({
   deleteItemAsync: jest.fn(),
 }));
 
-// NÃO mockamos "react-native" inteiro aqui para não quebrar o TurboModuleRegistry
-// O Platform já está mockado no jest-setup.js como 'ios'.
-// Para testar 'web' vs 'native', vamos confiar que o jest-expo roda em ambientes separados
-// OU, vamos mockar apenas o Platform path específico se necessário.
-// Mas para simplificar e fazer passar agora, vamos assumir o comportamento nativo (SecureStore)
-// que é o padrão do nosso mock 'ios'.
-
 describe("getUserData", () => {
   const originalLocalStorage = global.localStorage;
+  const mockLocalStorage = {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn(),
+    key: jest.fn(),
+    length: 0,
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (global as any).localStorage = {
-      getItem: jest.fn(),
-      setItem: jest.fn(),
-      removeItem: jest.fn(),
-    };
+    (global as any).localStorage = mockLocalStorage;
   });
 
   afterAll(() => {
     (global as any).localStorage = originalLocalStorage;
   });
 
-  // Nota: Como nosso mock global define Platform.OS = 'ios', 
-  // o teste de 'web' (localStorage) só funcionaria se mudássemos o mock.
-  // Vamos focar no teste principal (Nativo) para parar de quebrar.
+  describe("Plataforma Nativa (iOS/Android)", () => {
+    beforeEach(() => {
+      jest.replaceProperty(Platform, "OS", "ios");
+    });
 
-  it("returns parsed data from SecureStore (Native default)", async () => {
-    (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(JSON.stringify({ id: "u2" }));
+    it("deve retornar dados parseados do SecureStore", async () => {
+      const userData = { id: "u1", name: "João", email: "joao@email.com" };
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(JSON.stringify(userData));
 
-    const res = await getUserData();
-    
-    expect(SecureStore.getItemAsync).toHaveBeenCalledWith("userData");
-    expect(res).toEqual({ id: "u2" });
+      const result = await getUserData();
+
+      expect(SecureStore.getItemAsync).toHaveBeenCalledWith("userData");
+      expect(SecureStore.getItemAsync).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(userData);
+      expect(mockLocalStorage.getItem).not.toHaveBeenCalled();
+    });
+
+    it("deve retornar null quando não houver dados no SecureStore", async () => {
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(null);
+
+      const result = await getUserData();
+
+      expect(SecureStore.getItemAsync).toHaveBeenCalledWith("userData");
+      expect(result).toBeNull();
+    });
+
+    it("deve retornar dados complexos aninhados do SecureStore", async () => {
+      const complexData = {
+        id: "user-123",
+        profile: {
+          name: "Maria",
+          settings: { theme: "dark", notifications: true },
+        },
+        tags: ["admin", "verified"],
+      };
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(JSON.stringify(complexData));
+
+      const result = await getUserData();
+
+      expect(result).toEqual(complexData);
+    });
+
+    it("deve propagar erro quando SecureStore falhar", async () => {
+      const error = new Error("Secure storage error");
+      (SecureStore.getItemAsync as jest.Mock).mockRejectedValueOnce(error);
+
+      await expect(getUserData()).rejects.toThrow("Secure storage error");
+    });
   });
 
-  it("returns null when no data in SecureStore", async () => {
-    (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(null);
+  describe("Plataforma Web", () => {
+    beforeEach(() => {
+      jest.replaceProperty(Platform, "OS", "web");
+    });
 
-    const res = await getUserData();
-    expect(res).toBeNull();
+    it("deve retornar dados parseados do localStorage", async () => {
+      const userData = { id: "web1", name: "Ana", email: "ana@email.com" };
+      mockLocalStorage.getItem.mockReturnValueOnce(JSON.stringify(userData));
+
+      const result = await getUserData();
+
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith("userData");
+      expect(mockLocalStorage.getItem).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(userData);
+      expect(SecureStore.getItemAsync).not.toHaveBeenCalled();
+    });
+
+    it("deve retornar null quando não houver dados no localStorage", async () => {
+      mockLocalStorage.getItem.mockReturnValueOnce(null);
+
+      const result = await getUserData();
+
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith("userData");
+      expect(result).toBeNull();
+    });
+
+    it("deve retornar dados com caracteres especiais do localStorage", async () => {
+      const userData = {
+        id: "special-user",
+        bio: "Olá! 🎉 Bem-vindo!",
+        symbols: "!@#$%^&*()",
+      };
+      mockLocalStorage.getItem.mockReturnValueOnce(JSON.stringify(userData));
+
+      const result = await getUserData();
+
+      expect(result).toEqual(userData);
+    });
   });
 });

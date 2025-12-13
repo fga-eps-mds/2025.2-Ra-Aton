@@ -52,7 +52,7 @@ describe("MatchService.createMatch", () => {
       sport: mockData.sport,
     };
 
-    repo.createMatch.mockResolvedValue(createdMatch);
+    repo.createMatch.mockResolvedValue({ ...createdMatch, reminderSent: false });
 
     // 2. ACT
     const result = await matchService.createMatch(mockData);

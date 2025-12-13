@@ -29,6 +29,12 @@ describe("User Integration Tests", () => {
       passwordHash: "hashedIntegrationPassword",
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     });
 
     const res = await request(app)
@@ -55,6 +61,12 @@ describe("User Integration Tests", () => {
       passwordHash: await bcrypt.hash("existingPassword", 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     };
 
     prismaMock.user.findUnique.mockResolvedValue(existingUser);
@@ -91,6 +103,12 @@ describe("User Integration Tests", () => {
         passwordHash: await bcrypt.hash("userOnePassword", 10),
         createdAt: new Date(),
         updatedAt: new Date(),
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       },
       {
         id: "5",
@@ -101,6 +119,12 @@ describe("User Integration Tests", () => {
         passwordHash: await bcrypt.hash("userTwoPassword", 10),
         createdAt: new Date(),
         updatedAt: new Date(),
+        notificationsAllowed: true,
+        bio: null,
+        profileImageUrl: null,
+        bannerImageUrl: null,
+        profileImageId: null,
+        bannerImageId: null,
       },
     ];
 
@@ -135,6 +159,12 @@ describe("User Integration Tests", () => {
       passwordHash: await bcrypt.hash("updatablePassword", 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     };
     const updatedData = {
       name: "Updated User Name",
@@ -165,6 +195,12 @@ describe("User Integration Tests", () => {
       passwordHash: await bcrypt.hash("authUpdatablePassword", 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+      notificationsAllowed: true,
+      bio: null,
+      profileImageUrl: null,
+      bannerImageUrl: null,
+      profileImageId: null,
+      bannerImageId: null,
     };
     const updatedData = {
       name: "Auth Updated User Name",
