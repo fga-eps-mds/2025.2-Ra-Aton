@@ -318,7 +318,7 @@ describe("AuthService", () => {
         email: mockUser.email,
         userName: mockUser.userName,
         profileType: mockUser.profileType,
-        bannerImage: mockUser.bannerImageUrl,
+        bannerImage: mockUser.bannerImageId,
         profilePicture: mockUser.profileImageUrl,
       });
 
