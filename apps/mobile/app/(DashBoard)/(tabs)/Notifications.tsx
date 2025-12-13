@@ -189,6 +189,8 @@ export default function NotificationsScreen() {
                     title={item.title}
                     description={item.content}
                     isRead={!!item.readAt}
+                    inviteId={item.contentId}
+                    type={item.type}
                     onMarkAsRead={() => handleMarkAsRead(item.id)}
                     // Se for informativo, passa undefined para esconder o botão
                     onView={showViewButton ? () => handleNotificationPress(item) : undefined}

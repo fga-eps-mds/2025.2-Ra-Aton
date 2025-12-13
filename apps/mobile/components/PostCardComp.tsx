@@ -14,6 +14,7 @@ import { getComments } from "@/libs/auth/handleComments";
 import { useUser } from "@/libs/storage/UserContext";
 import { useToggleLike } from "@/libs/hooks/useToggleLike";
 import { useToggleAttendance } from "@/libs/hooks/useToggleAttendance";
+import AppText from "./AppText";
 
 interface PostCardProps {
   post: IPost;
@@ -89,13 +90,16 @@ const PostCardComp: React.FC<PostCardProps> = ({
   return (
     <View style={[styles.container, { backgroundColor: theme.input }]}>
       <View style={styles.header}>
-        <ProfileThumbnailComp size={50} />
+        <ProfileThumbnailComp size={50} userName={post.group?.name} imageUrl={post.group?.logoUrl} profileType="group" />
         <SpacerComp width={12} />
         <View>
           <Text style={[styles.authorName, { color: theme.text }]}>
             {post.author?.userName ?? "Autor"}
           </Text>
           {/* <Text style={[styles.authorId, { color: theme.text }]}>{post.authorId ?? ""}</Text> */}
+          <AppText style={[styles.authorId, { color: theme.text }, {fontSize: 20}, {fontWeight: '600'}]}> 
+            @{post.group?.name ?? "Grupo"}
+          </AppText>
         </View>
         <View style={{ flex: 1 }} />
         <OptionsButtonComp onPress={() => onPressOptions(String(post.id))} />

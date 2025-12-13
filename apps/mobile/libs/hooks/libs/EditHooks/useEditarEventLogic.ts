@@ -50,18 +50,8 @@ export const useEditarEventoLogic = () => {
     onConfirm: undefined as (() => void) | undefined,
   });
 
-  const showAlert = (
-    title: string,
-    message: string,
-    onConfirm?: () => void,
-  ) => {
-    setAlertConfig({
-      visible: true,
-      title,
-      message,
-      onConfirm,
-      type: "default",
-    });
+  const showAlert = (title: string, message: string, onConfirm?: () => void) => {
+    setAlertConfig({ visible: true, title, message, onConfirm, type: "default" });
   };
 
   const closeAlert = () => {
@@ -126,9 +116,7 @@ export const useEditarEventoLogic = () => {
 
       await api_route.patch(`/posts/${postId}`, payload);
 
-      showAlert("Sucesso", "Evento atualizado com sucesso!", () =>
-        router.back(),
-      );
+      showAlert("Sucesso", "Evento atualizado com sucesso!", () => router.back());
     } catch (error: any) {
       console.error("Erro update:", error);
       const msg =

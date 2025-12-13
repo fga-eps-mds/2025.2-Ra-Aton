@@ -3,16 +3,34 @@ import React from "react";
 import { render, fireEvent } from "../test-utils";
 import ProfileThumbnailComp from "../../components/ProfileThumbnailComp";
 
-describe("Componente: ProfileThumbnailComp", () => {
-  it("1. Deve renderizar a imagem padrão (fallback)", () => {
-    // Usamos 'getByTestId' (presumindo que o <Image> tenha testID="profile-image")
-    // Vamos adicionar um testID ao componente para facilitar
-    const { getByTestId } = render(
-      <ProfileThumbnailComp testID="profile-thumbnail" />,
-    );
+// Mock do UserContext
+jest.mock("@/libs/storage/UserContext", () => ({
+  useUser: () => ({
+    user: {
+      id: "test-user-id",
+      userName: "testUser",
+      email: "test@example.com",
+    },
+  }),
+}));
 
-    // No seu ProfileThumbnailComp.tsx, adicione o testID ao TouchableOpacity:
-    // <TouchableOpacity testID={testID || 'profile-thumbnail'} ... >
+// Mock do expo-router
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
+
+describe("Componente: ProfileThumbnailComp", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("1. Deve renderizar a imagem padrão (fallback)", () => {
+    const { getByTestId } = render(
+      <ProfileThumbnailComp testID="profile-thumbnail" profileType="user" />,
+    );
 
     expect(getByTestId("profile-thumbnail")).toBeTruthy();
   });
@@ -20,7 +38,7 @@ describe("Componente: ProfileThumbnailComp", () => {
   it("2. Deve chamar onPress ao ser clicado", () => {
     const mockOnPress = jest.fn();
     const { getByTestId } = render(
-      <ProfileThumbnailComp testID="profile-thumbnail" onPress={mockOnPress} />,
+      <ProfileThumbnailComp testID="profile-thumbnail" onPress={mockOnPress} profileType="user" />,
     );
 
     fireEvent.press(getByTestId("profile-thumbnail"));

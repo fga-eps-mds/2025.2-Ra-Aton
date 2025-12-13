@@ -88,16 +88,16 @@ const HomeInner: React.FC = () => {
             />
           </View>
 
-          {/* CA8: Link "Esqueci minha senha" */}
+          {/* CA8: Link "Esqueci minha senha"
           <TouchableOpacity
             style={styles.forgotPasswordButton}
 
-            /* TODO: Adicionar navegação para fluxo de recuperação */
+            /* TODO: Adicionar navegação para fluxo de recuperação 
           >
             <AppText style={styles.forgotPasswordText}>
               Esqueci minha senha
             </AppText>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           {/* CA4: Exibição de Erro */}
           {error && <AppText style={styles.errorText}>{error}</AppText>}
