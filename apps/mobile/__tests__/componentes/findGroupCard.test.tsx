@@ -1,47 +1,44 @@
+/**
+ * Testes do componente findGroupCard (GroupCard)
+ */
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { GroupCard } from '../../components/findGroupCard'; // Ajuste o nome do arquivo se for diferente
-import { View, Text, TouchableOpacity } from 'react-native';
+import { GroupCard } from '../../components/findGroupCard';
 import { router } from 'expo-router';
-
-// --- MOCKS BLINDADOS ---
-
-jest.mock('@/constants/Theme', () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
-
-jest.mock('@/constants/Colors', () => ({
-  Colors: {
-    light: { input: '#fff', background: '#000', text: '#000' },
-    dark: { input: '#333', background: '#fff', text: '#fff' },
-  },
-}));
 
 // Mock do Expo Router
 jest.mock('expo-router', () => ({
   router: { push: jest.fn() },
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
+  useLocalSearchParams: () => ({}),
+  useFocusEffect: (cb: any) => cb(),
+  Link: ({ children }: any) => children,
 }));
 
-// Mock dos Botões (Simplificados para teste de clique)
-jest.mock('../../components/PrimaryButton', () => {
-  const { TouchableOpacity, Text } = require('react-native');
-  return (props: any) => (
-    <TouchableOpacity onPress={props.onPress} testID="btn-solicitar">
-      <Text>{props.children}</Text>
-    </TouchableOpacity>
-  );
+// Mock do Theme
+jest.mock('@/constants/Theme', () => ({
+  useTheme: () => ({ isDarkMode: false, toggleDarkMode: jest.fn() }),
+}));
+
+// Mock das cores
+jest.mock('@/constants/Colors', () => ({
+  Colors: {
+    light: { input: '#fff', background: '#f0f0f0', text: '#000', orange: '#ff6600' },
+    dark: { input: '#333', background: '#111', text: '#fff', orange: '#ff8800' },
+  },
+}));
+
+// Mock do ProfileThumbnailComp
+jest.mock('@/components/ProfileThumbnailComp', () => {
+  const { View } = require('react-native');
+  return {
+    __esModule: true,
+    default: (props: any) => <View testID="profile-thumbnail" />,
+  };
 });
 
-jest.mock('../../components/SecondaryButton', () => {
-  const { TouchableOpacity, Text } = require('react-native');
-  return (props: any) => (
-    <TouchableOpacity onPress={props.onPress} testID="btn-seguir">
-      <Text>{props.children}</Text>
-    </TouchableOpacity>
-  );
-});
-
-jest.mock('../../components/AppText', () => {
+// Mock do AppText
+jest.mock('@/components/AppText', () => {
   const { Text } = require('react-native');
   return {
     __esModule: true,
@@ -49,102 +46,331 @@ jest.mock('../../components/AppText', () => {
   };
 });
 
-describe('GroupCard', () => {
-  const mockGroup = {
-    id: 'g1',
-    name: 'Grupo dos Amigos',
-    isFollowing: false,
-    description: 'Desc',
-    acceptingNewMembers: 'true',
-    // ...outras props de Group se necessário
+// Mock do PrimaryButton
+jest.mock('@/components/PrimaryButton', () => {
+  const { TouchableOpacity, Text } = require('react-native');
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <TouchableOpacity onPress={props.onPress} testID="btn-solicitar" disabled={props.disabled}>
+        <Text>{props.children}</Text>
+      </TouchableOpacity>
+    ),
   };
+});
 
-  const mockUser = { id: 'u1', token: 'token123' };
-  
-  // Mocks das funções
-  const requestJoinGroup = jest.fn();
-  const followGroup = jest.fn();
-  const unfollowGroup = jest.fn();
-  const setGroupMessage = jest.fn();
-  const setGlobalError = jest.fn();
-  const onReload = jest.fn();
-  const updateGroup = jest.fn();
+// Mock do SecondaryButton
+jest.mock('../../components/SecondaryButton', () => {
+  const { TouchableOpacity, Text } = require('react-native');
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <TouchableOpacity onPress={props.onPress} testID="btn-seguir" disabled={props.disabled}>
+        <Text>{props.children}</Text>
+      </TouchableOpacity>
+    ),
+  };
+});
+
+// Mock group factory
+const createMockGroup = (overrides = {}) => ({
+  id: 'g1',
+  name: 'Grupo Teste',
+  description: 'Descrição do grupo',
+  isFollowing: false,
+  acceptingNewMembers: true,
+  logoUrl: null,
+  type: 'PUBLIC',
+  ...overrides,
+});
+
+// Mock user
+const mockUser = { id: 'u1', token: 'token123' };
+
+// Mock functions factory
+const createMockFunctions = () => ({
+  requestJoinGroup: jest.fn().mockResolvedValue({ ok: true }),
+  followGroup: jest.fn().mockResolvedValue({ ok: true }),
+  unfollowGroup: jest.fn().mockResolvedValue({ ok: true }),
+  setGroupMessage: jest.fn(),
+  setGlobalError: jest.fn(),
+  onReload: jest.fn().mockResolvedValue(undefined),
+  updateGroup: jest.fn(),
+});
+
+describe('GroupCard', () => {
+  let mockFunctions: ReturnType<typeof createMockFunctions>;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFunctions = createMockFunctions();
   });
 
-  it('deve renderizar o nome do grupo', () => {
-    const { getByText } = render(
-      <GroupCard 
-        group={mockGroup as any}
-        user={mockUser}
-        requestJoinGroup={requestJoinGroup}
-        followGroup={followGroup}
-        unfollowGroup={unfollowGroup}
-        setGroupMessage={setGroupMessage}
-        setGlobalError={setGlobalError}
-        onReload={onReload}
-        updateGroup={updateGroup}
-      />
-    );
+  describe('Renderização básica', () => {
+    it('deve renderizar sem erros', () => {
+      expect(() => render(
+        <GroupCard
+          group={createMockGroup()}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      )).not.toThrow();
+    });
 
-    expect(getByText('Grupo dos Amigos')).toBeTruthy();
-  });
+    it('deve renderizar o nome do grupo', () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ name: 'Meu Grupo' })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+      expect(getByText('Meu Grupo')).toBeTruthy();
+    });
 
-  it('deve navegar para a página do grupo ao clicar no card', () => {
-    const { getByText } = render(
-      <GroupCard group={mockGroup as any} user={mockUser} requestJoinGroup={requestJoinGroup} followGroup={followGroup} unfollowGroup={unfollowGroup} setGroupMessage={setGroupMessage} setGlobalError={setGlobalError} onReload={onReload} updateGroup={updateGroup} />
-    );
+    it('deve renderizar botão Solicitar quando aceita novos membros', () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ acceptingNewMembers: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+      expect(getByText('Solicitar')).toBeTruthy();
+    });
 
-    fireEvent.press(getByText('Grupo dos Amigos'));
-    expect(router.push).toHaveBeenCalledWith('/group/g1');
-  });
-
-  it('deve solicitar entrada no grupo', async () => {
-    requestJoinGroup.mockResolvedValue({ ok: true });
-
-    const { getByTestId } = render(
-      <GroupCard group={mockGroup as any} user={mockUser} requestJoinGroup={requestJoinGroup} followGroup={followGroup} unfollowGroup={unfollowGroup} setGroupMessage={setGroupMessage} setGlobalError={setGlobalError} onReload={onReload} updateGroup={updateGroup} />
-    );
-
-    fireEvent.press(getByTestId('btn-solicitar'));
-
-    await waitFor(() => {
-      expect(requestJoinGroup).toHaveBeenCalledWith('u1', 'token123', 'g1');
-      expect(setGroupMessage).toHaveBeenCalledWith('g1', 'Solicitação enviada com sucesso!');
+    it('não deve renderizar botão Solicitar quando não aceita novos membros', () => {
+      const { queryByText } = render(
+        <GroupCard
+          group={createMockGroup({ acceptingNewMembers: false })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+      expect(queryByText('Solicitar')).toBeNull();
     });
   });
 
-  it('deve seguir o grupo (Follow)', async () => {
-    // Grupo inicialmente NÃO seguindo
-    const { getByTestId, getByText } = render(
-      <GroupCard group={{ ...mockGroup, isFollowing: false } as any} user={mockUser} requestJoinGroup={requestJoinGroup} followGroup={followGroup} unfollowGroup={unfollowGroup} setGroupMessage={setGroupMessage} setGlobalError={setGlobalError} onReload={onReload} updateGroup={updateGroup} />
-    );
+  describe('Estado de seguir', () => {
+    it('deve mostrar "Seguir" quando não está seguindo', () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ isFollowing: false })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+      expect(getByText('Seguir')).toBeTruthy();
+    });
 
-    expect(getByText('Seguir')).toBeTruthy();
-    
-    fireEvent.press(getByTestId('btn-seguir'));
-
-    await waitFor(() => {
-      expect(followGroup).toHaveBeenCalledWith('token123', 'Grupo dos Amigos');
-      expect(updateGroup).toHaveBeenCalledWith(expect.objectContaining({ isFollowing: true }));
+    it('deve mostrar "Seguindo" quando está seguindo', () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ isFollowing: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+      expect(getByText('Seguindo')).toBeTruthy();
     });
   });
 
-  it('deve deixar de seguir o grupo (Unfollow)', async () => {
-    // Grupo inicialmente SEGUINDO
-    const { getByTestId, getByText } = render(
-      <GroupCard group={{ ...mockGroup, isFollowing: true } as any} user={mockUser} requestJoinGroup={requestJoinGroup} followGroup={followGroup} unfollowGroup={unfollowGroup} setGroupMessage={setGroupMessage} setGlobalError={setGlobalError} onReload={onReload} updateGroup={updateGroup} />
-    );
+  describe('Navegação', () => {
+    it('deve navegar para a página do grupo ao clicar no card', () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ id: 'g123', name: 'Grupo Click' })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
 
-    expect(getByText('Seguindo')).toBeTruthy();
-    
-    fireEvent.press(getByTestId('btn-seguir'));
+      fireEvent.press(getByText('Grupo Click'));
+      expect(router.push).toHaveBeenCalledWith('/group/g123');
+    });
+  });
 
-    await waitFor(() => {
-      expect(unfollowGroup).toHaveBeenCalledWith('token123', 'Grupo dos Amigos');
-      expect(updateGroup).toHaveBeenCalledWith(expect.objectContaining({ isFollowing: false }));
+  describe('Ação de seguir/deixar de seguir', () => {
+    it('deve chamar followGroup ao clicar em Seguir', async () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ isFollowing: false, name: 'Grupo Follow' })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Seguir'));
+
+      await waitFor(() => {
+        expect(mockFunctions.followGroup).toHaveBeenCalledWith('token123', 'Grupo Follow');
+      });
+    });
+
+    it('deve chamar unfollowGroup ao clicar em Seguindo', async () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ isFollowing: true, name: 'Grupo Unfollow' })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Seguindo'));
+
+      await waitFor(() => {
+        expect(mockFunctions.unfollowGroup).toHaveBeenCalledWith('token123', 'Grupo Unfollow');
+      });
+    });
+
+    it('deve chamar updateGroup após follow com sucesso', async () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ isFollowing: false })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Seguir'));
+
+      await waitFor(() => {
+        expect(mockFunctions.updateGroup).toHaveBeenCalledWith(
+          expect.objectContaining({ isFollowing: true })
+        );
+      });
+    });
+
+    it('deve tratar erro no follow silenciosamente', async () => {
+      mockFunctions.followGroup.mockRejectedValue(new Error('Network error'));
+
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ isFollowing: false })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Seguir'));
+
+      await waitFor(() => {
+        expect(mockFunctions.followGroup).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Ação de solicitar entrada', () => {
+    it('deve chamar requestJoinGroup ao clicar em Solicitar', async () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ id: 'g-req', acceptingNewMembers: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Solicitar'));
+
+      await waitFor(() => {
+        expect(mockFunctions.requestJoinGroup).toHaveBeenCalledWith('u1', 'token123', 'g-req');
+      });
+    });
+
+    it('deve chamar onReload após solicitação bem-sucedida', async () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ acceptingNewMembers: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Solicitar'));
+
+      await waitFor(() => {
+        expect(mockFunctions.onReload).toHaveBeenCalled();
+      });
+    });
+
+    it('deve exibir mensagem de sucesso após solicitação', async () => {
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ id: 'g-msg', acceptingNewMembers: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Solicitar'));
+
+      await waitFor(() => {
+        expect(mockFunctions.setGroupMessage).toHaveBeenCalledWith(
+          'g-msg',
+          'Solicitação enviada com sucesso!'
+        );
+      });
+    });
+
+    it('deve exibir erro quando result.ok é false', async () => {
+      mockFunctions.requestJoinGroup.mockResolvedValue({
+        ok: false,
+        message: 'Você já solicitou entrada',
+      });
+
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ id: 'g-fail', acceptingNewMembers: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Solicitar'));
+
+      await waitFor(() => {
+        expect(mockFunctions.setGlobalError).toHaveBeenCalledWith('Você já solicitou entrada');
+      });
+    });
+
+    it('deve tratar exceção na solicitação', async () => {
+      mockFunctions.requestJoinGroup.mockRejectedValue({
+        response: { data: { message: 'Erro do servidor' } },
+      });
+
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ id: 'g-error', acceptingNewMembers: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Solicitar'));
+
+      await waitFor(() => {
+        expect(mockFunctions.setGlobalError).toHaveBeenCalledWith('Erro do servidor');
+      });
+    });
+
+    it('deve usar mensagem padrão quando não há mensagem no erro', async () => {
+      mockFunctions.requestJoinGroup.mockRejectedValue({});
+
+      const { getByText } = render(
+        <GroupCard
+          group={createMockGroup({ id: 'g-default', acceptingNewMembers: true })}
+          user={mockUser}
+          {...mockFunctions}
+        />
+      );
+
+      fireEvent.press(getByText('Solicitar'));
+
+      await waitFor(() => {
+        expect(mockFunctions.setGlobalError).toHaveBeenCalledWith(
+          'Não foi possível enviar a solicitação.'
+        );
+      });
     });
   });
 });
