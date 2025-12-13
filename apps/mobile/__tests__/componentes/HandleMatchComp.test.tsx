@@ -97,4 +97,68 @@ describe('HandleMatchComp', () => {
     );
     expect(toJSON()).toBeDefined();
   });
+  it('deve usar array vazio quando match for undefined', () => {
+  const { getAllByText } = render(
+    <HandleMatchComp
+      isVisible={true}
+      onClose={() => {}}
+      match={undefined}
+    />
+  );
+
+  // Os dois lados caem no fallback []
+  expect(getAllByText('Nenhum Jogador ainda...').length).toBe(2);
+});
+
+it('deve renderizar player.name quando userName não existir', () => {
+  const matchWithNameOnly = {
+    id: '4',
+    title: 'Teste player sem userName',
+    teamA: {
+      name: 'Time A',
+      players: [{ id: 'p2', name: 'Jogador Sem Username' }],
+    },
+    teamB: {
+      name: 'Time B',
+      players: [],
+    },
+  };
+
+  const { getByText } = render(
+    <HandleMatchComp
+      isVisible={true}
+      onClose={() => {}}
+      match={matchWithNameOnly as any}
+    />
+  );
+
+  expect(getByText('Jogador Sem Username')).toBeTruthy();
+});
+it('deve listar jogadores do Time B quando houver players', () => {
+  const matchWithTeamBPlayers = {
+    id: '6',
+    title: 'Time B com jogadores',
+    teamA: {
+      name: 'Time A',
+      players: [],
+    },
+    teamB: {
+      name: 'Time B',
+      players: [{ id: 'pb1', name: 'Jogador B1' }],
+    },
+  };
+
+  const { getByText } = render(
+    <HandleMatchComp
+      isVisible={true}
+      onClose={() => {}}
+      match={matchWithTeamBPlayers as any}
+    />
+  );
+
+  expect(getByText('Jogador B1')).toBeTruthy();
+});
+
+
+
 });
