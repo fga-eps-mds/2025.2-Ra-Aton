@@ -9,7 +9,7 @@
       "node": "22.11.0",
       "env": {
         "NODE_ENV": "development",
-        "EXPO_PUBLIC_API_URL": "https://192.241.132.151"
+        "EXPO_PUBLIC_API_URL": "http://192.241.132.151"
       },
       "android": {
         "buildType": "apk",

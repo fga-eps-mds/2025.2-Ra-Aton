@@ -27,7 +27,7 @@
     "@tanstack/react-query-devtools": "^5.90.2",
     "axios": "^1.13.0",
     "expo": "~54.0.25",
-    "expo-build-properties": "~1.0.9",
+    "expo-build-properties": "~1.0.10",
     "expo-constants": "~18.0.10",
     "expo-dev-client": "~6.0.18",
     "expo-device": "~8.0.9",

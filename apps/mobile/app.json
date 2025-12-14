@@ -54,7 +54,12 @@
           "color": "#ffffff",
           "sounds": []
         }
-      ]
+      ],
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+        }
+      }]
     ],
     "experiments": {
       "typedRoutes": true
